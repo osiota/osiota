@@ -4,7 +4,8 @@
   "dependencies": {
   },
   "devDependencies": {
-    "ws": "~0.7.1"
+    "ws": "~0.7.1",
+    "mysql": "~2.5.4"
   },
   "engines": {
     "node": ">=0.8.0"
