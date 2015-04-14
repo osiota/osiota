@@ -1,3 +1,5 @@
+#!/usr/bin/node
+
 var WebSocket = require('ws');
 WebSocket.prototype.sendjson = function(data) {
         this.send(JSON.stringify(data));
@@ -9,6 +11,7 @@ function ws_setup(wpath) {
         var ws = new WebSocket(wpath);
 
         ws.on('open', function() {
+                ws.sendjson({command: "list"});
                 ws.sendjson({command: "register", node: "/Engel/Energie_P1"});
 		ws.sendjson({command: "register", node: "/Geraet_2/Energie"});
                 //ws.sendjson({type: "send_to", actor: 1, message: "Knopf gedrueckt."})
