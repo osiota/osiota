@@ -120,7 +120,7 @@ wss.on('connection', function(ws) {
 	});
 });
 
-var command = "./main";
+var command = "../ethercat_bridge/main";
 var args = "";
 
 /*
