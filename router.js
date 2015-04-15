@@ -1,27 +1,9 @@
 #!/usr/bin/node
 
 exports.data = {};
+exports.dests = {};
 
-exports.dests = {
-	"console":function(id, name, time, value) {
-		console.log(id + ": " + name + " [" + time + "]:\t" + value);
-	},
-	"mysql":function(id, name, time, value) {
-		
-	},
-	"func":function(id, name, time, value) {
-		
-	}
-};
-
-var route_to = {
-	"/Klemme_1/Wert_1":[
-		{"to": exports.dests.console, "id": "Wert 1", "f": function(v) {return v * 1000; }}
-	],
-	"/Engel/Energie_P1":[
-		{"to": exports.dests.console, "id": "P", "f": function(v) { return v * 1000; }}
-	]
-};
+var route_to = {};
 
 exports.register = function(name, ref) {
 	console.log("registering " + name);

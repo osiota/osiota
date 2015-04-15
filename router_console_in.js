@@ -1,5 +1,5 @@
 
-exports.init = function(router) {
+exports.init = function(router, basename) {
 	process.stdin.setEncoding('utf8');
 	process.stdin.on('readable', function() {
 		var chunk = process.stdin.read();
@@ -14,7 +14,7 @@ exports.init = function(router) {
 						var time = result[2];
 						var value = result[3];
 						if (value === "undefined") value = null;
-						router.route(name, time, value);
+						router.route(basename + name, time, value);
 					}
 				}
 			}

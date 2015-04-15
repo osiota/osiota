@@ -1,5 +1,5 @@
 
-exports.init = function(router, command, args) {
+exports.init = function(router, basename, command, args) {
 	//var command = "../ethercat_bridge/main";
 	//var args = "";
 
@@ -20,7 +20,7 @@ exports.init = function(router, command, args) {
 					var name = result[1];
 					var time = result[2];
 					var value = result[3];
-					route(name, time, value);
+					route(basename + name, time, value);
 				}
 			}
 		}
