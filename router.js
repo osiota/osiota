@@ -1,4 +1,3 @@
-#!/usr/bin/node
 
 exports.data = {};
 exports.dests = {};
