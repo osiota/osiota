@@ -20,14 +20,15 @@ exports.init = function(router, basename, command, args) {
 					var name = result[1];
 					var time = result[2];
 					var value = result[3];
-					route(basename + name, time, value);
+					router.route(basename + name, time, value);
 				}
 			}
 		}
 	});
 
 	childProcess.stderr.on("data", function (data) {
-		console.error("ERR "+data.toString());
+		console.error("Error in child_process: "+data.toString() + "\n"
+			+ "Command: " + command + " " + args);
 	});
 };
 
