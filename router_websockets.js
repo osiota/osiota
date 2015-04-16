@@ -3,6 +3,7 @@ var WebSocket = require('ws');
 exports.init = function(router, basename, port) {
 
 	WebSocket.prototype.sendjson = function(data) {
+		if (!this.closed)
 			this.send(JSON.stringify(data));
 	};
 
@@ -10,6 +11,7 @@ exports.init = function(router, basename, port) {
 	var wss = new WebSocketServer({port: port});
 
 	wss.on('connection', function(ws) {
+		ws.closed = false;
 		ws.send_data = function(id, name, time, value) {
 			ws.sendjson({"type":"data", "id":id, "name":name, "time":time, "value":value});
 		};
@@ -37,6 +39,7 @@ exports.init = function(router, basename, port) {
 			}
 		});
 		ws.on('close', function() {
+			ws.closed = true;
 			for(var i=0; i<ws.registered_nodes.length; i++) {
 				router.unregister(ws.registered_nodes[i].node, ws.registered_nodes[i].ref);
 			}
