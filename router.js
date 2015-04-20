@@ -13,8 +13,10 @@ exports.register = function(name, ref) {
 
 	// push data to new entry:
 	if (exports.data.hasOwnProperty(name) &&
-			exports.data[name] !== null) {
-		exports.route_one(ref, name, 0, exports.data[name]);
+			exports.data[name] !== null &&
+			exports.data[name].hasOwnProperty("value") &&
+			exports.data[name].hasOwnProperty("time")) {
+		exports.route_one(ref, name, exports.data[name].time, exports.data[name].value);
 	}
 	return ref;
 };
@@ -56,8 +58,11 @@ exports.route_one = function(rentry, name, time, value) {
 exports.route = function(name, time, value) {
 	if (!exports.data.hasOwnProperty(name)) {
 		console.log("new node: " + name);
+	} else if (exports.data[name].hasOwnProperty("name")) {
+		if (exports.data[name].time == time)
+			return;
 	}
-	exports.data[name] = value;
+	exports.data[name] = {"value":value, "time":time};
 
 	//console.log("R: " + name + " [" + time + "]:\t" + value);
 	if (route_to.hasOwnProperty(name)) {
