@@ -12,7 +12,7 @@ function ws_setup(wpath) {
 
         ws.on('open', function() {
                 ws.sendjson({command: "list"});
-                ws.sendjson({command: "register", node: "/Engel/Energie_P1"});
+                ws.sendjson({command: "register", node: "/ethercat/Engel/Energie_P1"});
 		ws.sendjson({command: "register", node: "/Geraet_2/Energie"});
                 //ws.sendjson({type: "send_to", actor: 1, message: "Knopf gedrueckt."})
         });
