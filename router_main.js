@@ -7,31 +7,32 @@ var mysql_config = {
 	database : 'Experimentierfabrik'
 };
 
-var router = require('./router.js');
+var Router = require('./router.js').router;
+var r = new Router();
 
-require('./router_mysql.js').init(router, "/mysql", mysql_config);
-require('./router_console_out.js').init(router, "/console");
-require('./router_websockets.js').init(router, "/ws", 8080);
-require('./router_console_in.js').init(router, "");
-//require('./router_random_in.js').init(router, "/ethercat/Engel/Energie_P1", 1000, 0, 100);
-require('./router_childprocess.js').init(router, "/ethercat", "../ethercat_bridge/main", ["../ethercat_bridge/config.csv"]);
+require('./router_mysql.js').init(r, "/mysql", mysql_config);
+require('./router_console_out.js').init(r, "/console");
+require('./router_websockets.js').init(r, "/ws", 8080);
+require('./router_console_in.js').init(r, "");
+//require('./router_random_in.js').init(r, "/ethercat/Engel/Energie_P1", 1000, 0, 100);
+require('./router_childprocess.js').init(r, "/ethercat", "../ethercat_bridge/main", ["../ethercat_bridge/config.csv"]);
 
 
-router.route('/ethercat/Klemme_1/Wert_2', 0, 230);
+r.route('/ethercat/Klemme_1/Wert_2', 0, 230);
 
-router.register('/ethercat/Klemme_1/Wert_1', {"to": function(id, name, time, v) {
-	var node = router.get('/ethercat/Klemme_1/Wert_2');
+r.register('/ethercat/Klemme_1/Wert_1', {"to": function(id, name, time, v) {
+	var node = r.get('/ethercat/Klemme_1/Wert_2');
 	if (node.hasOwnProperty("value") && node.value !== null) {
 		v *= 1000;
 		v *= node.value;
-		router.route('/Geraet_2/Energie', time, v);
+		r.route('/Geraet_2/Energie', time, v);
 	}
 }, "id": "-"});
 
-router.register("/ethercat/Klemme_1/Wert_1",
-	{"to": router.dests.console, "id": "Wert 1", "f": function(v) {return v * 1000; }}
+r.register("/ethercat/Klemme_1/Wert_1",
+	{"to": r.dests.console, "id": "Wert 1", "f": function(v) {return v * 1000; }}
 );
-/*router.register("/ethercat/Engel/Energie_P1",
-	{"to": router.dests.console, "id": "P", "f": function(v) { return v * 1000; }}
+/*r.register("/ethercat/Engel/Energie_P1",
+	{"to": r.dests.console, "id": "P", "f": function(v) { return v * 1000; }}
 );*/
 
