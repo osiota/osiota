@@ -25,7 +25,7 @@ exports.init = function(router, basename, port) {
 						var ref = router.register(mdata.node, {"to": ws.send_data, "id": mdata.node, "obj": ws});
 						ws.registered_nodes.push({"node": mdata.node, "ref": ref});
 					} else if (mdata.command == 'list') {
-						ws.sendjson({"type":"dataset", "data":router.data});
+						ws.sendjson({"type":"dataset", "data":router.get_nodes()});
 					} else if (mdata.command == 'data' && mdata.hasOwnProperty('node') &&
 							mdata.hasOwnProperty('value') &&
 							mdata.hasOwnProperty('time')) {

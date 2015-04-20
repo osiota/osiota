@@ -1,31 +1,33 @@
 
-exports.data = {};
+exports.nodes = {};
 exports.dests = {};
-
-var route_to = {};
 
 exports.register = function(name, ref) {
 	console.log("registering " + name);
-	if (!route_to.hasOwnProperty(name))
-		route_to[name] = [];
+	if (!exports.nodes.hasOwnProperty(name))
+		exports.nodes[name] = [];
+	if (!exports.nodes[name].hasOwnProperty("listener")) {
+		exports.nodes[name].listener = [];
+	}
 
-	route_to[name].push(ref);
+	exports.nodes[name].listener.push(ref);
 
 	// push data to new entry:
-	if (exports.data.hasOwnProperty(name) &&
-			exports.data[name] !== null &&
-			exports.data[name].hasOwnProperty("value") &&
-			exports.data[name].hasOwnProperty("time")) {
-		exports.route_one(ref, name, exports.data[name].time, exports.data[name].value);
+	if (exports.nodes.hasOwnProperty(name) &&
+			exports.nodes[name] !== null &&
+			exports.nodes[name].hasOwnProperty("value") &&
+			exports.nodes[name].hasOwnProperty("time")) {
+		exports.route_one(ref, name, exports.nodes[name].time, exports.nodes[name].value);
 	}
 	return ref;
 };
 exports.unregister = function(name, ref) {
 	console.log("unregistering " + name);
-	if (route_to.hasOwnProperty(name)) {
-		for(var j=0; j<route_to[name].length; j++) {
-			if (route_to[name][j] === ref) {
-				route_to[name].splice(j, 1);
+	if (exports.nodes.hasOwnProperty(name) &&
+			exports.nodes[name].hasOwnProperty("listener")) {
+		for(var j=0; j<exports.nodes[name].listener.length; j++) {
+			if (exports.nodes[name].listener[j] === ref) {
+				exports.nodes[name].listener.splice(j, 1);
 				return;
 			}
 		}
@@ -56,19 +58,41 @@ exports.route_one = function(rentry, name, time, value) {
 };
 
 exports.route = function(name, time, value) {
-	if (!exports.data.hasOwnProperty(name)) {
+	// is a new node?
+	if (!exports.nodes.hasOwnProperty(name)) {
 		console.log("new node: " + name);
-	} else if (exports.data[name].hasOwnProperty("name")) {
-		if (exports.data[name].time == time)
+	}
+	// cancel if timestamp did not change:
+	var node = exports.nodes[name];
+	if (node.hasOwnProperty("time")) {
+		if (node.time == time)
 			return;
 	}
-	exports.data[name] = {"value":value, "time":time};
+	// set new data:
+	node.value = value;
+	node.time = time;
 
 	//console.log("R: " + name + " [" + time + "]:\t" + value);
-	if (route_to.hasOwnProperty(name)) {
-		for(var i=0; i<route_to[name].length; i++) {
-			exports.route_one(route_to[name][i], name, time, value);
+	//
+	if (node.hasOwnProperty("listener")) {
+		for(var i=0; i<node.listener.length; i++) {
+			exports.route_one(node.listener[i], name, time, value);
 		}
 	}
 };
 
+exports.get_nodes = function() {
+	var data = {};
+	for (var name in exports.nodes) {
+		if (exports.nodes.hasOwnProperty(name)) {
+			var node = exports.nodes[name];
+			data[name] = {};
+			if (node.hasOwnProperty("value"))
+				data[name].value = node.value;
+			if (node.hasOwnProperty("time"))
+				data[name].time = node.time;
+		}
+	}
+
+	return data;
+}
