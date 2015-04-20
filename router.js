@@ -95,4 +95,11 @@ exports.get_nodes = function() {
 	}
 
 	return data;
-}
+};
+
+exports.get = function(name) {
+	if (exports.nodes.hasOwnProperty(name)) {
+		return exports.nodes[name];
+	}
+	return {};
+};

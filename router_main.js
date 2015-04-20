@@ -20,9 +20,10 @@ require('./router_childprocess.js').init(router, "/ethercat", "../ethercat_bridg
 router.route('/ethercat/Klemme_1/Wert_2', 0, 230);
 
 router.register('/ethercat/Klemme_1/Wert_1', {"to": function(id, name, time, v) {
-	if (router.data.hasOwnProperty('/ethercat/Klemme_1/Wert_2')) {
+	var node = router.get('/ethercat/Klemme_1/Wert_2');
+	if (node.hasOwnProperty("value") && node.value !== null) {
 		v *= 1000;
-		v *= router.data['/ethercat/Klemme_1/Wert_2'];
+		v *= node.value;
 		router.route('/Geraet_2/Energie', time, v);
 	}
 }, "id": "-"});
