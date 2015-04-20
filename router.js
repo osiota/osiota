@@ -45,12 +45,18 @@ exports.route_one = function(rentry, name, time, value) {
 	}
 	if (typeof to == "function") {
 		to(id, name, time, v);
+	} else if (typeof to == "string") {
+		// reroute to an other node:
+		exports.route(to, time, value);
 	} else {
-		console.log("TO: Unknown function.");
+		console.log("TO [" + name + "]: Unknown function:", to);
 	}
 };
 
 exports.route = function(name, time, value) {
+	if (!exports.data.hasOwnProperty(name)) {
+		console.log("new node: " + name);
+	}
 	exports.data[name] = value;
 
 	//console.log("R: " + name + " [" + time + "]:\t" + value);
