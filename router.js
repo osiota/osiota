@@ -88,9 +88,8 @@ exports.router.prototype.route = function(name, time, value) {
 	}
 	// cancel if timestamp did not change:
 	var node = this.nodes[name];
-	if (!node.hasOwnProperty("time")) {
-		return;
-	} else if (node.time == time)
+	if (node.hasOwnProperty("time") &&
+			node.time == time) {
 		return;
 	}
 	// set new data:
