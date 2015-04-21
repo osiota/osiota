@@ -80,7 +80,7 @@ exports.router.prototype.route_one = function(rentry, name, time, value) {
 };
 
 /* Route data */
-exports.router.prototype.route = function(name, time, value) {
+exports.router.prototype.route_synchronous = function(name, time, value) {
 	// is a new node?
 	if (!this.nodes.hasOwnProperty(name)) {
 		console.log("new node: " + name);
@@ -103,6 +103,15 @@ exports.router.prototype.route = function(name, time, value) {
 		}
 	}
 };
+
+/* Route data */
+exports.router.prototype.route = function(name, time, value) {
+	var r = this;
+	process.nextTick(function() {
+		r.route_synchronous(name, time, value);
+	});
+}
+
 
 /* Get names and data of the nodes */
 exports.router.prototype.get_nodes = function() {
