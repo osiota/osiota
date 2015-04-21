@@ -7,7 +7,7 @@ exports.router = function() {
 
 
 /* Register a callback or a link name for a route */
-exports.router.prototype.register = function(name, ref) {
+exports.router.prototype.register = function(name, ref, id, rentry) {
 	console.log("registering " + name);
 	if (!this.nodes.hasOwnProperty(name))
 		this.nodes[name] = [];
@@ -15,25 +15,44 @@ exports.router.prototype.register = function(name, ref) {
 		this.nodes[name].listener = [];
 	}
 
-	// Create routing entry:
-	if (typeof ref === "object") {
-		rentry = ref;
+	// Get or create the rentry object:
+	if (typeof rentry !== "object") {
+		if (typeof id === "object") {
+			rentry = id;
+			id = undefined;
+		}
+		else if (typeof ref === "object") {
+			rentry = ref;
+			ref = undefined;
+		} else {
+			rentry = {};
+		}
+	} else {
+		rentry = {};
 	}
-	else if (typeof ref === "function") {
-		rentry = {"to": ref};
+
+	// Set ref:
+	if (typeof ref !== "undefined") {
+		rentry.to = ref;
 	}
-	else if (typeof ref === "string") {
-		rentry = {"to": ref};
+
+	// Set id:
+	if (!rentry.hasOwnProperty("id") || !rentry.id || rentry.id == "") {
+		rentry.id = name;
 	}
-	else {
+	if (typeof id !== "undefined") {
+		rentry.id = id;
+	}
+
+
+	// Check rentry:
+	if (typeof rentry.to !== "function" && typeof rentry.to !== "string") {
 		console.log("Register: Error, unknown ref type.");
 		return false;
 	}
 
-	// set id:
-	if (!rentry.hasOwnProperty("id") || !rentry.id || rentry.id == "") {
-		rentry.id = name;
-	}
+	// Save the time when this entry was added
+	rentry.time_added = new Date();
 
 	// add routing entry
 	this.nodes[name].listener.push(rentry);
