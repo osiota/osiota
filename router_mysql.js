@@ -23,9 +23,11 @@ exports.init = function(router, basename, mysql_config) {
 				console.warn("Error in connection database");
 				return;
 			}
-			connection.on("error", function(err) {
-				console.warn("Error in connection database: Error: " + err);
-			});
+			if (!connection.listeners("error")) {
+				connection.on("error", function(err) {
+					console.warn("Error in connection database: Error: " + err);
+				});
+			}
 			connection.query(query, function(err, rows, fields) {
 				connection.release();
 				if (err) {
