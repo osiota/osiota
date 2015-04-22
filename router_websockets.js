@@ -43,6 +43,7 @@ exports.init = function(router, basename, port) {
 			for(var i=0; i<ws.registered_nodes.length; i++) {
 				router.unregister(ws.registered_nodes[i].node, ws.registered_nodes[i].ref);
 			}
+			ws.registered_nodes = null;
 		});
 	});
 
