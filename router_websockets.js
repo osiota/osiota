@@ -29,7 +29,7 @@ exports.init = function(router, basename, port) {
 					} else if (mdata.command == 'data' && mdata.hasOwnProperty('node') &&
 							mdata.hasOwnProperty('value') &&
 							mdata.hasOwnProperty('time')) {
-						router.route(mdata.node, mdata.time, mdata.value);
+						router.route(basename + mdata.node, mdata.time, mdata.value);
 					} else {
 						console.log("Unknown command");
 					}
