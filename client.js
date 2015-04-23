@@ -11,9 +11,9 @@ function ws_setup(wpath) {
         var ws = new WebSocket(wpath);
 
         ws.on('open', function() {
-                ws.sendjson({command: "list"});
-                ws.sendjson({command: "register", node: "/ethercat/Engel/Energie_P1"});
-		ws.sendjson({command: "register", node: "/Geraet_2/Energie"});
+                ws.sendjson({type: "list"});
+                ws.sendjson({type: "register", node: "/ethercat/Engel/Energie_P1"});
+		ws.sendjson({type: "register", node: "/Geraet_2/Energie"});
                 //ws.sendjson({type: "send_to", actor: 1, message: "Knopf gedrueckt."})
         });
         ws.on('message', function(message) {

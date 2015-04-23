@@ -20,18 +20,18 @@ exports.init = function(router, basename, port) {
 			console.log('received: %s', message);
 			try {
 				var mdata = JSON.parse(message);
-				if (mdata.hasOwnProperty('command')) {
-					if (mdata.command == 'register' && mdata.hasOwnProperty('node')) {
+				if (mdata.hasOwnProperty('type')) {
+					if (mdata.type == 'register' && mdata.hasOwnProperty('node')) {
 						var ref = router.register(mdata.node, {"to": ws.send_data, "id": mdata.node, "obj": ws});
 						ws.registered_nodes.push({"node": mdata.node, "ref": ref});
-					} else if (mdata.command == 'list') {
+					} else if (mdata.type == 'list') {
 						ws.sendjson({"type":"dataset", "data":router.get_nodes()});
-					} else if (mdata.command == 'data' && mdata.hasOwnProperty('node') &&
+					} else if (mdata.type == 'data' && mdata.hasOwnProperty('node') &&
 							mdata.hasOwnProperty('value') &&
 							mdata.hasOwnProperty('time')) {
 						router.route(basename + mdata.node, mdata.time, mdata.value);
 					} else {
-						console.log("Unknown command");
+						console.log("Unknown type");
 					}
 				}
 			} catch (e) {
