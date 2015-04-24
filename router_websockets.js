@@ -13,11 +13,11 @@ exports.init = function(router, basename, port) {
 	wss.on('connection', function(ws) {
 		ws.closed = false;
 		ws.send_data = function(id, name, time, value) {
-			ws.sendjson({"type":"data", "id":id, "name":name, "time":time, "value":value});
+			ws.sendjson({"type":"data", "node":id, "time":time, "value":value});
 		};
 		ws.registered_nodes = [];
 		ws.on('message', function(message) {
-			console.log('received: %s', message);
+			//console.log('received: %s', message);
 			try {
 				var mdata = JSON.parse(message);
 				if (mdata.hasOwnProperty('type')) {
@@ -31,7 +31,7 @@ exports.init = function(router, basename, port) {
 							mdata.hasOwnProperty('time')) {
 						router.route(basename + mdata.node, mdata.time, mdata.value);
 					} else {
-						console.log("Unknown type");
+						console.log("WebSocket: Packet with unknown type received.");
 					}
 				}
 			} catch (e) {
