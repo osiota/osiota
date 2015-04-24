@@ -3,8 +3,13 @@ var WebSocket = require('ws');
 exports.init = function(router, basename, port) {
 
 	WebSocket.prototype.sendjson = function(data) {
-		if (!this.closed)
-			this.send(JSON.stringify(data));
+		try {
+			if (!this.closed)
+				this.send(JSON.stringify(data));
+		} catch (e) {
+			console.log("Exception (send): " + e);
+
+		}
 	};
 
 	var WebSocketServer = WebSocket.Server;
