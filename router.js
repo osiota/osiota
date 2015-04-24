@@ -47,7 +47,7 @@ exports.router.prototype.register = function(name, ref, id, rentry) {
 
 	// Check rentry:
 	if (typeof rentry.to !== "function" && typeof rentry.to !== "string") {
-		console.log("Register: Error, unknown ref type.");
+		console.log("Register: Error, unknown ref type: " + typeof rentry.to);
 		return false;
 	}
 
