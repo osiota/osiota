@@ -10,7 +10,7 @@ exports.router = function() {
 exports.router.prototype.register = function(name, ref, id, rentry) {
 	console.log("registering " + name);
 	if (!this.nodes.hasOwnProperty(name))
-		this.nodes[name] = [];
+		this.nodes[name] = {};
 	if (!this.nodes[name].hasOwnProperty("listener")) {
 		this.nodes[name].listener = [];
 	}
