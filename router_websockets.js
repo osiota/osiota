@@ -35,6 +35,19 @@ exports.init = function(router, basename, port) {
 							mdata.hasOwnProperty('value') &&
 							mdata.hasOwnProperty('time')) {
 						router.route(basename + mdata.node, mdata.time, mdata.value);
+					} else if (mdata.type == 'register_other' && mdata.hasOwnProperty('node') &&
+							mdata.hasOwnProperty('to')) {
+						if (mdata.to.match(/^@/)) {
+							mdata.to = mdata.to.replace(/^@/, "");
+							mdata.to = router.get_static_dest(mdata.to);
+							if (typeof mdata.to === "undefined") {
+								console.log("WebSocket: dest not found.");
+								return;
+							}
+						}
+						router.register(mdata.node, {"to": mdata.to, "id": mdata.id});
+					} else if (mdata.type == 'get_dests') {
+						ws.sendjson({"type":"dests", "data":router.get_dests()});
 					} else {
 						console.log("WebSocket: Packet with unknown type received.");
 					}
