@@ -139,19 +139,21 @@ exports.router.prototype.route = function(name, time, value) {
 /* Get names and data of the nodes */
 exports.router.prototype.get_nodes = function() {
 	var data = {};
-	for (var name in this.nodes) {
-		if (this.nodes.hasOwnProperty(name)) {
-			var node = this.nodes[name];
-			data[name] = {};
-			if (node.hasOwnProperty("value"))
-				data[name].value = node.value;
-			if (node.hasOwnProperty("time"))
-				data[name].time = node.time;
+
+	return this.nodes;
+};
+
+/* Get names and data of destinations */
+exports.router.prototype.get_dests = function() {
+	var dests = [];
+	for (var d in this.dests) {
+		if (this.dests.hasOwnProperty(d)) {
+			dests.push(d);
 		}
 	}
-
-	return data;
+	return dests;
 };
+
 
 /* Get data of a node */
 exports.router.prototype.get = function(name) {
