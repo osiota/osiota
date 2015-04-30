@@ -66,8 +66,8 @@ exports.init = function(router, basename, ws_url) {
 		o_ws.sendjson({"type":"list"});
 	}, function(mdata) {
 		if (mdata.hasOwnProperty('type')) {
-			if (mdata.type == 'register' && mdata.hasOwnProperty('node')) {
-				var ref = router.register(mdata.node, {"to": o_ws.send_data, "id": mdata.node, "obj": o_ws});
+			if (mdata.type == 'bind' && mdata.hasOwnProperty('node')) {
+				var ref = router.register(mdata.node, "wsc", mdata.node, o_ws);
 				registered_nodes.push({"node": mdata.node, "ref": ref});
 			} else if (mdata.type == 'list') {
 				o_ws.sendjson({"type":"dataset", "data":router.get_nodes()});
@@ -81,11 +81,11 @@ exports.init = function(router, basename, ws_url) {
 		}
 	});
 
-	o_ws.send_data = function(id, name, time, value) {
+	o_ws.send_data = function(id, time, value) {
 		o_ws.sendjson({"type":"data", "node":id, "time":time, "value":value});
 	};
-	router.dests.wsc = function(id, name, time, value) {
-		o_ws.send_data(id, name, time, value);
+	router.dests.wsc = function(id, time, value) {
+		o_ws.send_data(id, time, value);
 	};
 
 	return o_ws;

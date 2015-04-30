@@ -5,50 +5,54 @@ exports.router = function() {
 	this.dests = {};
 };
 
-
 /* Register a callback or a link name for a route */
-exports.router.prototype.register = function(name, ref, id, rentry) {
+exports.router.prototype.register = function(name, dest, id, obj) {
 	console.log("registering " + name);
+
+	var rentry = {};
+
+	var sdest = this.get_static_dest(dest);
+	if (typeof sdest === "undefined") {
+		console.log("Router. Error: Register function not found.");
+		return;
+	}
+
+	rentry.dest = dest;
+	rentry.id = id;
+	rentry.obj = obj;
+	rentry.type = "function";
+
+	return this.add_rentry(name, rentry);
+};
+
+/* Register a link name for a route */
+exports.router.prototype.connect = function(name, dnode) {
+	console.log("connecting " + name);
+
+	rentry = {};
+
+	// Set ref:
+	if (typeof dnode !== "string") {
+		console.log("Router. Error: Type of node is not string. Type is: " + typeof dnode);
+		return;
+	}
+
+	rentry.dnode = dnode;
+	rentry.type = "node";
+
+	return this.add_rentry(name, rentry);
+};
+
+exports.router.prototype.add_rentry = function(name, rentry) {
+	if (typeof rentry !== "object") {
+		console.log("Router. Error: Type of rentry is not object. Type is: " + typeof rentry);
+		return;
+	}
+
 	if (!this.nodes.hasOwnProperty(name))
 		this.nodes[name] = {};
 	if (!this.nodes[name].hasOwnProperty("listener")) {
 		this.nodes[name].listener = [];
-	}
-
-	// Get or create the rentry object:
-	if (typeof rentry !== "object") {
-		if (typeof id === "object") {
-			rentry = id;
-			id = undefined;
-		}
-		else if (typeof ref === "object") {
-			rentry = ref;
-			ref = undefined;
-		} else {
-			rentry = {};
-		}
-	} else {
-		rentry = {};
-	}
-
-	// Set ref:
-	if (typeof ref !== "undefined") {
-		rentry.to = ref;
-	}
-
-	// Set id:
-	if (!rentry.hasOwnProperty("id") || !rentry.id || rentry.id == "") {
-		rentry.id = name;
-	}
-	if (typeof id !== "undefined") {
-		rentry.id = id;
-	}
-
-
-	// Check rentry:
-	if (typeof rentry.to !== "function" && typeof rentry.to !== "string") {
-		console.log("Register: Error, unknown ref type: " + typeof rentry.to);
-		return false;
 	}
 
 	// Save the time when this entry was added
@@ -85,16 +89,16 @@ exports.router.prototype.unregister = function(name, rentry) {
 
 /* Route a single routing entry */
 exports.router.prototype.route_one = function(rentry, name, time, value) {
-	var to = rentry.to;
-	var id = rentry.id;
 
-	if (typeof to == "function") {
-		to(id, name, time, value, rentry);
-	} else if (typeof to == "string") {
-		// reroute to an other node:
-		this.route(to, time, value, rentry);
-	} else {
-		console.log("TO [" + name + "]: Unknown function:", to);
+	if (typeof rentry.type === "string") {
+		if (rentry.type == "function" && typeof rentry.dest === "string") {
+			var dest_f = this.get_static_dest(rentry.dest);
+			dest_f(rentry.id, time, value, name, rentry.obj);
+		} else if (rentry.type == "node" && typeof rentry.dnode === "string") {
+			this.route(rentry.dnode, time, value, name);
+		} else {
+			console.log("Route [" + name + "]: Unknown destination type: ", rentry.type);
+		}
 	}
 };
 

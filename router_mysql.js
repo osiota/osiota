@@ -40,7 +40,7 @@ exports.init = function(router, basename, mysql_config) {
 		});
 	};
 	// Register MySQL Destination:
-	router.dests.mysql = function(id, name, time, value) {
+	router.dests.mysql = function(id, time, value) {
 		if (typeof value !== "undefined" && value !== null)
 			exports.query('INSERT INTO Data(Measurement_id, Time, Value) VALUES(' + id + ', ' + time + ', ' + value + ')');
 	};
@@ -52,7 +52,7 @@ exports.init = function(router, basename, mysql_config) {
 		for(var i=0;i<rows.length;i++) {
 			mid[rows[i].node] = rows[i].id;
 
-			var rentry = router.register(basename + "/" + rows[i].node, router.dests.mysql, rows[i].id);
+			var rentry = router.register(basename + "/" + rows[i].node, "mysql", rows[i].id);
 		}
 	});
 

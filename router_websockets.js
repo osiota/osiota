@@ -17,7 +17,7 @@ exports.init = function(router, basename, port) {
 
 	wss.on('connection', function(ws) {
 		ws.closed = false;
-		ws.send_data = function(id, name, time, value) {
+		ws.send_data = function(id, time, value) {
 			ws.sendjson({"type":"data", "node":id, "time":time, "value":value});
 		};
 		ws.registered_nodes = [];
@@ -26,8 +26,8 @@ exports.init = function(router, basename, port) {
 			try {
 				var mdata = JSON.parse(message);
 				if (mdata.hasOwnProperty('type')) {
-					if (mdata.type == 'register' && mdata.hasOwnProperty('node')) {
-						var ref = router.register(mdata.node, {"to": ws.send_data, "id": mdata.node, "obj": ws});
+					if (mdata.type == 'bind' && mdata.hasOwnProperty('node')) {
+						var ref = router.register(mdata.node, "wss", mdata.node, ws);
 						ws.registered_nodes.push({"node": mdata.node, "ref": ref});
 					} else if (mdata.type == 'list') {
 						ws.sendjson({"type":"dataset", "data":router.get_nodes()});
@@ -35,21 +35,16 @@ exports.init = function(router, basename, port) {
 							mdata.hasOwnProperty('value') &&
 							mdata.hasOwnProperty('time')) {
 						router.route(basename + mdata.node, mdata.time, mdata.value);
-					} else if (mdata.type == 'register_other' && mdata.hasOwnProperty('node') &&
-							mdata.hasOwnProperty('to')) {
-						if (mdata.to.match(/^@/)) {
-							mdata.to = mdata.to.replace(/^@/, "");
-							mdata.to = router.get_static_dest(mdata.to);
-							if (typeof mdata.to === "undefined") {
-								console.log("WebSocket: dest not found.");
-								return;
-							}
-						}
-						router.register(mdata.node, {"to": mdata.to, "id": mdata.id});
+					} else if (mdata.type == 'connect' && mdata.hasOwnProperty('node') &&
+							mdata.hasOwnProperty('dnode')) {
+						router.connect(mdata.node, mdata.dnode);
+					} else if (mdata.type == 'register' && mdata.hasOwnProperty('node') &&
+							mdata.hasOwnProperty('dest')) {
+						router.register(mdata.node, mdata.dest, mdata.id, mdata.obj);
 					} else if (mdata.type == 'get_dests') {
 						ws.sendjson({"type":"dests", "data":router.get_dests()});
 					} else {
-						console.log("WebSocket: Packet with unknown type received.");
+						console.log("WebSocket: Packet with unknown type received: " + mdata.type);
 					}
 				}
 			} catch (e) {
@@ -58,11 +53,21 @@ exports.init = function(router, basename, port) {
 		});
 		ws.on('close', function() {
 			ws.closed = true;
-			for(var i=0; i<ws.registered_nodes.length; i++) {
-				router.unregister(ws.registered_nodes[i].node, ws.registered_nodes[i].ref);
+			if (ws.registered_nodes) {
+				for(var i=0; i<ws.registered_nodes.length; i++) {
+					router.unregister(ws.registered_nodes[i].node, ws.registered_nodes[i].ref);
+				}
+				ws.registered_nodes = null;
 			}
-			ws.registered_nodes = null;
+		});
+		ws.on('error', function() {
+			ws.emit('close');
 		});
 	});
+
+	router.dests.wss = function(id, time, value, name, obj) {
+		obj.send_data(id, time, value);
+	};
+
 
 };

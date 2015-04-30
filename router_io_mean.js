@@ -3,7 +3,7 @@
 exports.init = function(router, basename) {
 	
 	var meandata = {};
-	router.dests.mean = function(id, name, time, value, ref) {
+	router.dests.mean = function(id, time, value, ref) {
 		var timebase = 1;
 		if (ref.hasOwnProperty("timebase")) {
 			timebase = ref.timebase;
