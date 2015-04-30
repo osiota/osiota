@@ -7,8 +7,33 @@ exports.init = function(router, basename, port) {
 			if (!this.closed)
 				this.send(JSON.stringify(data));
 		} catch (e) {
-			console.log("Exception (send): " + e);
+			console.log("Websocket, sendjson: Exception: " + e);
+		}
+	};
 
+	WebSocket.prototype.sendjson_save = function(data) {
+		try {
+			if (!this.closed) {
+				var cache = [];
+				var j = JSON.stringify(data, function(key, value) {
+					if (key === 'obj') {
+						return;
+					}
+					if (typeof value === 'object' && value !== null) {
+						if (cache.indexOf(value) !== -1) {
+							// Circular reference found, discard key
+							return;
+						}
+						// Store value in our collection
+						cache.push(value);
+					}
+					return value;
+				});
+				cache = null; // Enable garbage collection
+				this.send(j);
+			}
+		} catch (e) {
+			console.log("Websoket, sendjson_save: Exception: " + e);
 		}
 	};
 
@@ -30,7 +55,7 @@ exports.init = function(router, basename, port) {
 						var ref = router.register(mdata.node, "wss", mdata.node, ws);
 						ws.registered_nodes.push({"node": mdata.node, "ref": ref});
 					} else if (mdata.type == 'list') {
-						ws.sendjson({"type":"dataset", "data":router.get_nodes()});
+						ws.sendjson_save({"type":"dataset", "data":router.get_nodes()});
 					} else if (mdata.type == 'data' && mdata.hasOwnProperty('node') &&
 							mdata.hasOwnProperty('value') &&
 							mdata.hasOwnProperty('time')) {
@@ -42,7 +67,7 @@ exports.init = function(router, basename, port) {
 							mdata.hasOwnProperty('dest')) {
 						router.register(mdata.node, mdata.dest, mdata.id, mdata.obj);
 					} else if (mdata.type == 'get_dests') {
-						ws.sendjson({"type":"dests", "data":router.get_dests()});
+						ws.sendjson_save({"type":"dests", "data":router.get_dests()});
 					} else {
 						console.log("WebSocket: Packet with unknown type received: " + mdata.type);
 					}
