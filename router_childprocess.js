@@ -19,7 +19,10 @@ exports.init = function(router, basename, command, args) {
 				if (result) {
 					var name = result[1];
 					var time = result[2];
-					var value = result[3];
+					var value = 1 * result[3];
+					if (result[3] == "null")
+						value = null;
+
 					router.route(basename + name, time, value);
 				}
 			}
