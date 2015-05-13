@@ -7,13 +7,13 @@ exports.init = function(router, basename) {
 		value *= 1;
 		for (var k=0;k<obj.length;k++) {
 			var node2_name = obj[k];
-			var node = r.get(node2_name);
+			var node = router.get(node2_name);
 
 			if (node.hasOwnProperty("value") && node.value !== null) {
 				value *= 1*node.value;
 			}
 		}
-		r.route(id, time, value);
+		router.route(id, time, value);
 	};
 };
 
