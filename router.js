@@ -13,7 +13,7 @@ exports.router.prototype.register = function(name, dest, id, obj) {
 
 	var sdest = this.get_static_dest(dest);
 	if (typeof sdest === "undefined") {
-		console.log("Router. Error: Register function not found.");
+		console.log("Router. Error: Register function not found on " + dest);
 		return;
 	}
 
