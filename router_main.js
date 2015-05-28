@@ -33,7 +33,7 @@ for (var from in static_routes) {
 	}
 }
 
-r.register('/ethercat/CNC/Global_voltage', 'multiply', '/ethercat/CNC/Exhaust', '/ethercat/CNC/Exhaust_current');
+//r.register('/ethercat/CNC/Global_voltage', 'multiply', '/ethercat/CNC/Exhaust', '/ethercat/CNC/Exhaust_current');
 r.register('/ethercat/CNC/PLC', 'sum', '/exlab/All', [
 		'/ethercat/CNC/Spindle',
 		'/ethercat/CNC/Position',
