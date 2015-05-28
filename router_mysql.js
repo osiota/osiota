@@ -16,7 +16,8 @@ exports.init = function(router, basename, mysql_config) {
 	}, 30000)
 
 	// a simple query function using Mysql Pool Connections
-	exports.query = function(query, callback) {
+	exports.query = function(query, data, callback) {
+		if (typeof data === "undefined") data = [];
 		exports.pool.getConnection(function(err, connection) {
 			if (err) {
 				connection.release();
@@ -28,7 +29,7 @@ exports.init = function(router, basename, mysql_config) {
 					console.warn("Error in connection database: Error: " + err);
 				});
 			}
-			connection.query(query, function(err, rows, fields) {
+			connection.query(query, data, function(err, rows, fields) {
 				connection.release();
 				if (err) {
 					console.log('Error while performing Query: ' + err);
@@ -39,16 +40,35 @@ exports.init = function(router, basename, mysql_config) {
 			});
 		});
 	};
+	exports.insertdata_data = [];
+	exports.insertdata_trigger = function() {
+		if (exports.insertdata_data.length > 0) {
+			var data = exports.insertdata_data.splice(0,exports.insertdata_data.length);
+
+			var table = "Data";
+			var keys = ["Measurement_id", "Time", "Value"];
+			//var sqlq = mysql.format("INSERT INTO ??(??) VALUES ?", [table, keys, data]);
+			//console.log("Query: ", sqlq);
+			exports.query("INSERT INTO ??(??) VALUES ?", [table, keys, data]);
+		}
+	};
+	exports.insertdata = function(entry) {
+		exports.insertdata_data.push(entry);
+		process.nextTick(function() {
+			exports.insertdata_trigger();
+		});
+	};
 	// Register MySQL Destination:
 	router.dests.mysql = function(id, time, value) {
 		if (typeof value !== "undefined" && value !== null)
-			exports.query('INSERT INTO Data(Measurement_id, Time, Value) VALUES(' + id + ', ' + time + ', ' + value + ')');
+			exports.insertdata([id, time, value]);
+			//exports.query('INSERT INTO Data(Measurement_id, Time, Value) VALUES(' + id + ', ' + time + ', ' + value + ')');
 	};
 
 
 	// Get measurement names
 	var mid = {};
-	exports.query('SELECT m.id, CONCAT(s.Name, "/", m.Name) AS node FROM Measurement AS m LEFT JOIN Station AS s ON m.Station_id = s.id;', function(rows, fields) {
+	exports.query('SELECT m.id, CONCAT(s.Name, "/", m.Name) AS node FROM Measurement AS m LEFT JOIN Station AS s ON m.Station_id = s.id;', [], function(rows, fields) {
 		for(var i=0;i<rows.length;i++) {
 			mid[rows[i].node] = rows[i].id;
 
