@@ -19,6 +19,7 @@ require('./router_childprocess.js').init(r, "/ethercat", "../ethercat_bridge/mai
 
 require('./router_io_function.js').init(r);
 require('./router_io_mean.js').init(r);
+require('./router_io_bias.js').init(r);
 require('./router_io_multiply.js').init(r);
 require('./router_io_sum.js').init(r);
 
@@ -44,7 +45,17 @@ r.register('/ethercat/CNC/PLC', 'sum', '/exlab/All', [
 		'/ethercat/TransportA/PLC',
 		'/ethercat/DistributionA/PLC',
 		'/ethercat/DistributionB/PLC',
+		'/ethercat/Furnace/Heating',
+		'/ethercat/Furnace/PLC',
 ]);
+
+r.register('/ethercat/TransportB/Airflow', 'bias', '/ethercat/TransportB/Airflow_corrected');
+
+r.register('/ethercat/CNC/PLC', 'sum', '/exlab/CNC', [
+		'/ethercat/CNC/Spindle',
+		'/ethercat/CNC/Position',
+]);
+
 //
 //r.register('/ethercat/CNC/Exhaust', 'multiply', '/ethercat/CNC/Exhaust_current', '/ethercat/CNC/Global_voltage');
 //register('/CNC/Individualiser', 'console', '/CNC/Individualiser');
