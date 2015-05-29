@@ -19,7 +19,7 @@ exports.static_routes = {
 '/ethercat/Switch/Belt1':'/mysql/Switch/Belt1',
 '/ethercat/Switch/PLC':'/mysql/Switch/PLC',
 '/ethercat/Furnace/PLC':'/mysql/Furnace/PLC',
-'/ethercat/Furnace/Furnace':'/mysql/Furnace/Furnace',
+'/ethercat/Furnace/Heating':'/mysql/Furnace/Heating',
 '/ethercat/Furnace/Individualiser2':'/mysql/Furnace/Individualiser2',
 '/ethercat/Furnace/Individualiser1':'/mysql/Furnace/Individualiser1',
 '/ethercat/Furnace/Belt1':'/mysql/Furnace/Belt1',
