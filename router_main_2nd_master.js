@@ -23,7 +23,7 @@ setTimeout(function(router) {
 	for (var name in nodes) {
 		if (nodes.hasOwnProperty(name)) {
 			console.log("# Rerouting '" + name + "' via WebSocket to '/" + hostname + name + "'");
-			router.connect(name, "wsc", "/" + hostname + name);
+			router.register(name, "wsc", "/" + hostname + name);
 		}
 	}
 	
