@@ -81,6 +81,10 @@ exports.router.prototype.unregister = function(name, rentry) {
 			if (this.nodes[name].listener[j] === rentry) {
 				this.nodes[name].listener.splice(j, 1);
 				return;
+			} else if (this.nodes[name].listener[j].type === "node" &&
+					this.nodes[name].listener[j].dnode === rentry.dnode) {
+				this.nodes[name].listener.splice(j, 1);
+				return;
 			}
 		}
 	}
