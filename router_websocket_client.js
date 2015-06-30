@@ -57,13 +57,14 @@ pwsc.prototype.sendjson = function(data) {
 
 // Usage: init(r, "", 'ws://localhost:8080/');
 
-exports.init = function(router, basename, ws_url) {
+exports.init = function(router, basename, ws_url, init_callback) {
 
 	var o_ws = null;
 
 	registered_nodes = [];
 	o_ws = new pwsc(ws_url, function() {
-		o_ws.sendjson({"type":"list"});
+		if (typeof init_callback === "function")
+			init_callback(o_ws);
 	}, function(mdata) {
 		if (mdata.hasOwnProperty('type')) {
 			if (mdata.type == 'bind' && mdata.hasOwnProperty('node')) {
