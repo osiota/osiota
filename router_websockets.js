@@ -66,10 +66,14 @@ exports.init = function(router, basename, port) {
 					} else if (mdata.type == 'register' && mdata.hasOwnProperty('node') &&
 							mdata.hasOwnProperty('dest')) {
 						router.register(mdata.node, mdata.dest, mdata.id, mdata.obj);
+					} else if (mdata.type == 'unregister' && mdata.hasOwnProperty('node') &&
+							mdata.hasOwnProperty('rentry')) {
+						router.unregister(mdata.node, mdata.rentry);
 					} else if (mdata.type == 'get_dests') {
 						ws.sendjson_save({"type":"dests", "data":router.get_dests()});
 					} else {
-						console.log("WebSocket: Packet with unknown type received: " + mdata.type);
+						console.log("WebSocket: Packet with unknown type received: ", mdata.type,
+							" Packet: ", JSON.stringify(mdata));
 					}
 				}
 			} catch (e) {
