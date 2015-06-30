@@ -76,6 +76,10 @@ exports.init = function(router, basename, ws_url, init_callback) {
 					mdata.hasOwnProperty('value') &&
 					mdata.hasOwnProperty('time')) {
 				router.route(basename + mdata.node, mdata.time, mdata.value);
+			} else if (mdata.type == 'dataset' && mdata.hasOwnProperty('data')) {
+				for (var node in mdata.data) {
+					console.log("node: ", node);
+				}
 			} else {
 				console.log("WebSocketClient: Packet with unknown type received:",
 						JSON.stringify(mdata));
