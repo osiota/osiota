@@ -25,13 +25,14 @@ exports.init = function(router, basename, command, args) {
 						value = null;
 
 					router.route(basename + name, time, value);
-				}
-				// connect:
-				result = lines[i].match(/^connect ([^\[]+)\n$/);
-				if (result) {
-					var node = result[1];
+				} else {
+					// connect:
+					var result = lines[i].match(/^connect\s+([^\[]+)\s*$/);
+					if (result) {
+						var node = result[1];
 
-					var rentry = router.register(basename + "/" + node, "ethercat", node, undefined, false);
+						var rentry = router.register(basename + node, "ethercat", node, undefined, false);
+					}
 				}
 			}
 		}
