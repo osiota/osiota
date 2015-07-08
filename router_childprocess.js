@@ -5,6 +5,7 @@ exports.init = function(router, basename, command, args) {
 
 	var spawn = require('child_process').spawn;
 	var childProcess = spawn(command, args);
+	childProcess.stdin.setEncoding('utf8');
 	childProcess.stdout.setEncoding('utf8');
 	childProcess.stderr.setEncoding('utf8');
 
@@ -25,6 +26,13 @@ exports.init = function(router, basename, command, args) {
 
 					router.route(basename + name, time, value);
 				}
+				// connect:
+				result = lines[i].match(/^connect ([^\[]+)\n$/);
+				if (result) {
+					var node = result[1];
+
+					var rentry = router.register(basename + "/" + node, "ethercat", node, undefined, false);
+				}
 			}
 		}
 	});
@@ -33,5 +41,9 @@ exports.init = function(router, basename, command, args) {
 		console.error("Error in child_process: "+data.toString() + "\n"
 			+ "Command: " + command + " " + args);
 	});
+
+	router.dests.ethercat = function(id, time, value) {
+		childProcess.stdin.write(id + " [" + time + "]:\t" + value);
+	};
 };
 
