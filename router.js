@@ -6,7 +6,7 @@ exports.router = function() {
 };
 
 /* Register a callback or a link name for a route */
-exports.router.prototype.register = function(name, dest, id, obj) {
+exports.router.prototype.register = function(name, dest, id, obj, push_data) {
 	console.log("registering " + name);
 
 	var rentry = {};
@@ -22,7 +22,7 @@ exports.router.prototype.register = function(name, dest, id, obj) {
 	rentry.obj = obj;
 	rentry.type = "function";
 
-	return this.add_rentry(name, rentry);
+	return this.add_rentry(name, rentry, push_data);
 };
 
 /* Register a link name for a route */
@@ -43,10 +43,13 @@ exports.router.prototype.connect = function(name, dnode) {
 	return this.add_rentry(name, rentry);
 };
 
-exports.router.prototype.add_rentry = function(name, rentry) {
+exports.router.prototype.add_rentry = function(name, rentry, push_data) {
 	if (typeof rentry !== "object") {
 		console.log("Router. Error: Type of rentry is not object. Type is: " + typeof rentry);
 		return;
+	}
+	if (typeof push_data !== "boolean") {
+		push_data = true;
 	}
 
 	if (!this.nodes.hasOwnProperty(name))
@@ -62,7 +65,8 @@ exports.router.prototype.add_rentry = function(name, rentry) {
 	this.nodes[name].listener.push(rentry);
 
 	// push data to new entry:
-	if (this.nodes.hasOwnProperty(name) &&
+	if (push_data &&
+			this.nodes.hasOwnProperty(name) &&
 			this.nodes[name] !== null &&
 			this.nodes[name].hasOwnProperty("value") &&
 			this.nodes[name].hasOwnProperty("time")) {
