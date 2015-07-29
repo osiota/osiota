@@ -1,0 +1,102 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:	     ifn_data_router
+# Required-Start:    $network $remote_fs $syslog ntp
+# Required-Stop:     $network $remote_fs $syslog ntp
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: Start IfN data router
+### END INIT INFO
+
+# Author: Simon Walz <walz@ifn.ing.tu-bs.de>
+
+BASE=/home/pi/iwfn_collector/router/
+PID=/run/idr.pid
+LOG=/run/idr.log
+CLOG=/mnt/idr_c.log
+#CLOG=/dev/null
+
+USR=pi
+
+COMMAND="/usr/bin/nodejs ${BASE}router_main_pi.js"
+ 
+status() {
+	echo
+	echo "==== Status"
+	 
+	if [ -f $PID ]
+		then
+		echo
+		echo "Pid file: $( cat $PID ) [$PID]"
+		echo
+		ps -ef | grep -v grep | grep $( cat $PID )
+	else
+		echo
+		echo "No Pid file"
+	fi
+}
+ 
+start() {
+	if [ -f $PID ]
+	then
+		echo
+		echo "Already started. PID: [$( cat $PID )]"
+		# restart:
+		stop ; echo "Sleeping..."; sleep 1 ;
+	fi
+
+	echo "==== Start"
+	cd "$BASE"
+	touch $PID
+	if nohup sudo -u $USR $COMMAND >$CLOG 2>&1 &
+	then
+		echo $! >$PID
+		echo "Done."
+		echo "$(date '+%Y-%m-%d %X'): START" >>$LOG
+	else
+		echo "Error... "
+		/bin/rm $PID
+	fi
+}
+ 
+ 
+stop() {
+	echo "==== Stop"
+ 
+	if [ -f $PID ]
+	then
+		if kill $( cat $PID )
+		then
+			echo "Done."
+			echo "$(date '+%Y-%m-%d %X'): STOP" >>$LOG
+		fi
+		/bin/rm $PID
+	else
+		echo "No pid file. Already stopped?"
+	fi
+}
+ 
+case "$1" in
+	'start')
+		start
+		;;
+	'stop')
+		stop
+		;;
+	'restart')
+		stop ; echo "Sleeping..."; sleep 1 ;
+		start
+		;;
+	'status')
+		status
+		;;
+	*)
+		echo
+		echo "Usage: $0 { start | stop | restart | status }"
+		echo
+		exit 1
+		;;
+esac
+ 
+exit 0
