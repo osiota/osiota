@@ -19,7 +19,7 @@ CLOG=/mnt/idr_c.log
 
 USR=pi
 
-COMMAND="/usr/bin/nodejs ${BASE}router_main_pi.js"
+COMMAND="${BASE}router_main_init.js"
  
 status() {
 	echo
