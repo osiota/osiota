@@ -39,8 +39,9 @@ exports.init = function(router, basename, command, args) {
 	});
 
 	childProcess.stderr.on("data", function (data) {
-		console.error("Error in child_process: "+data.toString() + "\n"
-			+ "Command: " + command + " " + args);
+		console.error(data.toString().replace(/(\n|\r)+$/, ''));
+		//console.error("Error in child_process: "+data.toString() + "\n"
+		//	+ "Command: " + command + " " + args);
 	});
 
 	router.dests.ethercat = function(id, time, value) {
