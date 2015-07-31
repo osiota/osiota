@@ -77,7 +77,8 @@ exports.init = function(router, basename, port) {
 					}
 				}
 			} catch (e) {
-				console.log("Exception: " + e);
+				console.log("WebSocket, on message, Exception: ", e);
+				console.log("\tMessage: ", message);
 			}
 		});
 		ws.on('close', function() {
