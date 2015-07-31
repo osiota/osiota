@@ -111,7 +111,7 @@ exports.router.prototype.route_one = function(rentry, name, time, value) {
 };
 
 /* Route data */
-exports.router.prototype.route_synchronous = function(name, time, value) {
+exports.router.prototype.route_synchronous = function(name, time, value, only_if_differ) {
 	// is a new node?
 	if (!this.nodes.hasOwnProperty(name)) {
 		console.log("new node: " + name);
@@ -123,6 +123,15 @@ exports.router.prototype.route_synchronous = function(name, time, value) {
 			node.time == time) {
 		return;
 	}
+	// cancel if node did not change:
+	var node = r.nodes[name];
+	if (typeof only_if_differ !== "undefined" &&
+			only_if_differ &&
+			node.hasOwnProperty("value") &&
+			node.value == value) {
+		return;
+	}
+
 	// set new data:
 	node.value = value;
 	node.time = time;
@@ -136,10 +145,10 @@ exports.router.prototype.route_synchronous = function(name, time, value) {
 };
 
 /* Route data */
-exports.router.prototype.route = function(name, time, value) {
+exports.router.prototype.route = function(name, time, value, only_if_differ) {
 	var r = this;
 	process.nextTick(function() {
-		r.route_synchronous(name, time, value);
+		r.route_synchronous(name, time, value, only_if_differ);
 	});
 }
 
