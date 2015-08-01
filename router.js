@@ -124,7 +124,7 @@ exports.router.prototype.route_synchronous = function(name, time, value, only_if
 		return;
 	}
 	// cancel if node did not change:
-	var node = r.nodes[name];
+	var node = this.nodes[name];
 	if (typeof only_if_differ !== "undefined" &&
 			only_if_differ &&
 			node.hasOwnProperty("value") &&
