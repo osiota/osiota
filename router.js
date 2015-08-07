@@ -142,6 +142,8 @@ exports.router.prototype.route_synchronous = function(name, time, value, only_if
 			this.route_one(node.listener[i], name, time, value);
 		}
 	}
+
+	// inform parents:
 };
 
 /* Route data */
@@ -189,3 +191,6 @@ exports.router.prototype.get_static_dest = function(name) {
 	}
 	return undefined;
 };
+
+process.on('SIGINT', function() { process.exit(0); });
+process.on('SIGTERM', function() { process.exit(0); });
