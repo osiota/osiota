@@ -11,13 +11,13 @@
 
 # Author: Simon Walz <walz@ifn.ing.tu-bs.de>
 
-BASE=/home/pi/iwfn_collector/router/
+BASE="$(dirname "$(dirname "$(readlink /etc/init.d/ifn_data_router)")")/"
 PID=/run/idr.pid
 LOG=/run/idr.log
-CLOG=/mnt/idr_c.log
+CLOG="${BASE}idr_output.log"
 #CLOG=/dev/null
 
-USR=pi
+USR=`stat -c %U "${BASE}"`
 
 COMMAND="${BASE}router_main_init.js"
  
