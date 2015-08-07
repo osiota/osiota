@@ -43,6 +43,9 @@ exports.init = function(router, basename, command, args) {
 		//console.error("Error in child_process: "+data.toString() + "\n"
 		//	+ "Command: " + command + " " + args);
 	});
+	process.on('exit', function () {
+		childProcess.kill();
+	});
 
 	router.dests.ethercat = function(id, time, value) {
 		childProcess.stdin.write(id + " [" + time + "]:\t" + value);
