@@ -3,6 +3,8 @@
 var Router = require('./router.js').router;
 var r = new Router();
 
+require('./router_jsonconnect.js').init(r, "http://localhost/energy/get_sensors.php");
+
 require('./router_console_out.js').init(r, "/console");
 require('./router_websockets.js').init(r, "/ws", 8080);
 require('./router_console_in.js').init(r, "");
