@@ -65,12 +65,15 @@ exports.router.prototype.add_rentry = function(name, rentry, push_data) {
 	this.nodes[name].listener.push(rentry);
 
 	// push data to new entry:
-	if (push_data &&
-			this.nodes.hasOwnProperty(name) &&
-			this.nodes[name] !== null &&
-			this.nodes[name].hasOwnProperty("value") &&
-			this.nodes[name].hasOwnProperty("time")) {
-		this.route_one(rentry, name, this.nodes[name].time, this.nodes[name].value);
+	if (push_data) {
+		if (this.nodes.hasOwnProperty(name) &&
+				this.nodes[name] !== null &&
+				this.nodes[name].hasOwnProperty("value") &&
+				this.nodes[name].hasOwnProperty("time")) {
+			this.route_one(rentry, name, this.nodes[name].time, this.nodes[name].value);
+		} else {
+			this.route_one(rentry, name, null, null);
+		}
 	}
 
 	return rentry;
