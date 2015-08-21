@@ -15,8 +15,8 @@ require('./router_io_bias.js').init(r);
 require('./router_io_multiply.js').init(r);
 require('./router_io_sum.js').init(r);
 
-/*
-var static_routes = require('./config_static_routes.js').static_routes;
+
+var static_routes = require('./config_static_routes_ags.js').static_routes;
 for (var from in static_routes) {
 	if (typeof static_routes[from] === "Array") {
 		for (var tid=0; tid<static_routes[from].length; tid++) {
@@ -27,6 +27,7 @@ for (var from in static_routes) {
 	}
 }
 
+/*
 //r.register('/ethercat/CNC/Global_voltage', 'multiply', '/ethercat/CNC/Exhaust', '/ethercat/CNC/Exhaust_current');
 r.register('/ethercat/CNC/PLC', 'sum', '/exlab/All', [
 		'/ethercat/CNC/Spindle',
