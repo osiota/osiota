@@ -49,7 +49,7 @@ r.register('/ethercat/CNC/PLC', 'sum', '/exlab/All', [
 		'/ethercat/Furnace/PLC',
 ]);
 
-r.register('/ethercat/TransportB/Airflow', 'bias', '/ethercat/TransportB/Airflow_corrected');
+//r.register('/ethercat/TransportB/Airflow', 'bias', '/ethercat/TransportB/Airflow_corrected');
 
 r.register('/ethercat/CNC/PLC', 'sum', '/exlab/CNC', [
 		'/ethercat/CNC/Spindle',
@@ -67,4 +67,8 @@ r.register('/ethercat/CNC/PLC', 'sum', '/exlab/CNC', [
 //r.connect("/ethercat/Shunt/Wert_1", "/Energie_P1");
 //r.register("/Energie_P1", "console", "P1");
 //r.connect("/Energie_P1", "/mysql/DistributionB/Individualiser");
+
+r.register('/ethercat/Assembling/Individualiser', 'sum', '/sum_1', [
+		"/ethercat/TransportA/Belt", "/ethercat/Furnace/Heating", "/ethercat/CNC/Exhaust"
+]);
 
