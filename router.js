@@ -106,7 +106,7 @@ exports.router.prototype.route_one = function(rentry, name, time, value) {
 			var dest_f = this.get_static_dest(rentry.dest);
 			dest_f(rentry.id, time, value, name, rentry.obj);
 		} else if (rentry.type == "node" && typeof rentry.dnode === "string") {
-			this.route(rentry.dnode, time, value, name);
+			this.route(rentry.dnode, time, value);
 		} else {
 			console.log("Route [" + name + "]: Unknown destination type: ", rentry.type);
 		}

@@ -19,7 +19,7 @@ exports.init = function(router, basename, command, args) {
 				var result = lines[i].match(/^([^\[]+)\s+\[([0-9.]+)\]:\s+([-0-9.]+)$/);
 				if (result) {
 					var name = result[1];
-					var time = result[2];
+					var time = 1 * result[2];
 					var value = 1 * result[3];
 					if (result[3] == "null")
 						value = null;

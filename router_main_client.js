@@ -1,6 +1,11 @@
 #!/usr/bin/node
 
-var args = process.argv.slice(2);
+var argv = require('optimist').argv;
+
+var ws_server = "ws://localhost:8080/";
+if (argv.s)
+	ws_server = argv.s;
+
 
 // initialise the Router
 var Router = require('./router.js').router;
@@ -10,16 +15,18 @@ var r = new Router();
 require('./router_console_out.js')
 	.init(r, "/console");
 require('./router_websocket_client.js')
-		.init(r, "/wsc", "ws://134.169.61.26:8080/", function(o_ws) {
+		.init(r, "", ws_server, function(o_ws) {
 	console.log("Connected.");
-	if (args[0] == "list") {
+	if (argv.list)
 		o_ws.sendjson({"type":"list"});
-	} else if (args[0] != "") {
-		var node = args[0];
+
+	if (argv._.length > 0) {
+		var node = argv._;
 		o_ws.request(node);
-		r.register("/wsc" + node, "console", node);
+		r.register(node, "console", node);
 	} else {
-		console.log("no arg given");
+		console.log("no node registered. existing ...");
+		setTimeout(function() { process.exit(); }, 1000);
 	}
 });
 
