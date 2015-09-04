@@ -33,7 +33,15 @@ exports.static_routes = {
 '/ethercat/CNC/Belt':'/mysql/CNC/Belt',
 '/ethercat/CNC/Airflow':'/mysql/CNC/Air',
 '/ethercat/CNC/Position':'/mysql/CNC/Position',
-'/ethercat/CNC/PLC':'/mysql/CNC/PLC'
+'/ethercat/CNC/PLC':'/mysql/CNC/PLC',
+'/ethercat/Compressor/Air_in':'/mysql/Compressor/Air_in',
+'/ethercat/Compressor/Air_out':'/mysql/Compressor/Air_out',
+'/ethercat/Compressor/Water_in':'/mysql/Compressor/Water_in',
+'/ethercat/Compressor/Water_out':'/mysql/Compressor/Water_out',
+'/ethercat/Compressor/Airflow':'/mysql/Compressor/Airflow',
+'/ethercat/Compressor/Waterflow':'/mysql/Compressor/Waterflow',
+'/ethercat/Compressor/Air_out_Pressure':'/mysql/Compressor/Air_out_Pressure',
+'/ethercat/Compressor/Power':'/mysql/Compressor/Power'
 }
 ;
 
