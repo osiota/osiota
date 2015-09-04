@@ -5,7 +5,8 @@
   },
   "devDependencies": {
     "ws": "~0.7.1",
-    "mysql": "~2.5.4"
+    "mysql": "~2.5.4",
+    "optimist": ""
   },
   "engines": {
     "node": ">=0.8.0"
