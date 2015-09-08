@@ -179,7 +179,7 @@ var register_type = function(router, basename, addr, type) {
 var process_agsbus = function(router, basename, mcmd, margs, port) {
 	if (mcmd == "Got") {
 		//console.log("Got Activity");
-		var result2 = margs.match(/^(.|\n|\r),(.|\n|\r),((?:.|\n|\r.){4})$/);
+		var result2 = margs.match(/^(.|\n|\r),(.|\n|\r),((?:.|\n|\r){4})$/);
 		if (result2) {
 		var addr  = result2[1].charCodeAt(0);
 		var cmd   = result2[2].charCodeAt(0);
