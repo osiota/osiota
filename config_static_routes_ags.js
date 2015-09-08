@@ -35,9 +35,9 @@ exports.static_routes = {
 	'/agsbus/5/2_input': '/ags/sonstiges/klingeltaster',
 
 	'/agsbus/7/0_output': '/ags/licht/elab-nord',
-	'/ags/licht/elab-nord_s': '/agsbus/7/0_output_s',
-	'/agsbus/7/1_output': '/ags/licht/elab-sued',
-	'/ags/licht/elab-sued_s': '/agsbus/7/1_output_s',
+	'/ags/licht/elab-sued_s': '/agsbus/7/0_sued_s',
+	'/agsbus/7/1_output': '/ags/licht/elab-nord',
+	'/ags/licht/elab-nord_s': '/agsbus/7/1_output_s',
 	'/agsbus/7/2_output': '/ags/licht/flur',
 	'/ags/licht/flur_s': '/agsbus/7/2_output_s',
 	'/agsbus/7/3_output': '/ags/licht/buero',
