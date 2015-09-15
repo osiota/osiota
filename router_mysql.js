@@ -20,7 +20,8 @@ exports.init = function(router, basename, mysql_config) {
 		if (typeof data === "undefined") data = [];
 		exports.pool.getConnection(function(err, connection) {
 			if (err) {
-				connection.release();
+				if (connection)
+					connection.release();
 				console.warn("Error in connection database");
 				return;
 			}
