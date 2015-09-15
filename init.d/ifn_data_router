@@ -4,7 +4,7 @@
 # Provides:	     ifn_data_router
 # Required-Start:    $network $remote_fs $syslog ntp
 # Required-Stop:     $network $remote_fs $syslog ntp
-# Should-Start:      lighttpd apache2
+# Should-Start:      lighttpd apache2 ethercat
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Start IfN data router
