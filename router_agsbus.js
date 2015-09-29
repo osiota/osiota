@@ -215,6 +215,8 @@ var process_agsbus = function(router, basename, mcmd, margs, port) {
 			console.log("Error: packet got, agsbus structure not recognized: ",
 					showbytes(margs));
 		}
+	} else if (mcmd == "ErT") {
+		// do nothing.
 	} else if (mcmd == "BMa") {
 		console.log("BMa Activity");
 	} else {
