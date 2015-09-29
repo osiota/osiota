@@ -149,6 +149,7 @@ agsBus_types["04io"] = {
 		return write_bit(addr, channel, value)
 	}
 };
+agsBus_types["8i6o"] = agsBus_types["04io"];
 
 
 // ags bus clients:
