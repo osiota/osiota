@@ -239,13 +239,13 @@ exports.init = function(router, basename, command, args) {
 	port.wbuffer = [];
 	port.sending = false;
 	port.timer = undefined;
-	port.buffer_size = function(comment) {
+	/*port.buffer_size = function(comment) {
 		console.log("Buffer " + this.wbuffer.length + " @ " + comment);
-	}
+	}*/
 	port.write_buffer = function(data) {
 		console.log("COMMAND: ", showbytes(data));
 		this.wbuffer.push(data);
-		this.buffer_size("+1");
+		//this.buffer_size("+1");
 		this.write_send();
 	};
 	port.write_send = function() {
@@ -266,7 +266,7 @@ exports.init = function(router, basename, command, args) {
 				this.timer = setTimeout(function(p) {
 					p.write_done()
 				}, 100, this);
-				this.buffer_size("-1");
+				//this.buffer_size("-1");
 			}
 		} else {
 			if (typeof this.timer === "undefined" || !this.timer) {
@@ -277,7 +277,7 @@ exports.init = function(router, basename, command, args) {
 		}
 	};
 	port.write_done = function() {
-		this.buffer_size(".");
+		//this.buffer_size(".");
 		this.sending = false;
 		this.write_send();
 	}
