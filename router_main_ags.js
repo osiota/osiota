@@ -15,6 +15,8 @@ require('./router_io_bias.js').init(r);
 require('./router_io_multiply.js').init(r);
 require('./router_io_sum.js').init(r);
 
+require('./router_execcommand.js').init(r);
+
 
 var static_routes = require('./config_static_routes_ags.js').static_routes;
 for (var from in static_routes) {
@@ -50,6 +52,8 @@ r.register('/ethercat/CNC/PLC', 'sum', '/exlab/CNC', [
 		'/ethercat/CNC/Position',
 ]);
 */
+
+r.register('/ags/sonstiges/vordereingang-bewegung', 'execcommand', '/home/max/intruder.sh');
 
 //
 //r.register('/ethercat/CNC/Exhaust', 'multiply', '/ethercat/CNC/Exhaust_current', '/ethercat/CNC/Global_voltage');
