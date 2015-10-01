@@ -164,6 +164,26 @@ agsBus_types["04io"] = {
 };
 agsBus_types["8i6o"] = agsBus_types["04io"];
 
+// Spannungskontrolle:
+agsBus_types.Usrc = {
+	"read": function(router, basename, addr, payload) {
+		var time  = Date.now()/1000;
+
+		// smps voltage:
+		var smps_voltage = convert_to_uint16(payload, 0);
+		if (smps_voltage == 0xFFFF) {
+			// TODO: Fehlermeldung ausgeben!
+			smps_voltage = 0;
+		}
+		router.route(basename + "/" + addr + "/smps_voltage", time, smps_voltage / 1000);
+
+		// bus voltage:
+		var bus_voltage = convert_to_uint16(payload, 2);
+		router.route(basename + "/" + addr + "/bus_voltage", time, bus_voltage / 1000);
+	}
+};
+
+
 
 // ags bus clients:
 var agsBus_clients = [];
