@@ -157,23 +157,49 @@ exports.router.prototype.route = function(name, time, value, only_if_differ) {
 	});
 }
 
+/* Get a copy of the listeners */
+exports.router.prototype.get_listener = function(rentry) {
+	var npr = {};
+	npr.type = rentry.type;
+	if (rentry.type == "function" && typeof rentry.dest === "string") {
+		npr.dest = rentry.dest;
+		if (rentry.hasOwnProperty("id"))
+			npr.id = rentry.id;
+	} else if (rentry.type == "node" && typeof rentry.dnode === "string") {
+		npr.dnode = rentry.dnode;
+	}
+	return npr;
+};
 
 /* Get names and data of the nodes */
 exports.router.prototype.get_nodes = function() {
-	var data = {};
+	var r = this;
+	var nodes = {};
+	for (var name in this.nodes) {
+		var n = this.nodes[name];
+		var np = {};
+		if (n.hasOwnProperty("value"))
+			np.value = n.value;
+		if (n.hasOwnProperty("time"))
+			np.time = n.time;
 
-	return this.nodes;
+		np.listener = [];
+		if (n.hasOwnProperty("listener")) {
+			np.listener = n.listener.map(function(rentry) {
+				return r.get_listener(rentry);
+			});
+		}
+
+		nodes[name] = np;
+	}
+	return nodes;
 };
+
 
 /* Get names and data of destinations */
 exports.router.prototype.get_dests = function() {
 	var dests = [];
-	for (var d in this.dests) {
-		if (this.dests.hasOwnProperty(d)) {
-			dests.push(d);
-		}
-	}
-	return dests;
+	return Object.keys(this.dests);
 };
 
 
