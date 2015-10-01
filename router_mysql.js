@@ -41,24 +41,13 @@ exports.init = function(router, basename, mysql_config) {
 			});
 		});
 	};
-	exports.insertdata_data = [];
-	exports.insertdata_trigger = function() {
-		if (exports.insertdata_data.length > 0) {
-			var data = exports.insertdata_data.splice(0,exports.insertdata_data.length);
-
-			var table = "Data";
-			var keys = ["Measurement_id", "Time", "Value"];
-			//var sqlq = mysql.format("INSERT INTO ??(??) VALUES ?", [table, keys, data]);
-			//console.log("Query: ", sqlq);
-			exports.query("INSERT INTO ??(??) VALUES ?", [table, keys, data]);
-		}
-	};
-	exports.insertdata = function(entry) {
-		exports.insertdata_data.push(entry);
-		process.nextTick(function() {
-			exports.insertdata_trigger();
-		});
-	};
+	exports.insertdata = router.cue(function(data) {
+		var table = "Data";
+		var keys = ["Measurement_id", "Time", "Value"];
+		//var sqlq = mysql.format("INSERT INTO ??(??) VALUES ?", [table, keys, data]);
+		//console.log("Query: ", sqlq);
+		exports.query("INSERT INTO ??(??) VALUES ?", [table, keys, data]);
+	});
 	// Register MySQL Destination:
 	router.dests.mysql = function(id, time, value) {
 		if (typeof value !== "undefined" && value !== null)
