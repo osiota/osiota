@@ -221,5 +221,19 @@ exports.router.prototype.get_static_dest = function(name) {
 	return undefined;
 };
 
+/* Cue data */
+exports.router.prototype.cue = function(callback) {
+	var cue_data = [];
+	return function(entry) {
+		cue_data.push(entry);
+		process.nextTick(function() {
+			if (cue_data.length > 0) {
+				var data = cue_data.splice(0,cue_data.length);
+				callback(data);
+			}
+		});
+	};
+};
+
 process.on('SIGINT', function() { process.exit(0); });
 process.on('SIGTERM', function() { process.exit(0); });
