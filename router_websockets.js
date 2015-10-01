@@ -42,42 +42,20 @@ exports.init = function(router, basename, port) {
 
 	wss.on('connection', function(ws) {
 		ws.closed = false;
+		ws.respond = router.cue(function(data) {
+			ws.sendjson(data);
+		});
 		ws.send_data = function(id, time, value) {
-			ws.sendjson({"type":"data", "node":id, "time":time, "value":value});
+			ws.respond({"type":"data", "node":id, "time":time, "value":value});
 		};
 		ws.registered_nodes = [];
 		ws.on('message', function(message) {
 			//console.log('received: %s', message);
 			try {
-				var mdata = JSON.parse(message);
-				if (mdata.hasOwnProperty('type')) {
-					if (mdata.type == 'bind' && mdata.hasOwnProperty('node')) {
-						var ref = router.register(mdata.node, "wss", mdata.node, ws);
-						ws.registered_nodes.push({"node": mdata.node, "ref": ref});
-					} else if (mdata.type == 'list') {
-						ws.sendjson_save({"type":"dataset", "data":router.get_nodes()});
-					} else if (mdata.type == 'data' && mdata.hasOwnProperty('node') &&
-							mdata.hasOwnProperty('value') &&
-							mdata.hasOwnProperty('time')) {
-						router.route(basename + mdata.node, mdata.time, mdata.value);
-					} else if (mdata.type == 'connect' && mdata.hasOwnProperty('node') &&
-							mdata.hasOwnProperty('dnode')) {
-						router.connect(mdata.node, mdata.dnode);
-					} else if (mdata.type == 'register' && mdata.hasOwnProperty('node') &&
-							mdata.hasOwnProperty('dest')) {
-						router.register(mdata.node, mdata.dest, mdata.id, mdata.obj);
-					} else if (mdata.type == 'unregister' && mdata.hasOwnProperty('node') &&
-							mdata.hasOwnProperty('rentry')) {
-						router.unregister(mdata.node, mdata.rentry);
-					} else if (mdata.type == 'get_dests') {
-						ws.sendjson_save({"type":"dests", "data":router.get_dests()});
-					} else {
-						console.log("WebSocket: Packet with unknown type received: ", mdata.type,
-							" Packet: ", JSON.stringify(mdata));
-					}
-				}
+				var data = JSON.parse(message);
+				router.process_message(data, "wss", ws, function(data) { ws.respond(data); });
 			} catch (e) {
-				console.log("WebSocket, on message, Exception: ", e);
+				console.log("WebSocket, on message, Exception: ", e, e.stack.split("\n"));
 				console.log("\tMessage: ", message);
 			}
 		});
@@ -96,7 +74,7 @@ exports.init = function(router, basename, port) {
 	});
 
 	router.dests.wss = function(id, time, value, name, obj) {
-		obj.send_data(id, time, value);
+		obj.respond({"type":"data", "node":id, "time":time, "value":value});
 	};
 
 
