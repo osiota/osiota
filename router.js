@@ -225,6 +225,9 @@ exports.router.prototype.process_message = function(data, cb_name, obj, respond)
 	if (typeof respond !== "function")
 		respond = function() {};
 
+	if (!Array.isArray(data)) {
+		data = [data];
+
 	data.forEach(function(d) {
 		if (d.hasOwnProperty('type')) {
 			if (d.type == 'bind' && d.hasOwnProperty('node')) {
