@@ -32,6 +32,29 @@ var read_bits = function(router, basename, name_extra, offset, payload) {
 		router.route(basename + name, time, value, 1);
 	}
 };
+var convert_to_int16 = function(payload, offset) {
+	var byte_hi = payload.charCodeAt(offset);
+	var byte_lo = payload.charCodeAt(offset+1);
+
+	var value = (byte_hi<<8) + byte_lo;
+
+	var minus = byte_hi & (1<<7);
+	if (minus) {
+		value--;
+		value = value ^ 0xFFFF;
+		value *= -1;
+	}
+	return value;
+};
+var convert_to_uint16 = function(payload, offset) {
+	var byte_hi = payload.charCodeAt(offset);
+	var byte_lo = payload.charCodeAt(offset+1);
+
+	var value = (byte_hi<<8) + byte_lo;
+
+	return value;
+};
+
 var cmd_build = function(mcmd, addr, cmd, payload) {
 	return "#" + mcmd + ":" +
 			String.fromCharCode(addr*1) + "," +
@@ -92,17 +115,7 @@ agsBus_types.Temp = {
 	"read": function(router, basename, addr, payload) {
 		var time  = Date.now()/1000;
 		for (var b=0;b<2;b++) {
-			var byte_hi = payload.charCodeAt(b*2);
-			var byte_lo = payload.charCodeAt(b*2+1);
-
-			var temp = (byte_hi<<8) + byte_lo;
-
-			var minus = byte_hi & (1<<7);
-			if (minus) {
-				temp--;
-				temp = temp ^ 0xFFFF;
-				temp *= -1;
-			}
+			var temp = convert_to_int16(payload, b*2);
 			temp /= 10;
 			
 			var name = "/" + addr + "/" + b + "_temp";
