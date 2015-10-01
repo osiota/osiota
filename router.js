@@ -220,7 +220,7 @@ exports.router.prototype.get_static_dest = function(name) {
 	}
 	return undefined;
 };
-exports.router.prototype.process_message = function(data, cb_name, obj, respond) {
+exports.router.prototype.process_message = function(basename, data, cb_name, obj, respond) {
 	var r = this;
 	if (typeof respond !== "function")
 		respond = function() {};
@@ -260,6 +260,11 @@ exports.router.prototype.process_message = function(data, cb_name, obj, respond)
 				if (typeof obj !== "undefined" && obj !== null) {
 					respond({"type":"dests", "data":r.get_dests()});
 					//ws.sendjson_save({"type":"dests", "data":r.get_dests()});
+				}
+			// TODO:
+			} else if (d.type == 'dataset' && d.hasOwnProperty('data')) {
+				for (var node in d.data) {
+					console.log("node: ", node);
 				}
 			} else {
 				console.log("Router, Process message: Packet with unknown type received: ", d.type,
