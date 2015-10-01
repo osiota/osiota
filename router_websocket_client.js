@@ -21,7 +21,7 @@ pwsc.prototype.init = function() {
 				var data = JSON.parse(message);
 				pthis.cb_msg(data);
 			} catch(e) {
-				console.log("bWSc: Exception (on message): " + e);
+				console.log("bWSc: Exception (on message): " + e, e.stack.split("\n"));
 			}
 		});
 		this.ws.on('close', function() {
@@ -61,37 +61,21 @@ exports.init = function(router, basename, ws_url, init_callback) {
 
 	var o_ws = null;
 
-	registered_nodes = [];
 	o_ws = new pwsc(ws_url, function() {
 		if (typeof init_callback === "function")
 			init_callback(o_ws);
-	}, function(mdata) {
-		if (mdata.hasOwnProperty('type')) {
-			if (mdata.type == 'bind' && mdata.hasOwnProperty('node')) {
-				var ref = router.register(mdata.node, "wsc", mdata.node, o_ws);
-				registered_nodes.push({"node": mdata.node, "ref": ref});
-			} else if (mdata.type == 'list') {
-				o_ws.sendjson({"type":"dataset", "data":router.get_nodes()});
-			} else if (mdata.type == 'data' && mdata.hasOwnProperty('node') &&
-					mdata.hasOwnProperty('value') &&
-					mdata.hasOwnProperty('time')) {
-				router.route(basename + mdata.node, mdata.time, mdata.value);
-			} else if (mdata.type == 'dataset' && mdata.hasOwnProperty('data')) {
-				for (var node in mdata.data) {
-					console.log("node: ", node);
-				}
-			} else {
-				console.log("WebSocketClient: Packet with unknown type received:",
-						JSON.stringify(mdata));
-			}
-		}
+	}, function(data) {
+		router.process_message(basename, data, "wsc", o_ws, function(data) { o_ws.respond(data); });
 	});
 
+	o_ws.respond = router.cue(function(data) {
+		o_ws.sendjson(data);
+	});
 	o_ws.send_data = function(id, time, value) {
-		o_ws.sendjson({"type":"data", "node":id, "time":time, "value":value});
+		o_ws.respond({"type":"data", "node":id, "time":time, "value":value});
 	};
 	o_ws.request = function(node) {
-		o_ws.sendjson({"type":"bind", "node":node});
+		o_ws.respond({"type":"bind", "node":node});
 	};
 	router.dests.wsc = function(id, time, value) {
 		o_ws.send_data(id, time, value);
