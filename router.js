@@ -220,6 +220,50 @@ exports.router.prototype.get_static_dest = function(name) {
 	}
 	return undefined;
 };
+exports.router.prototype.process_message = function(data, cb_name, obj, respond) {
+	var r = this;
+	if (typeof respond !== "function")
+		respond = function() {};
+
+	data.forEach(function(d) {
+		if (d.hasOwnProperty('type')) {
+			if (d.type == 'bind' && d.hasOwnProperty('node')) {
+				var ref = r.register(d.node, cb_name, d.node, obj);
+
+				if (typeof obj !== "undefined" && obj !== null && typeof obj.inform_bind == "function") {
+					obj.inform_bind({"node": d.node, "ref": ref});
+					//ws.registered_nodes.push({"node": d.node, "ref": ref});
+				}
+			} else if (d.type == 'list') {
+				if (typeof obj !== "undefined" && obj !== null) {
+					respond({"type":"dataset", "data":r.get_nodes()});
+					//ws.sendjson_save({"type":"dataset", "data":r.get_nodes()});
+				}
+			} else if (d.type == 'data' && d.hasOwnProperty('node') &&
+					d.hasOwnProperty('value') &&
+					d.hasOwnProperty('time')) {
+				r.route(basename + d.node, d.time, d.value);
+			} else if (d.type == 'connect' && d.hasOwnProperty('node') &&
+					d.hasOwnProperty('dnode')) {
+				r.connect(d.node, d.dnode);
+			} else if (d.type == 'register' && d.hasOwnProperty('node') &&
+					d.hasOwnProperty('dest')) {
+				r.register(d.node, d.dest, d.id, d.obj);
+			} else if (d.type == 'unregister' && d.hasOwnProperty('node') &&
+					d.hasOwnProperty('rentry')) {
+				r.unregister(d.node, d.rentry);
+			} else if (d.type == 'get_dests') {
+				if (typeof obj !== "undefined" && obj !== null) {
+					respond({"type":"dests", "data":r.get_dests()});
+					//ws.sendjson_save({"type":"dests", "data":r.get_dests()});
+				}
+			} else {
+				console.log("Router, Process message: Packet with unknown type received: ", d.type,
+					" Packet: ", JSON.stringify(d));
+			}
+		}
+	});
+};
 
 /* Cue data */
 exports.router.prototype.cue = function(callback) {
