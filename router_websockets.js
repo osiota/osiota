@@ -49,6 +49,9 @@ exports.init = function(router, basename, port) {
 			ws.respond({"type":"data", "node":id, "time":time, "value":value});
 		};
 		ws.registered_nodes = [];
+		ws.inform_bind = function(node, ref) {
+			ws.registered_nodes.push({"node": node, "ref": ref});
+		};
 		ws.on('message', function(message) {
 			//console.log('received: %s', message);
 			try {

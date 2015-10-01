@@ -234,7 +234,7 @@ exports.router.prototype.process_message = function(data, cb_name, obj, respond)
 				var ref = r.register(d.node, cb_name, d.node, obj);
 
 				if (typeof obj !== "undefined" && obj !== null && typeof obj.inform_bind == "function") {
-					obj.inform_bind({"node": d.node, "ref": ref});
+					obj.inform_bind(d.node, ref);
 					//ws.registered_nodes.push({"node": d.node, "ref": ref});
 				}
 			} else if (d.type == 'list') {
