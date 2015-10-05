@@ -255,10 +255,8 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 					//ws.registered_nodes.push({"node": d.node, "ref": ref});
 				}
 			} else if (d.type == 'list') {
-				if (typeof obj !== "undefined" && obj !== null) {
-					respond({"type":"dataset", "data":r.get_nodes()});
-					//ws.sendjson_save({"type":"dataset", "data":r.get_nodes()});
-				}
+				respond({"type":"dataset", "data":r.get_nodes()});
+				//ws.sendjson_save({"type":"dataset", "data":r.get_nodes()});
 			} else if (d.type == 'data' && d.hasOwnProperty('node') &&
 					d.hasOwnProperty('value') &&
 					d.hasOwnProperty('time')) {
@@ -276,10 +274,7 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 					d.hasOwnProperty('rentry')) {
 				r.unregister(d.node, d.rentry);
 			} else if (d.type == 'get_dests') {
-				if (typeof obj !== "undefined" && obj !== null) {
-					respond({"type":"dests", "data":r.get_dests()});
-					//ws.sendjson_save({"type":"dests", "data":r.get_dests()});
-				}
+				respond({"type":"dests", "data":r.get_dests()});
 			// TODO:
 			} else if (d.type == 'dataset' && d.hasOwnProperty('data')) {
 				for (var node in d.data) {
