@@ -139,6 +139,13 @@ exports.router.prototype.route_synchronous = function(name, time, value, only_if
 	node.value = value;
 	node.time = time;
 
+	// add history:
+	if (!node.hasOwnProperty("history")) {
+		node.history = new exports.history(50*60);
+	}
+	node.history.add({value: value, time: time});
+
+
 	// route the data according to the routing entries:
 	if (node.hasOwnProperty("listener")) {
 		for(var i=0; i<node.listener.length; i++) {
@@ -211,6 +218,15 @@ exports.router.prototype.get = function(name) {
 	return {};
 };
 
+/* get History of a node: */
+exports.router.prototype.get_history = function(name, interval) {
+	var n = this.get(name);
+	if (n.hasOwnProperty('history')) {
+		return n.history.get();
+	}
+	return [];
+};
+
 exports.router.prototype.register_static_dest = function(name, func) {
 	this.dests[name] = func;
 };
@@ -247,6 +263,9 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 					d.hasOwnProperty('value') &&
 					d.hasOwnProperty('time')) {
 				r.route(basename + d.node, d.time, d.value);
+			} else if (d.type == 'get_history' && d.hasOwnProperty('node') &&
+					d.hasOwnProperty('interval')) {
+				respond({"type": "history", "node": d.node, "data": r.get_history(d.node, d.interval) });
 			} else if (d.type == 'connect' && d.hasOwnProperty('node') &&
 					d.hasOwnProperty('dnode')) {
 				r.connect(d.node, d.dnode);
@@ -287,6 +306,21 @@ exports.router.prototype.cue = function(callback) {
 		});
 	};
 };
+
+/* history */
+exports.history = function(history_length) {
+	this.history_length = history_length;
+	this.history_data = [];
+};
+exports.history.prototype.add = function(value) {
+	this.history_data.push(value);
+	if (this.history_data.length > this.history_length) {
+		this.history_data.splice(0,1);  // remove the first element of the array
+	}
+};
+exports.history.prototype.get = function(interval) {
+	return this.history_data;
+}
 
 process.on('SIGINT', function() { process.exit(0); });
 process.on('SIGTERM', function() { process.exit(0); });
