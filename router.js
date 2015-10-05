@@ -301,6 +301,11 @@ exports.router.prototype.cue = function(callback) {
 		});
 	};
 };
+exports.router.prototype.no_cue = function(callback) {
+	return function(data) {
+		callback(data);
+	};
+});
 
 /* history */
 exports.history = function(history_length) {
