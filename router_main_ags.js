@@ -53,8 +53,30 @@ r.register('/ethercat/CNC/PLC', 'sum', '/exlab/CNC', [
 ]);
 */
 
-r.register('/ags/sonstiges/vordereingang-bewegung', 'execcommand', '/home/max/intruder.sh');
+r.dests.not_if = function(id, time, value, name, obj) {
+	if (typeof obj !== "object" || Object.prototype.toString.call(obj) !== '[object Array]') {
+		obj = [obj];
+	}
 
+	for (var k=0;k<obj.length;k++) {
+		var node2_name = obj[k];
+		var node = r.get(node2_name);
+
+		if (node.hasOwnProperty("value") && node.value !== null) {
+			value *= !(1*node.value);
+		}
+	}
+	r.route(id, time, value);
+};
+
+r.register('/ags/aktion/vordereingang', 'execcommand', '/home/max/intruder.sh');
+r.register('/ags/sonstiges/vordereingang-bewegung', 'not_if',
+	'/ags/aktion/vordereingang', [
+		'/ags/tueren/stahltuer',
+		'/ags/tueren/vordereingang'
+	]);
+
+r.register('/ags/sonstiges/klingeltaster', 'execcommand', '/home/max/klingeln.sh');
 //
 //r.register('/ethercat/CNC/Exhaust', 'multiply', '/ethercat/CNC/Exhaust_current', '/ethercat/CNC/Global_voltage');
 //register('/CNC/Individualiser', 'console', '/CNC/Individualiser');
