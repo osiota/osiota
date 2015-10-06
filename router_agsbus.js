@@ -228,6 +228,7 @@ var process_agsbus = function(router, basename, mcmd, margs, port) {
 				}
 
 			} else {
+				console.log("Found ags node: ", addr);
 				agsBus_clients[addr] = [payload];
 				sendport(port, addr, 0xF9, "Type");
 			}
