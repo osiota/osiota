@@ -26,13 +26,13 @@ exports.static_routes = {
 	'/agsbus/13/0_temp': '/ags/temperatur/aussen',
 	'/agsbus/13/1_temp': '/ags/temperatur/elab',
 
-	'/agsbus/1/door_state': '/ags/tueren/stahltuer',
+	'/agsbus/5/3_input': '/ags/tueren/stahltuer',
 	'/agsbus/2/door_state': '/ags/tueren/vordereingang',
 	'/agsbus/3/door_state': '/ags/tueren/mitteleingang',
 	'/agsbus/4/door_state': '/ags/tueren/hintereingang',
 	
+	'/agsbus/5/0_input': '/ags/sonstiges/klingeltaster',
 	'/agsbus/5/1_input': '/ags/sonstiges/vordereingang-bewegung',
-	'/agsbus/5/2_input': '/ags/sonstiges/klingeltaster',
 
 	'/agsbus/7/0_output': '/ags/licht/elab-sued',
 	'/ags/licht/elab-sued_s': '/agsbus/7/0_output_s',
