@@ -27,7 +27,7 @@ exports.router.prototype.register = function(name, dest, id, obj, push_data) {
 
 /* Register a link name for a route */
 exports.router.prototype.connect = function(name, dnode) {
-	console.log("connecting " + name);
+	console.log("connecting " + name + " to " + dnode);
 
 	rentry = {};
 
