@@ -158,11 +158,25 @@ agsBus_types["04io"] = {
 			payload.substring(1,2));
 	
 	},
-	"write": function(attr, channel, value) {
+	"write": function(addr, channel, value) {
 		return write_bit(addr, channel, value)
 	}
 };
 agsBus_types["8i6o"] = agsBus_types["04io"];
+
+agsBus_types["eLab"] = {
+	"init": function(router, basename, addr) {
+		name = "/" + addr + "/elab_notaus";
+		var ids = addr+"/0";
+		router.register(basename + name + "_s", "agsbus", ids,
+				undefined, false);
+	},
+	"write": function(addr, channel, value) {
+		var cmd = 0xF1;
+		var payload = String.fromCharCode(0,0,0,1);
+		return cmd_build("Put", addr, cmd, payload);
+	}
+};
 
 // Spannungskontrolle:
 agsBus_types.Usrc = {
