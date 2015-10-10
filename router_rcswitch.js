@@ -6,7 +6,7 @@ exports.init = function(router, basename, nodes) {
 	}
 
 	router.dests.rcswitch = function(id, time, value, name, obj) {
-		var command = '/home/pi/switch ' + id;
+		var command = './helper/switch ' + id;
 		router.dests.execcommand(command, time, value, name, obj);
 		var dnode = name.replace(/_s$|@s$/, "");
 		router.route(dnode, time, value);
