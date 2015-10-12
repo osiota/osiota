@@ -52,28 +52,20 @@ exports.router.prototype.add_rentry = function(name, rentry, push_data) {
 		push_data = true;
 	}
 
-	if (!this.nodes.hasOwnProperty(name))
-		this.nodes[name] = {};
-	if (!this.nodes[name].hasOwnProperty("listener")) {
-		this.nodes[name].listener = [];
+	var n = this.get(name, true);
+	if (!n.hasOwnProperty("listener")) {
+		n.listener = [];
 	}
 
 	// Save the time when this entry was added
 	rentry.time_added = new Date();
 
 	// add routing entry
-	this.nodes[name].listener.push(rentry);
+	n.listener.push(rentry);
 
 	// push data to new entry:
 	if (push_data) {
-		if (this.nodes.hasOwnProperty(name) &&
-				this.nodes[name] !== null &&
-				this.nodes[name].hasOwnProperty("value") &&
-				this.nodes[name].hasOwnProperty("time")) {
-			this.route_one(rentry, name, this.nodes[name].time, this.nodes[name].value);
-		} else {
-			this.route_one(rentry, name, null, null);
-		}
+		this.route_one(rentry, name, n.time, n.value);
 	}
 
 	return rentry;
@@ -82,15 +74,15 @@ exports.router.prototype.add_rentry = function(name, rentry, push_data) {
 /* Delete a routing entry */
 exports.router.prototype.unregister = function(name, rentry) {
 	console.log("unregistering " + name);
-	if (this.nodes.hasOwnProperty(name) &&
-			this.nodes[name].hasOwnProperty("listener")) {
-		for(var j=0; j<this.nodes[name].listener.length; j++) {
-			if (this.nodes[name].listener[j] === rentry) {
-				this.nodes[name].listener.splice(j, 1);
+	var n = this.get(name);
+	if (n.hasOwnProperty("listener")) {
+		for(var j=0; j<n.listener.length; j++) {
+			if (n.listener[j] === rentry) {
+				n.listener.splice(j, 1);
 				return;
-			} else if (this.nodes[name].listener[j].type === "node" &&
-					this.nodes[name].listener[j].dnode === rentry.dnode) {
-				this.nodes[name].listener.splice(j, 1);
+			} else if (n.listener[j].type === "node" &&
+					n.listener[j].dnode === rentry.dnode) {
+				n.listener.splice(j, 1);
 				return;
 			}
 		}
@@ -115,41 +107,35 @@ exports.router.prototype.route_one = function(rentry, name, time, value) {
 
 /* Route data */
 exports.router.prototype.route_synchronous = function(name, time, value, only_if_differ) {
-	// is a new node?
-	if (!this.nodes.hasOwnProperty(name)) {
-		console.log("new node: " + name);
-		this.nodes[name] = {};
-	}
+	var n = this.get(name, true);
 	// cancel if timestamp did not change:
-	var node = this.nodes[name];
-	if (node.hasOwnProperty("time") &&
-			node.time == time) {
+	if (n.time !== null &&
+			n.time === time) {
 		return;
 	}
 	// cancel if node did not change:
-	var node = this.nodes[name];
 	if (typeof only_if_differ !== "undefined" &&
 			only_if_differ &&
-			node.hasOwnProperty("value") &&
-			node.value == value) {
+			n.value !== null &&
+			n.value === value) {
 		return;
 	}
 
 	// set new data:
-	node.value = value;
-	node.time = time;
+	n.value = value;
+	n.time = time;
 
 	// add history:
-	if (!node.hasOwnProperty("history")) {
-		node.history = new exports.history(50*60);
+	if (!n.hasOwnProperty("history")) {
+		n.history = new exports.history(50*60);
 	}
-	node.history.add({value: value, time: time});
+	n.history.add({value: value, time: time});
 
 
 	// route the data according to the routing entries:
-	if (node.hasOwnProperty("listener")) {
-		for(var i=0; i<node.listener.length; i++) {
-			this.route_one(node.listener[i], name, time, value);
+	if (n.hasOwnProperty("listener")) {
+		for(var i=0; i<n.listener.length; i++) {
+			this.route_one(n.listener[i], name, time, value);
 		}
 	}
 
@@ -185,10 +171,8 @@ exports.router.prototype.get_nodes = function() {
 	for (var name in this.nodes) {
 		var n = this.nodes[name];
 		var np = {};
-		if (n.hasOwnProperty("value"))
-			np.value = n.value;
-		if (n.hasOwnProperty("time"))
-			np.time = n.time;
+		np.value = n.value;
+		np.time = n.time;
 
 		np.listener = [];
 		if (n.hasOwnProperty("listener")) {
@@ -211,8 +195,16 @@ exports.router.prototype.get_dests = function() {
 
 
 /* Get data of a node */
-exports.router.prototype.get = function(name) {
+exports.router.prototype.get = function(name, create_new_node) {
 	if (this.nodes.hasOwnProperty(name)) {
+		return this.nodes[name];
+	}
+	if (typeof create_new_node !== "undefined" && create_new_node === true) {
+		console.log("new node: " + name);
+		this.nodes[name] = {
+			value: null,
+			time: null
+		};
 		return this.nodes[name];
 	}
 	return {};
