@@ -77,8 +77,8 @@ exports.init = function(router, basename, ws_url, init_callback) {
 	o_ws.request = function(node) {
 		o_ws.respond({"type":"bind", "node":node});
 	};
-	router.dests.wsc = function(id, time, value) {
-		o_ws.send_data(id, time, value);
+	router.dests.wss = function(id, time, value, name, obj) {
+		o_ws.send_data(name, time, value);
 	};
 
 	return o_ws;

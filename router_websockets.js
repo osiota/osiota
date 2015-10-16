@@ -77,7 +77,7 @@ exports.init = function(router, basename, port) {
 	});
 
 	router.dests.wss = function(id, time, value, name, obj) {
-		obj.respond({"type":"data", "node":id, "time":time, "value":value});
+		obj.respond({"type":"data", "node":name, "time":time, "value":value});
 	};
 
 
