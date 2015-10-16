@@ -1,4 +1,65 @@
 
+/* Class: Node */
+exports.node = function(name, parentnode) {
+	this.name = name;
+	this.nodename = name.replace(/^.*([\/@])/, '$1');
+
+	this.value = null;
+	this.time = null;
+
+	this.listener = [];
+
+	this.history = new exports.history(50*60);
+
+	this.parentnode = parentnode;
+
+	console.log("new node: " + name);
+};
+exports.node.prototype.set = function(time, value, only_if_differ) {
+	// cancel if timestamp did not change:
+	if (this.time !== null &&
+			this.time === time) {
+		return false;
+	}
+	// cancel if node did not change:
+	if (typeof only_if_differ !== "undefined" &&
+			only_if_differ &&
+			this.value !== null &&
+			this.value === value) {
+		return false;
+	}
+
+	// set new data:
+	this.value = value;
+	this.time = time;
+
+	// add history:
+	this.history.add({value: value, time: time});
+
+	return true;
+};
+exports.node.prototype.route = function(r, name, time, value, relative_name) {
+	// route the data according to the routing entries:
+	if (this.hasOwnProperty("listener")) {
+		for(var i=0; i<this.listener.length; i++) {
+			r.route_one(this.listener[i], name, time, value, relative_name);
+		}
+	}
+	this.route_parent(r, name, time, value, relative_name);
+};
+exports.node.prototype.route_parent = function(r, name, time, value, relative_name) {
+	if (typeof relative_name === "undefined") {
+		relative_name = "";
+	}
+
+	if (this.parentnode !== null) {
+		this.parentnode.route(r, name, time, value, this.nodename + relative_name);
+	}
+};
+
+
+
+
 /* Class: Router */
 exports.router = function() {
 	this.nodes = {};
@@ -91,14 +152,17 @@ exports.router.prototype.unregister = function(name, rentry) {
 };
 
 /* Route a single routing entry */
-exports.router.prototype.route_one = function(rentry, name, time, value) {
+exports.router.prototype.route_one = function(rentry, name, time, value, relative_name) {
+	if (typeof relative_name === "undefined") {
+		relative_name = "";
+	}
 
 	if (typeof rentry.type === "string") {
 		if (rentry.type == "function" && typeof rentry.dest === "string") {
 			var dest_f = this.get_static_dest(rentry.dest);
 			dest_f(rentry.id, time, value, name, rentry.obj);
 		} else if (rentry.type == "node" && typeof rentry.dnode === "string") {
-			this.route(rentry.dnode, time, value);
+			this.route(rentry.dnode + relative_name, time, value);
 		} else {
 			console.log("Route [" + name + "]: Unknown destination type: ", rentry.type);
 		}
@@ -108,38 +172,9 @@ exports.router.prototype.route_one = function(rentry, name, time, value) {
 /* Route data */
 exports.router.prototype.route_synchronous = function(name, time, value, only_if_differ) {
 	var n = this.get(name, true);
-	// cancel if timestamp did not change:
-	if (n.time !== null &&
-			n.time === time) {
-		return;
+	if (n.set(time, value, only_if_differ)) {
+		n.route(this, name, time, value);
 	}
-	// cancel if node did not change:
-	if (typeof only_if_differ !== "undefined" &&
-			only_if_differ &&
-			n.value !== null &&
-			n.value === value) {
-		return;
-	}
-
-	// set new data:
-	n.value = value;
-	n.time = time;
-
-	// add history:
-	if (!n.hasOwnProperty("history")) {
-		n.history = new exports.history(50*60);
-	}
-	n.history.add({value: value, time: time});
-
-
-	// route the data according to the routing entries:
-	if (n.hasOwnProperty("listener")) {
-		for(var i=0; i<n.listener.length; i++) {
-			this.route_one(n.listener[i], name, time, value);
-		}
-	}
-
-	// inform parents:
 };
 
 /* Route data */
@@ -196,18 +231,23 @@ exports.router.prototype.get_dests = function() {
 
 /* Get data of a node */
 exports.router.prototype.get = function(name, create_new_node) {
+	if (name == "") name = "/";
+	//console.log("get: ", name);
 	if (this.nodes.hasOwnProperty(name)) {
 		return this.nodes[name];
 	}
 	if (typeof create_new_node !== "undefined" && create_new_node === true) {
-		console.log("new node: " + name);
-		this.nodes[name] = {
-			value: null,
-			time: null
-		};
+		// get parent node:
+		var parentnode = null;
+		if (!name.match(/^[\/@]*$/)) {
+			var parentname = name.replace(/[\/@][^\/@]*$/, "");
+			parentnode = this.get(parentname, true);
+		}
+		this.nodes[name] = new exports.node(name, parentnode);
 		return this.nodes[name];
 	}
-	return {};
+	//throw new Exception("node not found.");
+	return new exports.node(null);
 };
 
 /* get History of a node: */
