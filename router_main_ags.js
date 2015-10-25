@@ -9,6 +9,33 @@ require('./router_console_in.js').init(r, "");
 //require('./router_random_in.js').init(r, "/ethercat/Engel/Energie_P1", 20, 0, 100);
 require('./router_agsbus.js').init(r, "/agsbus");
 
+require('./router_artnet.js').init(r, "/artnet", {'host': 'dmxnode'}, {
+	"/A-1": 1,
+	"/D-3": 2,
+	"/K-1": 3,
+	"/B-1": 4,
+	"/A-3": 5,
+	"/E-1": 6,
+	"/K-3": 7,
+	"/H-1": 8,
+	"/E-3": 9,
+	"/D-1": 10,
+	"/H-3": 11,
+	"/B-3": 12,
+	"/M-1": 13,
+	"/C-1": 14,
+	"/L-1": 15,
+	"/F-1": 16,
+	"/G-1": 17,
+	"/C-3": 18,
+	"/I-1": 19,
+	"/F-3": 20,
+	"/G-3": 21,
+	"/M-3": 22,
+	"/I-3": 23,
+	"/L-3": 24
+});
+
 require('./router_io_function.js').init(r);
 require('./router_io_mean.js').init(r);
 require('./router_io_bias.js').init(r);
