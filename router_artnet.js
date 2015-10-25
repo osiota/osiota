@@ -10,7 +10,10 @@ exports.init = function(router, basename, options, nodes) {
 
 	router.dests.artnet = function(id, time, value, name, obj) {
 		channel = id;
-		artnet.set(channel, value);
+		if (value !== null) {
+			value *= 1;
+			artnet.set(channel, value);
+		}
 
 		var dnode = name.replace(/_s$|@s$/, "");
 		router.route(dnode, time, value);
