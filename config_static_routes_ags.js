@@ -65,6 +65,8 @@ exports.static_routes = {
 	'/ags/licht/regie-sued_s': '/agsbus/9/1_output_s',
 	'/agsbus/9/2_output': '/ags/licht/regie-monitorwand',
 	'/ags/licht/regie-monitorwand_s': '/agsbus/9/2_output_s',
+	'/agsbus/9/3_output': '/ags/licht/regie-spots',
+	'/ags/licht/regie-spots_s': '/agsbus/9/3_output_s',
 
 	'/agsbus/10/0_output': '/ags/licht/studio2-sued',
 	'/ags/licht/studio2-sued_s': '/agsbus/10/0_output_s',
