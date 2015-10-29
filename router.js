@@ -2,7 +2,9 @@
 /* Class: Node */
 exports.node = function(name, parentnode) {
 	this.name = name;
-	this.nodename = name.replace(/^.*([\/@])/, '$1');
+	if (typeof name === "string") {
+		this.nodename = name.replace(/^.*([\/@])/, '$1');
+	}
 
 	this.value = null;
 	this.time = null;
