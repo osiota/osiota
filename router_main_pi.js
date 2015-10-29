@@ -3,7 +3,7 @@
 var Router = require('./router.js').router;
 var r = new Router();
 
-require('./router_jsonconnect.js').init(r, "http://localhost/energy/get_sensors.php");
+//require('./router_jsonconnect.js').init(r, "http://localhost/energy/get_sensors.php");
 
 require('./router_console_out.js').init(r, "/console");
 require('./router_websockets.js').init(r, "", 8080);
@@ -30,12 +30,12 @@ for (var from in static_routes) {
 }
 
 //r.register('/ethercat/CNC/Global_voltage', 'multiply', '/ethercat/CNC/Exhaust', '/ethercat/CNC/Exhaust_current');
-r.register('/plugwise/s_278EDF8', 'sum', '/energy', [
-		"/plugwise/s_28FB858",
-		"/plugwise/s_28FBB58",
-		"/plugwise/s_28FD198",
-		"/plugwise/s_28FD31F",
-		"/plugwise/s_28FD32D",
-		"/plugwise/s_28FD4EE"
+r.register('/plugwise/s_278EDF8/energy', 'sum', '/energy', [
+		"/plugwise/s_28FB858/energy",
+		"/plugwise/s_28FBB58/energy",
+		"/plugwise/s_28FD198/energy",
+		"/plugwise/s_28FD31F/energy",
+		"/plugwise/s_28FD32D/energy",
+		"/plugwise/s_28FD4EE/energy"
 ]);
 
