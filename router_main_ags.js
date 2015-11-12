@@ -44,17 +44,9 @@ require('./router_io_sum.js').init(r);
 
 require('./router_execcommand.js').init(r);
 
-
-var static_routes = require('./config_static_routes_ags.js').static_routes;
-for (var from in static_routes) {
-	if (typeof static_routes[from] === "Array") {
-		for (var tid=0; tid<static_routes[from].length; tid++) {
-			r.connect(from, static_routes[from][tid]);
-		}
-	} else {
-		r.connect(from, static_routes[from]);
-	}
-}
+r.connectArray(
+	require('./config_static_routes_ags.js').static_routes
+);
 
 /*
 //r.register('/ethercat/CNC/Global_voltage', 'multiply', '/ethercat/CNC/Exhaust', '/ethercat/CNC/Exhaust_current');
