@@ -12,16 +12,7 @@ exports.init = function(router, url) {
 		res.on('end', function() {
 			try {
 				var static_routes = JSON.parse(body)
-
-				for (var from in static_routes) {
-					if (typeof static_routes[from] === "Array") {
-						for (var tid=0; tid<static_routes[from].length; tid++) {
-							router.connect(from, static_routes[from][tid]);
-						}
-					} else {
-						router.connect(from, static_routes[from]);
-					}
-				}
+				router.connectArray(static_routes);
 			} catch (e) {
 				console.log("JSONConnect, on message, Exception: ", e);
 				console.log("\tMessage: ", body);
