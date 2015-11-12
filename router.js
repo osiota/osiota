@@ -1,4 +1,9 @@
 
+RegExp.quote = function(str) {
+	    return (str+'').replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&");
+};
+
+
 /* Class: Node */
 exports.node = function(name, parentnode) {
 	this.name = name;
@@ -217,23 +222,32 @@ exports.router.prototype.get_listener = function(rentry) {
 };
 
 /* Get names and data of the nodes */
-exports.router.prototype.get_nodes = function() {
+exports.router.prototype.get_nodes = function(basename) {
+	if (typeof basename !== "string") basename = "";
+
 	var r = this;
 	var nodes = {};
 	for (var name in this.nodes) {
 		var n = this.nodes[name];
-		var np = {};
-		np.value = n.value;
-		np.time = n.time;
 
-		np.listener = [];
-		if (n.hasOwnProperty("listener")) {
-			np.listener = n.listener.map(function(rentry) {
-				return r.get_listener(rentry);
-			});
+		var regex = new RegExp("^" + RegExp.quote(basename) + "(.+)$", '');
+		var found = name.match(regex);
+		if (found) {
+			var relative_name = found[1];
+
+			var np = {};
+			np.value = n.value;
+			np.time = n.time;
+
+			np.listener = [];
+			if (n.hasOwnProperty("listener")) {
+				np.listener = n.listener.map(function(rentry) {
+					return r.get_listener(rentry);
+				});
+			}
+
+			nodes[name] = np;
 		}
-
-		nodes[name] = np;
 	}
 	return nodes;
 };
