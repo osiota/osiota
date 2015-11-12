@@ -90,6 +90,14 @@ exports.router.prototype.register = function(name, dest, id, obj, push_data) {
 
 /* Register a link name for a route */
 exports.router.prototype.connect = function(name, dnode) {
+	if (Array.isArray(dnode)) {
+		var re = null;
+		for (var tid=0; tid<dnode.length; tid++) {
+			re = this.connect(name, dnode[tid]);
+		}
+		return re;
+	}
+
 	console.log("connecting " + name + " to " + dnode);
 
 	rentry = {};
@@ -104,6 +112,12 @@ exports.router.prototype.connect = function(name, dnode) {
 	rentry.type = "node";
 
 	return this.add_rentry(name, rentry);
+};
+exports.router.prototype.connectArray = function(nodes) {
+	for (var from in nodes) {
+		this.connect(from, nodes[from]);
+	}
+
 };
 
 exports.router.prototype.add_rentry = function(name, rentry, push_data) {
