@@ -162,7 +162,8 @@ exports.router.prototype.route_one = function(rentry, name, time, value, relativ
 	if (typeof rentry.type === "string") {
 		if (rentry.type == "function" && typeof rentry.dest === "string") {
 			var dest_f = this.get_static_dest(rentry.dest);
-			dest_f(rentry.id, time, value, name, rentry.obj);
+			dest_f(rentry.id, time, value, name, rentry.obj,
+					relative_name);
 		} else if (rentry.type == "node" && typeof rentry.dnode === "string") {
 			this.route(rentry.dnode + relative_name, time, value);
 		} else {
