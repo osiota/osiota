@@ -148,6 +148,13 @@ exports.router.prototype.add_rentry = function(name, rentry, push_data) {
 	// push data to new entry:
 	if (push_data) {
 		this.route_one(rentry, name, n.time, n.value);
+
+		// get data of childs:
+		var childs = this.get_nodes(name);
+		for(var nodechild in childs) {
+			var nc = childs[nodechild];
+			this.route_one(rentry, nodechild, nc.time, nc.value);
+		}
 	}
 
 	return rentry;
