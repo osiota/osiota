@@ -17,18 +17,10 @@ require('./router_io_bias.js').init(r);
 require('./router_io_multiply.js').init(r);
 require('./router_io_sum.js').init(r);
 
-
 r.connectArray(
 	require('./config_static_routes_pi.js').static_routes
 );
 
-//r.register('/ethercat/CNC/Global_voltage', 'multiply', '/ethercat/CNC/Exhaust', '/ethercat/CNC/Exhaust_current');
-r.register('/plugwise/s_278EDF8/energy', 'sum', '/energy', [
-		"/plugwise/s_28FB858/energy",
-		"/plugwise/s_28FBB58/energy",
-		"/plugwise/s_28FD198/energy",
-		"/plugwise/s_28FD31F/energy",
-		"/plugwise/s_28FD32D/energy",
-		"/plugwise/s_28FD4EE/energy"
-]);
+
+require('./router_websocket_sendto.js').init(r, "ws://sw.nerdbox.de:8081/", ['/Küche']);
 
