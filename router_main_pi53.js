@@ -3,7 +3,7 @@
 var Router = require('./router.js').router;
 var r = new Router();
 
-require('./router_jsonconnect.js').init(r, "http://localhost/energy/get_sensors.php");
+//require('./router_jsonconnect.js').init(r, "http://localhost/energy/get_sensors.php");
 
 require('./router_console_out.js').init(r, "/console");
 require('./router_websockets.js').init(r, "", 8080);
@@ -17,27 +17,11 @@ require('./router_io_bias.js').init(r);
 require('./router_io_multiply.js').init(r);
 require('./router_io_sum.js').init(r);
 
+r.connectArray(
+	require('./config_static_routes_pi53.js').static_routes
+);
 
-// get the hostname:
-var os = require("os");
-var hostname = os.hostname();
 
-// route all nodes to the WebSocketClient:
-require('./router_websocket_client.js')
-		.init(r, "/wsc", "ws://sw.nerdbox.de:8080/", function(o_ws) {
-	console.log("WS Client Connected.");
-	setTimeout(function(router) {
-		var nodes = router.get_nodes();
-		for (var name in nodes) {
-			if (nodes.hasOwnProperty(name)) {
-				if (!name.match(/^\/plugwise\//)) {
-					console.log("# Rerouting '" + name + "' via WebSocket to '/" + hostname + name + "'");
-					router.register(name, "wsc", "/" + hostname + name);
-				}
-			}
-		}
-		
-	}, 5000, r);
-});
+require('./router_websocket_sendto.js').init(r, "ws://sw.nerdbox.de:8080/", ['/Raum_215']);
 
 
