@@ -1,4 +1,6 @@
 
+//var binarysearch = require("binary-search");
+
 RegExp.quote = function(str) {
 	    return (str+'').replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&");
 };
@@ -415,7 +417,41 @@ exports.history.prototype.add = function(value) {
 };
 /* history: get old data */
 exports.history.prototype.get = function(interval) {
-	return this.history_data;
+	var config = {};
+	config.maxentries = 3000;
+	config.samplerate = null;
+	config.fromtime = null;
+	config.totime = null; // not included.
+
+	// read config from interval object
+	if (typeof config !== "object") {
+		config = {};
+	}
+	/*
+	for (var configname in config) {
+		if (interval.hasOwnProperty(configname) &&
+				typeof interval[configname] === "number") {
+			config[configname] = interval[configname];
+		}
+	}
+	*/
+	var data = this.history_data;
+	/*
+	if (config.fromtime !== null) {
+		var index = Math.abs(
+				binarysearch(data, config.fromtime, function(a, b) { return a - b; })
+		);
+		data = data.slice(index);
+	}
+	if (config.totime !== null) {
+		var index = Math.abs(
+				binarysearch(data, config.totime, function(a, b) { return a - b; })
+		);
+		data = data.slice(0,index);
+	}
+	*/
+	data = data.slice(Math.max(data.length - config.maxentries, 0));
+	return data;
 }
 
 /* on signal: end the process */
