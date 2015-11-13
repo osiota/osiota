@@ -63,6 +63,37 @@ exports.node.prototype.route_parent = function(r, name, time, value, relative_na
 		this.parentnode.route(r, name, time, value, this.nodename + relative_name);
 	}
 };
+/* Get a copy of the listeners */
+exports.node.prototype.get_listener = function(rentry) {
+	var npr = {};
+	npr.type = rentry.type;
+	if (rentry.type == "function" && typeof rentry.dest === "string") {
+		npr.dest = rentry.dest;
+		if (rentry.hasOwnProperty("id"))
+			npr.id = rentry.id;
+	} else if (rentry.type == "node" && typeof rentry.dnode === "string") {
+		npr.dnode = rentry.dnode;
+	}
+	return npr;
+};
+
+/* Overwrite function to convert object to string: */
+exports.node.prototype.toJSON = function() {
+	var n = {};
+	n.value = this.value;
+	n.time = this.time;
+
+	n.listener = [];
+	var _this = this;
+	if (this.hasOwnProperty("listener")) {
+		n.listener = this.listener.map(function(rentry) {
+			return _this.get_listener(rentry);
+		});
+	}
+
+	// stringify ??
+	return n;
+};
 
 
 
@@ -150,10 +181,10 @@ exports.router.prototype.add_rentry = function(name, rentry, push_data) {
 		this.route_one(rentry, name, n.time, n.value);
 
 		// get data of childs:
-		var childs = this.get_nodes(name);
-		for(var nodechild in childs) {
-			var nc = childs[nodechild];
-			this.route_one(rentry, nodechild, nc.time, nc.value);
+		var allchildren = this.get_nodes(name);
+		for(var childname in allchildren) {
+			var nc = allchildren[childname];
+			this.route_one(rentry, childname, nc.time, nc.value);
 		}
 	}
 
@@ -214,25 +245,11 @@ exports.router.prototype.route = function(name, time, value, only_if_differ) {
 	});
 }
 
-/* Get a copy of the listeners */
-exports.router.prototype.get_listener = function(rentry) {
-	var npr = {};
-	npr.type = rentry.type;
-	if (rentry.type == "function" && typeof rentry.dest === "string") {
-		npr.dest = rentry.dest;
-		if (rentry.hasOwnProperty("id"))
-			npr.id = rentry.id;
-	} else if (rentry.type == "node" && typeof rentry.dnode === "string") {
-		npr.dnode = rentry.dnode;
-	}
-	return npr;
-};
 
 /* Get names and data of the nodes */
 exports.router.prototype.get_nodes = function(basename) {
 	if (typeof basename !== "string") basename = "";
 
-	var r = this;
 	var nodes = {};
 	for (var name in this.nodes) {
 		var n = this.nodes[name];
@@ -240,23 +257,18 @@ exports.router.prototype.get_nodes = function(basename) {
 		var regex = new RegExp("^" + RegExp.quote(basename) + "(.+)$", '');
 		var found = name.match(regex);
 		if (found) {
-			var relative_name = found[1];
-
-			var np = {};
-			np.value = n.value;
-			np.time = n.time;
-
-			np.listener = [];
-			if (n.hasOwnProperty("listener")) {
-				np.listener = n.listener.map(function(rentry) {
-					return r.get_listener(rentry);
-				});
-			}
-
-			nodes[name] = np;
+			nodes[name] = n;
 		}
 	}
 	return nodes;
+};
+
+/* Overwrite function to convert object to string: */
+exports.router.prototype.toJSON = function() {
+	var r = {};
+	r.nodes = this.nodes.toJSON();
+	//r.dests = this.get_dests();
+	return r;
 };
 
 
@@ -325,8 +337,7 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 					//ws.registered_nodes.push({"node": d.node, "ref": ref});
 				}
 			} else if (d.type == 'list') {
-				respond({"type":"dataset", "data":r.get_nodes()});
-				//ws.sendjson_save({"type":"dataset", "data":r.get_nodes()});
+				respond({"type":"dataset", "data":r.nodes});
 			} else if (d.type == 'data' && d.hasOwnProperty('node') &&
 					d.hasOwnProperty('value') &&
 					d.hasOwnProperty('time')) {
