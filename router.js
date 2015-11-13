@@ -55,7 +55,7 @@ exports.node.prototype.route = function(r, name, time, value, relative_name) {
 	// route the data according to the routing entries:
 	if (this.hasOwnProperty("listener")) {
 		for(var i=0; i<this.listener.length; i++) {
-			r.route_one(r, this.listener[i], name, time, value, relative_name);
+			this.route_one(r, this.listener[i], name, time, value, relative_name);
 		}
 	}
 	this.route_parent(r, name, time, value, relative_name);
@@ -215,7 +215,7 @@ exports.router.prototype.add_rentry = function(name, rentry, push_data) {
 		var allchildren = this.get_nodes(name);
 		for(var childname in allchildren) {
 			var nc = allchildren[childname];
-			r.route_one(this, rentry, childname, nc.time, nc.value);
+			nc.route_one(this, rentry, childname, nc.time, nc.value);
 		}
 	}
 
