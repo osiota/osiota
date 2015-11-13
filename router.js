@@ -290,7 +290,7 @@ exports.router.prototype.get = function(name, create_new_node) {
 
 /* get History of a node: */
 exports.router.prototype.get_history = function(name, interval) {
-	var n = this.get(name);
+	var n = this.get(name, true);
 	if (n.hasOwnProperty('history')) {
 		return n.history.get();
 	}
