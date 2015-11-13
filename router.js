@@ -252,6 +252,8 @@ exports.router.prototype.get_nodes = function(basename) {
 
 	var nodes = {};
 	var _this = this;
+
+	// Sort keys:
 	Object.keys(this.nodes).sort().forEach(function(name) {
 		var n = _this.nodes[name];
 
