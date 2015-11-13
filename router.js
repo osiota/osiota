@@ -251,15 +251,15 @@ exports.router.prototype.get_nodes = function(basename) {
 	if (typeof basename !== "string") basename = "";
 
 	var nodes = {};
-	for (var name in this.nodes) {
-		var n = this.nodes[name];
+	var _this = this;
+	Object.keys(this.nodes).sort().forEach(function(name) {
+		var n = _this.nodes[name];
 
 		var regex = new RegExp("^" + RegExp.quote(basename) + "(.+)$", '');
-		var found = name.match(regex);
-		if (found) {
+		if (name.match(regex)) {
 			nodes[name] = n;
 		}
-	}
+	});
 	return nodes;
 };
 
