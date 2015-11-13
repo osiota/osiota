@@ -51,19 +51,22 @@ exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to
 	return true;
 };
 /* Route data */
-exports.node.prototype.route = function(r, name, time, value, relative_name) {
+exports.node.prototype.route = function(r, name, time, value, relative_name, do_not_add_to_history) {
 	// route the data according to the routing entries:
 	if (this.hasOwnProperty("listener")) {
 		for(var i=0; i<this.listener.length; i++) {
-			this.route_one(r, this.listener[i], name, time, value, relative_name);
+			this.route_one(r, this.listener[i], name, time, value, relative_name, do_not_add_to_history);
 		}
 	}
-	this.route_parent(r, name, time, value, relative_name);
+	this.route_parent(r, name, time, value, relative_name, do_not_add_to_history);
 };
 /* Route data by a single routing entry */
-exports.node.prototype.route_one = function(r, rentry, name, time, value, relative_name) {
+exports.node.prototype.route_one = function(r, rentry, name, time, value, relative_name, do_not_add_to_history) {
 	if (typeof relative_name === "undefined") {
 		relative_name = "";
+	}
+	if (typeof do_not_add_to_history === "undefined") {
+		do_not_add_to_history = false;
 	}
 
 	if (typeof rentry.type === "string") {
@@ -71,9 +74,9 @@ exports.node.prototype.route_one = function(r, rentry, name, time, value, relati
 			var dest_f = r.get_static_dest(rentry.dest);
 			//dest_f(rentry.id, time, value, name, rentry.obj,
 			dest_f.call(this, rentry.id, time, value, name, rentry.obj,
-					relative_name);
+					relative_name, do_not_add_to_history);
 		} else if (rentry.type == "node" && typeof rentry.dnode === "string") {
-			r.route(rentry.dnode + relative_name, time, value);
+			r.route(rentry.dnode + relative_name, time, value, do_not_add_to_history);
 		} else {
 			console.log("Route [" + name + "]: Unknown destination type: ", rentry.type);
 		}
@@ -81,13 +84,13 @@ exports.node.prototype.route_one = function(r, rentry, name, time, value, relati
 };
 
 /* Inform parent node about new data */
-exports.node.prototype.route_parent = function(r, name, time, value, relative_name) {
+exports.node.prototype.route_parent = function(r, name, time, value, relative_name, do_not_add_to_history) {
 	if (typeof relative_name === "undefined") {
 		relative_name = "";
 	}
 
 	if (this.parentnode !== null) {
-		this.parentnode.route(r, name, time, value, this.nodename + relative_name);
+		this.parentnode.route(r, name, time, value, this.nodename + relative_name, do_not_add_to_history);
 	}
 };
 /* Get a copy of the listeners */
@@ -246,7 +249,7 @@ exports.router.prototype.unregister = function(name, rentry) {
 exports.router.prototype.route_synchronous = function(name, time, value, only_if_differ, do_not_add_to_history) {
 	var n = this.get(name, true);
 	if (n.set(time, value, only_if_differ, do_not_add_to_history)) {
-		n.route(this, name, time, value);
+		n.route(this, name, time, value, do_not_add_to_history);
 	}
 };
 

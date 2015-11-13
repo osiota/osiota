@@ -76,8 +76,8 @@ exports.init = function(router, basename, port) {
 		});
 	});
 
-	router.dests.wss = function(id, time, value, name, obj) {
-		obj.respond({"type":"data", "node":name, "time":time, "value":value});
+	router.dests.wss = function(id, time, value, name, obj, relative_name, do_not_add_to_history) {
+		obj.respond({"type":"data", "node":name, "time":time, "value":value, "add_history": do_not_add_to_history});
 	};
 
 
