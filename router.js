@@ -24,7 +24,7 @@ exports.node = function(name, parentnode) {
 
 	console.log("new node: " + name);
 };
-exports.node.prototype.set = function(time, value, only_if_differ) {
+exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to_history) {
 	// cancel if timestamp did not change:
 	if (this.time !== null &&
 			this.time === time) {
@@ -43,7 +43,10 @@ exports.node.prototype.set = function(time, value, only_if_differ) {
 	this.time = time;
 
 	// add history:
-	this.history.add({value: value, time: time});
+	if (typeof do_not_add_to_history === "undefined" ||
+			!do_not_add_to_history) {
+		this.history.add({value: value, time: time});
+	}
 
 	return true;
 };
@@ -238,18 +241,18 @@ exports.router.prototype.route_one = function(rentry, name, time, value, relativ
 };
 
 /* Route data (synchronous) */
-exports.router.prototype.route_synchronous = function(name, time, value, only_if_differ) {
+exports.router.prototype.route_synchronous = function(name, time, value, only_if_differ, do_not_add_to_history) {
 	var n = this.get(name, true);
-	if (n.set(time, value, only_if_differ)) {
+	if (n.set(time, value, only_if_differ, do_not_add_to_history)) {
 		n.route(this, name, time, value);
 	}
 };
 
 /* Route data */
-exports.router.prototype.route = function(name, time, value, only_if_differ) {
+exports.router.prototype.route = function(name, time, value, only_if_differ, do_not_add_to_history) {
 	var r = this;
 	process.nextTick(function() {
-		r.route_synchronous(name, time, value, only_if_differ);
+		r.route_synchronous(name, time, value, only_if_differ, do_not_add_to_history);
 	});
 }
 
