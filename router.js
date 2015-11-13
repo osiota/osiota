@@ -45,6 +45,7 @@ exports.node.prototype.set = function(time, value, only_if_differ) {
 
 	return true;
 };
+/* Route data */
 exports.node.prototype.route = function(r, name, time, value, relative_name) {
 	// route the data according to the routing entries:
 	if (this.hasOwnProperty("listener")) {
@@ -54,6 +55,7 @@ exports.node.prototype.route = function(r, name, time, value, relative_name) {
 	}
 	this.route_parent(r, name, time, value, relative_name);
 };
+/* Inform parent node about new data */
 exports.node.prototype.route_parent = function(r, name, time, value, relative_name) {
 	if (typeof relative_name === "undefined") {
 		relative_name = "";
@@ -143,12 +145,15 @@ exports.router.prototype.connect = function(name, dnode) {
 		console.log("Router. Error: Type of node is not string. Type is: " + typeof dnode);
 		return;
 	}
+	// node.connections.push(dnode);
 
 	rentry.dnode = dnode;
 	rentry.type = "node";
 
 	return this.add_rentry(name, rentry);
 };
+
+/* Register multiple connections */
 exports.router.prototype.connectArray = function(nodes) {
 	for (var from in nodes) {
 		this.connect(from, nodes[from]);
@@ -156,6 +161,7 @@ exports.router.prototype.connectArray = function(nodes) {
 
 };
 
+/* Add a routing entry */
 exports.router.prototype.add_rentry = function(name, rentry, push_data) {
 	if (typeof rentry !== "object") {
 		console.log("Router. Error: Type of rentry is not object. Type is: " + typeof rentry);
@@ -210,7 +216,7 @@ exports.router.prototype.unregister = function(name, rentry) {
 	console.log("\tfailed.");
 };
 
-/* Route a single routing entry */
+/* Route data by a single routing entry */
 exports.router.prototype.route_one = function(rentry, name, time, value, relative_name) {
 	if (typeof relative_name === "undefined") {
 		relative_name = "";
@@ -229,7 +235,7 @@ exports.router.prototype.route_one = function(rentry, name, time, value, relativ
 	}
 };
 
-/* Route data */
+/* Route data (synchronous) */
 exports.router.prototype.route_synchronous = function(name, time, value, only_if_differ) {
 	var n = this.get(name, true);
 	if (n.set(time, value, only_if_differ)) {
@@ -257,6 +263,7 @@ exports.router.prototype.get_nodes = function(basename) {
 	Object.keys(this.nodes).sort().forEach(function(name) {
 		var n = _this.nodes[name];
 
+		// Filter nodes:
 		var regex = new RegExp("^" + RegExp.quote(basename) + "(.+)$", '');
 		if (name.match(regex)) {
 			nodes[name] = n;
@@ -284,7 +291,7 @@ exports.router.prototype.get_dests = function() {
 /* Get data of a node */
 exports.router.prototype.get = function(name, create_new_node) {
 	if (name == "") name = "/";
-	//console.log("get: ", name);
+
 	if (this.nodes.hasOwnProperty(name)) {
 		return this.nodes[name];
 	}
@@ -311,15 +318,18 @@ exports.router.prototype.get_history = function(name, interval) {
 	return [];
 };
 
+/* set function for destination name */
 exports.router.prototype.register_static_dest = function(name, func) {
 	this.dests[name] = func;
 };
+/* get function for destination name */
 exports.router.prototype.get_static_dest = function(name) {
 	if (this.dests.hasOwnProperty(name)) {
 		return this.dests[name];
 	}
 	return undefined;
 };
+/* process command messages (ie from websocket) */
 exports.router.prototype.process_message = function(basename, data, cb_name, obj, respond) {
 	var r = this;
 	if (typeof respond !== "function")
@@ -384,6 +394,7 @@ exports.router.prototype.cue = function(callback) {
 		});
 	};
 };
+/* direct data processing without cue */
 exports.router.prototype.no_cue = function(callback) {
 	return function(data) {
 		callback(data);
@@ -395,15 +406,19 @@ exports.history = function(history_length) {
 	this.history_length = history_length;
 	this.history_data = [];
 };
+/* history: add new data */
 exports.history.prototype.add = function(value) {
 	this.history_data.push(value);
 	if (this.history_data.length > this.history_length) {
 		this.history_data.splice(0,1);  // remove the first element of the array
 	}
 };
+/* history: get old data */
 exports.history.prototype.get = function(interval) {
 	return this.history_data;
 }
 
+/* on signal: end the process */
 process.on('SIGINT', function() { process.exit(0); });
 process.on('SIGTERM', function() { process.exit(0); });
+
