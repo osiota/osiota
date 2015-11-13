@@ -55,11 +55,31 @@ exports.node.prototype.route = function(r, name, time, value, relative_name) {
 	// route the data according to the routing entries:
 	if (this.hasOwnProperty("listener")) {
 		for(var i=0; i<this.listener.length; i++) {
-			r.route_one(this.listener[i], name, time, value, relative_name);
+			r.route_one(r, this.listener[i], name, time, value, relative_name);
 		}
 	}
 	this.route_parent(r, name, time, value, relative_name);
 };
+/* Route data by a single routing entry */
+exports.node.prototype.route_one = function(r, rentry, name, time, value, relative_name) {
+	if (typeof relative_name === "undefined") {
+		relative_name = "";
+	}
+
+	if (typeof rentry.type === "string") {
+		if (rentry.type == "function" && typeof rentry.dest === "string") {
+			var dest_f = r.get_static_dest(rentry.dest);
+			//dest_f(rentry.id, time, value, name, rentry.obj,
+			dest_f.call(this, rentry.id, time, value, name, rentry.obj,
+					relative_name);
+		} else if (rentry.type == "node" && typeof rentry.dnode === "string") {
+			r.route(rentry.dnode + relative_name, time, value);
+		} else {
+			console.log("Route [" + name + "]: Unknown destination type: ", rentry.type);
+		}
+	}
+};
+
 /* Inform parent node about new data */
 exports.node.prototype.route_parent = function(r, name, time, value, relative_name) {
 	if (typeof relative_name === "undefined") {
@@ -189,13 +209,13 @@ exports.router.prototype.add_rentry = function(name, rentry, push_data) {
 
 	// push data to new entry:
 	if (push_data) {
-		this.route_one(rentry, name, n.time, n.value);
+		n.route_one(this, rentry, name, n.time, n.value);
 
 		// get data of childs:
 		var allchildren = this.get_nodes(name);
 		for(var childname in allchildren) {
 			var nc = allchildren[childname];
-			this.route_one(rentry, childname, nc.time, nc.value);
+			r.route_one(this, rentry, childname, nc.time, nc.value);
 		}
 	}
 
@@ -221,24 +241,6 @@ exports.router.prototype.unregister = function(name, rentry) {
 	console.log("\tfailed.");
 };
 
-/* Route data by a single routing entry */
-exports.router.prototype.route_one = function(rentry, name, time, value, relative_name) {
-	if (typeof relative_name === "undefined") {
-		relative_name = "";
-	}
-
-	if (typeof rentry.type === "string") {
-		if (rentry.type == "function" && typeof rentry.dest === "string") {
-			var dest_f = this.get_static_dest(rentry.dest);
-			dest_f(rentry.id, time, value, name, rentry.obj,
-					relative_name);
-		} else if (rentry.type == "node" && typeof rentry.dnode === "string") {
-			this.route(rentry.dnode + relative_name, time, value);
-		} else {
-			console.log("Route [" + name + "]: Unknown destination type: ", rentry.type);
-		}
-	}
-};
 
 /* Route data (synchronous) */
 exports.router.prototype.route_synchronous = function(name, time, value, only_if_differ, do_not_add_to_history) {
