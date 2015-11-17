@@ -194,6 +194,13 @@ exports.node.prototype.unregister = function(rentry) {
 	console.log("\tfailed.");
 };
 
+/* get History of a node: */
+exports.node.prototype.get_history = function(interval) {
+	if (this.hasOwnProperty('history')) {
+		return this.history.get();
+	}
+	return [];
+};
 
 /* Get a copy of the listeners */
 exports.node.prototype.get_listener = function(rentry) {
@@ -337,15 +344,6 @@ exports.router.prototype.get = function(name, create_new_node) {
 	return new exports.node(null);
 };
 
-/* get History of a node: */
-exports.router.prototype.get_history = function(name, interval) {
-	var n = this.get(name, true);
-	if (n.hasOwnProperty('history')) {
-		return n.history.get();
-	}
-	return [];
-};
-
 /* set function for destination name */
 exports.router.prototype.register_static_dest = function(name, func) {
 	this.dests[name] = func;
@@ -393,7 +391,7 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 					n.unregister(d.rentry);
 				} else if (d.type == 'get_history' &&
 						d.hasOwnProperty('interval')) {
-					respond({"type": "history", "node": d.node, "data": r.get_history(d.node, d.interval) });
+					respond({"type": "history", "node": d.node, "data": n.get_history(d.interval) });
 				} else {
 					console.log("Router, Process message: Packet with unknown (node) command received: ", d.type,
 						" Packet: ", JSON.stringify(d));
