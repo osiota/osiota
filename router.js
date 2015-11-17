@@ -379,7 +379,7 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 					var ref = n.register(cb_name, d.node, obj);
 
 					if (typeof obj !== "undefined" && obj !== null && typeof obj.inform_bind == "function") {
-						obj.inform_bind(d.node, ref);
+						obj.inform_bind(n.name, ref);
 						//ws.registered_nodes.push({"node": d.node, "ref": ref});
 					}
 				} else if (d.type == 'data' &&
