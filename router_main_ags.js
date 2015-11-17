@@ -96,15 +96,4 @@ r.register('/ags/sonstiges/vordereingang-bewegung', 'not_if',
 	]);
 
 r.register('/ags/sonstiges/klingeltaster', 'execcommand', '/home/max/klingeln.sh');
-//
-//r.register('/ethercat/CNC/Exhaust', 'multiply', '/ethercat/CNC/Exhaust_current', '/ethercat/CNC/Global_voltage');
-//register('/CNC/Individualiser', 'console', '/CNC/Individualiser');
-
-//r.register('/ethercat/CNC/Spindle', 'mean', '/ethercat/CNC/Spindle_Mean');
-//r.register('/ethercat/CNC/Spindle_Mean', 'console', '/ethercat/CNC/Spindle_Mean');
-
-//r.register("/AC/Energie_P1", "mean", "/Energie_P1");
-//r.connect("/ethercat/Shunt/Wert_1", "/Energie_P1");
-//r.register("/Energie_P1", "console", "P1");
-//r.connect("/Energie_P1", "/mysql/DistributionB/Individualiser");
 
