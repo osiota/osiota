@@ -45,12 +45,12 @@ exports.init = function(router, basename, options, nodes) {
 		port.write_bytes(String.fromCharCode(cmd, channel, value));
 	};
 
-	router.dests.usbdmx = function(id, time, value, name, obj) {
-		channel = id;
-		port.set(channel, value);
+	router.dests.usbdmx = function(node) {
+		var channel = this.id;
+		port.set(channel, node.value);
 
-		var dnode = name.replace(/_s$|@s$/, "");
-		router.publish(dnode, time, value);
+		var dnode = node.name.replace(/_s$|@s$/, "");
+		router.publish(dnode, node.time, node.value);
 	};
 
 	 

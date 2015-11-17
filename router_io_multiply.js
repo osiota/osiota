@@ -1,19 +1,20 @@
 
 exports.init = function(router, basename) {
-	router.dests.multiply = function(id, time, value, name, obj) {
+	router.dests.multiply = function(node) {
+		var obj = this.obj;
 		if (typeof obj !== "object" || Object.prototype.toString.call(obj) !== '[object Array]') {
 			obj = [obj];
 		}
-		value *= 1;
+		var value = 1*node.value;
 		for (var k=0;k<obj.length;k++) {
 			var node2_name = obj[k];
-			var node = router.get(node2_name, true);
+			var n = router.get(node2_name, true);
 
-			if (node.value !== null) {
-				value *= 1*node.value;
+			if (n.value !== null) {
+				value *= 1*n.value;
 			}
 		}
-		router.publish(id, time, value);
+		router.publish(this.id, node.time, value);
 	};
 };
 

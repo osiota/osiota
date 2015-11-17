@@ -8,7 +8,7 @@ exports.init = function(router, ws_url, nodes) {
 
 	/*
 	// better:
-	router.dests.wsc_sendto = function(id, time, value, name, obj) {};
+	router.dests.wsc_sendto = function(node) {};
 	*/
 
 	return require('./router_websocket_client.js')
@@ -21,8 +21,8 @@ exports.init = function(router, ws_url, nodes) {
 
 			/*
 			// better:
-			router.dests.wsc_sendto = function(id, time, value, name, obj) {
-				o_ws.send_data(name, time, value);
+			router.dests.wsc_sendto = function(node, relative_name, do_not_add_to_history) {
+				o_ws.send_data(this.id + relative_name, node.time, node.value, do_not_add_to_history);
 			};
 			*/
 

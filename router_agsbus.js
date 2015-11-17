@@ -385,8 +385,9 @@ exports.init = function(router, basename, command, args) {
 		//port.write_buffer("#BMa:GetState.");
 	});
 
-	router.dests.agsbus = function(id, time, value) {
-		var ids = id.split("/");
+
+	router.dests.agsbus = function(node) {
+		var ids = this.id.split("/");
 		var addr = ids[0]*1;
 		var channel = ids[1]*1;
 
@@ -397,7 +398,7 @@ exports.init = function(router, basename, command, args) {
 		if (typeof agsBus_types[type] !== "undefined" &&
 				typeof agsBus_types[type].write == "function") {
 			var data = agsBus_types[type].write(addr, channel,
-					value);
+					node.value);
 
 			//console.log("COMMAND: ", showbytes(data));
 			port.write_buffer(data);

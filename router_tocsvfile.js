@@ -13,20 +13,20 @@ var module_appendFile = function(filename, content) {
 
 exports.init = function(router, basename, nodefiles) {
 
-	router.dests.tocsvfile = function(id, time, value, name, obj, relative_name) {
-		if (time === null) return;
+	router.dests.tocsvfile = function(node, relative_name) {
+		if (node.time === null) return;
 		if (typeof relative_name === "undefined") {
 			relative_name = "";
 		}
 
-		var filename = id;
+		var filename = this.id;
 		if (relative_name != "") {
 		       filename += relative_name.replace(/\//g, "_");
 		}
 		filename += ".csv";
 
-		if (value === null) return; //value = "null";
-		var content = time + "\t" + value + "\n";
+		if (node.value === null) return; //value = "null";
+		var content = node.time + "\t" + node.value + "\n";
 		module_appendFile(filename, content);
 	};
 

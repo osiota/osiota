@@ -49,9 +49,9 @@ exports.init = function(router, basename, mysql_config) {
 		exports.query("INSERT INTO ??(??) VALUES ?", [table, keys, data]);
 	});
 	// Register MySQL Destination:
-	router.dests.mysql = function(id, time, value) {
-		if (typeof value !== "undefined" && value !== null)
-			exports.insertdata([id, time, value]);
+	router.dests.mysql = function(node) {
+		if (typeof node.value !== "undefined" && node.value !== null)
+			exports.insertdata([this.id, node.time, node.value]);
 			//exports.query('INSERT INTO Data(Measurement_id, Time, Value) VALUES(' + id + ', ' + time + ', ' + value + ')');
 	};
 

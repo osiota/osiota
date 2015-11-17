@@ -31,8 +31,8 @@ r.register('/wohnung/Küche', 'sum', '/wohnung', [
 ]);
 
 
-r.dests.eventdetection = function(id, time, value, name, obj) {
-	var schwellen = obj;
+r.dests.eventdetection = function(node) {
+	var schwellen = this.obj;
 
 	if (!this.hasOwnProperty("eventdetection")) {
 		this.eventdetection = {
@@ -42,28 +42,28 @@ r.dests.eventdetection = function(id, time, value, name, obj) {
 
 	var neue_aktivitaet = "";
 	for (var schwelle in schwellen) {
-		if (value > schwelle) {
+		if (node.value > schwelle) {
 			neue_aktivitaet = schwellen[schwelle];
 		}
 	}
 	if (neue_aktivitaet != "") {
 		if (this.eventdetection.aktivitaet == "") {
 			this.eventdetection = {
-				timestamp: time,
-				time: time,
+				timestamp: node.time,
+				time: node.time,
 				duration_sec: 0,
 				running: 1,
 				program: neue_aktivitaet,
 				energy: 0
 			};
 		};
-		this.eventdetection.duration_sec = time - this.eventdetection.timestamp;
-		this.eventdetection.energy += value;
-		r.publish(id, time, JSON.stringify(this.eventdetection), false, true);
+		this.eventdetection.duration_sec = node.time - this.eventdetection.timestamp;
+		this.eventdetection.energy += node.value;
+		r.publish(this.id, node.time, JSON.stringify(this.eventdetection), false, true);
 	} else {
 		if (this.eventdetection.aktivitaet != "") {
 			this.eventdetection.running = 0;
-			r.publish(id, time, JSON.stringify(this.eventdetection));
+			r.publish(this.id, node.time, JSON.stringify(this.eventdetection));
 			this.eventdetection = {
 				aktivitaet: ""
 			};

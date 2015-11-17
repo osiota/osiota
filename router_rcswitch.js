@@ -5,11 +5,14 @@ exports.init = function(router, basename, nodes) {
 		require('./router_execcommand.js').init(router);
 	}
 
-	router.dests.rcswitch = function(id, time, value, name, obj) {
-		var command = './helper/switch ' + id;
-		router.dests.execcommand(command, time, value, name, obj);
-		var dnode = name.replace(/_s$|@s$/, "");
-		router.publish(dnode, time, value);
+	router.dests.rcswitch = function(node) {
+		var command = './helper/switch ' + this.id;
+		var rentry = {};
+		rentry.id = command;
+		rentry.obj = this.obj;
+		router.dests.execcommand.call(rentry, node);
+		var dnode = node.name.replace(/_s$|@s$/, "");
+		router.publish(dnode, node.time, node.value);
 	};
 
 	for (var n in nodes) {

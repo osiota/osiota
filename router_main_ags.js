@@ -72,20 +72,22 @@ r.register('/ethercat/CNC/PLC', 'sum', '/exlab/CNC', [
 ]);
 */
 
-r.dests.not_if = function(id, time, value, name, obj) {
+r.dests.not_if = function(node) {
+	var obj = this.obj;
 	if (typeof obj !== "object" || Object.prototype.toString.call(obj) !== '[object Array]') {
 		obj = [obj];
 	}
 
+	var value = 1*node.value;
 	for (var k=0;k<obj.length;k++) {
 		var node2_name = obj[k];
-		var node = r.get(node2_name, true);
+		var n = r.get(node2_name, true);
 
-		if (node.value !== null) {
-			value *= !(1*node.value);
+		if (n.value !== null) {
+			value *= !(1*n.value);
 		}
 	}
-	r.publish(id, time, value);
+	r.publish(this.id, node.time, value);
 };
 
 r.register('/ags/aktion/vordereingang', 'execcommand', '/home/max/intruder.sh');

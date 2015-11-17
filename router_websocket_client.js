@@ -83,14 +83,15 @@ exports.init = function(router, basename, ws_url, init_callback) {
 	o_ws.respond = router.cue(function(data) {
 		o_ws.sendjson(data);
 	});
-	o_ws.send_data = function(id, time, value) {
-		o_ws.respond({"type":"data", "node":id, "time":time, "value":value});
+	o_ws.send_data = function(id, time, value, do_not_add_to_history) {
+		o_ws.respond({"type":"data", "node":id, "time":time, "value":value, "add_to_history": do_not_add_to_history});
 	};
 	o_ws.request = function(node) {
 		o_ws.respond({"type":"bind", "node":node});
 	};
-	router.dests.wsc = function(id, time, value, name, obj, relative_name) {
-		o_ws.send_data(id + relative_name, time, value);
+
+	router.dests.wsc = function(node, relative_name, do_not_add_to_history) {
+		o_ws.send_data(this.id + relative_name, node.time, node.value, do_not_add_to_history);
 	};
 
 	return o_ws;

@@ -8,15 +8,16 @@
 exports.init = function(router, basename, options, nodes) {
 	var artnet = require('artnet')(options);
 
-	router.dests.artnet = function(id, time, value, name, obj) {
-		channel = id;
+	router.dests.artnet = function(node) {
+		var channel = this.id;
+		var value = node.value;
 		if (value !== null) {
 			value *= 1;
 			artnet.set(channel, value);
 		}
 
-		var dnode = name.replace(/_s$|@s$/, "");
-		router.publish(dnode, time, value);
+		var dnode = node.name.replace(/_s$|@s$/, "");
+		router.publish(dnode, node.time, value);
 	};
 
 	for (var n in nodes) {

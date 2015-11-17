@@ -3,22 +3,24 @@
 exports.init = function(router, basename) {
 	
 	var mindata = {};
-	router.dests.bias = function(id, time, value, name, obj) {
+	router.dests.bias = function(node) {
+		var value = node.value;
 		if (typeof value !== "number") {
 			return;
 		}
-		if (!mindata.hasOwnProperty(id)) {
+		if (!mindata.hasOwnProperty(this.id)) {
 			if (value < 0.1) return;
 
-			mindata[id] = {"value": value };
+			mindata[this.id] = {"value": value };
 		}
-		if (mindata[id].value > value && value > 0.1) {
+		var v = 0;
+		if (mindata[this.id].value > value && value > 0.1) {
 			v = 0;
-			mindata[id].value = value;
+			mindata[this.id].value = value;
 		} else {
-			v = value - mindata[id].value;
+			v = value - mindata[this.id].value;
 		}
-		router.publish(id, time, v);
+		router.publish(this.id, node.time, v);
 	};
 
 };

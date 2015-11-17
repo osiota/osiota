@@ -3,27 +3,27 @@
 exports.init = function(router, basename) {
 	
 	var meandata = {};
-	router.dests.mean = function(id, time, value, name, obj) {
+	router.dests.mean = function(node) {
 		var timebase = 1;
-		if (typeof obj === "number") {
-			timebase = obj;
-		} else if (typeof obj === "string" && obj.match(/^[0-9.]+$/)) {
-			timebase = 1*obj;
+		if (typeof this.obj === "number") {
+			timebase = this.obj;
+		} else if (typeof this.obj === "string" && this.obj.match(/^[0-9.]+$/)) {
+			timebase = 1*this.obj;
 		}
-		if (!meandata.hasOwnProperty(id)) {
-			meandata[id] = {"anz": 0, "sum": 0, "time": 0 };
+		if (!meandata.hasOwnProperty(this.id)) {
+			meandata[this.id] = {"anz": 0, "sum": 0, "time": 0 };
 		}
-		if (meandata[id].time == Math.round(time / timebase)) {
-			meandata[id].anz++;
-			meandata[id].sum += (value*1);
+		if (meandata[this.id].time == Math.round(node.time / timebase)) {
+			meandata[this.id].anz++;
+			meandata[this.id].sum += (node.value*1);
 		} else {
-			if (meandata[id].anz != 0) {
-				var v = meandata[id].sum / meandata[id].anz;
-				router.publish(id, meandata[id].time, v);
+			if (meandata[this.id].anz != 0) {
+				var v = meandata[this.id].sum / meandata[this.id].anz;
+				router.publish(this.id, meandata[this.id].time, v);
 			}
-			meandata[id].time = Math.round(time / timebase);
-			meandata[id].sum = 1*value;
-			meandata[id].anz = 1;
+			meandata[this.id].time = Math.round(node.time / timebase);
+			meandata[this.id].sum = 1*node.value;
+			meandata[this.id].anz = 1;
 		}
 	};
 

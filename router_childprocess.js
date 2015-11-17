@@ -47,9 +47,9 @@ exports.init = function(router, basename, command, args) {
 		childProcess.kill();
 	});
 
-	router.dests.ethercat = function(id, time, value) {
+	router.dests.ethercat = function(node) {
 		//console.log("Router, Childprocess: sending: ", value);
-		childProcess.stdin.write(id + " [" + time + "]:\t" + value + "\n");
+		childProcess.stdin.write(this.id + " [" + node.time + "]:\t" + node.value + "\n");
 	};
 };
 
