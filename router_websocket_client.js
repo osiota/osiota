@@ -62,11 +62,23 @@ exports.init = function(router, basename, ws_url, init_callback) {
 	var o_ws = null;
 
 	o_ws = new pwsc(ws_url, function() {
+		// unbind old entries:
+		if (typeof this.registered_nodes !== "undefined") {
+			for(var i=0; i<this.registered_nodes.length; i++) {
+				router.unregister(this.registered_nodes[i].node, this.registered_nodes[i].ref);
+			}
+			this.registered_nodes = [];
+		}
+
 		if (typeof init_callback === "function")
 			init_callback(o_ws);
 	}, function(data) {
 		router.process_message(basename, data, "wsc", o_ws, function(data) { o_ws.respond(data); });
 	});
+	o_ws.registered_nodes = [];
+	o_ws.inform_bind = function(node, ref) {
+		o_ws.registered_nodes.push({"node": node, "ref": ref});
+	};
 
 	o_ws.respond = router.cue(function(data) {
 		o_ws.sendjson(data);
