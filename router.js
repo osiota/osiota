@@ -7,11 +7,13 @@ RegExp.quote = function(str) {
 
 
 /* Class: Node */
-exports.node = function(name, parentnode) {
+exports.node = function(r, name, parentnode) {
 	this.name = name;
 	if (typeof name === "string") {
 		this.nodename = name.replace(/^.*([\/@])/, '$1');
 	}
+
+	this.router = r;
 
 	this.value = null;
 	this.time = null;
@@ -51,31 +53,31 @@ exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to
 	return true;
 };
 /* Route data */
-exports.node.prototype.route = function(r, name, time, value, relative_name, do_not_add_to_history) {
+exports.node.prototype.route = function(node, relative_name, do_not_add_to_history) {
 	// route the data according to the routing entries:
 	if (this.hasOwnProperty("listener")) {
 		for(var i=0; i<this.listener.length; i++) {
-			this.route_one(r, this.listener[i], name, time, value, relative_name, do_not_add_to_history);
+			node.route_one(this.listener[i], relative_name, do_not_add_to_history);
 		}
 	}
-	this.route_parent(r, name, time, value, relative_name, do_not_add_to_history);
+	this.route_parent(node, relative_name, do_not_add_to_history);
 };
 /* Route data (synchronous) */
-exports.node.prototype.publish_sync = function(r, time, value, only_if_differ, do_not_add_to_history) {
+exports.node.prototype.publish_sync = function(time, value, only_if_differ, do_not_add_to_history) {
 	if (this.set(time, value, only_if_differ, do_not_add_to_history)) {
-		this.route(r, name, time, value, do_not_add_to_history);
+		this.route(this, "", do_not_add_to_history);
 	}
 };
 
 /* Route data (asynchronous) */
-exports.node.prototype.publish = function(r, time, value, only_if_differ, do_not_add_to_history) {
+exports.node.prototype.publish = function(time, value, only_if_differ, do_not_add_to_history) {
 	process.nextTick(function() {
-		this.publish_sync(r, time, value, only_if_differ, do_not_add_to_history);
+		this.publish_sync(time, value, only_if_differ, do_not_add_to_history);
 	});
 };
 
 /* Route data by a single routing entry */
-exports.node.prototype.route_one = function(r, rentry, name, time, value, relative_name, do_not_add_to_history) {
+exports.node.prototype.route_one = function(rentry, relative_name, do_not_add_to_history) {
 	if (typeof relative_name === "undefined") {
 		relative_name = "";
 	}
@@ -85,31 +87,34 @@ exports.node.prototype.route_one = function(r, rentry, name, time, value, relati
 
 	if (typeof rentry.type === "string") {
 		if (rentry.type == "function" && typeof rentry.dest === "string") {
-			var dest_f = r.get_static_dest(rentry.dest);
-			//dest_f(rentry.id, time, value, name, rentry.obj,
-			dest_f.call(this, rentry.id, time, value, name, rentry.obj,
-					relative_name, do_not_add_to_history);
+			var dest_f = this.router.get_static_dest(rentry.dest);
+			try {
+				dest_f.call(rentry, this, relative_name, do_not_add_to_history);
+
+			} catch (e) {
+				console.log("Exception (Router, call dest \""+rentry.dest+"\"):\n", e);
+			}
 		} else if (rentry.type == "node" && typeof rentry.dnode === "string") {
-			r.route(rentry.dnode + relative_name, time, value, do_not_add_to_history);
+			this.router.publish(rentry.dnode + relative_name, time, value, do_not_add_to_history);
 		} else {
-			console.log("Route [" + name + "]: Unknown destination type: ", rentry.type);
+			console.log("Route [" + this.name + "]: Unknown destination type: ", rentry.type);
 		}
 	}
 };
 
 /* Inform parent node about new data */
-exports.node.prototype.route_parent = function(r, name, time, value, relative_name, do_not_add_to_history) {
+exports.node.prototype.route_parent = function(node, relative_name, do_not_add_to_history) {
 	if (typeof relative_name === "undefined") {
 		relative_name = "";
 	}
 
 	if (this.parentnode !== null) {
-		this.parentnode.route(r, name, time, value, this.nodename + relative_name, do_not_add_to_history);
+		this.parentnode.route(node, this.nodename + relative_name, do_not_add_to_history);
 	}
 };
 
 /* Add a routing entry */
-exports.node.prototype.add_rentry = function(r, rentry, push_data) {
+exports.node.prototype.add_rentry = function(rentry, push_data) {
 	if (typeof rentry !== "object") {
 		console.log("Router. Error: Type of rentry is not object. Type is: " + typeof rentry);
 		return;
@@ -129,13 +134,13 @@ exports.node.prototype.add_rentry = function(r, rentry, push_data) {
 
 	// push data to new entry:
 	if (push_data) {
-		this.route_one(r, rentry, this.name, this.time, this.value);
+		this.route_one(rentry);
 
 		// get data of childs:
-		var allchildren = r.get_nodes(this.name);
+		var allchildren = this.router.get_nodes(this.name);
 		for(var childname in allchildren) {
 			var nc = allchildren[childname];
-			nc.route_one(r, rentry, childname, nc.time, nc.value);
+			nc.route_one(rentry);
 		}
 	}
 
@@ -143,7 +148,7 @@ exports.node.prototype.add_rentry = function(r, rentry, push_data) {
 };
 
 /* Register a callback or a link name for a route */
-exports.node.prototype.register = function(r, dest, id, obj, push_data) {
+exports.node.prototype.register = function(dest, id, obj, push_data) {
 	console.log("registering " + this.name);
 
 	var rentry = {};
@@ -159,12 +164,12 @@ exports.node.prototype.register = function(r, dest, id, obj, push_data) {
 	rentry.obj = obj;
 	rentry.type = "function";
 
-	return this.add_rentry(r, rentry, push_data);
+	return this.add_rentry(rentry, push_data);
 };
 
 
 /* Register a link name for a route */
-exports.node.prototype.connect = function(r, dnode) {
+exports.node.prototype.connect = function(dnode) {
 	if (Array.isArray(dnode)) {
 		var re = null;
 		for (var tid=0; tid<dnode.length; tid++) {
@@ -187,7 +192,7 @@ exports.node.prototype.connect = function(r, dnode) {
 	rentry.dnode = dnode;
 	rentry.type = "node";
 
-	return this.add_rentry(r, rentry);
+	return this.add_rentry(rentry);
 };
 
 /* Delete a routing entry */
@@ -285,7 +290,6 @@ exports.router.prototype.unregister = function(name, rentry) {
 
 /* Route data */
 exports.router.prototype.publish = function(name, time, value, only_if_differ, do_not_add_to_history) {
-	var r = this;
 	var n = this.get(name, true);
 	n.publish(this, time, value, only_if_differ, do_not_add_to_history);
 }
@@ -341,11 +345,11 @@ exports.router.prototype.get = function(name, create_new_node) {
 			var parentname = name.replace(/[\/@][^\/@]*$/, "");
 			parentnode = this.get(parentname, true);
 		}
-		this.nodes[name] = new exports.node(name, parentnode);
+		this.nodes[name] = new exports.node(this, name, parentnode);
 		return this.nodes[name];
 	}
 	//throw new Exception("node not found.");
-	return new exports.node(null);
+	return new exports.node(this, null);
 };
 
 /* set function for destination name */
@@ -374,7 +378,7 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 			if (d.hasOwnProperty('node')) {
 				var n = this.get(basename + name, true);
 				if (d.type == 'bind') {
-					var ref = n.register(r, cb_name, d.node, obj);
+					var ref = n.register(cb_name, d.node, obj);
 
 					if (typeof obj !== "undefined" && obj !== null && typeof obj.inform_bind == "function") {
 						obj.inform_bind(d.node, ref);
@@ -383,13 +387,13 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 				} else if (d.type == 'data' &&
 						d.hasOwnProperty('value') &&
 						d.hasOwnProperty('time')) {
-					n.publish(r, d.time, d.value);
+					n.publish(d.time, d.value);
 				} else if (d.type == 'connect' &&
 						d.hasOwnProperty('dnode')) {
-					n.connect(r, d.dnode);
+					n.connect(d.dnode);
 				} else if (d.type == 'register' &&
 						d.hasOwnProperty('dest')) {
-					n.register(r, d.dest, d.id, d.obj);
+					n.register(d.dest, d.id, d.obj);
 				} else if (d.type == 'unregister' &&
 						d.hasOwnProperty('rentry')) {
 					n.unregister(d.rentry);
@@ -423,9 +427,13 @@ exports.router.prototype.cue = function(callback) {
 	return function(entry) {
 		cue_data.push(entry);
 		process.nextTick(function() {
-			if (cue_data.length > 0) {
-				var data = cue_data.splice(0,cue_data.length);
-				callback(data);
+			try {
+				if (cue_data.length > 0) {
+					var data = cue_data.splice(0,cue_data.length);
+					callback(data);
+				}
+			} catch (e) {
+				console.log("Exception (Router, cue):\n", e);
 			}
 		});
 	};
@@ -433,7 +441,11 @@ exports.router.prototype.cue = function(callback) {
 /* direct data processing without cue */
 exports.router.prototype.no_cue = function(callback) {
 	return function(data) {
-		callback(data);
+		try {
+			callback(data);
+		} catch (e) {
+			console.log("Exception (Router, nocue):\n", e);
+		}
 	};
 };
 
