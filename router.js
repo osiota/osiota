@@ -138,7 +138,7 @@ exports.node.prototype.add_rentry = function(rentry, push_data) {
 		var allchildren = this.router.get_nodes(this.name);
 		for(var childname in allchildren) {
 			var nc = allchildren[childname];
-			nc.route_one(rentry);
+			nc.route_one(rentry, childname);
 		}
 	}
 
@@ -306,8 +306,9 @@ exports.router.prototype.get_nodes = function(basename) {
 
 		// Filter nodes:
 		var regex = new RegExp("^" + RegExp.quote(basename) + "(.+)$", '');
-		if (name.match(regex)) {
-			nodes[name] = n;
+		var found = name.match(regex)
+		if (found) {
+			nodes[found[1]] = n;
 		}
 	});
 	return nodes;
