@@ -17,7 +17,8 @@ exports.init = function(router, ws_url, nodes) {
 		for (var ni=0; ni<nodes.length; ni++) {
 			name = nodes[ni];
 			console.log("# Rerouting '" + name + "' via WebSocket to '/" + hostname + name + "'");
-			router.register(name, "wsc", "/" + hostname + name);
+			var ref = router.register(name, "wsc", "/" + hostname + name);
+			o_ws.inform_bind(name, ref);
 
 			/*
 			// better:
