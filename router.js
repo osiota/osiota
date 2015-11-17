@@ -79,8 +79,9 @@ exports.node.prototype.publish_sync = function(time, value, only_if_differ, do_n
 
 /* Route data (asynchronous) */
 exports.node.prototype.publish = function(time, value, only_if_differ, do_not_add_to_history) {
+	var n = this;
 	process.nextTick(function() {
-		this.publish_sync(time, value, only_if_differ, do_not_add_to_history);
+		n.publish_sync(time, value, only_if_differ, do_not_add_to_history);
 	});
 };
 
@@ -150,9 +151,9 @@ exports.node.prototype.register = function(dest, id, obj, push_data) {
 
 	var rentry = {};
 
-	var sdest = this.get_static_dest(dest);
+	var sdest = this.router.get_static_dest(dest);
 	if (typeof sdest === "undefined") {
-		console.log("Router. Error: Register function not found on " + dest);
+		console.log("Router. Error: Register function not found on ", dest);
 		return;
 	}
 
@@ -262,13 +263,13 @@ exports.router = function() {
 /* Register a callback or a link name for a route */
 exports.router.prototype.register = function(name, dest, id, obj, push_data) {
 	var n = this.get(name, true);
-	return n.register(this, dest, id, obj, push_data);
+	return n.register(dest, id, obj, push_data);
 };
 
 /* Register a link name for a route */
 exports.router.prototype.connect = function(name, dnode) {
 	var n = this.get(name, true);
-	return n.connect(this, dnode);
+	return n.connect(dnode);
 };
 
 /* Register multiple connections */
@@ -288,7 +289,7 @@ exports.router.prototype.unregister = function(name, rentry) {
 /* Route data */
 exports.router.prototype.publish = function(name, time, value, only_if_differ, do_not_add_to_history) {
 	var n = this.get(name, true);
-	n.publish(this, time, value, only_if_differ, do_not_add_to_history);
+	n.publish(time, value, only_if_differ, do_not_add_to_history);
 }
 
 
@@ -373,7 +374,7 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 	data.forEach(function(d) {
 		if (d.hasOwnProperty('type')) {
 			if (d.hasOwnProperty('node')) {
-				var n = this.get(basename + name, true);
+				var n = r.get(basename + d.node, true);
 				if (d.type == 'bind') {
 					var ref = n.register(cb_name, d.node, obj);
 
