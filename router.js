@@ -93,6 +93,41 @@ exports.node.prototype.route_parent = function(r, name, time, value, relative_na
 		this.parentnode.route(r, name, time, value, this.nodename + relative_name, do_not_add_to_history);
 	}
 };
+
+/* Add a routing entry */
+exports.node.prototype.add_rentry = function(r, rentry, push_data) {
+	if (typeof rentry !== "object") {
+		console.log("Router. Error: Type of rentry is not object. Type is: " + typeof rentry);
+		return;
+	}
+	if (typeof push_data !== "boolean") {
+		push_data = true;
+	}
+	if (!this.hasOwnProperty("listener")) {
+		this.listener = [];
+	}
+
+	// Save the time when this entry was added
+	rentry.time_added = new Date();
+
+	// add routing entry
+	this.listener.push(rentry);
+
+	// push data to new entry:
+	if (push_data) {
+		this.route_one(r, rentry, n.name, n.time, n.value);
+
+		// get data of childs:
+		var allchildren = r.get_nodes(n.name);
+		for(var childname in allchildren) {
+			var nc = allchildren[childname];
+			nc.route_one(r, rentry, childname, nc.time, nc.value);
+		}
+	}
+
+	return rentry;
+};
+
 /* Get a copy of the listeners */
 exports.node.prototype.get_listener = function(rentry) {
 	var npr = {};
@@ -151,7 +186,8 @@ exports.router.prototype.register = function(name, dest, id, obj, push_data) {
 	rentry.obj = obj;
 	rentry.type = "function";
 
-	return this.add_rentry(name, rentry, push_data);
+	var n = this.get(name, true);
+	return n.add_rentry(this, rentry, push_data);
 };
 
 /* Register a link name for a route */
@@ -178,7 +214,8 @@ exports.router.prototype.connect = function(name, dnode) {
 	rentry.dnode = dnode;
 	rentry.type = "node";
 
-	return this.add_rentry(name, rentry);
+	var n = this.get(name, true);
+	return n.add_rentry(this, rentry);
 };
 
 /* Register multiple connections */
@@ -187,42 +224,6 @@ exports.router.prototype.connectArray = function(nodes) {
 		this.connect(from, nodes[from]);
 	}
 
-};
-
-/* Add a routing entry */
-exports.router.prototype.add_rentry = function(name, rentry, push_data) {
-	if (typeof rentry !== "object") {
-		console.log("Router. Error: Type of rentry is not object. Type is: " + typeof rentry);
-		return;
-	}
-	if (typeof push_data !== "boolean") {
-		push_data = true;
-	}
-
-	var n = this.get(name, true);
-	if (!n.hasOwnProperty("listener")) {
-		n.listener = [];
-	}
-
-	// Save the time when this entry was added
-	rentry.time_added = new Date();
-
-	// add routing entry
-	n.listener.push(rentry);
-
-	// push data to new entry:
-	if (push_data) {
-		n.route_one(this, rentry, name, n.time, n.value);
-
-		// get data of childs:
-		var allchildren = this.get_nodes(name);
-		for(var childname in allchildren) {
-			var nc = allchildren[childname];
-			nc.route_one(this, rentry, childname, nc.time, nc.value);
-		}
-	}
-
-	return rentry;
 };
 
 /* Delete a routing entry */
