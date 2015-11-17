@@ -176,6 +176,24 @@ exports.node.prototype.connect = function(r, dnode) {
 	return this.add_rentry(r, rentry);
 };
 
+/* Delete a routing entry */
+exports.node.prototype.unregister = function(rentry) {
+	console.log("unregistering " + this.name);
+	if (this.hasOwnProperty("listener")) {
+		for(var j=0; j<this.listener.length; j++) {
+			if (this.listener[j] === rentry) {
+				this.listener.splice(j, 1);
+				return;
+			} else if (this.listener[j].type === "node" &&
+					this.listener[j].dnode === rentry.dnode) {
+				this.listener.splice(j, 1);
+				return;
+			}
+		}
+	}
+	console.log("\tfailed.");
+};
+
 
 /* Get a copy of the listeners */
 exports.node.prototype.get_listener = function(rentry) {
@@ -240,21 +258,8 @@ exports.router.prototype.connectArray = function(nodes) {
 
 /* Delete a routing entry */
 exports.router.prototype.unregister = function(name, rentry) {
-	console.log("unregistering " + name);
 	var n = this.get(name);
-	if (n.hasOwnProperty("listener")) {
-		for(var j=0; j<n.listener.length; j++) {
-			if (n.listener[j] === rentry) {
-				n.listener.splice(j, 1);
-				return;
-			} else if (n.listener[j].type === "node" &&
-					n.listener[j].dnode === rentry.dnode) {
-				n.listener.splice(j, 1);
-				return;
-			}
-		}
-	}
-	console.log("\tfailed.");
+	return n.unregister(rentry);
 };
 
 
