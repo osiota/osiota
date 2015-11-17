@@ -60,6 +60,20 @@ exports.node.prototype.route = function(r, name, time, value, relative_name, do_
 	}
 	this.route_parent(r, name, time, value, relative_name, do_not_add_to_history);
 };
+/* Route data (synchronous) */
+exports.node.prototype.publish_sync = function(r, time, value, only_if_differ, do_not_add_to_history) {
+	if (this.set(time, value, only_if_differ, do_not_add_to_history)) {
+		this.route(r, name, time, value, do_not_add_to_history);
+	}
+};
+
+/* Route data (asynchronous) */
+exports.node.prototype.publish = function(r, time, value, only_if_differ, do_not_add_to_history) {
+	process.nextTick(function() {
+		this.publish_sync(r, time, value, only_if_differ, do_not_add_to_history);
+	});
+};
+
 /* Route data by a single routing entry */
 exports.node.prototype.route_one = function(r, rentry, name, time, value, relative_name, do_not_add_to_history) {
 	if (typeof relative_name === "undefined") {
@@ -269,21 +283,11 @@ exports.router.prototype.unregister = function(name, rentry) {
 	return n.unregister(rentry);
 };
 
-
-/* Route data (synchronous) */
-exports.router.prototype.route_synchronous = function(name, time, value, only_if_differ, do_not_add_to_history) {
-	var n = this.get(name, true);
-	if (n.set(time, value, only_if_differ, do_not_add_to_history)) {
-		n.route(this, name, time, value, do_not_add_to_history);
-	}
-};
-
 /* Route data */
 exports.router.prototype.route = function(name, time, value, only_if_differ, do_not_add_to_history) {
 	var r = this;
-	process.nextTick(function() {
-		r.route_synchronous(name, time, value, only_if_differ, do_not_add_to_history);
-	});
+	var n = this.get(name, true);
+	n.publish(this, time, value, only_if_differ, do_not_add_to_history);
 }
 
 
@@ -368,7 +372,7 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 	data.forEach(function(d) {
 		if (d.hasOwnProperty('type')) {
 			if (d.hasOwnProperty('node')) {
-				var n = this.get(name, true);
+				var n = this.get(basename + name, true);
 				if (d.type == 'bind') {
 					var ref = n.register(r, cb_name, d.node, obj);
 
@@ -379,7 +383,7 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 				} else if (d.type == 'data' &&
 						d.hasOwnProperty('value') &&
 						d.hasOwnProperty('time')) {
-					r.route(basename + d.node, d.time, d.value);
+					n.publish(r, d.time, d.value);
 				} else if (d.type == 'connect' &&
 						d.hasOwnProperty('dnode')) {
 					n.connect(r, d.dnode);
