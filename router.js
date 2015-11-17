@@ -128,6 +128,27 @@ exports.node.prototype.add_rentry = function(r, rentry, push_data) {
 	return rentry;
 };
 
+/* Register a callback or a link name for a route */
+exports.node.prototype.register = function(r, dest, id, obj, push_data) {
+	console.log("registering " + this.name);
+
+	var rentry = {};
+
+	var sdest = this.get_static_dest(dest);
+	if (typeof sdest === "undefined") {
+		console.log("Router. Error: Register function not found on " + dest);
+		return;
+	}
+
+	rentry.dest = dest;
+	rentry.id = id;
+	rentry.obj = obj;
+	rentry.type = "function";
+
+	return this.add_rentry(r, rentry, push_data);
+};
+
+
 /* Register a link name for a route */
 exports.node.prototype.connect = function(r, dnode) {
 	if (Array.isArray(dnode)) {
@@ -199,23 +220,8 @@ exports.router = function() {
 
 /* Register a callback or a link name for a route */
 exports.router.prototype.register = function(name, dest, id, obj, push_data) {
-	console.log("registering " + name);
-
-	var rentry = {};
-
-	var sdest = this.get_static_dest(dest);
-	if (typeof sdest === "undefined") {
-		console.log("Router. Error: Register function not found on " + dest);
-		return;
-	}
-
-	rentry.dest = dest;
-	rentry.id = id;
-	rentry.obj = obj;
-	rentry.type = "function";
-
 	var n = this.get(name, true);
-	return n.add_rentry(this, rentry, push_data);
+	return n.register(this, dest, id, obj, push_data);
 };
 
 /* Register a link name for a route */
