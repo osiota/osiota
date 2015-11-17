@@ -128,6 +128,34 @@ exports.node.prototype.add_rentry = function(r, rentry, push_data) {
 	return rentry;
 };
 
+/* Register a link name for a route */
+exports.node.prototype.connect = function(r, dnode) {
+	if (Array.isArray(dnode)) {
+		var re = null;
+		for (var tid=0; tid<dnode.length; tid++) {
+			re = this.connect(dnode[tid]);
+		}
+		return re;
+	}
+
+	console.log("connecting " + this.name + " to " + dnode);
+
+	rentry = {};
+
+	// Set ref:
+	if (typeof dnode !== "string") {
+		console.log("Router. Error: Type of node is not string. Type is: " + typeof dnode);
+		return;
+	}
+	// node.connections.push(dnode);
+
+	rentry.dnode = dnode;
+	rentry.type = "node";
+
+	return this.add_rentry(r, rentry);
+};
+
+
 /* Get a copy of the listeners */
 exports.node.prototype.get_listener = function(rentry) {
 	var npr = {};
@@ -192,30 +220,8 @@ exports.router.prototype.register = function(name, dest, id, obj, push_data) {
 
 /* Register a link name for a route */
 exports.router.prototype.connect = function(name, dnode) {
-	if (Array.isArray(dnode)) {
-		var re = null;
-		for (var tid=0; tid<dnode.length; tid++) {
-			re = this.connect(name, dnode[tid]);
-		}
-		return re;
-	}
-
-	console.log("connecting " + name + " to " + dnode);
-
-	rentry = {};
-
-	// Set ref:
-	if (typeof dnode !== "string") {
-		console.log("Router. Error: Type of node is not string. Type is: " + typeof dnode);
-		return;
-	}
-	// node.connections.push(dnode);
-
-	rentry.dnode = dnode;
-	rentry.type = "node";
-
 	var n = this.get(name, true);
-	return n.add_rentry(this, rentry);
+	return n.connect(this, dnode);
 };
 
 /* Register multiple connections */
