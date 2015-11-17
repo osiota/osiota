@@ -278,7 +278,7 @@ var process_agsbus = function(mcmd, margs, port) {
 exports.init = function(router, basename, command, args) {
 
 	exports.publish = function(name, value, onlyifdiffer) {
-		return router.route(basename + name, value, onlyifdiffer);
+		return router.publish(basename + name, value, onlyifdiffer);
 	};
 
 	exports.register = function(name, ids) {

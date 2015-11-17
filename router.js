@@ -284,7 +284,7 @@ exports.router.prototype.unregister = function(name, rentry) {
 };
 
 /* Route data */
-exports.router.prototype.route = function(name, time, value, only_if_differ, do_not_add_to_history) {
+exports.router.prototype.publish = function(name, time, value, only_if_differ, do_not_add_to_history) {
 	var r = this;
 	var n = this.get(name, true);
 	n.publish(this, time, value, only_if_differ, do_not_add_to_history);

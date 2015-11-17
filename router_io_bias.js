@@ -18,7 +18,7 @@ exports.init = function(router, basename) {
 		} else {
 			v = value - mindata[id].value;
 		}
-		router.route(id, time, v);
+		router.publish(id, time, v);
 	};
 
 };

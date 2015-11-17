@@ -9,7 +9,7 @@ exports.init = function(router, basename, nodes) {
 		var command = './helper/switch ' + id;
 		router.dests.execcommand(command, time, value, name, obj);
 		var dnode = name.replace(/_s$|@s$/, "");
-		router.route(dnode, time, value);
+		router.publish(dnode, time, value);
 	};
 
 	for (var n in nodes) {

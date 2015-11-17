@@ -19,7 +19,7 @@ exports.init = function(router, basename) {
 		} else {
 			if (meandata[id].anz != 0) {
 				var v = meandata[id].sum / meandata[id].anz;
-				router.route(id, meandata[id].time, v);
+				router.publish(id, meandata[id].time, v);
 			}
 			meandata[id].time = Math.round(time / timebase);
 			meandata[id].sum = 1*value;

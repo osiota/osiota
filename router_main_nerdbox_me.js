@@ -59,11 +59,11 @@ r.dests.eventdetection = function(id, time, value, name, obj) {
 		};
 		this.eventdetection.duration_sec = time - this.eventdetection.timestamp;
 		this.eventdetection.energy += value;
-		r.route(id, time, JSON.stringify(this.eventdetection), false, true);
+		r.publish(id, time, JSON.stringify(this.eventdetection), false, true);
 	} else {
 		if (this.eventdetection.aktivitaet != "") {
 			this.eventdetection.running = 0;
-			r.route(id, time, JSON.stringify(this.eventdetection));
+			r.publish(id, time, JSON.stringify(this.eventdetection));
 			this.eventdetection = {
 				aktivitaet: ""
 			};

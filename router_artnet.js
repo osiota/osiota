@@ -16,7 +16,7 @@ exports.init = function(router, basename, options, nodes) {
 		}
 
 		var dnode = name.replace(/_s$|@s$/, "");
-		router.route(dnode, time, value);
+		router.publish(dnode, time, value);
 	};
 
 	for (var n in nodes) {

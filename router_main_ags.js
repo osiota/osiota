@@ -85,7 +85,7 @@ r.dests.not_if = function(id, time, value, name, obj) {
 			value *= !(1*node.value);
 		}
 	}
-	r.route(id, time, value);
+	r.publish(id, time, value);
 };
 
 r.register('/ags/aktion/vordereingang', 'execcommand', '/home/max/intruder.sh');

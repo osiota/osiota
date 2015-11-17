@@ -13,7 +13,7 @@ exports.init = function(router, basename) {
 				value *= 1*node.value;
 			}
 		}
-		router.route(id, time, value);
+		router.publish(id, time, value);
 	};
 };
 

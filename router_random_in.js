@@ -14,7 +14,7 @@ exports.init = function(router, basename, delay, cmin, cmax) {
 		v = Math.max(Math.min(v, cmax), cmin);
 		last_value = v;
 		var time = new Date() / 1000;
-		router.route(basename, time, v);
+		router.publish(basename, time, v);
 	}, delay, router, basename, cmin, cmax);
 
 };

@@ -24,7 +24,7 @@ exports.init = function(router, basename, command, args) {
 					if (result[3] == "null")
 						value = null;
 
-					router.route(basename + name, time, value);
+					router.publish(basename + name, time, value);
 				} else {
 					// connect:
 					var result = lines[i].match(/^connect\s+([^\[]+)\s*$/);

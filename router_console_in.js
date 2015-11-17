@@ -14,7 +14,7 @@ exports.init = function(router, basename) {
 						var time = result[2];
 						var value = result[3];
 						if (value === "undefined") value = null;
-						router.route(basename + name, time, value);
+						router.publish(basename + name, time, value);
 					}
 				}
 			}
