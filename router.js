@@ -115,10 +115,10 @@ exports.node.prototype.add_rentry = function(r, rentry, push_data) {
 
 	// push data to new entry:
 	if (push_data) {
-		this.route_one(r, rentry, n.name, n.time, n.value);
+		this.route_one(r, rentry, this.name, this.time, this.value);
 
 		// get data of childs:
-		var allchildren = r.get_nodes(n.name);
+		var allchildren = r.get_nodes(this.name);
 		for(var childname in allchildren) {
 			var nc = allchildren[childname];
 			nc.route_one(r, rentry, childname, nc.time, nc.value);
