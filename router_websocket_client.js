@@ -63,11 +63,11 @@ exports.init = function(router, basename, ws_url, init_callback) {
 
 	o_ws = new pwsc(ws_url, function() {
 		// unbind old entries:
-		if (typeof this.registered_nodes !== "undefined") {
-			for(var i=0; i<this.registered_nodes.length; i++) {
-				router.unregister(this.registered_nodes[i].node, this.registered_nodes[i].ref);
+		if (typeof o_ws.registered_nodes !== "undefined") {
+			for(var i=0; i<o_ws.registered_nodes.length; i++) {
+				router.unregister(o_ws.registered_nodes[i].node, o_ws.registered_nodes[i].ref);
 			}
-			this.registered_nodes = [];
+			o_ws.registered_nodes = [];
 		}
 
 		if (typeof init_callback === "function")
