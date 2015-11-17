@@ -104,7 +104,7 @@ exports.node.prototype.route_one = function(rentry, relative_name, do_not_add_to
 				console.log("Exception (Router, call dest \""+rentry.dest+"\"):\n", e);
 			}
 		} else if (rentry.type == "node" && typeof rentry.dnode === "string") {
-			this.router.publish(rentry.dnode + relative_name, time, value, do_not_add_to_history);
+			this.router.publish(rentry.dnode + relative_name, this.time, this.value, do_not_add_to_history);
 		} else {
 			console.log("Route [" + this.name + "]: Unknown destination type: ", rentry.type);
 		}
