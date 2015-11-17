@@ -54,14 +54,22 @@ exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to
 };
 /* Route data */
 exports.node.prototype.route = function(node, relative_name, do_not_add_to_history) {
+	if (typeof relative_name === "undefined") {
+		relative_name = "";
+	}
+
 	// route the data according to the routing entries:
 	if (this.hasOwnProperty("listener")) {
 		for(var i=0; i<this.listener.length; i++) {
 			node.route_one(this.listener[i], relative_name, do_not_add_to_history);
 		}
 	}
-	this.route_parent(node, relative_name, do_not_add_to_history);
+
+	if (this.parentnode !== null) {
+		this.parentnode.route(node, this.nodename + relative_name, do_not_add_to_history);
+	}
 };
+
 /* Route data (synchronous) */
 exports.node.prototype.publish_sync = function(time, value, only_if_differ, do_not_add_to_history) {
 	if (this.set(time, value, only_if_differ, do_not_add_to_history)) {
@@ -99,17 +107,6 @@ exports.node.prototype.route_one = function(rentry, relative_name, do_not_add_to
 		} else {
 			console.log("Route [" + this.name + "]: Unknown destination type: ", rentry.type);
 		}
-	}
-};
-
-/* Inform parent node about new data */
-exports.node.prototype.route_parent = function(node, relative_name, do_not_add_to_history) {
-	if (typeof relative_name === "undefined") {
-		relative_name = "";
-	}
-
-	if (this.parentnode !== null) {
-		this.parentnode.route(node, this.nodename + relative_name, do_not_add_to_history);
 	}
 };
 
