@@ -1,5 +1,8 @@
 var SerialPort = require("serialport").SerialPort;
 
+exports.publish = function() {};
+exports.register = function() {};
+
 var showbytes = function(str) {
 	var hex = "";
 	for(var i=0; i<str.length; i++) {
@@ -21,7 +24,7 @@ var showbytes = function(str) {
 	return hex;
 };
 
-var read_bits = function(router, basename, name_extra, offset, payload) {
+var read_bits = function(name_extra, offset, payload) {
 	var state = payload.charCodeAt(0);
 	var time  = Date.now()/1000;
 			
@@ -29,7 +32,7 @@ var read_bits = function(router, basename, name_extra, offset, payload) {
 		var value = (state & (1 << (j))) && 1;
 		var name = "/" + (offset+j) + name_extra;
 		//console.log(name + ": " + value);
-		router.route(basename + name, time, value, 1);
+		exports.publish(name, time, value, 1);
 	}
 };
 var convert_to_int16 = function(payload, offset) {
@@ -86,24 +89,24 @@ var write_bit = function(addr, bit, value) {
 var agsBus_types = {};
 // Licht-Client V2
 agsBus_types.LiV2 = {
-	"init": function(router, basename, addr) {
+	"init": function(addr) {
 		for (var j=0; j<8;j++) {
 			name = "/" + addr + "/"+j+"_output";
 			var ids = addr+"/"+j;
-			router.register(basename + name + "_s", "agsbus", ids, undefined, false);
+			exports.register(name + "_s", ids);
 		}
 	},
-	"read": function(router, basename, addr, payload) {
-		read_bits(router, basename + "/" + addr,
+	"read": function(addr, payload) {
+		read_bits("/" + addr,
 				"_output", 0,
 				payload.substring(0,1));
-		read_bits(router, basename + "/" + addr,
+		read_bits("/" + addr,
 				"_short_push", 0,
 				payload.substring(1,2));
-		read_bits(router, basename + "/" + addr,
+		read_bits("/" + addr,
 				"_long_push", 0,
 				payload.substring(2,3));
-		read_bits(router, basename + "/" + addr,
+		read_bits("/" + addr,
 				"_switchtype", 0,
 				payload.substring(3,4));
 	},
@@ -112,7 +115,7 @@ agsBus_types.LiV2 = {
 	}
 };
 agsBus_types.Temp = {
-	"read": function(router, basename, addr, payload) {
+	"read": function(addr, payload) {
 		var time  = Date.now()/1000;
 		for (var b=0;b<2;b++) {
 			var temp = convert_to_int16(payload, b*2);
@@ -120,20 +123,20 @@ agsBus_types.Temp = {
 			
 			var name = "/" + addr + "/" + b + "_temp";
 			//console.log(name + ": " + value);
-			router.route(basename + name, time, temp);
+			exports.publish(name, time, temp);
 		}
 	}
 };
 // Tuer:
 agsBus_types.indS = {
-	"read": function(router, basename, addr, payload) {
+	"read": function(addr, payload) {
 		var time  = Date.now()/1000;
 		var value = 0;
 		if (payload.substring(3,4) == "x") {
 			value = 1;
 		}
 		var name = "/" + addr + "/" + "door_state";
-		router.route(basename + name, time, value);
+		exports.publish(name, time, value);
 	}
 
 };
@@ -142,18 +145,18 @@ agsBus_types.Aetz = {
 
 };
 agsBus_types["04io"] = {
-	"init": function(router, basename, addr) {
+	"init": function(addr) {
 		for (var j=0; j<8;j++) {
 			name = "/" + addr + "/"+j + "_output";
 			var ids = addr+"/"+j;
-			router.register(basename + name + "_s", "agsbus", ids, undefined, false);
+			exports.register(name + "_s", ids);
 		}
 	},
-	"read": function(router, basename, addr, payload) {
-		read_bits(router, basename + "/" + addr,
+	"read": function(addr, payload) {
+		read_bits("/" + addr,
 			"_output", 0,
 			payload.substring(0,1));
-		read_bits(router, basename + "/" + addr,
+		read_bits("/" + addr,
 			"_input", 0,
 			payload.substring(1,2));
 	
@@ -165,11 +168,10 @@ agsBus_types["04io"] = {
 agsBus_types["8i6o"] = agsBus_types["04io"];
 
 agsBus_types["eLab"] = {
-	"init": function(router, basename, addr) {
+	"init": function(addr) {
 		name = "/" + addr + "/elab_notaus";
 		var ids = addr+"/0";
-		router.register(basename + name + "_s", "agsbus", ids,
-				undefined, false);
+		exports.register(name + "_s", ids);
 	},
 	"write": function(addr, channel, value) {
 		var cmd = 0xF1;
@@ -180,7 +182,7 @@ agsBus_types["eLab"] = {
 
 // Spannungskontrolle:
 agsBus_types.Usrc = {
-	"read": function(router, basename, addr, payload) {
+	"read": function(addr, payload) {
 		var time  = Date.now()/1000;
 
 		// smps voltage:
@@ -189,11 +191,13 @@ agsBus_types.Usrc = {
 			// TODO: Fehlermeldung ausgeben!
 			smps_voltage = 0;
 		}
-		router.route(basename + "/" + addr + "/smps_voltage", time, smps_voltage / 1000);
+		var name = "/" + addr + "/" + "smps_voltage";
+		exports.publish(name, time, smps_voltage / 1000);
 
 		// bus voltage:
+		name = "/" + addr + "/" + "bus_voltage";
 		var bus_voltage = convert_to_uint16(payload, 2);
-		router.route(basename + "/" + addr + "/bus_voltage", time, bus_voltage / 1000);
+		exports.publish(name, time, bus_voltage / 1000);
 	}
 };
 
@@ -201,7 +205,7 @@ agsBus_types.Usrc = {
 
 // ags bus clients:
 var agsBus_clients = [];
-var register_type = function(router, basename, addr, type) {
+var register_type = function(addr, type) {
 	var old_payload = undefined;
 	if (typeof agsBus_clients[addr] === "object") {
 		old_payload = agsBus_clients[addr][0];
@@ -211,20 +215,19 @@ var register_type = function(router, basename, addr, type) {
 
 	if (typeof agsBus_types[type] !== "undefined") {
 		if (typeof agsBus_types[type].init == "function") {
-			agsBus_types[type].init(router, basename, addr);
+			agsBus_types[type].init(addr);
 		}
 
 		// process old payload
 		if (typeof old_payload !== "undefined" &&
 				typeof agsBus_types[type].read == "function") {
-			agsBus_types[type].read(router, basename, addr,
-					old_payload);
+			agsBus_types[type].read(addr, old_payload);
 		}
 	} else {
 		console.log("Undefined client type: ", type);
 	}
 };
-var process_agsbus = function(router, basename, mcmd, margs, port) {
+var process_agsbus = function(mcmd, margs, port) {
 	if (mcmd == "Got") {
 		//console.log("Got Activity");
 		var result2 = margs.match(/^(.|\n|\r),(.|\n|\r),((?:.|\n|\r){4})$/);
@@ -238,7 +241,7 @@ var process_agsbus = function(router, basename, mcmd, margs, port) {
 				
 				if (typeof agsBus_types[type] !== "undefined" &&
 						typeof agsBus_types[type].read == "function") {
-					agsBus_types[type].read(router, basename, addr, payload);
+					agsBus_types[type].read(addr, payload);
 				}
 
 			} else {
@@ -250,7 +253,7 @@ var process_agsbus = function(router, basename, mcmd, margs, port) {
 		else if (cmd == 0xE9) {
 			var type = payload;
 			
-			register_type(router, basename, addr, type);
+			register_type(addr, type);
 		}
 		else if (cmd == 0xE1) {
 			// is a response to 0xF1, to change values.
@@ -273,6 +276,17 @@ var process_agsbus = function(router, basename, mcmd, margs, port) {
 };
 
 exports.init = function(router, basename, command, args) {
+
+	exports.publish = function(name, value, onlyifdiffer) {
+		return router.route(basename + name, value, onlyifdiffer);
+	};
+
+	exports.register = function(name, ids) {
+		router.register(basename + name, "agsbus", ids,
+				undefined, false);
+	};
+
+
 	//var command = "../ethercat_bridge/main";
 	//var args = "";
 
@@ -353,7 +367,7 @@ exports.init = function(router, basename, command, args) {
 				console.log("Nicht erkannt: " + showbytes(b_pre));
 			}
 
-			process_agsbus(router, basename, mcmd, margs, port);
+			process_agsbus(mcmd, margs, port);
 			
 			buffer = b_post;
 			result = buffer.match(agsbus_regex);
