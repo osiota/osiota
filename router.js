@@ -47,7 +47,7 @@ exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to
 	// add history:
 	if (typeof do_not_add_to_history === "undefined" ||
 			!do_not_add_to_history) {
-		this.history.add({value: value, time: time});
+		this.history.add(time, value);
 	}
 
 	return true;
@@ -454,8 +454,8 @@ exports.history = function(history_length) {
 	this.history_data = [];
 };
 /* history: add new data */
-exports.history.prototype.add = function(value) {
-	this.history_data.push(value);
+exports.history.prototype.add = function(time, value) {
+	this.history_data.push({"time": time, "value": value});
 	if (this.history_data.length > this.history_length) {
 		this.history_data.splice(0,1);  // remove the first element of the array
 	}
@@ -469,32 +469,28 @@ exports.history.prototype.get = function(interval) {
 	config.totime = null; // not included.
 
 	// read config from interval object
-	if (typeof config !== "object") {
-		config = {};
+	if (typeof interval !== "object") {
+		interval = {};
 	}
-	/*
 	for (var configname in config) {
 		if (interval.hasOwnProperty(configname) &&
 				typeof interval[configname] === "number") {
 			config[configname] = interval[configname];
 		}
 	}
-	*/
 	var data = this.history_data;
-	/*
 	if (config.fromtime !== null) {
 		var index = Math.abs(
-				binarysearch(data, config.fromtime, function(a, b) { return a - b; })
+			binarysearch(data, config.fromtime, function(a, b) { return a.time - b.time; })
 		);
 		data = data.slice(index);
 	}
 	if (config.totime !== null) {
 		var index = Math.abs(
-				binarysearch(data, config.totime, function(a, b) { return a - b; })
+			binarysearch(data, {"time": config.totime}, function(a, b) { return a.time - b.time; })
 		);
 		data = data.slice(0,index);
 	}
-	*/
 	data = data.slice(Math.max(data.length - config.maxentries, 0));
 	return data;
 }
