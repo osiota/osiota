@@ -80,6 +80,9 @@ r.register('/rsp-2a/Küche/Warmwasserboiler', 'eventdetection', '/wohnung/Küche
 r.register('/rsp-2a/Küche/Microwelle', 'eventdetection', '/wohnung/Küche/Microwelle', {
 	1000: "An"
 });
+r.register('/rsp-2a/Küche/Geschirrspüler', 'eventdetection', '/wohnung/Küche/Geschirrspüler', {
+	1000: "An"
+});
 
 
 r.register('/rsp-2a/Küche/Kaffeemaschine', 'eventdetection', '/wohnung/Küche/Kaffeemaschine', {
