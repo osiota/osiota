@@ -1,10 +1,9 @@
 
-//var binarysearch = require("binary-search");
-
 RegExp.quote = function(str) {
 	    return (str+'').replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&");
 };
 
+var history = require('./module_history');
 
 /* Class: Node */
 exports.node = function(r, name, parentnode) {
@@ -20,7 +19,7 @@ exports.node = function(r, name, parentnode) {
 
 	this.listener = [];
 
-	this.history = new exports.history(50*60);
+	this.history = new history(50*60);
 
 	this.parentnode = parentnode;
 
@@ -448,52 +447,6 @@ exports.router.prototype.no_cue = function(callback) {
 	};
 };
 
-/* history */
-exports.history = function(history_length) {
-	this.history_length = history_length;
-	this.history_data = [];
-};
-/* history: add new data */
-exports.history.prototype.add = function(time, value) {
-	this.history_data.push({"time": time, "value": value});
-	if (this.history_data.length > this.history_length) {
-		this.history_data.splice(0,1);  // remove the first element of the array
-	}
-};
-/* history: get old data */
-exports.history.prototype.get = function(interval) {
-	var config = {};
-	config.maxentries = 3000;
-	config.samplerate = null;
-	config.fromtime = null;
-	config.totime = null; // not included.
-
-	// read config from interval object
-	if (typeof interval !== "object") {
-		interval = {};
-	}
-	for (var configname in config) {
-		if (interval.hasOwnProperty(configname) &&
-				typeof interval[configname] === "number") {
-			config[configname] = interval[configname];
-		}
-	}
-	var data = this.history_data;
-	if (config.fromtime !== null) {
-		var index = Math.abs(
-			binarysearch(data, config.fromtime, function(a, b) { return a.time - b.time; })
-		);
-		data = data.slice(index);
-	}
-	if (config.totime !== null) {
-		var index = Math.abs(
-			binarysearch(data, {"time": config.totime}, function(a, b) { return a.time - b.time; })
-		);
-		data = data.slice(0,index);
-	}
-	data = data.slice(Math.max(data.length - config.maxentries, 0));
-	return data;
-}
 
 /* on signal: end the process */
 process.on('SIGINT', function() { process.exit(0); });
