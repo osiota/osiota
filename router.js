@@ -3,7 +3,7 @@ RegExp.quote = function(str) {
 	    return (str+'').replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&");
 };
 
-var history = require('./module_history');
+var history = require('./module_history').history;
 
 /* Class: Node */
 exports.node = function(r, name, parentnode) {

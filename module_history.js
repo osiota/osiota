@@ -1,23 +1,23 @@
 "use strict";
 
-(function(history){
+(function(exports){
 
 	var binarysearch = require("binary-search");
 
 	/* history */
-	history = function(history_length) {
+	exports.history = function(history_length) {
 		this.history_length = history_length;
 		this.history_data = [];
 	};
 	/* history: add new data */
-	history.prototype.add = function(time, value) {
+	exports.history.prototype.add = function(time, value) {
 		this.history_data.push({"time": time, "value": value});
 		if (this.history_data.length > this.history_length) {
 			this.history_data.splice(0,1);  // remove the first element of the array
 		}
 	};
 	/* history: get old data */
-	history.prototype.get = function(interval) {
+	exports.history.prototype.get = function(interval) {
 		var config = {};
 		config.maxentries = 3000;
 		config.samplerate = null;
