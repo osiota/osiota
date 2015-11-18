@@ -81,7 +81,7 @@
 		var data = this.history_data;
 		if (config.fromtime !== null) {
 			var index = Math.abs(
-				binarysearch(data, config.fromtime, function(a, b) { return a.time - b.time; })
+				binarysearch(data, {"time": config.fromtime}, function(a, b) { return a.time - b.time; })
 			);
 			data = data.slice(index);
 		}
