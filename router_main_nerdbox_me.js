@@ -33,8 +33,8 @@ require('./router_device_virtual.js').init(r, {
 
 // Wohnung
 r.register('/wohnung/Küche', 'sum', '/wohnung', [
-		'/wohnung/Küche',
 		'/wohnung/Flur',
+		'/wohnung/Büro',
 		'/wohnung/Mitbewohner'
 ]);
 
