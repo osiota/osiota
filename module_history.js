@@ -65,7 +65,7 @@
 		var config = {};
 		config.maxentries = 3000;
 		config.samplerate = null;
-		config.fromtime = null;
+		config.fromtime = null; // not included
 		config.totime = null; // not included.
 
 		// read config from interval object
@@ -80,16 +80,26 @@
 		}
 		var data = this.history_data;
 		if (config.fromtime !== null) {
-			var index = Math.abs(
-				binarysearch(data, {"time": config.fromtime}, function(a, b) { return a.time - b.time; })
-			);
+			// find start index:
+			var index = binarysearch(data, {"time": config.fromtime},
+					function(a, b) { return a.time - b.time; });
+			// if time was not found, index is bitwise flipped.
+			if (index < 0) index = ~index;
+			// do not include the element itself:
+			else index = index + 1;
+
+			// from start index (included) to end:
 			data = data.slice(index);
 		}
 		if (config.totime !== null) {
-			var index = Math.abs(
-				binarysearch(data, {"time": config.totime}, function(a, b) { return a.time - b.time; })
-			);
-			data = data.slice(0,index);
+			// find end index:
+			var index = binarysearch(data, {"time": config.totime},
+					function(a, b) { return a.time - b.time; });
+			// if time was not found, index is bitwise flipped.
+			if (index < 0) index = ~index;
+
+			// from zero to end index (not included):
+			data = data.slice(0,index-1);
 		}
 		data = data.slice(Math.max(data.length - config.maxentries, 0));
 		return data;
