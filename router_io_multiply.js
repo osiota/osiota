@@ -1,6 +1,8 @@
 
 exports.init = function(router, basename) {
-	router.dests.multiply = function(node) {
+	router.dests.multiply = function(node, relative_name) {
+		if (relative_name !== "") return;
+
 		var obj = this.obj;
 		if (typeof obj !== "object" || Object.prototype.toString.call(obj) !== '[object Array]') {
 			obj = [obj];

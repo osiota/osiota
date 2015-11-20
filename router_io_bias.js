@@ -3,7 +3,9 @@
 exports.init = function(router, basename) {
 	
 	var mindata = {};
-	router.dests.bias = function(node) {
+	router.dests.bias = function(node, relative_name) {
+		if (relative_name !== "") return;
+
 		var value = node.value;
 		if (typeof value !== "number") {
 			return;

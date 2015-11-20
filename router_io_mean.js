@@ -3,7 +3,9 @@
 exports.init = function(router, basename) {
 	
 	var meandata = {};
-	router.dests.mean = function(node) {
+	router.dests.mean = function(node, relative_name) {
+		if (relative_name !== "") return;
+
 		var timebase = 1;
 		if (typeof this.obj === "number") {
 			timebase = this.obj;
