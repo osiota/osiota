@@ -17,7 +17,49 @@ require('./router_tocsvfile.js').init(r, '', {
 	'/rsp-2a/Küche': 'csv/Küche'
 });
 
-r.register('/rsp-2a/Küche/Kühlschrank', 'sum', '/wohnung/Küche', [
+require('./router_io_accumulate.js').init(r);
+require('./router_io_eventdetection.js').init(r);
+
+require('./router_device_virtual.js').init(r, {
+	'/virtual/Mitbewohner': {
+		'filename': 'energy_Mitbewohner.csv',
+		'interval': 5
+	},
+	'/virtual/Heizungspumpe': {
+		'filename': 'energy_Heizungspumpe.csv',
+		'interval': 1
+	}
+});
+
+// Wohnung
+r.register('/wohnung/Küche', 'sum', '/wohnung', [
+		'/wohnung/Küche',
+		'/wohnung/Flur',
+		'/wohnung/Mitbewohner'
+]);
+
+// Flur
+r.register('/virtual/Heizungspumpe', 'sum', '/sum/Flur', []);
+r.register('/sum/Flur', 'accumulate', '/wohnung/Flur');
+
+r.register('/virtual/Heizungspumpe', 'eventdetection', '/wohnung/Flur/Heizungspumpe', {
+	25: "Pumpt"
+});
+
+// Büro
+r.register('/rsp-r320/Büro/Kopierer', 'sum', '/wohnung/Büro/SUM', [
+		'/rsp-r320/Büro/Rest'
+]);
+r.register('/wohnung/Büro/SUM', 'accumulate', '/wohnung/Büro');
+
+
+// Mitbewohner
+r.register('/virtual/Mitbewohner', 'sum', '/wohnung/Mitbewohner/SUM', []);
+r.register('/virtual/Mitbewohner', 'accumulate', '/wohnung/Mitbewohner');
+
+
+// Kühe
+r.register('/rsp-2a/Küche/Kühlschrank', 'sum', '/sum/Küche', [
 		'/rsp-2a/Küche/Kaffeevollautomat',
 		'/rsp-2a/Küche/Kaffeemaschine',
 		'/rsp-2a/Küche/Microwelle',
@@ -25,51 +67,7 @@ r.register('/rsp-2a/Küche/Kühlschrank', 'sum', '/wohnung/Küche', [
 		'/rsp-2a/Küche/Wasserkocher',
 		'/rsp-2a/Küche/Geschirrspüler'
 ]);
-
-r.register('/wohnung/Küche', 'sum', '/wohnung', [
-		'/wohnung/Küche'
-]);
-
-
-r.dests.eventdetection = function(node) {
-	var schwellen = this.obj;
-
-	if (!this.hasOwnProperty("eventdetection")) {
-		this.eventdetection = {
-			aktivitaet: ""
-		};
-	}
-
-	var neue_aktivitaet = "";
-	for (var schwelle in schwellen) {
-		if (node.value > schwelle) {
-			neue_aktivitaet = schwellen[schwelle];
-		}
-	}
-	if (neue_aktivitaet != "") {
-		if (this.eventdetection.aktivitaet == "") {
-			this.eventdetection = {
-				timestamp: node.time,
-				time: node.time,
-				duration_sec: 0,
-				running: 1,
-				program: neue_aktivitaet,
-				energy: 0
-			};
-		};
-		this.eventdetection.duration_sec = node.time - this.eventdetection.timestamp;
-		this.eventdetection.energy += node.value;
-		r.publish(this.id, node.time, JSON.stringify(this.eventdetection), false, true);
-	} else {
-		if (this.eventdetection.aktivitaet != "") {
-			this.eventdetection.running = 0;
-			r.publish(this.id, node.time, JSON.stringify(this.eventdetection));
-			this.eventdetection = {
-				aktivitaet: ""
-			};
-		}
-	}
-};
+r.register('/sum/Küche', 'accumulate', '/wohnung/Küche');
 
 r.register('/rsp-2a/Küche/Wasserkocher', 'eventdetection', '/wohnung/Küche/Wasserkocher', {
 	1000: "An"
@@ -83,16 +81,16 @@ r.register('/rsp-2a/Küche/Microwelle', 'eventdetection', '/wohnung/Küche/Micro
 r.register('/rsp-2a/Küche/Geschirrspüler', 'eventdetection', '/wohnung/Küche/Geschirrspüler', {
 	1000: "An"
 });
-
-
 r.register('/rsp-2a/Küche/Kaffeemaschine', 'eventdetection', '/wohnung/Küche/Kaffeemaschine', {
 	30: "Kaffee kochen"
 });
-
 r.register('/rsp-2a/Küche/Kaffeevollautomat', 'eventdetection', '/wohnung/Küche/Kaffeevollautomat', {
 	750: "Heizt"
 });
 r.register('/rsp-2a/Küche/Kühlschrank', 'eventdetection', '/wohnung/Küche/Kühlschrank', {
 	80: "Kühlt"
 });
+
+
+
 
