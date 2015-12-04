@@ -351,8 +351,19 @@ exports.router.prototype.get = function(name, create_new_node) {
 };
 
 /* set function for destination name */
-exports.router.prototype.register_static_dest = function(name, func) {
-	this.dests[name] = func;
+exports.router.prototype.register_static_dest = function(name, func, force_name) {
+	if (typeof force_name === "undefined")
+		force_name = false;
+	append = "";
+	while (this.dests.hasOwnProperty(name + append)) {
+		if (append == "")
+			append = 2;
+		else
+			append++;
+	}
+
+	this.dests[name + append] = func;
+	return name + append;
 };
 /* get function for destination name */
 exports.router.prototype.get_static_dest = function(name) {
