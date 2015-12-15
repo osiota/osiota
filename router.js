@@ -1,4 +1,11 @@
+/*
+ * DATA BROKER
+ * A nodejs service to handle, subscribe and push data.
+ *
+ * Simon Walz, IfN, 2015
+ */
 
+/* Helper: */
 RegExp.quote = function(str) {
 	    return (str+'').replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&");
 };
@@ -25,6 +32,7 @@ exports.node = function(r, name, parentnode) {
 
 	console.log("new node: " + name);
 };
+/* Set new data */
 exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to_history) {
 	// cancel if timestamp did not change:
 	if (this.time !== null &&
