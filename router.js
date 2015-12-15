@@ -383,6 +383,7 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 	}
 
 	data.forEach(function(d) {
+	    try {
 		if (d.hasOwnProperty('type')) {
 			if (d.hasOwnProperty('node')) {
 				var n = r.get(basename + d.node, true);
@@ -427,6 +428,10 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 					" Packet: ", JSON.stringify(d));
 			}
 		}
+	    } catch (e) {
+		console.log("Exception (Router, process_message:\n", e);
+	    }
+
 	});
 };
 
