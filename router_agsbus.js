@@ -5,6 +5,7 @@
  * ATTENTION:
  * THIS IS A VERY BAD EXAMPLE HOW TO IMPLEMENT A COMPLEX MODULE.
  * DO NOT USE THIS FILE!
+ * USE: javascript Buffer class
  */
 
 var SerialPort = require("serialport").SerialPort;
