@@ -431,6 +431,8 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 				for (var node in d.data) {
 					console.log("node: ", node);
 				}
+			} else if (d.type == 'reload_module' && d.hasOwnProperty('module') && typeof d.module === "string" && d.module.match(/^\w+$/)) {
+				require('./router_' + d.module + '.js').init(r);
 			} else {
 				console.log("Router, Process message: Packet with unknown type received: ", d.type,
 					" Packet: ", JSON.stringify(d));
