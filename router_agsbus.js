@@ -1,3 +1,12 @@
+/*
+ * Module: agsbus
+ * A custom bus protocol simular to modbus
+ *
+ * ATTENTION:
+ * THIS IS A VERY BAD EXAMPLE HOW TO IMPLEMENT A COMPLEX MODULE.
+ * DO NOT USE THIS FILE!
+ */
+
 var SerialPort = require("serialport").SerialPort;
 
 exports.publish = function() {};
