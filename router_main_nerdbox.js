@@ -12,4 +12,8 @@ require('./router_io_bias.js').init(r);
 require('./router_io_multiply.js').init(r);
 require('./router_io_sum.js').init(r);
 
+require('./router_tocsvfile.js').init(r, '', {
+	'/rsp-r320/Raum_215': 'csv/Raum_215',
+	'/pcenergy': 'csv/pcenergy'
+});
 
