@@ -30,7 +30,7 @@ require('./router_websocket_client.js')
 		o_ws.sendjson({"type":"list"});
 
 	if (argv._.length > 0) {
-		var node = argv._;
+		var node = argv._.toString();
 		o_ws.request(node);
 		r.register(node, "console", node);
 	} else {
