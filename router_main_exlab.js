@@ -1,6 +1,6 @@
 #!/usr/bin/node
 
-var mysql_config = require("router_main_exlab_config.js").mysql_config;
+var mysql_config = require("./router_main_exlab_config.js").mysql_config;
 
 var Router = require('./router.js').router;
 var r = new Router();
