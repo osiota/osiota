@@ -312,7 +312,7 @@ exports.router.prototype.get_nodes = function(basename) {
 		var n = _this.nodes[name];
 
 		// Filter nodes:
-		var regex = new RegExp("^" + RegExp.quote(basename) + "(.+)$", '');
+		var regex = new RegExp("^" + RegExp.quote(basename) + "(/.+)$", '');
 		var found = name.match(regex)
 		if (found) {
 			nodes[found[1]] = n;
