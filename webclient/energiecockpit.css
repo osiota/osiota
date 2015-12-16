@@ -1,0 +1,114 @@
+
+.gruppe {
+	/*
+	border: 2px solid black;
+	border-radius: 70px;
+	*/
+	margin: 0 -22px 0 -22px;
+	padding: 0.5em;
+}
+.gruppe > h2 {
+
+}
+.untergruppe > h3 {
+	padding: 10px;
+}
+
+.untergruppe {
+	/*
+	border: 2px solid black;
+	border-radius: 50px;
+	*/
+}
+
+.untergruppe .untergruppe_halb{
+	min-height: 325px;
+}
+
+.pre_verbr {
+	float: left;
+	width: 200px;
+}
+.verbr { 
+	margin: 10px;
+	padding: 10px;
+	/*
+	border: 5px solid grey;
+	border-radius: 20px;
+	*/
+	background: #fff; 
+	min-height: 200px;
+}
+
+.verbr .header {
+	font-weight: bold;
+	padding-bottom: 5px;
+	/*
+	background-color: black;
+	color: white;
+	margin: -10px -10px 0 -10px;
+	padding: 10px;
+	*/
+}
+
+.verbr .value:before {
+	content: attr(data-name);
+	position: absolute;
+	margin-top: -21px;
+	margin-left: -5px;
+	text-align: left;
+	color: black;
+	font-size: 10pt;
+	width: 180px;
+	display: block;
+}
+
+.value {
+	padding: 5px;
+	margin: 5px 0;
+	margin-top: 17px;
+	/*
+	border: 2px solid #a0a0a0;
+	*/
+	text-align: center;
+
+	background-color: #cccccc;
+	color: #454545;
+}
+.value:after {
+}
+.v_energy {
+}
+
+.v_energy:after {
+	content: " W";
+}
+.v_plc:after {
+	content: " W";
+}
+
+
+.v_airflow {
+}
+.v_airflow:after {
+	content: " Nl/min";
+}
+
+.v_compressedair{
+}
+.v_compressedair:after {
+	content: " bar";
+}
+
+	
+.v_coolant{
+}
+.v_coolant:after {
+	content: " L/h";
+}
+
+	
+/*.value:before {
+	content: "Energie: ";
+}*/
+

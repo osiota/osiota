@@ -1,0 +1,11 @@
+{
+  "name": "webclient, ethercat",
+  "version": "0.0.0",
+  "authors": [
+    "Simon Walz <walz@ifn.ing.tu-bs.de>"
+  ],
+  "main": "index.php",
+  "dependencies": {
+    "viz-js": "~0.0.4"
+  }
+}

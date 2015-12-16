@@ -1,0 +1,106 @@
+<html>
+<head>
+	<title>SmartControl</title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="control.css">
+	<link rel="stylesheet" href="modal.css">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="
+		height = device-height,
+		width = device-width,
+		initial-scale = 1.0,
+		user-scalable = no ,
+		target-densitydpi = device-dpi
+	" />
+
+	<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+	<script type="text/javascript" src="jsextend.js"></script>
+	<script type="text/javascript" src="pws.js"></script>
+	<script type="text/javascript" src="rclient.js"></script>
+
+	<script type="template" id="template_entry">
+<div class="entry" id="{{id}}">
+	<div class="switch"></div>
+	<span class="info">{{name}}</span>
+</div>
+	</script>
+
+	<script type="text/javascript">
+var template = function(name, data) {
+	var t = $("script#template_"+name).text();
+	for (var k in data) {
+		var r = new RegExp('{{' + RegExp.quote(k) + '}}', "g");
+		t = t.replace(r, data[k]);
+	}
+	return t;
+};
+
+	$(function() {
+		var nodes = [
+			"Simon/Bettlampe",
+			"Simon/Stein",
+			"Simon/Strahler unten",
+			"Simon/Strahler oben",
+			"Simon/Schreibtischlampe",
+			"Simon/Schreibtisch Spot",
+			"Simon/Buntes Licht",
+			"Simon/Sirene"
+		];
+		nodes.forEach(function(n) {
+			var name = n.replace(/^.*\//, "");
+			var node = "/WG/"+n;
+			var id = n.replace(/[^\\\/A-Za-z0-9_-]/g, '');
+			var t = template("entry", {
+				name: name,
+				id: id
+			});
+			var $t = $(t);
+			$t.appendTo("#entries");
+			$t.on("click", function() {
+				var value = $(this).attr("data-value");
+				if (typeof value === "undefined"
+						|| value == "null") {
+					value = 0;
+				}
+				if (value == 1)
+					value = 0;
+				else
+					value = 1;
+				
+				ws.data(node+"_s", value);
+			});
+		});
+
+		ws = new rclient();
+		ws.event_on("connect", function() {
+			$("#connecting").fadeOut(800);
+		});
+		ws.event_on("disconnect", function() {
+			$("#connecting").show();
+		});
+		ws.react_namespace("/WG/", function(value, $elem) {
+			if (value === 1) {
+				$elem.addClass("state1");
+			} else {
+				$elem.removeClass("state1");
+			}
+			return value;
+		});
+
+		nodes.forEach(function(n) {
+			ws.bind("/WG/" + n);
+		});
+
+		ws.init();
+	});
+
+	</script>
+  </head>
+<body>
+<div id="header">Control</div>
+
+<div id="entries"></div>
+
+</body>
+</html>
