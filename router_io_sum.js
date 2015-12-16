@@ -10,7 +10,7 @@ exports.init = function(router, basename) {
 		var value = 1*node.value;
 		for (var k=0;k<obj.length;k++) {
 			var node2_name = obj[k];
-			var n = router.get(node2_name, true);
+			var n = router.node(node2_name);
 
 			if (n.value !== null) {
 				value += 1*n.value;

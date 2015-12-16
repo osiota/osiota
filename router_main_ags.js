@@ -81,7 +81,7 @@ r.dests.not_if = function(node) {
 	var value = 1*node.value;
 	for (var k=0;k<obj.length;k++) {
 		var node2_name = obj[k];
-		var n = r.get(node2_name, true);
+		var n = r.node(node2_name);
 
 		if (n.value !== null) {
 			value *= !(1*n.value);

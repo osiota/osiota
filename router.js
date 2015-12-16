@@ -269,13 +269,13 @@ exports.router = function() {
 
 /* Register a callback or a link name for a route */
 exports.router.prototype.register = function(name, dest, id, obj, push_data) {
-	var n = this.get(name, true);
+	var n = this.node(name);
 	return n.register(dest, id, obj, push_data);
 };
 
 /* Register a link name for a route */
 exports.router.prototype.connect = function(name, dnode) {
-	var n = this.get(name, true);
+	var n = this.node(name);
 	return n.connect(dnode);
 };
 
@@ -289,13 +289,13 @@ exports.router.prototype.connectArray = function(nodes) {
 
 /* Delete a routing entry */
 exports.router.prototype.unregister = function(name, rentry) {
-	var n = this.get(name);
+	var n = this.node(name);
 	return n.unregister(rentry);
 };
 
 /* Route data */
 exports.router.prototype.publish = function(name, time, value, only_if_differ, do_not_add_to_history) {
-	var n = this.get(name, true);
+	var n = this.node(name);
 	n.publish(time, value, only_if_differ, do_not_add_to_history);
 }
 
@@ -338,24 +338,24 @@ exports.router.prototype.get_dests = function() {
 
 
 /* Get data of a node */
-exports.router.prototype.get = function(name, create_new_node) {
+exports.router.prototype.node = function(name, create_new_node) {
 	if (name == "") name = "/";
 
 	if (this.nodes.hasOwnProperty(name)) {
 		return this.nodes[name];
 	}
-	if (typeof create_new_node !== "undefined" && create_new_node === true) {
-		// get parent node:
-		var parentnode = null;
-		if (!name.match(/^[\/@]*$/)) {
-			var parentname = name.replace(/[\/@][^\/@]*$/, "");
-			parentnode = this.get(parentname, true);
-		}
-		this.nodes[name] = new exports.node(this, name, parentnode);
-		return this.nodes[name];
+	if (typeof create_new_node !== "undefined" && create_new_node === false) {
+		//throw new Exception("node not found.");
+		return new exports.node(this, null);
 	}
-	//throw new Exception("node not found.");
-	return new exports.node(this, null);
+	// get parent node:
+	var parentnode = null;
+	if (!name.match(/^[\/@]*$/)) {
+		var parentname = name.replace(/[\/@][^\/@]*$/, "");
+		parentnode = this.node(parentname);
+	}
+	this.nodes[name] = new exports.node(this, name, parentnode);
+	return this.nodes[name];
 };
 
 /* set function for destination name */
@@ -394,7 +394,7 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 	    try {
 		if (d.hasOwnProperty('type')) {
 			if (d.hasOwnProperty('node')) {
-				var n = r.get(basename + d.node, true);
+				var n = r.node(basename + d.node);
 				if (d.type == 'bind') {
 					var ref = n.register(cb_name, d.node, obj);
 
