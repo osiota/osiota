@@ -221,7 +221,7 @@ exports.node.prototype.unregister = function(rentry) {
 /* get History of a node: */
 exports.node.prototype.get_history = function(interval) {
 	if (this.hasOwnProperty('history')) {
-		return this.history.get();
+		return this.history.get(interval);
 	}
 	return [];
 };
