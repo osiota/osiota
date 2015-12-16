@@ -50,7 +50,7 @@ exports.init = function(router, basename, options, nodes) {
 		port.set(channel, node.value);
 
 		var dnode = node.name.replace(/_s$|@s$/, "");
-		router.publish(dnode, node.time, node.value);
+		router.node(dnode).publish(node.time, node.value);
 	};
 
 	 

@@ -45,7 +45,7 @@ exports.init = function(router) {
 
 			// event senden:
 			if (this.eventdetection2.time_length > 10) {
-				router.publish(this.id, node.time, JSON.stringify(this.eventdetection2), false, true);
+				router.node(this.id).publish(node.time, JSON.stringify(this.eventdetection2), false, true);
 			}
 		} else {
 			if (this.eventdetection2.aktivitaet != "") {
@@ -54,7 +54,7 @@ exports.init = function(router) {
 					this.eventdetection2.running = 0;
 					// event senden:
 					if (this.eventdetection2.time_length > 3) {
-						router.publish(this.id, node.time, JSON.stringify(this.eventdetection2));
+						router.node(this.id).publish(node.time, JSON.stringify(this.eventdetection2));
 					}
 					// delete event:
 					this.eventdetection2 = {

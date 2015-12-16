@@ -12,7 +12,7 @@ exports.init = function(router, basename, nodes) {
 		rentry.obj = this.obj;
 		router.dests.execcommand.call(rentry, node);
 		var dnode = node.name.replace(/_s$|@s$/, "");
-		router.publish(dnode, node.time, node.value);
+		router.node(dnode).publish(node.time, node.value);
 	};
 
 	for (var n in nodes) {

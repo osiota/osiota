@@ -21,7 +21,7 @@ exports.init = function(router, basename) {
 		} else {
 			if (meandata[this.id].anz != 0) {
 				var v = meandata[this.id].sum / meandata[this.id].anz;
-				router.publish(this.id, meandata[this.id].time, v);
+				router.node(this.id).publish(meandata[this.id].time, v);
 			}
 			meandata[this.id].time = Math.round(node.time / timebase);
 			meandata[this.id].sum = 1*node.value;

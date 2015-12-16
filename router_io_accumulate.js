@@ -10,7 +10,7 @@ exports.init = function(router) {
 		var duration_last = node.time - timestamp_last;
 		this.acc_energy += node.value * duration_last;
 
-		router.publish(this.id, node.time, this.acc_energy);
+		router.node(this.id).publish(node.time, this.acc_energy);
 
 		// set last timestamp:
 		this.acc_timestamp_last = node.time;

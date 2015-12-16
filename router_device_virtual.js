@@ -39,7 +39,7 @@ exports.play_device = function(nodename, c) {
 
 			// publish:
 			var time = new Date() / 1000;
-			_r.publish(nodename, time, value);
+			_r.node(nodename).publish(time, value);
 		}, 1000 * interval);
 	});
 }

@@ -14,6 +14,6 @@ require('./router_usbdmx.js').init(r, "/dmx", {device: '/dev/cu.wchusbserial640'
 	"/led/flash": 6	
 });
 
-r.publish("/dmx/led/main_s", new Date() / 1000, 255);
-r.publish("/dmx/led/r_s", new Date() / 1000, 255);
+r.node("/dmx/led/main_s").publish(new Date() / 1000, 255);
+r.node("/dmx/led/r_s").publish(new Date() / 1000, 255);
 

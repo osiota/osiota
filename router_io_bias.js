@@ -22,7 +22,7 @@ exports.init = function(router, basename) {
 		} else {
 			v = value - mindata[this.id].value;
 		}
-		router.publish(this.id, node.time, v);
+		router.node(this.id).publish(node.time, v);
 	};
 
 };

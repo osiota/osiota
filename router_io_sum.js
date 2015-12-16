@@ -16,7 +16,7 @@ exports.init = function(router, basename) {
 				value += 1*n.value;
 			}
 		}
-		router.publish(this.id, node.time, value);
+		router.node(this.id).publish(node.time, value);
 	};
 };
 
