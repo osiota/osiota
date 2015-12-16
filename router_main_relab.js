@@ -1,12 +1,6 @@
 #!/usr/bin/node
 
-var mysql_config = {
-	host     : 'pul.iwf.ing.tu-bs.de',
-	user     : 'ReLab',
-	password : 'lab',
-	database : 'ReLab'
-};
-// password : 'jxXDYWDdSCdTcTJF',
+var mysql_config = require("router_main_relab_config.js").mysql_config;
 
 var Router = require('./router.js').router;
 var r = new Router();
