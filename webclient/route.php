@@ -87,8 +87,8 @@
 			ws.event_on("dataset", function(data) {
 				$("#nodes").empty();
 				list_nodes($("#nodes"), data.data, print_nodeentry);
-				$("#dialog_nodes").empty();
-				list_nodes($("#dialog_nodes"), data.data, function(d, k) {
+				$("#dl_dialog_nodes").empty();
+				list_nodes($("#dl_dialog_nodes"), data.data, function(d, k) {
 					var $o = $("<option/>").attr("value", k).text(k);
 					return $o;
 				});
@@ -120,6 +120,7 @@
 			$("body").on("click", "button.route", function() {
 				var node = $(this).attr("data");
 
+				$("#dialog_nodes").val("/target");
 				$("#dialog .node").text(node);
 				$("#dialog #dialog_dests_id").val(node);
 				$("#dialog #dialog_dests_obj").val("[]");
@@ -220,6 +221,9 @@
 			float: right;
 			margin: 5px;
 		}
+		#dialog_nodes {
+			width: 400px;
+		}
 		</style>
 	</head>
 	<body>
@@ -231,7 +235,7 @@
 
 			<p>Node: <span class="node"></span></p>
 
-			<p>Route to node: <select id="dialog_nodes"></select><button class="dialog_node_ok">ok</button></p>
+			<p>Route to node: <input id="dialog_nodes" type="text" list="dl_dialog_nodes" autocomplete="off"/><datalist id="dl_dialog_nodes"></datalist><button class="dialog_node_ok">ok</button></p>
 
 			<p>Route to dest: <select id="dialog_dests"></select>
 			ID: <input type="text" id="dialog_dests_id"/>
