@@ -5,12 +5,13 @@
  * Simon Walz, IfN, 2015
  */
 
+var EventEmitter = require('events');
+var util = require('util');
+
 /* Helper: */
 RegExp.quote = function(str) {
 	    return (str+'').replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&");
 };
-
-var history = require('./module_history').history;
 
 /* Class: Node */
 exports.node = function(r, name, parentnode) {
@@ -26,12 +27,15 @@ exports.node = function(r, name, parentnode) {
 
 	this.listener = [];
 
-	this.history = new history(50*60);
-
 	this.parentnode = parentnode;
 
 	console.log("new node: " + name);
+
+	EventEmitter.call(this);
+
+	r.emit('create_new_node', this);
 };
+util.inherits(exports.node, EventEmitter);
 /* Set new data */
 exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to_history) {
 	// cancel if timestamp did not change:
@@ -51,11 +55,7 @@ exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to
 	this.value = value;
 	this.time = time;
 
-	// add history:
-	if (typeof do_not_add_to_history === "undefined" ||
-			!do_not_add_to_history) {
-		this.history.add(time, value);
-	}
+	this.emit('set', time, value, only_if_differ, do_not_add_to_history);
 
 	return true;
 };
@@ -265,7 +265,10 @@ exports.node.prototype.toJSON = function() {
 exports.router = function() {
 	this.nodes = {};
 	this.dests = {};
+
+	EventEmitter.call(this);
 };
+util.inherits(exports.router, EventEmitter);
 
 /* Register a callback or a link name for a route */
 exports.router.prototype.register = function(name, dest, id, obj, push_data) {
