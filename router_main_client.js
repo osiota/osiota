@@ -30,9 +30,11 @@ require('./router_websocket_client.js')
 		o_ws.sendjson({"type":"list"});
 
 	if (argv._.length > 0) {
-		var node = argv._.toString();
-		o_ws.request(node);
-		r.register(node, "console", node);
+		for(i=0; i<argv._.length; i++) {
+			var node = argv._[i].toString();
+			o_ws.request(node);
+			r.register(node, "console", node);
+		}
 	} else {
 		console.log("no node registered. existing ...");
 		setTimeout(function() { process.exit(); }, 1000);

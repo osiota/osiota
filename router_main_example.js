@@ -13,4 +13,5 @@ require('./router_io_multiply.js').init(r);
 require('./router_io_sum.js').init(r);
 
 require('./router_random_in.js').init(r, "/random", 20, 0, 100);
+require('./router_test.js').init(r, "/test", 100);
 
