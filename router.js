@@ -218,14 +218,6 @@ exports.node.prototype.unregister = function(rentry) {
 	console.log("\tfailed.");
 };
 
-/* get History of a node: */
-exports.node.prototype.get_history = function(interval) {
-	if (this.hasOwnProperty('history')) {
-		return this.history.get(interval);
-	}
-	return [];
-};
-
 /* Get a copy of the listeners */
 exports.node.prototype.get_listener = function(rentry) {
 	var npr = {};
@@ -238,6 +230,20 @@ exports.node.prototype.get_listener = function(rentry) {
 		npr.dnode = rentry.dnode;
 	}
 	return npr;
+};
+
+/* Remote procedure calls */
+exports.node.prototype.rpc_data = function(reply, time, value) {
+	this.publish(time, value);
+};
+exports.node.prototype.rpc_connect = function(reply, dnode) {
+	this.connect(dnode);
+};
+exports.node.prototype.rpc_register = function(reply, dest, id, obj) {
+	this.register(dest, id, obj);
+};
+exports.node.prototype.rpc_register = function(reply, rentry) {
+	this.unregister(rentry);
 };
 
 /* Overwrite function to convert object to string: */
@@ -383,6 +389,19 @@ exports.router.prototype.get_static_dest = function(name) {
 	}
 	return undefined;
 };
+/* Remote procedure calls */
+exports.router.prototype.rpc_list = function(reply) {
+	reply(null, this.nodes);
+};
+exports.router.prototype.rpc_get_dests = function(reply) {
+	reply(null, this.get_dests());
+};
+exports.router.prototype.rpc_get_dests = function(reply, data) {
+	for (var node in data) {
+		console.log("node: ", node);
+	}
+};
+
 /* process command messages (ie from websocket) */
 exports.router.prototype.process_message = function(basename, data, cb_name, obj, respond) {
 	var r = this;
@@ -395,10 +414,28 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 
 	data.forEach(function(d) {
 	    try {
+		var ref = d.ref;
+		var reply = function(error, data) {
+			if (typeof ref !== "undefined") {
+				if (typeof error !== "undefined" &&
+						error !== null) {
+					respond({"type": "reply", "ref": ref, "data": data});
+				} else {
+					respond({"type": "reply", "ref": ref, "error": error, "data": data);
+				}
+			}
+			ref = undefined;
+		};
 		if (d.hasOwnProperty('type')) {
 			if (d.hasOwnProperty('node')) {
 				var n = r.node(basename + d.node);
-				if (d.type == 'bind') {
+				if (typeof n['rpc_' + d.type] == 'function' &&
+						d.hasOwnProperty("args") &&
+						Array.isArray(d.args)) {
+					args = d.args;
+					args.unshift(reply);
+					n['rpc_' + d.type].apply(n, d.args);
+				} else if (d.type == 'bind') {
 					var ref = n.register(cb_name, d.node, obj);
 
 					if (typeof obj !== "undefined" && obj !== null && typeof obj.inform_bind == "function") {
@@ -425,6 +462,12 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 					console.log("Router, Process message: Packet with unknown (node) command received: ", d.type,
 						" Packet: ", JSON.stringify(d));
 				}
+			} else if (typeof this['rpc_' + d.type] == 'function' &&
+					d.hasOwnProperty("args") &&
+					Array.isArray(d.args)) {
+				args = d.args;
+				args.unshift(reply);
+				this['rpc_' + d.type].apply(n, d.args);
 			} else if (d.type == 'list') {
 				respond({"type":"dataset", "data":r.nodes});
 			} else if (d.type == 'get_dests') {
@@ -441,8 +484,12 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 					" Packet: ", JSON.stringify(d));
 			}
 		}
+		reply(null, "okay");
 	    } catch (e) {
 		console.log("Exception (Router, process_message:\n", e);
+		try {
+			reply("Exception", e);
+		} catch(e) { }
 	    }
 
 	});
