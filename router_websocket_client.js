@@ -89,6 +89,20 @@ exports.init = function(router, basename, ws_url, init_callback) {
 	o_ws.request = function(node) {
 		o_ws.respond({"type":"bind", "node":node});
 	};
+	o_ws.rpc = function(method) {
+		var args = Array.prototype.slice.call(arguments);
+		//var method =
+		args.shift();
+		o_ws.respond({"type": method, "args": args});
+	};
+	o_ws.rpc_node = function(node, method) {
+		var args = Array.prototype.slice.call(arguments);
+		//var node =
+		args.shift();
+		//var method =
+		args.shift();
+		o_ws.respond({"node": node, "type": method, "args": args});
+	};
 
 	router.dests.wsc = function(node, relative_name, do_not_add_to_history) {
 		o_ws.send_data(this.id + relative_name, node.time, node.value, do_not_add_to_history);
