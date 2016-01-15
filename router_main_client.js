@@ -33,9 +33,8 @@ require('./router_websocket_client.js')
 		o_ws.sendjson({"type":"list"});
 
 	if (argv._.length > 0) {
-        for(i=0; i<argv._.length; i++)
-        {
-            var node = argv._[i].toString();
+		for(i=0; i<argv._.length; i++) {
+			var node = argv._[i].toString();
 			if (argv.history !== null) {
 				o_ws.respond({
 					"type":"get_history",
@@ -46,7 +45,7 @@ require('./router_websocket_client.js')
 				o_ws.request(node);
 				r.register(node, "console", node);
 			}
-        }
+		}
 	} else {
 		console.log("no node registered. existing ...");
 		setTimeout(function() { process.exit(); }, 1000);
