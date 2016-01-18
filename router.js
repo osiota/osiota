@@ -5,13 +5,14 @@
  * Simon Walz, IfN, 2015
  */
 
-var EventEmitter = require('events');
 var util = require('util');
 
 /* Helper: */
 RegExp.quote = function(str) {
 	    return (str+'').replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&");
 };
+
+var RemoteCall = require('./router_remotecall.js').remotecall;
 
 /* Class: Node */
 exports.node = function(r, name, parentnode) {
@@ -31,11 +32,11 @@ exports.node = function(r, name, parentnode) {
 
 	console.log("new node: " + name);
 
-	EventEmitter.call(this);
+	RemoteCall.call(this);
 
 	r.emit('create_new_node', this);
 };
-util.inherits(exports.node, EventEmitter);
+util.inherits(exports.node, RemoteCall);
 /* Set new data */
 exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to_history) {
 	// cancel if timestamp did not change:
@@ -233,8 +234,8 @@ exports.node.prototype.get_listener = function(rentry) {
 };
 
 /* Remote procedure calls */
-exports.node.prototype.rpc_data = function(reply, time, value) {
-	this.publish(time, value);
+exports.node.prototype.rpc_data = function(reply, time, value, only_if_differ, do_not_add_to_history) {
+	this.publish(time, value, only_if_differ, do_not_add_to_history);
 };
 exports.node.prototype.rpc_connect = function(reply, dnode) {
 	this.connect(dnode);
@@ -272,9 +273,9 @@ exports.router = function() {
 	this.nodes = {};
 	this.dests = {};
 
-	EventEmitter.call(this);
+	RemoteCall.call(this);
 };
-util.inherits(exports.router, EventEmitter);
+util.inherits(exports.router, RemoteCall);
 
 /* Register a callback or a link name for a route */
 exports.router.prototype.register = function(name, dest, id, obj, push_data) {
@@ -402,41 +403,30 @@ exports.router.prototype.rpc_get_dests = function(reply, data) {
 	}
 };
 
-/* Process indirect rpc calls */
-exports.router.prototype.process_rpc = function(object, method, args, reply) {
-	if (typeof object['rpc_' + method] == "function" &&
-			typeof args !== "undefined" &&
-			Array.isArray(args)) {
-		args.unshift(reply);
-		object['rpc_' + method].apply(n, args);
-		return true;
-	}
-	return false;
-};
-
 /* process a single command message */
-exports.router.prototype.process_single_message = function(basename, d, cb_name, obj, respond) {
-	var ref = d.ref;
+exports.router.prototype.process_single_message = function(basename, d, cb_name, obj, respond, module) {
+	var rpc_ref = d.ref;
 	var reply = function(error, data) {
-		if (typeof ref !== "undefined") {
+		if (typeof rpc_ref !== "undefined") {
 			if (typeof error !== "undefined" &&
 					error !== null) {
-				respond({"type": "reply", "ref": ref, "data": data});
-			} else {
-				respond({"type": "reply", "ref": ref, "error": error, "data": data);
+				error = null;
 			}
+			respond({"type": "reply", "args": [ rpc_ref, error, data ]});
 		}
-		ref = undefined;
+		rpc_ref = undefined;
 	};
 
 	try {
 		if (!d.hasOwnProperty('type')) {
-			throw Error("Message type not defined.");
+			throw Error("Message type not defined: " + JSON.stringify(d));
 		}
 		var method = d.type;
 		if (d.hasOwnProperty('node')) {
-			var n = r.node(basename + d.node);
-			if (r.process_rpc(n, method, d.args, reply)) {
+			var n = this.node(basename + d.node);
+			if (typeof module === "object" && n._rpc_process("node_" + method, d.args, reply, module)) {
+				// nothing.
+			} else if (n._rpc_process(method, d.args, reply)) {
 				// nothing.
 			} else if (method == 'bind') {
 				var ref = n.register(cb_name, d.node, obj);
@@ -466,19 +456,21 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 					" Packet: "+ JSON.stringify(d));
 			}
 		} else {
-			if (r.process_rpc(r, method, d.args, reply)) {
+			if (typeof module === "object" && this._rpc_process(method, d.args, reply, module)) {
+				// nothing.
+			} else if (this._rpc_process(method, d.args, reply)) {
 				// nothing.
 			} else if (method == 'list') {
-				respond({"type":"dataset", "data":r.nodes});
+				respond({"type":"dataset", "data":this.nodes});
 			} else if (method == 'get_dests') {
-				respond({"type":"dests", "data":r.get_dests()});
+				respond({"type":"dests", "data":this.get_dests()});
 			// TODO:
 			} else if (method == 'dataset' && d.hasOwnProperty('data')) {
 				for (var node in d.data) {
 					console.log("node: ", node);
 				}
 			} else if (method == 'reload_module' && d.hasOwnProperty('module') && typeof d.module === "string" && d.module.match(/^\w+$/)) {
-				require('./router_' + d.module + '.js').init(r);
+				require('./router_' + d.module + '.js').init(this);
 			} else {
 				throw Exception("Router, Process message: Packet with unknown type received: " + method +
 					" Packet: "+ JSON.stringify(d));
@@ -486,13 +478,14 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 		}
 		reply(null, "okay");
 	} catch (e) {
-		console.log("Exception (Router, process_message:\n", e);
+		console.log("Exception (Router, process_single_message:\n", e);
 		reply("Exception", e);
 	}
 };
 
 /* process command messages (ie from websocket) */
-exports.router.prototype.process_message = function(basename, data, cb_name, obj, respond) {
+/* TODO: delete arguments: cb_name, obj */
+exports.router.prototype.process_message = function(basename, data, cb_name, obj, respond, module) {
 	var r = this;
 	if (typeof respond !== "function")
 		respond = function() {};
@@ -502,7 +495,7 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 	}
 
 	data.forEach(function(d) {
-		this.process_single_message(basename, d, cb_name, obj, respond);
+		r.process_single_message(basename, d, cb_name, obj, respond, module);
 
 	});
 };

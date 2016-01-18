@@ -73,35 +73,38 @@ exports.init = function(router, basename, ws_url, init_callback) {
 		if (typeof init_callback === "function")
 			init_callback(o_ws);
 	}, function(data) {
-		router.process_message(basename, data, "wsc", o_ws, function(data) { o_ws.respond(data); });
+		router.process_message(basename, data, "wsc", o_ws, function(data) { o_ws.respond(data); }, o_ws);
 	});
 	o_ws.registered_nodes = [];
-	o_ws.inform_bind = function(node, ref) {
-		o_ws.registered_nodes.push({"node": node, "ref": ref});
+	o_ws.rpc_node_bind = function(reply) {
+		// this == node
+		var ref = this.register("wss", this.name, o_ws);
+
+		// inform bind:
+		o_ws.registered_nodes.push({"node": this.name, "ref": ref});
 	};
 
 	o_ws.respond = router.cue(function(data) {
 		o_ws.sendjson(data);
 	});
 	o_ws.send_data = function(id, time, value, do_not_add_to_history) {
-		o_ws.respond({"type":"data", "node":id, "time":time, "value":value, "add_to_history": do_not_add_to_history});
+		o_ws.node_rpc(id, "data", time, value, false, do_not_add_to_history);
 	};
 	o_ws.request = function(node) {
-		o_ws.respond({"type":"bind", "node":node});
+		o_ws.node_rpc(node, "bind");
 	};
 	o_ws.rpc = function(method) {
 		var args = Array.prototype.slice.call(arguments);
-		//var method =
-		args.shift();
-		o_ws.respond({"type": method, "args": args});
+		var object = router._rpc_create_object.apply(router, args);
+		o_ws.respond(object);
 	};
-	o_ws.rpc_node = function(node, method) {
+	o_ws.node_rpc = function(node, method) {
 		var args = Array.prototype.slice.call(arguments);
 		//var node =
 		args.shift();
-		//var method =
-		args.shift();
-		o_ws.respond({"node": node, "type": method, "args": args});
+		var object = router._rpc_create_object.apply(router, args);
+		object.node = node;
+		o_ws.respond(object);
 	};
 
 	router.dests.wsc = function(node, relative_name, do_not_add_to_history) {
