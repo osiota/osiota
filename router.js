@@ -402,6 +402,95 @@ exports.router.prototype.rpc_get_dests = function(reply, data) {
 	}
 };
 
+/* Process indirect rpc calls */
+exports.router.prototype.process_rpc = function(object, method, args, reply) {
+	if (typeof object['rpc_' + method] == "function" &&
+			typeof args !== "undefined" &&
+			Array.isArray(args)) {
+		args.unshift(reply);
+		object['rpc_' + method].apply(n, args);
+		return true;
+	}
+	return false;
+};
+
+/* process a single command message */
+exports.router.prototype.process_single_message = function(basename, d, cb_name, obj, respond) {
+	var ref = d.ref;
+	var reply = function(error, data) {
+		if (typeof ref !== "undefined") {
+			if (typeof error !== "undefined" &&
+					error !== null) {
+				respond({"type": "reply", "ref": ref, "data": data});
+			} else {
+				respond({"type": "reply", "ref": ref, "error": error, "data": data);
+			}
+		}
+		ref = undefined;
+	};
+
+	try {
+		if (!d.hasOwnProperty('type')) {
+			throw Error("Message type not defined.");
+		}
+		var method = d.type;
+		if (d.hasOwnProperty('node')) {
+			var n = r.node(basename + d.node);
+			if (r.process_rpc(n, method, d.args, reply)) {
+				// nothing.
+			} else if (method == 'bind') {
+				var ref = n.register(cb_name, d.node, obj);
+
+				if (typeof obj !== "undefined" && obj !== null && typeof obj.inform_bind == "function") {
+					obj.inform_bind(n.name, ref);
+					//ws.registered_nodes.push({"node": d.node, "ref": ref});
+				}
+			} else if (method == 'data' &&
+					d.hasOwnProperty('value') &&
+					d.hasOwnProperty('time')) {
+				n.publish(d.time, d.value);
+			} else if (method == 'connect' &&
+					d.hasOwnProperty('dnode')) {
+				n.connect(d.dnode);
+			} else if (method == 'register' &&
+					d.hasOwnProperty('dest')) {
+				n.register(d.dest, d.id, d.obj);
+			} else if (method == 'unregister' &&
+					d.hasOwnProperty('rentry')) {
+				n.unregister(d.rentry);
+			} else if (method == 'get_history' &&
+					d.hasOwnProperty('interval')) {
+				respond({"type": "history", "node": d.node, "data": n.get_history(d.interval) });
+			} else {
+				throw Exception("Router, Process message: Packet with unknown (node) command received: "+ method+
+					" Packet: "+ JSON.stringify(d));
+			}
+		} else {
+			if (r.process_rpc(r, method, d.args, reply)) {
+				// nothing.
+			} else if (method == 'list') {
+				respond({"type":"dataset", "data":r.nodes});
+			} else if (method == 'get_dests') {
+				respond({"type":"dests", "data":r.get_dests()});
+			// TODO:
+			} else if (method == 'dataset' && d.hasOwnProperty('data')) {
+				for (var node in d.data) {
+					console.log("node: ", node);
+				}
+			} else if (method == 'reload_module' && d.hasOwnProperty('module') && typeof d.module === "string" && d.module.match(/^\w+$/)) {
+				require('./router_' + d.module + '.js').init(r);
+			} else {
+				throw Exception("Router, Process message: Packet with unknown type received: " + method +
+					" Packet: "+ JSON.stringify(d));
+			}
+		}
+		reply(null, "okay");
+	} catch (e) {
+		console.log("Exception (Router, process_message:\n", e);
+		reply("Exception", e);
+	}
+};
+
 /* process command messages (ie from websocket) */
 exports.router.prototype.process_message = function(basename, data, cb_name, obj, respond) {
 	var r = this;
@@ -413,84 +502,7 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 	}
 
 	data.forEach(function(d) {
-	    try {
-		var ref = d.ref;
-		var reply = function(error, data) {
-			if (typeof ref !== "undefined") {
-				if (typeof error !== "undefined" &&
-						error !== null) {
-					respond({"type": "reply", "ref": ref, "data": data});
-				} else {
-					respond({"type": "reply", "ref": ref, "error": error, "data": data);
-				}
-			}
-			ref = undefined;
-		};
-		if (d.hasOwnProperty('type')) {
-			if (d.hasOwnProperty('node')) {
-				var n = r.node(basename + d.node);
-				if (typeof n['rpc_' + d.type] == 'function' &&
-						d.hasOwnProperty("args") &&
-						Array.isArray(d.args)) {
-					args = d.args;
-					args.unshift(reply);
-					n['rpc_' + d.type].apply(n, d.args);
-				} else if (d.type == 'bind') {
-					var ref = n.register(cb_name, d.node, obj);
-
-					if (typeof obj !== "undefined" && obj !== null && typeof obj.inform_bind == "function") {
-						obj.inform_bind(n.name, ref);
-						//ws.registered_nodes.push({"node": d.node, "ref": ref});
-					}
-				} else if (d.type == 'data' &&
-						d.hasOwnProperty('value') &&
-						d.hasOwnProperty('time')) {
-					n.publish(d.time, d.value);
-				} else if (d.type == 'connect' &&
-						d.hasOwnProperty('dnode')) {
-					n.connect(d.dnode);
-				} else if (d.type == 'register' &&
-						d.hasOwnProperty('dest')) {
-					n.register(d.dest, d.id, d.obj);
-				} else if (d.type == 'unregister' &&
-						d.hasOwnProperty('rentry')) {
-					n.unregister(d.rentry);
-				} else if (d.type == 'get_history' &&
-						d.hasOwnProperty('interval')) {
-					respond({"type": "history", "node": d.node, "data": n.get_history(d.interval) });
-				} else {
-					console.log("Router, Process message: Packet with unknown (node) command received: ", d.type,
-						" Packet: ", JSON.stringify(d));
-				}
-			} else if (typeof this['rpc_' + d.type] == 'function' &&
-					d.hasOwnProperty("args") &&
-					Array.isArray(d.args)) {
-				args = d.args;
-				args.unshift(reply);
-				this['rpc_' + d.type].apply(n, d.args);
-			} else if (d.type == 'list') {
-				respond({"type":"dataset", "data":r.nodes});
-			} else if (d.type == 'get_dests') {
-				respond({"type":"dests", "data":r.get_dests()});
-			// TODO:
-			} else if (d.type == 'dataset' && d.hasOwnProperty('data')) {
-				for (var node in d.data) {
-					console.log("node: ", node);
-				}
-			} else if (d.type == 'reload_module' && d.hasOwnProperty('module') && typeof d.module === "string" && d.module.match(/^\w+$/)) {
-				require('./router_' + d.module + '.js').init(r);
-			} else {
-				console.log("Router, Process message: Packet with unknown type received: ", d.type,
-					" Packet: ", JSON.stringify(d));
-			}
-		}
-		reply(null, "okay");
-	    } catch (e) {
-		console.log("Exception (Router, process_message:\n", e);
-		try {
-			reply("Exception", e);
-		} catch(e) { }
-	    }
+		this.process_single_message(basename, d, cb_name, obj, respond);
 
 	});
 };
