@@ -408,8 +408,7 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 	var rpc_ref = d.ref;
 	var reply = function(error, data) {
 		if (typeof rpc_ref !== "undefined") {
-			if (typeof error !== "undefined" &&
-					error !== null) {
+			if (typeof error === "undefined") {
 				error = null;
 			}
 			respond({"type": "reply", "args": [ rpc_ref, error, data ]});
