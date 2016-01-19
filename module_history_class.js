@@ -61,7 +61,7 @@
 		}
 	};
 	/* history: get old data */
-	exports.history.prototype.get = function(interval) {
+	exports.history.prototype.get = function(interval, callback) {
 		var config = {};
 		config.maxentries = 3000;
 		config.samplerate = null;
@@ -102,7 +102,9 @@
 			data = data.slice(0,index-1);
 		}
 		data = data.slice(Math.max(data.length - config.maxentries, 0));
-		return data;
+
+		// return data:
+		callback(data);
 	}
 
 
