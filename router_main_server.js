@@ -21,7 +21,7 @@ if (argv.help) {
 var Router = require('./router.js').router;
 var r = new Router();
 
-require('./module_history.js').init(r);
+require('./module_history.js').init(r, 'ram');
 
 // add router moules:
 require('./router_console_out.js').init(r, "/console");
