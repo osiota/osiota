@@ -355,7 +355,7 @@ exports.router.prototype.node = function(name, create_new_node) {
 		return this.nodes[name];
 	}
 	if (typeof create_new_node !== "undefined" && create_new_node === false) {
-		//throw new Exception("node not found.");
+		//throw new Error("node not found.");
 		return new exports.node(this, null);
 	}
 	// get parent node:
@@ -418,7 +418,7 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 
 	try {
 		if (!d.hasOwnProperty('type')) {
-			throw Error("Message type not defined: " + JSON.stringify(d));
+			throw new Error("Message type not defined: " + JSON.stringify(d));
 		}
 		var method = d.type;
 		if (d.hasOwnProperty('node')) {
@@ -451,7 +451,7 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 					d.hasOwnProperty('interval')) {
 				respond({"type": "history", "node": d.node, "data": n.get_history(d.interval) });
 			} else {
-				throw Exception("Router, Process message: Packet with unknown (node) command received: "+ method+
+				throw new Error("Router, Process message: Packet with unknown (node) command received: "+ method+
 					" Packet: "+ JSON.stringify(d));
 			}
 		} else {
@@ -471,7 +471,7 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 			} else if (method == 'reload_module' && d.hasOwnProperty('module') && typeof d.module === "string" && d.module.match(/^\w+$/)) {
 				require('./router_' + d.module + '.js').init(this);
 			} else {
-				throw Exception("Router, Process message: Packet with unknown type received: " + method +
+				throw new Error("Router, Process message: Packet with unknown type received: " + method +
 					" Packet: "+ JSON.stringify(d));
 			}
 		}
