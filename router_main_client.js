@@ -32,7 +32,7 @@ require('./router_websocket_client.js')
 	console.log("Connected.");
 	if (argv.list)
 		o_ws.rpc("list", function(data) {
-			console.log("list:", data);
+			console.log("list:\n", data);
 		});
 
 	if (argv._.length > 0) {
