@@ -78,7 +78,7 @@ exports.init = function(router, basename, ws_url, init_callback) {
 	o_ws.registered_nodes = [];
 	o_ws.rpc_node_bind = function(reply) {
 		// this == node
-		var ref = this.register("wss", this.name, o_ws);
+		var ref = this.register("wsc", this.name, o_ws);
 
 		// inform bind:
 		o_ws.registered_nodes.push({"node": this.name, "ref": ref});
