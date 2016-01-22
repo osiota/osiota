@@ -49,8 +49,13 @@
 
 
 	/* history */
-	exports.history = function(history_length) {
-		this.history_length = history_length;
+	exports.history = function(nodename, history_config) {
+		this.history_length = 3000;
+		if (typeof history_config === "object" &&
+				history_config.hasOwnProperty("max_data") &&
+				typeof history_config.max_data === "number") {
+			this.history_length = history_config.max_data;
+		}
 		this.history_data = [];
 	};
 	/* history: add new data */

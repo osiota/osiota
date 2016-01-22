@@ -3,7 +3,11 @@
 var Router = require('./router.js').router;
 var r = new Router();
 
-require('./module_history.js').init(r, 'ram');
+require('./module_history.js').init(r, 'levelup', {
+	"max_data": 3000,
+	"timebases": [
+	]
+});
 
 require('./router_console_out.js').init(r, "/console");
 require('./router_websockets.js').init(r, "", 8080);
