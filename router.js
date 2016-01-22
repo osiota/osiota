@@ -236,15 +236,19 @@ exports.node.prototype.get_listener = function(rentry) {
 /* Remote procedure calls */
 exports.node.prototype.rpc_data = function(reply, time, value, only_if_differ, do_not_add_to_history) {
 	this.publish(time, value, only_if_differ, do_not_add_to_history);
+	reply(null, "okay");
 };
 exports.node.prototype.rpc_connect = function(reply, dnode) {
 	this.connect(dnode);
+	reply(null, "okay");
 };
 exports.node.prototype.rpc_register = function(reply, dest, id, obj) {
 	this.register(dest, id, obj);
+	reply(null, "okay");
 };
 exports.node.prototype.rpc_register = function(reply, rentry) {
 	this.unregister(rentry);
+	reply(null, "okay");
 };
 
 /* Overwrite function to convert object to string: */
@@ -397,11 +401,6 @@ exports.router.prototype.rpc_list = function(reply) {
 exports.router.prototype.rpc_get_dests = function(reply) {
 	reply(null, this.get_dests());
 };
-exports.router.prototype.rpc_get_dests = function(reply, data) {
-	for (var node in data) {
-		console.log("node: ", node);
-	}
-};
 
 /* process a single command message */
 exports.router.prototype.process_single_message = function(basename, d, cb_name, obj, respond, module) {
@@ -475,7 +474,6 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 					" Packet: "+ JSON.stringify(d));
 			}
 		}
-		reply(null, "okay");
 	} catch (e) {
 		console.log("Exception (Router, process_single_message:\n", e);
 		reply("Exception", e);

@@ -52,6 +52,8 @@ exports.init = function(router, basename, port) {
 
 			// inform bind:
 			ws.registered_nodes.push({"node": this.name, "ref": ref});
+
+			reply(null, "okay");
 		};
 		ws.rpc = function(method) {
 			var args = Array.prototype.slice.call(arguments);

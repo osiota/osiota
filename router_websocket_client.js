@@ -82,6 +82,8 @@ exports.init = function(router, basename, ws_url, init_callback) {
 
 		// inform bind:
 		o_ws.registered_nodes.push({"node": this.name, "ref": ref});
+
+		reply(null, "okay");
 	};
 
 	o_ws.respond = router.cue(function(data) {
