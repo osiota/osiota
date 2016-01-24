@@ -4,7 +4,7 @@ var Router = require('./router.js').router;
 var r = new Router();
 
 require('./module_history.js').init(r, 'levelup', {
-	"max_data": 3000,
+	"maxCount": 3000,
 	"timebases": [
 	]
 });
