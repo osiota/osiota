@@ -2,10 +2,14 @@ var levelUP = require("levelUP");
 var version = require("level-version");
 
 exports.history = function (nodeName, history_config) {
-	var dbName = nodeName.replace("/", "");
-	this.original = levelUP('./level_db/' + dbName);
-	this.db = version(this.original);
 	this.nodeName = nodeName;
+	var dbName = nodeName.replace("/", "");
+//	this.databases = history_config.databases;
+//	this.databases.forEach(function(d) {
+		this.original = levelUP('./level_db/' + dbName);
+		this.db = version(this.original);
+	
+//	});
 	this.maxCount = history_config.maxCount;
 };
 
@@ -49,14 +53,14 @@ exports.history.prototype.get = function (interval, callback) {
 exports.history.prototype.change_timebase = function (hdata, interval) {
 	var hdataTemp = [];
 
-	var lastTime = hdata[hdata.length - 2].time*1000;
+	var lastTime = hdata[hdata.length - 1].time*1000;
 	var sum = 0;
 	var count = 0;
 
-	for (var i = hdata.length - 2; i >= 0; i--) {
+	for (var i = hdata.length - 1; i >= 0; i--) {
 		var newTime = hdata[i].time*1000;
 		//to check, if time of history data is continuously
-		if (hdata[i+1].time*1000 - newTime < 1000) {
+		if (i == hdata.length - 1) {
 			if (Math.floor((lastTime - newTime) / (interval*1000)) == 1) {
 				lastTime = newTime;
 				var newValue = sum / count;
@@ -69,9 +73,29 @@ exports.history.prototype.change_timebase = function (hdata, interval) {
 				sum += parseInt(hdata[i].value);
 				count ++;
 			}
+		}
+		else {
+			if (hdata[i+1].time*1000 - newTime < 1000) {
+				if (Math.floor((lastTime - newTime) / (interval*1000)) == 1) {
+					lastTime = newTime;
+					var newValue = sum / count;
+					sum = 0;
+					count = 0;
+					var newJson = {"time":hdata[i].time, "value":newValue};
+					hdataTemp.unshift(newJson);
+				} 
+				else {
+					sum += parseInt(hdata[i].value);
+					count ++;
+				}
+			}
+			else {
+				sum += parseInt(hdata[i].value);
+				count ++;
+				var timeBlock = lastTime - hdata[i+1].time*1000;
+				lastTime = newTime + timeBlock;
+			}
 		} 
-		else
-			lastTime = newTime;
 	}
 
 	return hdataTemp;
