@@ -2,14 +2,16 @@ var levelUP = require("levelUP");
 var version = require("level-version");
 
 exports.history = function (nodeName, history_config) {
+	var _this = this;
 	this.nodeName = nodeName;
 	var dbName = nodeName.replace("/", "");
-//	this.databases = history_config.databases;
-//	this.databases.forEach(function(d) {
-		this.original = levelUP('./level_db/' + dbName);
-		this.db = version(this.original);
-	
-//	});
+	this.databases = history_config.databases;
+	this.original = {};
+	this.db = {};
+	this.databases.forEach (function(d) {
+		_this.original[d.delta_t] = levelUP('./level_db/' + dbName + '/' + d.filename);
+		_this.db[d.delta_t] = version(_this.original[d.delta_t]);
+	});
 	this.maxCount = history_config.maxCount;
 };
 
@@ -17,7 +19,7 @@ exports.history.prototype.add = function (time, value) {
 	var nodeName = this.nodeName;
 
 	//save data without interval
-	this.db.put(nodeName, value, {version: time}, function (err, version) {
+	this.db[0].put(nodeName, value, {version: time}, function (err, version) {
 		if(err) return console.log('Error:', err);
 	});
 };
@@ -28,7 +30,7 @@ exports.history.prototype.get = function (interval, callback) {
 	var nodeName = this.nodeName;
 	var hdata = [];
 
-	this.db.createVersionStream(nodeName)
+	this.db[0].createVersionStream(nodeName)
 	.on('data', function (data) {
 		var json = {"time":data.version, "value":data.value};
 		hdata.unshift(json);
@@ -92,6 +94,9 @@ exports.history.prototype.change_timebase = function (hdata, interval) {
 			else {
 				sum += parseInt(hdata[i].value);
 				count ++;
+
+				/*added the tail of last time segment
+				to the head of new time segment*/
 				var timeBlock = lastTime - hdata[i+1].time*1000;
 				lastTime = newTime + timeBlock;
 			}
