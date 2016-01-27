@@ -61,45 +61,39 @@ exports.history.prototype.change_timebase = function (hdata, interval) {
 
 	for (var i = hdata.length - 1; i >= 0; i--) {
 		var newTime = hdata[i].time*1000;
-		//to check, if time of history data is continuously
+
+		//first value
 		if (i == hdata.length - 1) {
+			sum += parseInt(hdata[i].value);
+			count ++;
+		}
+		//time is continuous
+		else if (hdata[i+1].time*1000 - newTime < 1000) {
 			if (Math.floor((lastTime - newTime) / (interval*1000)) == 1) {
-				lastTime = newTime;
+				sum += parseInt(hdata[i].value);
+				count ++;
 				var newValue = sum / count;
 				sum = 0;
 				count = 0;
 				var newJson = {"time":hdata[i].time, "value":newValue};
 				hdataTemp.unshift(newJson);
+				lastTime = newTime;
 			} 
 			else {
 				sum += parseInt(hdata[i].value);
 				count ++;
 			}
-		}
-		else {
-			if (hdata[i+1].time*1000 - newTime < 1000) {
-				if (Math.floor((lastTime - newTime) / (interval*1000)) == 1) {
-					lastTime = newTime;
-					var newValue = sum / count;
-					sum = 0;
-					count = 0;
-					var newJson = {"time":hdata[i].time, "value":newValue};
-					hdataTemp.unshift(newJson);
-				} 
-				else {
-					sum += parseInt(hdata[i].value);
-					count ++;
-				}
-			}
-			else {
-				sum += parseInt(hdata[i].value);
-				count ++;
-
-				/*added the tail of last time segment
-				to the head of new time segment*/
-				var timeBlock = lastTime - hdata[i+1].time*1000;
-				lastTime = newTime + timeBlock;
-			}
+		//time is not continuous
+		} else {
+			sum += parseInt(hdata[i].value);
+			count ++;
+			var newValue = sum / count;
+			sum = 0;
+			count = 0;
+			var time = hdata[i+1].time - (interval - (lastTime / 1000 - hdata[i+1].time));
+			var newJson = {"time":time, "value":newValue};
+			hdataTemp.unshift(newJson);
+			lastTime = newTime;
 		} 
 	}
 
