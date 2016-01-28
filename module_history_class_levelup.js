@@ -5,10 +5,10 @@ exports.history = function (nodeName, history_config) {
 	var _this = this;
 	this.nodeName = nodeName;
 	var dbName = nodeName.replace("/", "");
-	this.databases = history_config.databases;
+	this.timebases = history_config.timebases;
 	this.original = {};
 	this.db = {};
-	this.databases.forEach (function(d) {
+	this.timebases.forEach (function(d) {
 		_this.original[d.delta_t] = levelUP('./level_db/' + dbName + '/' + d.filename);
 		_this.db[d.delta_t] = version(_this.original[d.delta_t]);
 	});
@@ -55,21 +55,21 @@ exports.history.prototype.get = function (interval, callback) {
 exports.history.prototype.change_timebase = function (hdata, interval) {
 	var hdataTemp = [];
 
-	var lastTime = hdata[hdata.length - 1].time*1000;
+	var lastTime = hdata[0].time*1000;
 	var sum = 0;
 	var count = 0;
 
-	for (var i = hdata.length - 1; i >= 0; i--) {
+	for (var i = 0; i < hdata.length; i++) {
 		var newTime = hdata[i].time*1000;
 
 		//first value
-		if (i == hdata.length - 1) {
+		if (i == 0) {
 			sum += parseInt(hdata[i].value);
 			count ++;
 		}
 		//time is continuous
-		else if (hdata[i+1].time*1000 - newTime < 1000) {
-			if (Math.floor((lastTime - newTime) / (interval*1000)) == 1) {
+		else if (newTime - hdata[i-1].time*1000 < 1000) {
+			if (Math.floor((newTime - lastTime) / (interval*1000)) == 1) {
 				sum += parseInt(hdata[i].value);
 				count ++;
 				var newValue = sum / count;
@@ -90,7 +90,7 @@ exports.history.prototype.change_timebase = function (hdata, interval) {
 			var newValue = sum / count;
 			sum = 0;
 			count = 0;
-			var time = hdata[i+1].time - (interval - (lastTime / 1000 - hdata[i+1].time));
+			var time = lastTime / 1000 + interval;
 			var newJson = {"time":time, "value":newValue};
 			hdataTemp.unshift(newJson);
 			lastTime = newTime;
