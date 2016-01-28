@@ -55,48 +55,48 @@ exports.history.prototype.get = function (interval, callback) {
 exports.history.prototype.change_timebase = function (hdata, interval) {
 	var hdataTemp = [];
 
-	var lastTime = hdata[0].time*1000;
+	var lastTime = Math.floor(hdata[0].time / interval);
 	var sum = 0;
 	var count = 0;
 
-	for (var i = 0; i < hdata.length; i++) {
-		var newTime = hdata[i].time*1000;
-
-		//first value
-		if (i == 0) {
-			sum += parseInt(hdata[i].value);
-			count ++;
-		}
-		//time is continuous
-		else if (newTime - hdata[i-1].time*1000 < 1000) {
-			if (Math.floor((newTime - lastTime) / (interval*1000)) == 1) {
+	if (interval > 0) {
+		for (var i = 0; i < hdata.length; i++) {
+			//first value
+			if (i == 0) {
+				sum += parseInt(hdata[i].value);
+				count ++;
+			}
+			//time is continuous
+			else if (hdata[i].time - hdata[i-1].time < 1) {
+				if (Math.floor(hdata[i].time / interval) == lastTime) {
+					sum += parseInt(hdata[i].value);
+					count ++;
+				} 
+				else {
+					sum += parseInt(hdata[i].value);
+					count ++;
+					var newValue = sum / count;
+					sum = 0;
+					count = 0;
+					var newJson = {"time":hdata[i].time, "value":newValue};
+					hdataTemp.unshift(newJson);
+					lastTime = Math.floor(hdata[i].time / interval)
+				}
+			//time is not continuous
+			} else {
 				sum += parseInt(hdata[i].value);
 				count ++;
 				var newValue = sum / count;
 				sum = 0;
 				count = 0;
-				var newJson = {"time":hdata[i].time, "value":newValue};
+				var time = lastTime + interval;
+				var newJson = {"time":time, "value":newValue};
 				hdataTemp.unshift(newJson);
-				lastTime = newTime;
+				lastTime = Math.floor(hdata[i].time / interval)
 			} 
-			else {
-				sum += parseInt(hdata[i].value);
-				count ++;
-			}
-		//time is not continuous
-		} else {
-			sum += parseInt(hdata[i].value);
-			count ++;
-			var newValue = sum / count;
-			sum = 0;
-			count = 0;
-			var time = lastTime / 1000 + interval;
-			var newJson = {"time":time, "value":newValue};
-			hdataTemp.unshift(newJson);
-			lastTime = newTime;
-		} 
-	}
+		}
 
-	return hdataTemp;
+		return hdataTemp;
+	}
 }
 
