@@ -5,7 +5,7 @@ var r = new Router();
 
 require('./module_history.js').init(r, 'levelup', {
 	"maxCount": 3000,
-	"databases": [
+	"timebases": [
 		{
 			"delta_t": 0,
 			"filename": "level_db_raw"

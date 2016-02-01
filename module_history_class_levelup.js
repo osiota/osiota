@@ -8,30 +8,35 @@ var version = require("level-version");
 };*/
 
 var helper_change_timebase = function (interval, callback) {
-	var sum = 0;
-	var count = 0;
-	var lastTimeSlot = 0;
+	var sum = {};
+	var count = {};
+	var lastTimeSlot = {};
+	var thisTimeSlot = {};
 
 	return function(nodeName, time, value) {
 		if (interval == 0) {
 			callback(nodeName, time, value, interval);
 		}
 		else {
-			var thisTimeSlot = Math.floor(time / interval) * interval;
-			if (thisTimeSlot != lastTimeSlot) {
-				if (count != 0) {
-					var newValue = sum / count;
-					var newTime = lastTimeSlot + interval;
+			if (typeof sum[nodeName] === "undefined" && typeof count[nodeName] === "undefined") {
+				sum[nodeName] = 0;
+				count[nodeName] = 0;
+			}
+			thisTimeSlot[nodeName] = Math.floor(time / interval) * interval;
+			if (thisTimeSlot[nodeName] != lastTimeSlot[nodeName]) {
+				if (count[nodeName] != 0) {
+					var newValue = sum[nodeName] / count[nodeName];
+					var newTime = lastTimeSlot[nodeName] + interval;
 					callback(nodeName, newTime, newValue, interval);
 				}
 
-				sum = 0;
-				count = 0;
+				sum[nodeName] = 0;
+				count[nodeName] = 0;
 
-				lastTimeSlot = thisTimeSlot;
+				lastTimeSlot[nodeName] = thisTimeSlot[nodeName];
 			}
-			sum += value;
-			count ++;
+			sum[nodeName] += value;
+			count[nodeName] ++;
 		}
 	};
 }
@@ -68,7 +73,6 @@ exports.history = function (nodeName, history_config) {
 			else if (interval == 1) {
 				_this.timebases[1].vdb.put(nodeName, value, {version: time}, function (err, version) {
 					if(err) return console.log('Error:', err);
-					console.log(nodeName)
 				});
 			}
 			else if (interval == 60) {
