@@ -1,102 +1,73 @@
 var levelUP = require("levelUP");
 var version = require("level-version");
 
-/*version.prototype.add = function(nodeName, time, value) {
-	this.put(nodeName, value, {version: time}, function (err, version) {
-		if(err) return console.log('Error:', err);
-	});
-};*/
-
 var helper_change_timebase = function (interval, callback) {
-	var sum = {};
-	var count = {};
-	var lastTimeSlot = {};
-	var thisTimeSlot = {};
+	var sum = 0;
+	var count = 0;
+	var lastTimeSlot = 0;
 
-	return function(nodeName, time, value) {
+	return function(time, value) {
 		if (interval == 0) {
-			callback(nodeName, time, value, interval);
+			callback(time, value, interval);
 		}
 		else {
-			if (typeof sum[nodeName] === "undefined" && typeof count[nodeName] === "undefined") {
-				sum[nodeName] = 0;
-				count[nodeName] = 0;
+			if (typeof sum === "undefined" && typeof count === "undefined") {
+				sum = 0;
+				count = 0;
 			}
-			thisTimeSlot[nodeName] = Math.floor(time / interval) * interval;
-			if (thisTimeSlot[nodeName] != lastTimeSlot[nodeName]) {
-				if (count[nodeName] != 0) {
-					var newValue = sum[nodeName] / count[nodeName];
-					var newTime = lastTimeSlot[nodeName] + interval;
-					callback(nodeName, newTime, newValue, interval);
+			var thisTimeSlot = Math.floor(time / interval) * interval;
+			if (thisTimeSlot != lastTimeSlot) {
+				if (count != 0) {
+					var newValue = sum / count;
+					var newTime = lastTimeSlot + interval;
+					callback(newTime, newValue, interval);
 				}
 
-				sum[nodeName] = 0;
-				count[nodeName] = 0;
+				sum = 0;
+				count = 0;
 
-				lastTimeSlot[nodeName] = thisTimeSlot[nodeName];
+				lastTimeSlot = thisTimeSlot;
 			}
-			sum[nodeName] += value;
-			count[nodeName] ++;
+			sum += value;
+			count ++;
 		}
 	};
 }
 
 exports.history = function (nodeName, history_config) {
 	var _this = this;
+	console.log("new History: ", history_config)
 	this.nodeName = nodeName;
-	this.timebases = history_config.timebases;
-//	this.timebases = {};
-//	this.timebases[nodeName] = history_config.timebases;
+	this.timebases = [];
 	levelUP('./level_db' + nodeName);
-/*	for (var t = 0; t < this.timebases.length; t++) {
+	for (var t = 0; t < history_config.timebases.length; t++) {
+		this.timebases[t] = [];
+		this.timebases[t].filename = history_config.timebases[t].filename;
+		this.timebases[t].filename = history_config.timebases[t].filename;
+		this.timebases[t].delta_t = history_config.timebases[t].delta_t;
+
 		var ldb = levelUP('./level_db' + nodeName + '/' + this.timebases[t].filename);
 		var vdb = version(ldb);
 		this.timebases[t].vdb = vdb;
 		
-		this.timebases[t].put = helper_change_timebase(this.timebases[t].delta_t, function(nodeName, time, value) {
-//			vdb.add(nodeName, time, value);
-			vdb.put(nodeName, value, {version: time}, function (err, version) {
-				if(err) return console.log('Error:', err);
+		(function(vdb, t) {
+			_this.timebases[t].add = helper_change_timebase(_this.timebases[t].delta_t, function(time, value) {
+				if (_this.timebases[t].delta_t != 0)
+				console.log("put", _this.timebases[t].delta_t, nodeName, time, value);
+				vdb.put(nodeName, value, {version: time}, function (err, version) {
+					if(err) return console.log('Error:', err);
+				});
 			});
-		});
-	};*/
-	for (var t = 0; t < this.timebases.length; t++) {
-		this.timebases[t].ldb = levelUP('./level_db' + nodeName + '/' + this.timebases[t].filename);
-		this.timebases[t].vdb = version(this.timebases[t].ldb);
-		
-		this.timebases[t].put = helper_change_timebase(this.timebases[t].delta_t, function(nodeName, time, value, interval) {
-			if (interval == 0) {
-				_this.timebases[0].vdb.put(nodeName, value, {version: time}, function (err, version) {
-					if(err) return console.log('Error:', err);
-				});
-			}
-			else if (interval == 1) {
-				_this.timebases[1].vdb.put(nodeName, value, {version: time}, function (err, version) {
-					if(err) return console.log('Error:', err);
-				});
-			}
-			else if (interval == 60) {
-				_this.timebases[2].vdb.put(nodeName, value, {version: time}, function (err, version) {
-					if(err) return console.log('Error:', err);
-				});
-			}
-			else if (interval == 60*60) {
-				_this.timebases[3].vdb.put(nodeName, value, {version: time}, function (err, version) {
-					if(err) return console.log('Error:', err);
-				});
-			}
-			else {
-				console.log("Error(save data to database): System doesn't have database with " + interval + " interval.");
-			}
-		});
-	};
+		})(vdb, t);
+	}
 	this.maxCount = history_config.maxCount;
 };
 
 exports.history.prototype.add = function (time, value) {
 	var nodeName = this.nodeName;
+//	console.log("add", nodeName, time, value)
 	this.timebases.forEach(function(d) {
-		d.put(nodeName, time, value);
+		d.add(time, value);
 	});
 };
 

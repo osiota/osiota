@@ -72,6 +72,7 @@ exports.init = function(router, basename, ws_url, init_callback) {
 
 		if (typeof init_callback === "function")
 			init_callback(o_ws);
+	
 	}, function(data) {
 		router.process_message(basename, data, "wsc", o_ws, function(data) { o_ws.respond(data); }, o_ws);
 	});
