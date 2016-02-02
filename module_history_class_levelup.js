@@ -11,10 +11,6 @@ var helper_change_timebase = function (interval, callback) {
 			callback(time, value, interval);
 		}
 		else {
-			if (typeof sum === "undefined" && typeof count === "undefined") {
-				sum = 0;
-				count = 0;
-			}
 			var thisTimeSlot = Math.floor(time / interval) * interval;
 			if (thisTimeSlot != lastTimeSlot) {
 				if (count != 0) {
@@ -36,13 +32,11 @@ var helper_change_timebase = function (interval, callback) {
 
 exports.history = function (nodeName, history_config) {
 	var _this = this;
-	console.log("new History: ", history_config)
 	this.nodeName = nodeName;
 	this.timebases = [];
 	levelUP('./level_db' + nodeName);
 	for (var t = 0; t < history_config.timebases.length; t++) {
 		this.timebases[t] = [];
-		this.timebases[t].filename = history_config.timebases[t].filename;
 		this.timebases[t].filename = history_config.timebases[t].filename;
 		this.timebases[t].delta_t = history_config.timebases[t].delta_t;
 
@@ -53,7 +47,6 @@ exports.history = function (nodeName, history_config) {
 		(function(vdb, t) {
 			_this.timebases[t].add = helper_change_timebase(_this.timebases[t].delta_t, function(time, value) {
 				if (_this.timebases[t].delta_t != 0)
-				console.log("put", _this.timebases[t].delta_t, nodeName, time, value);
 				vdb.put(nodeName, value, {version: time}, function (err, version) {
 					if(err) return console.log('Error:', err);
 				});
@@ -65,7 +58,6 @@ exports.history = function (nodeName, history_config) {
 
 exports.history.prototype.add = function (time, value) {
 	var nodeName = this.nodeName;
-//	console.log("add", nodeName, time, value)
 	this.timebases.forEach(function(d) {
 		d.add(time, value);
 	});
@@ -99,18 +91,3 @@ exports.history.prototype.get = function (interval, callback) {
 		console.log('Getting history stream with ' + interval + 's interval ended.');
 	});
 };
-
-/*exports.history.prototype.change_timebase = function (hdata, interval, callback) {
-	var hdataTemp = [];
-	var hct = helper_change_timebase(interval, function() {
-		hdataTemp.push({
-			"time": time,
-			"value": value
-		});
-	});
-	hdata.forEach(function(d) {
-		hct(d.time, d.value);
-	});
-	return hdataTemp;
-};*/
-
