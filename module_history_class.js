@@ -60,9 +60,35 @@
 	};
 	/* history: add new data */
 	exports.history.prototype.add = function(time, value) {
-		this.history_data.push({"time": time, "value": value});
+		if (typeof this.history_data[this.history_data.length - 1] !== "undefined")
+			// last added history data
+			var lasttime = this.history_data[this.history_data.length - 1].time;
+		else
+			var lasttime = 0;
+		if (time === lasttime)
+			return;
+		if (time > lasttime) {
+			// new data IS newser. Data not in history. Add it:
+			this.history_data.push({"time": time, "value": value});
+		} else {
+			// wrong order. We need to sort in this new key ...
+			var data = this.history_data; 
+			var index = binarysearch(data, {"time": time},
+					function(a, b) { return a.time - b.time; });
+
+			if (index < 0) {
+				// element not found:
+				index = ~index;
+
+				this.history_data.splice(index, 0, {"time": time, "value": value});
+			}// else: element found. No action.
+	
+		}
+
+		// remove data longer than history_length
 		if (this.history_data.length > this.history_length) {
-			this.history_data.splice(0,1);  // remove the first element of the array
+			// remove the first (oldest) element of the array
+			this.history_data.splice(0,1);
 		}
 	};
 	/* history: get old data */
