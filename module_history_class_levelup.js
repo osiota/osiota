@@ -46,7 +46,6 @@ exports.history = function (nodeName, history_config) {
 		
 		(function(vdb, t) {
 			_this.timebases[t].add = helper_change_timebase(_this.timebases[t].delta_t, function(time, value) {
-				if (_this.timebases[t].delta_t != 0)
 				vdb.put(nodeName, value, {version: time}, function (err, version) {
 					if(err) return console.log('Error:', err);
 				});
