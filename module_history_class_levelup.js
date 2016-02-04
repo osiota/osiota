@@ -8,7 +8,7 @@ var helper_change_timebase = function (interval, callback) {
 
 	return function(time, value) {
 		if (interval == 0) {
-			callback(time, value, interval);
+			callback(time, value);
 		}
 		else {
 			var thisTimeSlot = Math.floor(time / interval) * interval;
@@ -16,7 +16,7 @@ var helper_change_timebase = function (interval, callback) {
 				if (count != 0) {
 					var newValue = sum / count;
 					var newTime = lastTimeSlot + interval;
-					callback(newTime, newValue, interval);
+					callback(newTime, newValue);
 				}
 
 				sum = 0;
