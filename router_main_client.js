@@ -61,14 +61,26 @@ require('./router_websocket_client.js')
 		for(i=0; i<argv._.length; i++) {
 			var nodeName = argv._[i].toString();
 			if (argv.history !== null) {
-				o_ws.node_rpc(nodeName, "get_history", argv.history, function(data) {
+				o_ws.node_rpc(nodeName, "get_history", {
+					"interval": argv.history,
+//					"maxCount": 3000,
+					"fromTime": 0
+				}, function(data) {
 					console.log("get_history:", data);
 				});
 			} else {
+				var node = r.node(nodeName);
+				if (typeof node.history.history_data[node.history.history_data.length - 1] !== "undefined")
+					var fromTime = node.history.history_data[node.history.history_data.length - 1].time;
+				else
+					var fromTime = 0;
 				o_ws.node_rpc(nodeName, "bind");
 				r.register(nodeName, "console", nodeName);
-				var node = r.nodes[nodeName];
-				o_ws.node_rpc(nodeName, "get_history", 0, function(data) {
+				o_ws.node_rpc(nodeName, "get_history", {
+					"interval": 0,
+//					"maxCount": 3000,
+					"fromTime": fromTime 
+				}, function(data) {
 					data.forEach(function(d) {
 						node.history.add(d.time, d.value);
 					});
