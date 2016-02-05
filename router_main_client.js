@@ -25,6 +25,28 @@ var Router = require('./router.js').router;
 var r = new Router();
 
 // add router moules:
+require('./module_history.js').init(r, 'ram', {
+	"maxCount": 3000,
+	"timebases": [
+		{
+			"delta_t": 0,
+			"filename": "level_db_raw"
+		},
+		{
+			"delta_t": 1,
+			"filename": "level_db_sec"
+		},
+		{
+			"delta_t": 60,
+			"filename": "level_db_min"
+		},
+		{
+			"delta_t": 60*60,
+			"filename": "level_db_hour"
+		}
+	]
+});
+
 require('./router_console_out.js')
 	.init(r, "/console");
 require('./router_websocket_client.js')
@@ -37,14 +59,21 @@ require('./router_websocket_client.js')
 
 	if (argv._.length > 0) {
 		for(i=0; i<argv._.length; i++) {
-			var node = argv._[i].toString();
+			var nodeName = argv._[i].toString();
 			if (argv.history !== null) {
-				o_ws.node_rpc(node, "get_history", argv.history, function(data) {
+				o_ws.node_rpc(nodeName, "get_history", argv.history, function(data) {
 					console.log("get_history:", data);
 				});
 			} else {
-				o_ws.node_rpc(node, "bind");
-				r.register(node, "console", node);
+				o_ws.node_rpc(nodeName, "bind");
+				r.register(nodeName, "console", nodeName);
+				var node = r.nodes[nodeName];
+				o_ws.node_rpc(nodeName, "get_history", 0, function(data) {
+					data.forEach(function(d) {
+						node.history.add(d.time, d.value);
+					});
+					console.log("get_history:", node.history.history_data);
+				});
 			}
 		}
 	} else {
