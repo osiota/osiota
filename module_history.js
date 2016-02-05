@@ -19,13 +19,13 @@ exports.init = function(router, history_type, history_config) {
 			}
 		});
 
-		node.get_history = function(interval, callback) {
-			this.history.get(interval, callback);
+		node.get_history = function(config, callback) {
+			this.history.get(config, callback);
 		}
 
 		/* register remote procedure calls */
-		node.rpc_get_history = function(reply, interval) {
-			this.get_history(interval, function(data) {
+		node.rpc_get_history = function(reply, config) {
+			this.get_history(config, function(data) {
 				reply(null, data);
 			});
 		}
