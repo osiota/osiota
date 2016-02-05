@@ -80,6 +80,7 @@
 				// element not found:
 				index = ~index;
 
+				// insert element at index
 				this.history_data.splice(index, 0, {"time": time, "value": value});
 			}// else: element found. No action.
 	
@@ -95,7 +96,7 @@
 	exports.history.prototype.get = function(interval, callback) {
 		var config = {};
 		config.maxentries = 3000;
-		config.samplerate = null;
+		config.interval = null;
 		config.fromtime = null; // not included
 		config.totime = null; // not included.
 

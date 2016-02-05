@@ -73,17 +73,18 @@ require('./router_websocket_client.js')
 			} else {
 				var node = r.node(nodeName);
 				if (typeof node.history.history_data[node.history.history_data.length - 1] !== "undefined")
-					var fromTime = node.history.history_data[node.history.history_data.length - 1].time;
+					var fromtime = node.history.history_data[node.history.history_data.length - 1].time;
 				else
-					var fromTime = 0;
-				console.log("lasttime", fromTime);
+					var fromtime = 0;
+				console.log("lasttime", fromtime);
 				o_ws.node_rpc(nodeName, "bind");
-				r.register(nodeName, "console", nodeName);
 				o_ws.node_rpc(nodeName, "get_history", {
 					"interval": 0,
-//					"maxCount": 3000,
-					"fromTime": fromTime 
+					"maxentries": null,
+					"fromtime": fromtime
 				}, function(data) {
+					// newest element is added via bind
+					data.pop()
 					console.log("history:", data)
 					data.forEach(function(d) {
 						node.history.add(d.time, d.value);
