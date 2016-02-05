@@ -23,6 +23,7 @@ if (argv.help) {
 // initialise the Router
 var Router = require('./router.js').router;
 var r = new Router();
+var ws;
 
 // add router moules:
 require('./module_history.js').init(r, 'ram', {
@@ -51,6 +52,7 @@ require('./router_console_out.js')
 	.init(r, "/console");
 require('./router_websocket_client.js')
 		.init(r, "", argv.server, function(o_ws) {
+	ws = o_ws;
 	console.log("Connected.");
 	if (argv.list)
 		o_ws.rpc("list", function(data) {
@@ -74,6 +76,7 @@ require('./router_websocket_client.js')
 					var fromTime = node.history.history_data[node.history.history_data.length - 1].time;
 				else
 					var fromTime = 0;
+				console.log("lasttime", fromTime);
 				o_ws.node_rpc(nodeName, "bind");
 				r.register(nodeName, "console", nodeName);
 				o_ws.node_rpc(nodeName, "get_history", {
@@ -81,10 +84,10 @@ require('./router_websocket_client.js')
 //					"maxCount": 3000,
 					"fromTime": fromTime 
 				}, function(data) {
+					console.log("history:", data)
 					data.forEach(function(d) {
 						node.history.add(d.time, d.value);
 					});
-					console.log("get_history:", node.history.history_data);
 				});
 			}
 		}
