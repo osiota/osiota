@@ -49,7 +49,7 @@ require('./module_history.js').init(r, 'ram', {
 });
 
 require('./router_console_out.js')
-	.init(r, "/console");
+	.init(r, "/");
 require('./router_websocket_client.js')
 		.init(r, "", argv.server, function(o_ws) {
 	ws = o_ws;
