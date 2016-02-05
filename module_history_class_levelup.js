@@ -63,7 +63,9 @@ exports.history.prototype.add = function (time, value) {
 };
 
 //remote getting history
-exports.history.prototype.get = function (interval, callback) {
+exports.history.prototype.get = function (config, callback) {
+	var interval = config.interval;
+	var fromTime = config.fromTime;
 	var nodeName = this.nodeName;
 	var hdata = [];
 
@@ -76,8 +78,10 @@ exports.history.prototype.get = function (interval, callback) {
 		return;
 	vdb.createVersionStream(nodeName)
 	.on('data', function (data) {
-		var json = {"time":data.version, "value":data.value};
-		hdata.push(json);
+		if (data.version > fromTime) {
+			var json = {"time":data.version, "value":data.value};
+			hdata.push(json);
+		}
 	})
 	.on('error', function (err) {
 		console.log('Error from getting history:',err);
