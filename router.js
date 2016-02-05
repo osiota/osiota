@@ -427,6 +427,7 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 			} else if (n._rpc_process(method, d.args, reply)) {
 				// nothing.
 			} else if (method == 'bind') {
+				console.log("use of deprecate function.")
 				var ref = n.register(cb_name, d.node, obj);
 
 				if (typeof obj !== "undefined" && obj !== null && typeof obj.inform_bind == "function") {
@@ -436,18 +437,23 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 			} else if (method == 'data' &&
 					d.hasOwnProperty('value') &&
 					d.hasOwnProperty('time')) {
+				console.log("use of deprecate function.")
 				n.publish(d.time, d.value);
 			} else if (method == 'connect' &&
 					d.hasOwnProperty('dnode')) {
+				console.log("use of deprecate function.")
 				n.connect(d.dnode);
 			} else if (method == 'register' &&
 					d.hasOwnProperty('dest')) {
+				console.log("use of deprecate function.")
 				n.register(d.dest, d.id, d.obj);
 			} else if (method == 'unregister' &&
 					d.hasOwnProperty('rentry')) {
+				console.log("use of deprecate function.")
 				n.unregister(d.rentry);
 			} else if (method == 'get_history' &&
 					d.hasOwnProperty('interval')) {
+				console.log("use of deprecate function.")
 				respond({"type": "history", "node": d.node, "data": n.get_history(d.interval) });
 			} else {
 				throw new Error("Router, Process message: Packet with unknown (node) command received: "+ method+
@@ -459,15 +465,19 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 			} else if (this._rpc_process(method, d.args, reply)) {
 				// nothing.
 			} else if (method == 'list') {
+				console.log("use of deprecate function.")
 				respond({"type":"dataset", "data":this.nodes});
 			} else if (method == 'get_dests') {
+				console.log("use of deprecate function.")
 				respond({"type":"dests", "data":this.get_dests()});
 			// TODO:
 			} else if (method == 'dataset' && d.hasOwnProperty('data')) {
+				console.log("use of deprecate function.")
 				for (var node in d.data) {
 					console.log("node: ", node);
 				}
 			} else if (method == 'reload_module' && d.hasOwnProperty('module') && typeof d.module === "string" && d.module.match(/^\w+$/)) {
+				console.log("use of deprecate function.")
 				require('./router_' + d.module + '.js').init(this);
 			} else {
 				throw new Error("Router, Process message: Packet with unknown type received: " + method +
