@@ -14,9 +14,9 @@ The communication is realized with a standard websocket connection. Transfered o
 
 To send commands (and data with the commands) a two way rpc like interface was defined. The commands and arguments are combined in objects (and encoded with json). For example
 ```json
-{"scope": "global", "type": "hello", "args": ["args1", "args2"]}
+{"scope": "global", "type": "function", "args": ["args1", "args2"]}
 ```
-executes the command ``rpc_hello("args1", "args2")`` in the global scope. The attributes of this object have to following meaning:
+executes the command ``rpc_function("args1", "args2")`` in the global scope. The attributes of this object have to following meaning:
 
   * ``scope``: Scope in with the command shall be searched.
     * ``global``: The default scope is the global scope.
@@ -49,9 +49,9 @@ Send a command to router object:
 
 ### hello(my_name)
 
-Say hello.
+Say hello. Optional pass ``my_name``.
 
-Response: ``[]``
+Response: ``remote_name``
 
 ### ping()
 
@@ -109,8 +109,6 @@ Example:
 Response: ``"okay"``
 
 ### unbind()
-
-TODO
 
 Unsubscribe a node.
 On connection loss, all nodes are unbind automaticly.
