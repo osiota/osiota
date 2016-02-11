@@ -42,6 +42,7 @@ exports.init = function(router, basename, port) {
 
 	wss.on('connection', function(ws) {
 		ws.closed = false;
+		ws.remote = "";
 		ws.respond = router.cue(function(data) {
 			ws.sendjson(data);
 		});
@@ -54,6 +55,22 @@ exports.init = function(router, basename, port) {
 			ws.registered_nodes.push({"node": this.name, "ref": ref});
 
 			reply(null, "okay");
+		};
+		ws.rpc_node_unbind = function(reply) {
+			// this == node
+			for(var i=0; i<ws.registered_nodes.length; i++) {
+				if (this.name === ws.registered_nodes[i].node) {
+					var regnode = ws.registered_nodes.splice(i, 1);
+					this.unregister(regnode.ref);
+					reply(null, "okay");
+				}
+			}
+			reply("unregister: node not registered", this.node);
+		};
+		ws.rpc_hello = function(name, reply) {
+			if (typeof name === "string")
+				ws.name = name;
+			reply(null, router.name);
 		};
 		ws.rpc = function(method) {
 			var args = Array.prototype.slice.call(arguments);

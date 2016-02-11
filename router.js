@@ -273,9 +273,13 @@ exports.node.prototype.toJSON = function() {
 
 
 /* Class: Router */
-exports.router = function() {
+exports.router = function(name) {
 	this.nodes = {};
 	this.dests = {};
+
+	this.name = "energy-router";
+	if (typeof name === "string")
+		this.name = name;
 
 	RemoteCall.call(this);
 };
