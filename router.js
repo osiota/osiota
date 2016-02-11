@@ -485,7 +485,7 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 				}
 			} else if (method == 'reload_module' && d.hasOwnProperty('module') && typeof d.module === "string" && d.module.match(/^\w+$/)) {
 				console.log("use of deprecate function.")
-				require('./router_' + d.module + '.js').init(this);
+				//require('./router_' + d.module + '.js').init(this);
 			} else {
 				throw new Error("Router, Process message: Packet with unknown type received: " + method +
 					" Packet: "+ JSON.stringify(d));
@@ -544,6 +544,8 @@ exports.router.prototype.no_cue = function(callback) {
 
 
 /* on signal: end the process */
-process.on('SIGINT', function() { process.exit(0); });
-process.on('SIGTERM', function() { process.exit(0); });
+if (process.on) { /* if NodeJS */
+	process.on('SIGINT', function() { process.exit(0); });
+	process.on('SIGTERM', function() { process.exit(0); });
+}
 

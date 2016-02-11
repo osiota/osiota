@@ -12,16 +12,29 @@ pwsc.prototype.init = function() {
 	try {
 		var pthis = this;
 		this.ws = new WebSocket(this.wpath);
+		if (!this.ws.on) {
+			this.ws.on = function(type, callback) {
+				this["on" + type] = callback;
+			};
+		}
+		if (!this.ws.emit) {
+			this.ws.emit = function(type) {
+				this["on" + type].call(this);
+			};
+		}
 		this.ws.on('open', function() {
 			pthis.closed = false;
 			pthis.cb_open();
 		});
 		this.ws.on('message', function(message) {
+			if (typeof message === "object" && message.hasOwnProperty("data"))
+				message = message.data;
 			try {
 				var data = JSON.parse(message);
 				pthis.cb_msg(data);
 			} catch(e) {
-				console.log("bWSc: Exception (on message): " + e, e.stack.split("\n"));
+				console.log("bWSc: Exception (on message): ", e);
+				console.log("message:", message);
 			}
 		});
 		this.ws.on('close', function() {
@@ -39,7 +52,7 @@ pwsc.prototype.init = function() {
 		});
 
 	} catch(e) {
-		console.log("bWSc: Exception while creating socket: " + e);
+		console.log("bWSc: Exception while creating socket: ", e);
 		setTimeout(function() { pthis.init(); }, 3000);
 	}
 };
