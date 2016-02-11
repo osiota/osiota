@@ -49,7 +49,7 @@ Send a command to router object:
 
 ### hello(my_name)
 
-Say hello. Optional pass ``my_name``.
+Say hello. Optional pass ``my_name``. In later versions this command shall be used for authentification as well.
 
 Response: ``remote_name``
 

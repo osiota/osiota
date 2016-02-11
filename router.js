@@ -427,70 +427,31 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 			throw new Error("Message type not defined: " + JSON.stringify(d));
 		}
 		var method = d.type;
-		if (d.hasOwnProperty('node')) {
+
+		var scope = "global";
+		if (d.hasOwnProperty('scope') && typeof d.scope === "string")
+			scope = d.scope;
+
+		if (scope == "node") {
+			if (!d.hasOwnProperty('node')) {
+				throw new Error("Message scope needs attribute node: " + JSON.stringify(d));
+			}
 			var n = this.node(basename + d.node);
 			if (typeof module === "object" && n._rpc_process("node_" + method, d.args, reply, module)) {
-				// nothing.
+				return;
 			} else if (n._rpc_process(method, d.args, reply)) {
-				// nothing.
-			} else if (method == 'bind') {
-				console.log("use of deprecate function.")
-				var ref = n.register(cb_name, d.node, obj);
-
-				if (typeof obj !== "undefined" && obj !== null && typeof obj.inform_bind == "function") {
-					obj.inform_bind(n.name, ref);
-					//ws.registered_nodes.push({"node": d.node, "ref": ref});
-				}
-			} else if (method == 'data' &&
-					d.hasOwnProperty('value') &&
-					d.hasOwnProperty('time')) {
-				console.log("use of deprecate function.")
-				n.publish(d.time, d.value);
-			} else if (method == 'connect' &&
-					d.hasOwnProperty('dnode')) {
-				console.log("use of deprecate function.")
-				n.connect(d.dnode);
-			} else if (method == 'register' &&
-					d.hasOwnProperty('dest')) {
-				console.log("use of deprecate function.")
-				n.register(d.dest, d.id, d.obj);
-			} else if (method == 'unregister' &&
-					d.hasOwnProperty('rentry')) {
-				console.log("use of deprecate function.")
-				n.unregister(d.rentry);
-			} else if (method == 'get_history' &&
-					d.hasOwnProperty('interval')) {
-				console.log("use of deprecate function.")
-				respond({"type": "history", "node": d.node, "data": n.get_history(d.interval) });
-			} else {
-				throw new Error("Router, Process message: Packet with unknown (node) command received: "+ method+
-					" Packet: "+ JSON.stringify(d));
+				return;
 			}
-		} else {
+		} else if (scope == "global") {
 			if (typeof module === "object" && this._rpc_process(method, d.args, reply, module)) {
-				// nothing.
+				return;
 			} else if (this._rpc_process(method, d.args, reply)) {
-				// nothing.
-			} else if (method == 'list') {
-				console.log("use of deprecate function.")
-				respond({"type":"dataset", "data":this.nodes});
-			} else if (method == 'get_dests') {
-				console.log("use of deprecate function.")
-				respond({"type":"dests", "data":this.get_dests()});
-			// TODO:
-			} else if (method == 'dataset' && d.hasOwnProperty('data')) {
-				console.log("use of deprecate function.")
-				for (var node in d.data) {
-					console.log("node: ", node);
-				}
-			} else if (method == 'reload_module' && d.hasOwnProperty('module') && typeof d.module === "string" && d.module.match(/^\w+$/)) {
-				console.log("use of deprecate function.")
-				//require('./router_' + d.module + '.js').init(this);
-			} else {
-				throw new Error("Router, Process message: Packet with unknown type received: " + method +
-					" Packet: "+ JSON.stringify(d));
+				return;
 			}
 		}
+		throw new Error("Router, process message: packet with unknown rpc command received: " + method +
+			" Packet: "+ JSON.stringify(d));
+
 	} catch (e) {
 		console.log("Exception (Router, process_single_message:\n", e);
 		reply("Exception", e);
