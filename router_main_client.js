@@ -5,6 +5,7 @@ var optimist = require('optimist')
 	.alias('server', 's')
 	.describe('server', 'WebSocketServer to connect to.')
 	.default('server', "ws://localhost:8080/")
+	.boolean('list')
 	.alias('list', 'l')
 	.describe('list', 'List nodes of the router')
 	.alias('history', 'his')
@@ -30,19 +31,19 @@ require('./router_websocket_client.js')
 		.init(r, "", argv.server, function(o_ws) {
 	console.log("Connected.");
 	if (argv.list)
-		o_ws.sendjson({"type":"list"});
+		o_ws.rpc("list", function(data) {
+			console.log("list:\n", data);
+		});
 
 	if (argv._.length > 0) {
 		for(i=0; i<argv._.length; i++) {
 			var node = argv._[i].toString();
 			if (argv.history !== null) {
-				o_ws.respond({
-					"type":"get_history",
-					"node":node,
-					"interval": argv.history
+				o_ws.node_rpc(node, "get_history", argv.history, function(data) {
+					console.log("get_history:", data);
 				});
 			} else {
-				o_ws.request(node);
+				o_ws.node_rpc(node, "bind");
 				r.register(node, "console", node);
 			}
 		}

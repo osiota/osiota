@@ -42,16 +42,50 @@ exports.init = function(router, basename, port) {
 
 	wss.on('connection', function(ws) {
 		ws.closed = false;
+		ws.remote = "";
 		ws.respond = router.cue(function(data) {
 			ws.sendjson(data);
 		});
-		ws.send_data = function(id, time, value) {
-			ws.respond({"type":"data", "node":id, "time":time, "value":value});
-		};
 		ws.registered_nodes = [];
-		ws.inform_bind = function(node, ref) {
-			ws.registered_nodes.push({"node": node, "ref": ref});
+		ws.rpc_node_bind = function(reply) {
+			// this == node
+			var ref = this.register("wss", this.name, ws);
+
+			// inform bind:
+			ws.registered_nodes.push({"node": this.name, "ref": ref});
+
+			reply(null, "okay");
 		};
+		ws.rpc_node_unbind = function(reply) {
+			// this == node
+			for(var i=0; i<ws.registered_nodes.length; i++) {
+				if (this.name === ws.registered_nodes[i].node) {
+					var regnode = ws.registered_nodes.splice(i, 1);
+					this.unregister(regnode.ref);
+					reply(null, "okay");
+				}
+			}
+			reply("unregister: node not registered", this.node);
+		};
+		ws.rpc_hello = function(name, reply) {
+			if (typeof name === "string")
+				ws.name = name;
+			reply(null, router.name);
+		};
+		ws.rpc = function(method) {
+			var args = Array.prototype.slice.call(arguments);
+			var object = router._rpc_create_object.apply(router, args);
+			ws.respond(object);
+		};
+		ws.node_rpc = function(node, method) {
+			var args = Array.prototype.slice.call(arguments);
+			//var node =
+			args.shift();
+			var object = router._rpc_create_object.apply(router, args);
+			object.node = node;
+			ws.respond(object);
+		};
+
 		ws.on('message', function(message) {
 			//console.log('received: %s', message);
 			try {
@@ -77,7 +111,7 @@ exports.init = function(router, basename, port) {
 	});
 
 	router.dests.wss = function(node, relative_name, do_not_add_to_history) {
-		this.obj.respond({"type":"data", "node": this.id + relative_name, "time":node.time, "value":node.value, "add_history": do_not_add_to_history});
+		this.obj.node_rpc(this.id + relative_name, "data", node.time, node.value, false, do_not_add_to_history);
 	};
 
 

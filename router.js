@@ -5,13 +5,14 @@
  * Simon Walz, IfN, 2015
  */
 
-var EventEmitter = require('events');
 var util = require('util');
 
 /* Helper: */
 RegExp.quote = function(str) {
 	    return (str+'').replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&");
 };
+
+var RemoteCall = require('./router_remotecall.js').remotecall;
 
 /* Class: Node */
 exports.node = function(r, name, parentnode) {
@@ -31,11 +32,11 @@ exports.node = function(r, name, parentnode) {
 
 	console.log("new node: " + name);
 
-	EventEmitter.call(this);
+	RemoteCall.call(this);
 
 	r.emit('create_new_node', this);
 };
-util.inherits(exports.node, EventEmitter);
+util.inherits(exports.node, RemoteCall);
 /* Set new data */
 exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to_history) {
 	// cancel if timestamp did not change:
@@ -218,14 +219,6 @@ exports.node.prototype.unregister = function(rentry) {
 	console.log("\tfailed.");
 };
 
-/* get History of a node: */
-exports.node.prototype.get_history = function(interval) {
-	if (this.hasOwnProperty('history')) {
-		return this.history.get(interval);
-	}
-	return [];
-};
-
 /* Get a copy of the listeners */
 exports.node.prototype.get_listener = function(rentry) {
 	var npr = {};
@@ -238,6 +231,24 @@ exports.node.prototype.get_listener = function(rentry) {
 		npr.dnode = rentry.dnode;
 	}
 	return npr;
+};
+
+/* Remote procedure calls */
+exports.node.prototype.rpc_data = function(reply, time, value, only_if_differ, do_not_add_to_history) {
+	this.publish(time, value, only_if_differ, do_not_add_to_history);
+	reply(null, "okay");
+};
+exports.node.prototype.rpc_connect = function(reply, dnode) {
+	var rentry = this.connect(dnode);
+	reply(null, rentry);
+};
+exports.node.prototype.rpc_register = function(reply, dest, id, obj) {
+	var rentry = this.register(dest, id, obj);
+	reply(null, rentry);
+};
+exports.node.prototype.rpc_unregister = function(reply, rentry) {
+	this.unregister(rentry);
+	reply(null, "okay");
 };
 
 /* Overwrite function to convert object to string: */
@@ -262,13 +273,17 @@ exports.node.prototype.toJSON = function() {
 
 
 /* Class: Router */
-exports.router = function() {
+exports.router = function(name) {
 	this.nodes = {};
 	this.dests = {};
 
-	EventEmitter.call(this);
+	this.name = "energy-router";
+	if (typeof name === "string")
+		this.name = name;
+
+	RemoteCall.call(this);
 };
-util.inherits(exports.router, EventEmitter);
+util.inherits(exports.router, RemoteCall);
 
 /* Register a callback or a link name for a route */
 exports.router.prototype.register = function(name, dest, id, obj, push_data) {
@@ -348,7 +363,7 @@ exports.router.prototype.node = function(name, create_new_node) {
 		return this.nodes[name];
 	}
 	if (typeof create_new_node !== "undefined" && create_new_node === false) {
-		//throw new Exception("node not found.");
+		//throw new Error("node not found.");
 		return new exports.node(this, null);
 	}
 	// get parent node:
@@ -383,8 +398,98 @@ exports.router.prototype.get_static_dest = function(name) {
 	}
 	return undefined;
 };
+/* Remote procedure calls */
+exports.router.prototype.rpc_ping = function(reply) {
+	reply(null, "ping");
+};
+exports.router.prototype.rpc_list = function(reply) {
+	reply(null, this.nodes);
+};
+exports.router.prototype.rpc_dests = function(reply) {
+	reply(null, this.get_dests());
+};
+
+/* process a single command message */
+exports.router.prototype.process_single_message = function(basename, d, cb_name, obj, respond, module) {
+	var rpc_ref = d.ref;
+	var reply = function(error, data) {
+		if (typeof rpc_ref !== "undefined") {
+			if (typeof error === "undefined") {
+				error = null;
+			}
+			respond({"type": "reply", "args": [ rpc_ref, error, data ]});
+		}
+		rpc_ref = undefined;
+	};
+
+	try {
+		if (!d.hasOwnProperty('type')) {
+			throw new Error("Message type not defined: " + JSON.stringify(d));
+		}
+		var method = d.type;
+		if (d.hasOwnProperty('node')) {
+			var n = this.node(basename + d.node);
+			if (typeof module === "object" && n._rpc_process("node_" + method, d.args, reply, module)) {
+				// nothing.
+			} else if (n._rpc_process(method, d.args, reply)) {
+				// nothing.
+			} else if (method == 'bind') {
+				var ref = n.register(cb_name, d.node, obj);
+
+				if (typeof obj !== "undefined" && obj !== null && typeof obj.inform_bind == "function") {
+					obj.inform_bind(n.name, ref);
+					//ws.registered_nodes.push({"node": d.node, "ref": ref});
+				}
+			} else if (method == 'data' &&
+					d.hasOwnProperty('value') &&
+					d.hasOwnProperty('time')) {
+				n.publish(d.time, d.value);
+			} else if (method == 'connect' &&
+					d.hasOwnProperty('dnode')) {
+				n.connect(d.dnode);
+			} else if (method == 'register' &&
+					d.hasOwnProperty('dest')) {
+				n.register(d.dest, d.id, d.obj);
+			} else if (method == 'unregister' &&
+					d.hasOwnProperty('rentry')) {
+				n.unregister(d.rentry);
+			} else if (method == 'get_history' &&
+					d.hasOwnProperty('interval')) {
+				respond({"type": "history", "node": d.node, "data": n.get_history(d.interval) });
+			} else {
+				throw new Error("Router, Process message: Packet with unknown (node) command received: "+ method+
+					" Packet: "+ JSON.stringify(d));
+			}
+		} else {
+			if (typeof module === "object" && this._rpc_process(method, d.args, reply, module)) {
+				// nothing.
+			} else if (this._rpc_process(method, d.args, reply)) {
+				// nothing.
+			} else if (method == 'list') {
+				respond({"type":"dataset", "data":this.nodes});
+			} else if (method == 'get_dests') {
+				respond({"type":"dests", "data":this.get_dests()});
+			// TODO:
+			} else if (method == 'dataset' && d.hasOwnProperty('data')) {
+				for (var node in d.data) {
+					console.log("node: ", node);
+				}
+			} else if (method == 'reload_module' && d.hasOwnProperty('module') && typeof d.module === "string" && d.module.match(/^\w+$/)) {
+				require('./router_' + d.module + '.js').init(this);
+			} else {
+				throw new Error("Router, Process message: Packet with unknown type received: " + method +
+					" Packet: "+ JSON.stringify(d));
+			}
+		}
+	} catch (e) {
+		console.log("Exception (Router, process_single_message:\n", e);
+		reply("Exception", e);
+	}
+};
+
 /* process command messages (ie from websocket) */
-exports.router.prototype.process_message = function(basename, data, cb_name, obj, respond) {
+/* TODO: delete arguments: cb_name, obj */
+exports.router.prototype.process_message = function(basename, data, cb_name, obj, respond, module) {
 	var r = this;
 	if (typeof respond !== "function")
 		respond = function() {};
@@ -394,56 +499,7 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 	}
 
 	data.forEach(function(d) {
-	    try {
-		if (d.hasOwnProperty('type')) {
-			if (d.hasOwnProperty('node')) {
-				var n = r.node(basename + d.node);
-				if (d.type == 'bind') {
-					var ref = n.register(cb_name, d.node, obj);
-
-					if (typeof obj !== "undefined" && obj !== null && typeof obj.inform_bind == "function") {
-						obj.inform_bind(n.name, ref);
-						//ws.registered_nodes.push({"node": d.node, "ref": ref});
-					}
-				} else if (d.type == 'data' &&
-						d.hasOwnProperty('value') &&
-						d.hasOwnProperty('time')) {
-					n.publish(d.time, d.value);
-				} else if (d.type == 'connect' &&
-						d.hasOwnProperty('dnode')) {
-					n.connect(d.dnode);
-				} else if (d.type == 'register' &&
-						d.hasOwnProperty('dest')) {
-					n.register(d.dest, d.id, d.obj);
-				} else if (d.type == 'unregister' &&
-						d.hasOwnProperty('rentry')) {
-					n.unregister(d.rentry);
-				} else if (d.type == 'get_history' &&
-						d.hasOwnProperty('interval')) {
-					respond({"type": "history", "node": d.node, "data": n.get_history(d.interval) });
-				} else {
-					console.log("Router, Process message: Packet with unknown (node) command received: ", d.type,
-						" Packet: ", JSON.stringify(d));
-				}
-			} else if (d.type == 'list') {
-				respond({"type":"dataset", "data":r.nodes});
-			} else if (d.type == 'get_dests') {
-				respond({"type":"dests", "data":r.get_dests()});
-			// TODO:
-			} else if (d.type == 'dataset' && d.hasOwnProperty('data')) {
-				for (var node in d.data) {
-					console.log("node: ", node);
-				}
-			} else if (d.type == 'reload_module' && d.hasOwnProperty('module') && typeof d.module === "string" && d.module.match(/^\w+$/)) {
-				require('./router_' + d.module + '.js').init(r);
-			} else {
-				console.log("Router, Process message: Packet with unknown type received: ", d.type,
-					" Packet: ", JSON.stringify(d));
-			}
-		}
-	    } catch (e) {
-		console.log("Exception (Router, process_message:\n", e);
-	    }
+		r.process_single_message(basename, d, cb_name, obj, respond, module);
 
 	});
 };

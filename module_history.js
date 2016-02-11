@@ -10,6 +10,13 @@ exports.init = function(router) {
 				this.history.add(time, value);
 			}
 		});
+		/* register remote procedure calls */
+		node.rpc_get_history = function(reply, interval) {
+			reply(null, this.history.get(interval));
+		}
+		node.rpc_history = function(respond, hdata) {
+			console.log("history:", hdata);
+		};
 	});
 };
 

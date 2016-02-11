@@ -107,6 +107,10 @@ rclient.prototype.recv_single = function(data) {
 		"dests": ["data"]
 	};
 	if (data.hasOwnProperty("type")) {
+		if (this._rpc_process(data.type, d.args, function() {})) {
+			return true;
+		}
+
 		var type = data.type.toLowerCase();
 		if (!needed_fields.hasOwnProperty(type)) {
 			console.log("Received type unknown.");
@@ -191,6 +195,98 @@ rclient.prototype.send = function(data) {
 		this.ws.sendjson(data);
 	}
 };
+/* RPC functions from router */
+
+/* Bind a callback to this object and create a reference to it */
+rclient.prototype._rpc_bind = function(method, callback) {
+	var ref = method;
+	var ref_i = 1;
+	if (!this.hasOwnProperty("_rpc_calls")) {
+		this._rpc_calls = {};
+	}
+	while (this._rpc_calls.hasOwnProperty(ref)) {
+		ref_i++;
+		ref = method + ref_i.toString();
+	}
+	this._rpc_calls[ref] = {"callback": callback};
+	return ref;
+};
+
+/* get the callback (by reference) */
+rclient.prototype._rpc_bind_get = function(ref) {
+	var cb = false;
+	if (typeof ref === "undefined" || ref === null ||
+			!this.hasOwnProperty("_rpc_calls")) {
+		return false;
+	}
+	if (this._rpc_calls.hasOwnProperty(ref)) {
+		if (this._rpc_calls[ref].hasOwnProperty("callback")) {
+			cb = this._rpc_calls[ref].callback;
+		}
+		delete this._rpc_calls[ref];
+	}
+	return cb;
+};
+
+/* Parse the answer of a remote call (and call the saved callback) */
+rclient.prototype.rpc_reply = function(reply, ref, error, data) {
+	if (error !== null) {
+		console.log("RPC-Error:", error, data);
+
+		// delete the reference:
+		this._rpc_bind_get(ref);
+	} else {
+		var cb = this._rpc_bind_get(ref);
+		if (cb) {
+			cb.call(this, data);
+		}
+	}
+};
+
+/* Process indirect rpc calls */
+rclient.prototype._rpc_process = function(method, args, reply, object) {
+	if (typeof object !== "object" || object === null) {
+		object = this;
+	}
+	if (typeof object['rpc_' + method] == "function" &&
+			typeof args !== "undefined" &&
+			Array.isArray(args)) {
+		args.unshift(reply);
+		object['rpc_' + method].apply(this, args);
+		return true;
+	}
+	return false;
+};
+
+/* Create a remote call object */
+rclient.prototype._rpc_create_object = function(method) {
+	var args = Array.prototype.slice.call(arguments);
+	//var method =
+	args.shift();
+	var object = {};
+	if (typeof args[args.length-1] === "function") {
+		var cb = args.pop();
+		object.ref = this._rpc_bind(method, cb);
+	}
+	object.type = method;
+	object.args = args;
+	return object;
+};
+
+
+rclient.prototype.rpc = function(method) {
+	var args = Array.prototype.slice.call(arguments);
+	var object = this._rpc_create_object.apply(router, args);
+	this.send(object);
+};
+rclient.prototype.node_rpc = function(node, method) {
+	var args = Array.prototype.slice.call(arguments);
+	//var node =
+	args.shift();
+	var object = this._rpc_create_object.apply(router, args);
+	object.node = node;
+	this.send(object);
+};
 rclient.prototype.send_init = function(data) {
 	if (!Array.isArray(data))
 		data = [data];
@@ -212,19 +308,27 @@ rclient.prototype.bind = function(node) {
 
 rclient.prototype.bind_one = function(node) {
 	console.log("bind: ", node);
-	this.send({"type": "bind", "node": node});
+	this.node_rpc(node, "bind");
 };
 rclient.prototype.data = function(node, value) {
-	this.send({"type": "data", "node": node, "time": new Date()/1000, "value": value});
+	this.node_rpc(node, "data", new Date()/1000, value);
 };
-rclient.prototype.get_history = function(node, interval) {
+rclient.prototype.get_history = function(node, interval, callback) {
 	if (!Array.isArray(node))
 		node = [node];
+
 	var _rc = this;
 	node.forEach(function(n) {
+		var cb = callback;
+		if (typeof cb === "undefined") {
+			cb = function(data) {
+				this.event_emit("history", {"node": n, "data": data});
+			}
+		}
+
 		console.log("get history: ", n);
 
-		_rc.send_init({"type": "get_history", "node": n, "interval": interval});
+		this.node_rpc(n, "get_history", interval, callback);
 	});
 };
 rclient.prototype.history = function(node, interval) {
@@ -260,20 +364,31 @@ rclient.prototype.history_save = function(parent_path) {
 		}
 	});
 };
-rclient.prototype.list = function() {
-	this.send({"type": "list"});
+rclient.prototype.list = function(callback) {
+	if (typeof callback === "undefined") {
+		callback = function(data) {
+			this.event_emit("dataset", {"data": data});
+		}
+	}
+	this.rpc("list", callback);
 };
-rclient.prototype.get_dests = function() {
-	this.send({"type": "get_dests"});
+rclient.prototype.get_dests = function(callback) {
+	if (typeof callback === "undefined") {
+		callback = function(data) {
+			this.event_emit("dests", {"data": data});
+		}
+	}
+
+	this.rpc("get_dests", callback);
 };
 rclient.prototype.connect = function(node, dnode) {
-	this.send({"type": "connect", "node": node, "dnode": dnode});
+	this.node_rpc(node, "connect", dnode);
 };
 rclient.prototype.register = function(node, dest, id, obj) {
-	this.send({"type": "register", "node": node, "dest": dest, "id": id, "obj": obj});
+	this.node_rpc(node, "register", dest, id, obj);
 };
 rclient.prototype.unregister = function(node, rentry) {
-	this.send({"type": "unregister", "node": node, "rentry": rentry});
+	this.node_rpc(node, "unregister", rentry);
 };
 rclient.prototype.event_filter_parent_path = function(eventaction, parent_path, callback) {
 	if (typeof parent_path === "undefined")
