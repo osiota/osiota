@@ -114,9 +114,6 @@ exports.init = function(router, basename, ws_url, init_callback) {
 		o_ws.send_data(this.id + relative_name, node.time, node.value, do_not_add_to_history);
 	};
 
-	setInterval(function() {
-		o_ws.ws.close();
-	}, 5000);
-//	return o_ws;
+	return o_ws;
 };
 
