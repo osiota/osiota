@@ -34,14 +34,13 @@ pwsc.prototype.init = function() {
 			pthis.ws.emit("need_reconnect");
 		});
 		this.ws.on('need_reconnect', function() {
-			console.log("reconnect...")
 			pthis.ws = undefined;
-			setTimeout(function() { pthis.init(); }, 3000);
+			setTimeout(function() { pthis.init(); }, 1000);
 		});
 
 	} catch(e) {
 		console.log("bWSc: Exception while creating socket: " + e);
-		setTimeout(function() { pthis.init(); }, 1000);
+		setTimeout(function() { pthis.init(); }, 3000);
 	}
 };
 pwsc.prototype.sendjson = function(data) {

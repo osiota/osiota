@@ -23,7 +23,6 @@ if (argv.help) {
 // initialise the Router
 var Router = require('./router.js').router;
 var r = new Router();
-var ws;
 
 // add router moules:
 require('./module_history.js').init(r, 'ram', {
@@ -52,7 +51,6 @@ require('./router_console_out.js')
 	.init(r, "/");
 require('./router_websocket_client.js')
 		.init(r, "", argv.server, function(o_ws) {
-	ws = o_ws;
 	console.log("Connected.");
 	if (argv.list)
 		o_ws.rpc("list", function(data) {
