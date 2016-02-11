@@ -12,6 +12,7 @@ pwsc.prototype.init = function() {
 	try {
 		var pthis = this;
 		this.ws = new WebSocket(this.wpath);
+		// Browser WebSocket is not an EventEmitter. So define on and emit:
 		if (!this.ws.on) {
 			this.ws.on = function(type, callback) {
 				this["on" + type] = callback;
@@ -116,7 +117,7 @@ exports.init = function(router, basename, ws_url, init_callback) {
 		}
 		reply("unregister: node not registered", this.node);
 	};
-	o_ws.rpc_hello = function(name, reply) {
+	o_ws.rpc_hello = function(reply, name) {
 		if (typeof name === "string")
 			o_ws.name = name;
 		reply(null, router.name);

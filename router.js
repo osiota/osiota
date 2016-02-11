@@ -431,6 +431,10 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 		var scope = "global";
 		if (d.hasOwnProperty('scope') && typeof d.scope === "string")
 			scope = d.scope;
+		// backward compatibility
+		if (!d.hasOwnProperty('scope') && d.hasOwnProperty('node')) {
+			scope = "node";
+		}
 
 		if (scope == "node") {
 			if (!d.hasOwnProperty('node')) {
@@ -449,11 +453,12 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 				return;
 			}
 		}
-		throw new Error("Router, process message: packet with unknown rpc command received: " + method +
+		throw new Error("Router, process message: packet with unknown rpc command received: " + scope + "." + method +
 			" Packet: "+ JSON.stringify(d));
 
 	} catch (e) {
 		console.log("Exception (Router, process_single_message:\n", e);
+		console.log("Packet: "+ JSON.stringify(d));
 		reply("Exception", e);
 	}
 };

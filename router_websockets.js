@@ -67,7 +67,7 @@ exports.init = function(router, basename, port) {
 			}
 			reply("unregister: node not registered", this.node);
 		};
-		ws.rpc_hello = function(name, reply) {
+		ws.rpc_hello = function(reply, name) {
 			if (typeof name === "string")
 				ws.name = name;
 			reply(null, router.name);
