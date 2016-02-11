@@ -49,22 +49,54 @@
 
 
 	/* history */
-	exports.history = function(history_length) {
-		this.history_length = history_length;
+	exports.history = function(nodename, history_config) {
+		this.history_length = 3000;
+		if (typeof history_config === "object" &&
+				history_config.hasOwnProperty("max_data") &&
+				typeof history_config.max_data === "number") {
+			this.history_length = history_config.max_data;
+		}
 		this.history_data = [];
 	};
 	/* history: add new data */
 	exports.history.prototype.add = function(time, value) {
-		this.history_data.push({"time": time, "value": value});
+		if (typeof this.history_data[this.history_data.length - 1] !== "undefined")
+			// last added history data
+			var lasttime = this.history_data[this.history_data.length - 1].time;
+		else
+			var lasttime = 0;
+		if (time === lasttime)
+			return;
+		if (time > lasttime) {
+			// new data IS newser. Data not in history. Add it:
+			this.history_data.push({"time": time, "value": value});
+		} else {
+			// wrong order. We need to sort in this new key ...
+			var data = this.history_data; 
+			var index = binarysearch(data, {"time": time},
+					function(a, b) { return a.time - b.time; });
+
+			if (index < 0) {
+				// element not found:
+				index = ~index;
+
+				// insert element at index
+				this.history_data.splice(index, 0, {"time": time, "value": value});
+			}// else: element found. No action.
+	
+		}
+
+		// remove data longer than history_length
 		if (this.history_data.length > this.history_length) {
-			this.history_data.splice(0,1);  // remove the first element of the array
+			// remove the first (oldest) element of the array
+			this.history_data.splice(0,1);
 		}
 	};
 	/* history: get old data */
-	exports.history.prototype.get = function(interval) {
+	exports.history.prototype.get = function(interval, callback) {
 		var config = {};
 		config.maxentries = 3000;
-		config.samplerate = null;
+		config.interval = null;
 		config.fromtime = null; // not included
 		config.totime = null; // not included.
 
@@ -102,7 +134,9 @@
 			data = data.slice(0,index-1);
 		}
 		data = data.slice(Math.max(data.length - config.maxentries, 0));
-		return data;
+
+		// return data:
+		callback(data);
 	}
 
 

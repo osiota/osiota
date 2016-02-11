@@ -90,7 +90,7 @@ exports.init = function(router, basename, port) {
 			//console.log('received: %s', message);
 			try {
 				var data = JSON.parse(message);
-				router.process_message(basename, data, "wss", ws, function(data) { ws.respond(data); });
+				router.process_message(basename, data, "wss", ws, function(data) { ws.respond(data); }, ws);
 			} catch (e) {
 				console.log("WebSocket, on message, Exception: ", e, e.stack.split("\n"));
 				console.log("\tMessage: ", message);
