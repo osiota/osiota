@@ -239,14 +239,14 @@ exports.node.prototype.rpc_data = function(reply, time, value, only_if_differ, d
 	reply(null, "okay");
 };
 exports.node.prototype.rpc_connect = function(reply, dnode) {
-	this.connect(dnode);
-	reply(null, "okay");
+	var rentry = this.connect(dnode);
+	reply(null, rentry);
 };
 exports.node.prototype.rpc_register = function(reply, dest, id, obj) {
-	this.register(dest, id, obj);
-	reply(null, "okay");
+	var rentry = this.register(dest, id, obj);
+	reply(null, rentry);
 };
-exports.node.prototype.rpc_register = function(reply, rentry) {
+exports.node.prototype.rpc_unregister = function(reply, rentry) {
 	this.unregister(rentry);
 	reply(null, "okay");
 };
@@ -395,10 +395,13 @@ exports.router.prototype.get_static_dest = function(name) {
 	return undefined;
 };
 /* Remote procedure calls */
+exports.router.prototype.rpc_ping = function(reply) {
+	reply(null, "ping");
+};
 exports.router.prototype.rpc_list = function(reply) {
 	reply(null, this.nodes);
 };
-exports.router.prototype.rpc_get_dests = function(reply) {
+exports.router.prototype.rpc_dests = function(reply) {
 	reply(null, this.get_dests());
 };
 
