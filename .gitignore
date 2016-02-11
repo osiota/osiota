@@ -1,5 +1,6 @@
 node_modules
 router_main_init.js
+webpack-energy-router.js
 idr_output.log
 webclient/bower_components
 webclient/ethercat/bower_components
