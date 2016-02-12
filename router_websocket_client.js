@@ -92,16 +92,16 @@ pwsc.prototype.sendjson = function(data) {
 
 exports.init = function(router, basename, ws_url, init_callback) {
 
-	var o_ws = null;
+	var ws = null;
 
-	o_ws = new pwsc(ws_url);
-	o_ws.on("open", function() {
+	ws = new pwsc(ws_url);
+	ws.on("open", function() {
 		// unbind old entries:
-		if (typeof o_ws.registered_nodes !== "undefined") {
-			for(var i=0; i<o_ws.registered_nodes.length; i++) {
-				router.unregister(o_ws.registered_nodes[i].node, o_ws.registered_nodes[i].ref);
+		if (typeof ws.registered_nodes !== "undefined") {
+			for(var i=0; i<ws.registered_nodes.length; i++) {
+				router.unregister(ws.registered_nodes[i].node, ws.registered_nodes[i].ref);
 			}
-			o_ws.registered_nodes = [];
+			ws.registered_nodes = [];
 		}
 
 		this.remote = "energy-router";
@@ -112,65 +112,65 @@ exports.init = function(router, basename, ws_url, init_callback) {
 		});
 
 		if (typeof init_callback === "function")
-			init_callback(o_ws);
+			init_callback(ws);
 	});
-	o_ws.on("message", function(data) {
-		router.process_message(basename, data, "wsc", o_ws, function(data) { o_ws.respond(data); }, o_ws);
+	ws.on("message", function(data) {
+		router.process_message(basename, data, "wsc", ws, function(data) { ws.respond(data); }, ws);
 	});
-	o_ws.registered_nodes = [];
-	o_ws.rpc_node_bind = function(reply) {
+	ws.registered_nodes = [];
+	ws.rpc_node_bind = function(reply) {
 		// this == node
-		var ref = this.register("wsc", this.name, o_ws);
+		var ref = this.register("wsc", this.name, ws);
 
 		// inform bind:
-		o_ws.registered_nodes.push({"node": this.name, "ref": ref});
+		ws.registered_nodes.push({"node": this.name, "ref": ref});
 
 		reply(null, "okay");
 	};
-	o_ws.rpc_node_unbind = function(reply) {
+	ws.rpc_node_unbind = function(reply) {
 		// this == node
-		for(var i=0; i<o_ws.registered_nodes.length; i++) {
-			if (this.name === o_ws.registered_nodes[i].node) {
-				var regnode = o_ws.registered_nodes.splice(i, 1);
+		for(var i=0; i<ws.registered_nodes.length; i++) {
+			if (this.name === ws.registered_nodes[i].node) {
+				var regnode = ws.registered_nodes.splice(i, 1);
 				this.unregister(regnode.ref);
 				reply(null, "okay");
 			}
 		}
 		reply("unregister: node not registered", this.node);
 	};
-	o_ws.rpc_hello = function(reply, name) {
+	ws.rpc_hello = function(reply, name) {
 		if (typeof name === "string")
-			o_ws.name = name;
+			ws.name = name;
 		reply(null, router.name);
 	};
 
-	o_ws.respond = router.cue(function(data) {
-		o_ws.sendjson(data);
+	ws.respond = router.cue(function(data) {
+		ws.sendjson(data);
 	});
-	o_ws.send_data = function(id, time, value, do_not_add_to_history) {
-		o_ws.node_rpc(id, "data", time, value, false, do_not_add_to_history);
+	ws.send_data = function(id, time, value, do_not_add_to_history) {
+		ws.node_rpc(id, "data", time, value, false, do_not_add_to_history);
 	};
-	o_ws.request = function(node) {
-		o_ws.node_rpc(node, "bind");
+	ws.request = function(node) {
+		ws.node_rpc(node, "bind");
 	};
-	o_ws.rpc = function(method) {
+	ws.rpc = function(method) {
 		var args = Array.prototype.slice.call(arguments);
 		var object = router._rpc_create_object.apply(router, args);
-		o_ws.respond(object);
+		ws.respond(object);
 	};
-	o_ws.node_rpc = function(node, method) {
+	ws.node_rpc = function(node, method) {
 		var args = Array.prototype.slice.call(arguments);
 		//var node =
 		args.shift();
 		var object = router._rpc_create_object.apply(router, args);
 		object.node = node;
-		o_ws.respond(object);
+		ws.respond(object);
 	};
 
 	router.dests.wsc = function(node, relative_name, do_not_add_to_history) {
-		o_ws.send_data(this.id + relative_name, node.time, node.value, do_not_add_to_history);
+		ws.send_data(this.id + relative_name, node.time, node.value, do_not_add_to_history);
 	};
 
-	return o_ws;
+	return ws;
 };
 
