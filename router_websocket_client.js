@@ -92,19 +92,11 @@ pwsc.prototype.sendjson = function(data) {
 
 exports.init = function(router, basename, ws_url, init_callback) {
 	var ws = new pwsc(ws_url);
+	ws.closed = true;
 	ws.on("open", function() {
-		// unbind old entries:
-		if (typeof ws.registered_nodes !== "undefined") {
-			for(var i=0; i<ws.registered_nodes.length; i++) {
-				router.unregister(ws.registered_nodes[i].node, ws.registered_nodes[i].ref);
-			}
-			ws.registered_nodes = [];
-		}
-
-		this.remote = "energy-router";
 		this.rpc("hello", router.name, function(name) {
 			if (typeof name === "string")
-				this.remote = name;
+				ws.remote = name;
 			console.log("Connected to " + this.remote);
 		});
 
@@ -115,18 +107,11 @@ exports.init = function(router, basename, ws_url, init_callback) {
 		router.process_message(basename, data, "wsc", ws, function(data) { ws.respond(data); }, ws);
 	});
 
-	ws.respond = router.cue(function(data) {
-		ws.sendjson(data);
-	});
-	ws.send_data = function(id, time, value, do_not_add_to_history) {
-		ws.node_rpc(id, "data", time, value, false, do_not_add_to_history);
-	};
-
 	router.dests.wsc = function(node, relative_name, do_not_add_to_history) {
-		ws.send_data(this.id + relative_name, node.time, node.value, do_not_add_to_history);
+		ws.node_rpc(this.id + relative_name, "data", node.time, node.value, false, do_not_add_to_history);
 	};
 
-	require('./router_websocket_general.js').init(ws, "wsc");
+	require('./router_websocket_general.js').init(router, ws, "wsc");
 
 	return ws;
 };

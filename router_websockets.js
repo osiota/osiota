@@ -42,10 +42,6 @@ exports.init = function(router, basename, port) {
 
 	wss.on('connection', function(ws) {
 		ws.closed = false;
-		ws.remote = "";
-		ws.respond = router.cue(function(data) {
-			ws.sendjson(data);
-		});
 
 		ws.on('message', function(message) {
 			//console.log('received: %s', message);
@@ -57,20 +53,11 @@ exports.init = function(router, basename, port) {
 				console.log("\tMessage: ", message);
 			}
 		});
-		ws.on('close', function() {
-			ws.closed = true;
-			if (ws.registered_nodes) {
-				for(var i=0; i<ws.registered_nodes.length; i++) {
-					router.unregister(ws.registered_nodes[i].node, ws.registered_nodes[i].ref);
-				}
-				ws.registered_nodes = null;
-			}
-		});
 		ws.on('error', function() {
 			ws.emit('close');
 		});
 
-		require('./router_websocket_general.js').init(ws, "wss");
+		require('./router_websocket_general.js').init(router, ws, "wss");
 	});
 
 	router.dests.wss = function(node, relative_name, do_not_add_to_history) {

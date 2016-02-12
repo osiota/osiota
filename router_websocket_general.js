@@ -1,5 +1,12 @@
 
-exports.init = function(ws, module_name) {
+exports.init = function(router, ws, module_name) {
+	/* config */
+	ws.remote = "energy-router";
+
+	/* Send buffer: Use cue */
+	ws.respond = router.cue(function(data) {
+		ws.sendjson(data);
+	});
 
 	/* RPC functions */
 	ws.registered_nodes = [];
@@ -26,9 +33,23 @@ exports.init = function(ws, module_name) {
 	};
 	ws.rpc_hello = function(reply, name) {
 		if (typeof name === "string")
-			ws.name = name;
+			ws.remote = name;
 		reply(null, router.name);
 	};
+
+	/* registered nodes helper */
+	/* unregister on close: */
+	ws.on('close', function() {
+		if (!ws.closed) {
+			ws.closed = true;
+			if (typeof ws.registered_nodes !== "undefined") {
+				for(var i=0; i<ws.registered_nodes.length; i++) {
+					router.unregister(ws.registered_nodes[i].node, ws.registered_nodes[i].ref);
+				}
+				ws.registered_nodes = [];
+			}
+		}
+	});
 
 	/* local RPC functions */
 	ws.rpc = function(method) {
