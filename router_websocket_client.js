@@ -1,13 +1,27 @@
 var WebSocket = require('ws');
+var EventEmitter = require('events').EventEmitter;
 
 // persistent websocket client:
 var pwsc = function(wpath, cb_open, cb_msg) {
+	EventEmitter.call(this);
+
 	this.wpath = wpath;
-	this.cb_open = cb_open;
-	this.cb_msg  = cb_msg;
+
+	this.closed = true;
+	this.reconnect = false;
+
+	this.on('need_reconnect', function() {
+		this.ws = undefined;
+
+		this.emit("close");
+
+		setTimeout(function() { pthis.init(); }, 1000);
+	});
 
 	this.init();
 };
+util.inherits(pwsc, EventEmitter);
+
 pwsc.prototype.init = function() {
 	try {
 		var pthis = this;
@@ -25,14 +39,16 @@ pwsc.prototype.init = function() {
 		}
 		this.ws.on('open', function() {
 			pthis.closed = false;
-			pthis.cb_open();
+			pthis.emit('open');
 		});
 		this.ws.on('message', function(message) {
-			if (typeof message === "object" && message.hasOwnProperty("data"))
-				message = message.data;
 			try {
+				// Browser WebSocket sends an event with message in field data:
+				if (typeof message === "object" && message.data)
+					message = message.data;
+
 				var data = JSON.parse(message);
-				pthis.cb_msg(data);
+				pthis.emit('message', data);
 			} catch(e) {
 				console.log("bWSc: Exception (on message): ", e);
 				console.log("message:", message);
@@ -41,19 +57,22 @@ pwsc.prototype.init = function() {
 		this.ws.on('close', function() {
 			pthis.closed = true;
 			/* try to reconnect: Use  */
-			pthis.ws.emit("need_reconnect");
+			if (!pthis.reconnect) {
+				pthis.reconnect = true;
+				pthis.emit("need_reconnect");
+			}
 		});
 		this.ws.on('error', function() {
 			pthis.closed = true;
-			pthis.ws.emit("need_reconnect");
-		});
-		this.ws.on('need_reconnect', function() {
-			pthis.ws = undefined;
-			setTimeout(function() { pthis.init(); }, 1000);
+			if (!pthis.reconnect) {
+				pthis.reconnect = true;
+				pthis.emit("need_reconnect");
+			}
 		});
 
 	} catch(e) {
 		console.log("bWSc: Exception while creating socket: ", e);
+		this.ws = undefined;
 		setTimeout(function() { pthis.init(); }, 3000);
 	}
 };
@@ -75,7 +94,8 @@ exports.init = function(router, basename, ws_url, init_callback) {
 
 	var o_ws = null;
 
-	o_ws = new pwsc(ws_url, function() {
+	o_ws = new pwsc(ws_url);
+	o_ws.on("open", function() {
 		// unbind old entries:
 		if (typeof o_ws.registered_nodes !== "undefined") {
 			for(var i=0; i<o_ws.registered_nodes.length; i++) {
@@ -93,7 +113,8 @@ exports.init = function(router, basename, ws_url, init_callback) {
 
 		if (typeof init_callback === "function")
 			init_callback(o_ws);
-	}, function(data) {
+	});
+	o_ws.on("message", function(data) {
 		router.process_message(basename, data, "wsc", o_ws, function(data) { o_ws.respond(data); }, o_ws);
 	});
 	o_ws.registered_nodes = [];
