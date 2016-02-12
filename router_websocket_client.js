@@ -114,33 +114,6 @@ exports.init = function(router, basename, ws_url, init_callback) {
 	ws.on("message", function(data) {
 		router.process_message(basename, data, "wsc", ws, function(data) { ws.respond(data); }, ws);
 	});
-	ws.registered_nodes = [];
-	ws.rpc_node_bind = function(reply) {
-		// this == node
-		var ref = this.register("wsc", this.name, ws);
-
-		// inform bind:
-		ws.registered_nodes.push({"node": this.name, "ref": ref});
-
-		reply(null, "okay");
-	};
-	ws.rpc_node_unbind = function(reply) {
-		// this == node
-		for(var i=0; i<ws.registered_nodes.length; i++) {
-			if (this.name === ws.registered_nodes[i].node) {
-				var regnode = ws.registered_nodes.splice(i, 1);
-				this.unregister(regnode.ref);
-				reply(null, "okay");
-				return;
-			}
-		}
-		reply("unregister: node not registered", this.node);
-	};
-	ws.rpc_hello = function(reply, name) {
-		if (typeof name === "string")
-			ws.name = name;
-		reply(null, router.name);
-	};
 
 	ws.respond = router.cue(function(data) {
 		ws.sendjson(data);
@@ -148,52 +121,12 @@ exports.init = function(router, basename, ws_url, init_callback) {
 	ws.send_data = function(id, time, value, do_not_add_to_history) {
 		ws.node_rpc(id, "data", time, value, false, do_not_add_to_history);
 	};
-	ws.request = function(node) {
-		ws.node_rpc(node, "bind");
-	};
-	ws.rpc = function(method) {
-		var args = Array.prototype.slice.call(arguments);
-		var object = router._rpc_create_object.apply(router, args);
-		ws.respond(object);
-	};
-	ws.node_rpc = function(node, method) {
-		var args = Array.prototype.slice.call(arguments);
-		//var node =
-		args.shift();
-		var object = router._rpc_create_object.apply(router, args);
-		object.node = node;
-		ws.respond(object);
-	};
 
 	router.dests.wsc = function(node, relative_name, do_not_add_to_history) {
 		ws.send_data(this.id + relative_name, node.time, node.value, do_not_add_to_history);
 	};
 
-	ws.remote_nodes = [];
-	ws.bind = function(node, not_persistent) {
-		if (typeof not_persistent === "undefined" || !not_persistent) {
-			ws.remote_nodes.push(node);
-		}
-
-		ws.node_rpc(node, "bind", function() {
-
-		});
-	};
-	ws.unbind = function(node) {
-		ws.node_rpc(node, "unbind");
-		for(var i=0; i<ws.remote_nodes.length; i++) {
-			if (node === ws.remote_nodes[i].node) {
-				ws.remote_nodes.splice(i, 1);
-				return;
-			}
-		}
-
-	};
-	ws.on("open", function() {
-		ws.remote_nodes.forEach(function(node) {
-			ws.bind(node, true);
-		});
-	});
+	require('./router_websocket_general.js').init(ws);
 
 	return ws;
 };
