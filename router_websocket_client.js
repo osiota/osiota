@@ -126,7 +126,7 @@ exports.init = function(router, basename, ws_url, init_callback) {
 		ws.send_data(this.id + relative_name, node.time, node.value, do_not_add_to_history);
 	};
 
-	require('./router_websocket_general.js').init(ws);
+	require('./router_websocket_general.js').init(ws, "wsc");
 
 	return ws;
 };

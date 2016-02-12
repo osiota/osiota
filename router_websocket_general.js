@@ -1,11 +1,11 @@
 
-exports.init = function(ws) {
+exports.init = function(ws, module_name) {
 
 	/* RPC functions */
 	ws.registered_nodes = [];
 	ws.rpc_node_bind = function(reply) {
 		// this == node
-		var ref = this.register("wsc", this.name, ws);
+		var ref = this.register(module_name, this.name, ws);
 
 		// inform bind:
 		ws.registered_nodes.push({"node": this.name, "ref": ref});
@@ -29,7 +29,6 @@ exports.init = function(ws) {
 			ws.name = name;
 		reply(null, router.name);
 	};
-
 
 	/* local RPC functions */
 	ws.rpc = function(method) {
