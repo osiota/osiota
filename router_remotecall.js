@@ -67,9 +67,10 @@ exports.remotecall.prototype._rpc_process = function(method, args, reply, object
 	if (typeof object !== "object" || object === null) {
 		object = this;
 	}
-	if (typeof object['rpc_' + method] == "function" &&
-			typeof args !== "undefined" &&
-			Array.isArray(args)) {
+	if (typeof args === "undefined" || !Array.isArray(args)) {
+		args = [];
+	}
+	if (typeof object['rpc_' + method] == "function") {
 		args.unshift(reply);
 		object['rpc_' + method].apply(this, args);
 		return true;
