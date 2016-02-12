@@ -2,7 +2,7 @@ var WebSocket = require('ws');
 var EventEmitter = require('events').EventEmitter;
 
 // persistent websocket client:
-var pwsc = function(wpath, cb_open, cb_msg) {
+var pwsc = function(wpath) {
 	EventEmitter.call(this);
 
 	this.wpath = wpath;
