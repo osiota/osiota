@@ -91,10 +91,7 @@ pwsc.prototype.sendjson = function(data) {
 // Usage: init(r, "", 'ws://localhost:8080/');
 
 exports.init = function(router, basename, ws_url, init_callback) {
-
-	var ws = null;
-
-	ws = new pwsc(ws_url);
+	var ws = new pwsc(ws_url);
 	ws.on("open", function() {
 		// unbind old entries:
 		if (typeof ws.registered_nodes !== "undefined") {
