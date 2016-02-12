@@ -131,6 +131,7 @@ exports.init = function(router, basename, ws_url, init_callback) {
 				var regnode = ws.registered_nodes.splice(i, 1);
 				this.unregister(regnode.ref);
 				reply(null, "okay");
+				return;
 			}
 		}
 		reply("unregister: node not registered", this.node);
@@ -167,6 +168,32 @@ exports.init = function(router, basename, ws_url, init_callback) {
 	router.dests.wsc = function(node, relative_name, do_not_add_to_history) {
 		ws.send_data(this.id + relative_name, node.time, node.value, do_not_add_to_history);
 	};
+
+	ws.remote_nodes = [];
+	ws.bind = function(node, not_persistent) {
+		if (typeof not_persistent === "undefined" || !not_persistent) {
+			ws.remote_nodes.push(node);
+		}
+
+		ws.node_rpc(node, "bind", function() {
+
+		});
+	};
+	ws.unbind = function(node) {
+		ws.node_rpc(node, "unbind");
+		for(var i=0; i<ws.remote_nodes.length; i++) {
+			if (node === ws.remote_nodes[i].node) {
+				ws.remote_nodes.splice(i, 1);
+				return;
+			}
+		}
+
+	};
+	ws.on("open", function() {
+		ws.remote_nodes.forEach(function(node) {
+			ws.bind(node, true);
+		});
+	});
 
 	return ws;
 };
