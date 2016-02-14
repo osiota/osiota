@@ -123,7 +123,7 @@ exports.init = function(router, basename, ws_url, init_callback) {
 		router.process_message(basename, data, ws.module_name, ws, function(data) { ws.respond(data); }, ws);
 	});
 
-	require('./router_websocket_general.js').init(router, ws, module_name);
+	require('./router_websocket_generic.js').init(router, ws, module_name);
 
 	return ws;
 };
