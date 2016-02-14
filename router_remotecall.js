@@ -34,7 +34,7 @@ exports.remotecall.prototype._rpc_bind = function(method, callback) {
 /* get the callback (by reference) */
 exports.remotecall.prototype._rpc_bind_get = function(ref) {
 	var cb = false;
-	if (typeof ref === "undefined" || ref === null ||
+	if (typeof ref !== "string" || ref === "" ||
 			!this.hasOwnProperty("_rpc_calls")) {
 		return false;
 	}
@@ -64,6 +64,9 @@ exports.remotecall.prototype.rpc_reply = function(reply, ref, error, data) {
 
 /* Process indirect rpc calls */
 exports.remotecall.prototype._rpc_process = function(method, args, reply, object) {
+	if (typeof method !== "string" || method === "")
+		return false;
+
 	if (typeof object !== "object" || object === null) {
 		object = this;
 	}

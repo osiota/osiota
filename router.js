@@ -39,6 +39,13 @@ exports.node = function(r, name, parentnode) {
 util.inherits(exports.node, RemoteCall);
 /* Set new data */
 exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to_history) {
+	// convert from string to number:
+	if (typeof time === "string")
+		time = time*1;
+	// if type not number:
+	if (typeof time !== "number" && time !== null) {
+		return false;
+	}
 	// cancel if timestamp did not change:
 	if (this.time !== null &&
 			this.time === time) {
@@ -183,6 +190,8 @@ exports.node.prototype.connect = function(dnode) {
 		}
 		return re;
 	}
+	if (typeof dnode !== "string")
+		return;
 
 	console.log("connecting " + this.name + " to " + dnode);
 
