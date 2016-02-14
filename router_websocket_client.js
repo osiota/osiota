@@ -78,7 +78,8 @@ pwsc.prototype.init = function() {
 };
 pwsc.prototype.sendjson = function(data) {
 	try {
-		if (typeof this.ws !== "undefined" &&
+		if (!this.closed &&
+				typeof this.ws !== "undefined" &&
 				this.ws.readyState == 1) {
 			this.ws.send(JSON.stringify(data));
 		}
@@ -92,7 +93,6 @@ pwsc.prototype.sendjson = function(data) {
 
 exports.init = function(router, basename, ws_url, init_callback) {
 	var ws = new pwsc(ws_url);
-	ws.closed = true;
 	ws.on("open", function() {
 		this.rpc("hello", router.name, function(name) {
 			if (typeof name === "string")

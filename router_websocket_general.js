@@ -59,9 +59,8 @@ exports.init = function(router, ws, module_name) {
 			ws.remote_nodes.push(node);
 		}
 
-		ws.node_rpc(node, "bind", function() {
-
-		});
+		if (!ws.closed)
+			ws.node_rpc(node, "bind");
 	};
 	ws.unbind = function(node) {
 		ws.node_rpc(node, "unbind");
