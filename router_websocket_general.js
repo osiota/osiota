@@ -50,17 +50,23 @@ exports.init = function(router, ws, module_name) {
 
 	/* local RPC functions */
 	ws.rpc = function(method) {
+		if (ws.closed)
+			return false;
 		var args = Array.prototype.slice.call(arguments);
 		var object = router._rpc_create_object.apply(router, args);
 		ws.respond(object);
+		return true;
 	};
 	ws.node_rpc = function(node, method) {
+		if (ws.closed)
+			return false;
 		var args = Array.prototype.slice.call(arguments);
 		//var node =
 		args.shift();
 		var object = router._rpc_create_object.apply(router, args);
 		object.node = node;
 		ws.respond(object);
+		return true;
 	};
 
 	/* local bind functions */
@@ -70,8 +76,7 @@ exports.init = function(router, ws, module_name) {
 			ws.remote_nodes.push(node);
 		}
 
-		if (!ws.closed)
-			ws.node_rpc(node, "bind");
+		ws.node_rpc(node, "bind");
 	};
 	ws.unbind = function(node) {
 		ws.node_rpc(node, "unbind");
