@@ -11,32 +11,6 @@ exports.init = function(router, basename, port) {
 		}
 	};
 
-	WebSocket.prototype.sendjson_save = function(data) {
-		try {
-			if (!this.closed) {
-				var cache = [];
-				var j = JSON.stringify(data, function(key, value) {
-					if (key === 'obj') {
-						return;
-					}
-					if (typeof value === 'object' && value !== null) {
-						if (cache.indexOf(value) !== -1) {
-							// Circular reference found, discard key
-							return;
-						}
-						// Store value in our collection
-						cache.push(value);
-					}
-					return value;
-				});
-				cache = null; // Enable garbage collection
-				this.send(j);
-			}
-		} catch (e) {
-			console.log("Websoket, sendjson_save: Exception: " + e);
-		}
-	};
-
 	var WebSocketServer = WebSocket.Server;
 	var wss = new WebSocketServer({port: port});
 
