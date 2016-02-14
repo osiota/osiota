@@ -47,7 +47,7 @@ Send a command to router object:
 {"scope": "global", "type": command, "ref": UID}
 ```
 
-### hello(my_name)
+### hello(my_name, auth_token)
 
 Say hello. Optional pass ``my_name``. In later versions this command shall be used for authentification as well.
 
