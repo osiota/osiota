@@ -11,6 +11,12 @@ exports.init = function(router, basename, port) {
 		}
 	};
 
+	var module_name = router.register_static_dest("wss", function(node, relative_name, do_not_add_to_history) {
+		// this == rentry
+		this.obj.node_rpc(this.id + relative_name, "data", node.time, node.value, false, do_not_add_to_history);
+	};
+
+
 	var WebSocketServer = WebSocket.Server;
 	var wss = new WebSocketServer({port: port});
 
@@ -21,7 +27,7 @@ exports.init = function(router, basename, port) {
 			//console.log('received: %s', message);
 			try {
 				var data = JSON.parse(message);
-				router.process_message(basename, data, "wss", ws, function(data) { ws.respond(data); }, ws);
+				router.process_message(basename, data, module_name, ws, function(data) { ws.respond(data); }, ws);
 			} catch (e) {
 				console.log("WebSocket, on message, Exception: ", e, e.stack.split("\n"));
 				console.log("\tMessage: ", message);
@@ -45,12 +51,6 @@ exports.init = function(router, basename, port) {
 			}
 		});
 
-		require('./router_websocket_general.js').init(router, ws, "wss");
+		require('./router_websocket_general.js').init(router, ws, module_name);
 	});
-
-
-	router.dests.wss = function(node, relative_name, do_not_add_to_history) {
-		this.obj.node_rpc(this.id + relative_name, "data", node.time, node.value, false, do_not_add_to_history);
-	};
-
 };
