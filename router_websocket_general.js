@@ -8,28 +8,39 @@ exports.init = function(router, ws, module_name) {
 		ws.sendjson(data);
 	});
 
-	/* RPC functions */
+	/* local bind and unbind */
 	ws.registered_nodes = [];
-	ws.rpc_node_bind = function(reply) {
-		// this == node
-		var ref = this.register(module_name, this.name, ws);
+	ws.local_bind = function(node, target_name) {
+		if (typeof target_name !== "string")
+			target_name = node.name;
+
+		var ref = node.register(module_name, target_name, ws);
 
 		// inform bind:
-		ws.registered_nodes.push({"node": this.name, "ref": ref});
+		ws.registered_nodes.push({"node": node.name, "ref": ref});
+	};
+	ws.local_unbind = function(node) {
+		for(var i=0; i<ws.registered_nodes.length; i++) {
+			if (node.name === ws.registered_nodes[i].node) {
+				var regnode = ws.registered_nodes.splice(i, 1);
+				node.unregister(regnode.ref);
+				return true;
+			}
+		}
+		return false;
+	};
 
+	/* RPC functions */
+	ws.rpc_node_bind = function(reply, target_name) {
+		// this == node
+		ws.local_bind(this, target_name);
 		reply(null, "okay");
 	};
 	ws.rpc_node_unbind = function(reply) {
 		// this == node
-		for(var i=0; i<ws.registered_nodes.length; i++) {
-			if (this.name === ws.registered_nodes[i].node) {
-				var regnode = ws.registered_nodes.splice(i, 1);
-				this.unregister(regnode.ref);
-				reply(null, "okay");
-				return;
-			}
-		}
-		reply("unregister: node not registered", this.node);
+		if (ws.local_unbind(this))
+			reply(null, "okay");
+		reply("unregister: node not registered", this.name);
 	};
 	ws.rpc_hello = function(reply, name) {
 		if (typeof name === "string")

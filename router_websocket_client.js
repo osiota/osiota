@@ -103,15 +103,26 @@ exports.init = function(router, basename, ws_url, init_callback) {
 		if (typeof init_callback === "function")
 			init_callback(ws);
 	});
-	ws.on("message", function(data) {
-		router.process_message(basename, data, "wsc", ws, function(data) { ws.respond(data); }, ws);
+
+	ws.module_name = router.register_static_dest("wsc", function(node, relative_name, do_not_add_to_history) {
+		if (ws.closed) {
+			if (!do_not_add_to_history) {
+				this.missed_data = true;
+			}
+		} else {
+			if (typeof this.missed_data === "undefined" || this.missed_data) {
+				this.missed_data = false;
+				ws.node_rpc(this.id + relative_name, "missed_data", node.time);
+			}
+			ws.node_rpc(this.id + relative_name, "data", node.time, node.value, false, do_not_add_to_history);
+		}
 	});
 
-	router.dests.wsc = function(node, relative_name, do_not_add_to_history) {
-		ws.node_rpc(this.id + relative_name, "data", node.time, node.value, false, do_not_add_to_history);
-	};
+	ws.on("message", function(data) {
+		router.process_message(basename, data, ws.module_name, ws, function(data) { ws.respond(data); }, ws);
+	});
 
-	require('./router_websocket_general.js').init(router, ws, "wsc");
+	require('./router_websocket_general.js').init(router, ws, module_name);
 
 	return ws;
 };
