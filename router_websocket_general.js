@@ -37,20 +37,6 @@ exports.init = function(router, ws, module_name) {
 		reply(null, router.name);
 	};
 
-	/* registered nodes helper */
-	/* unregister on close: */
-	ws.on('close', function() {
-		if (!ws.closed) {
-			ws.closed = true;
-			if (typeof ws.registered_nodes !== "undefined") {
-				for(var i=0; i<ws.registered_nodes.length; i++) {
-					router.unregister(ws.registered_nodes[i].node, ws.registered_nodes[i].ref);
-				}
-				ws.registered_nodes = [];
-			}
-		}
-	});
-
 	/* local RPC functions */
 	ws.rpc = function(method) {
 		var args = Array.prototype.slice.call(arguments);

@@ -30,9 +30,22 @@ exports.init = function(router, basename, port) {
 		ws.on('error', function() {
 			ws.emit('close');
 		});
+		/* unregister on close: */
+		ws.on('close', function() {
+			if (!ws.closed) {
+				ws.closed = true;
+				if (typeof ws.registered_nodes !== "undefined") {
+					for(var i=0; i<ws.registered_nodes.length; i++) {
+						router.node(ws.registered_nodes[i].node).unregister(ws.registered_nodes[i].ref);
+					}
+					ws.registered_nodes = [];
+				}
+			}
+		});
 
 		require('./router_websocket_general.js').init(router, ws, "wss");
 	});
+
 
 	router.dests.wss = function(node, relative_name, do_not_add_to_history) {
 		this.obj.node_rpc(this.id + relative_name, "data", node.time, node.value, false, do_not_add_to_history);
