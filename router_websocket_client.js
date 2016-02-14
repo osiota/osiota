@@ -105,6 +105,7 @@ exports.init = function(router, basename, ws_url, init_callback) {
 	});
 
 	ws.module_name = router.register_static_dest("wsc", function(node, relative_name, do_not_add_to_history) {
+		// this = rentry
 		if (ws.closed) {
 			if (!do_not_add_to_history) {
 				this.missed_data = true;
