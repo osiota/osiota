@@ -98,7 +98,7 @@ exports.init = function(router, basename, ws_url, init_callback) {
 		this.rpc("hello", router.name, function(name) {
 			if (typeof name === "string")
 				ws.remote = name;
-			console.log("Connected to " + this.remote);
+			console.log("Connected to", ws.remote);
 		});
 
 		if (typeof init_callback === "function")
