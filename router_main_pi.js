@@ -1,7 +1,7 @@
 #!/usr/bin/node
 
 var Router = require('./router.js').router;
-var r = new Router();
+var r = new Router("IfN, Teeküche (Raspberry Pi)");
 
 //require('./router_jsonconnect.js').init(r, "http://localhost/energy/get_sensors.php");
 

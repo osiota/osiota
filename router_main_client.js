@@ -22,7 +22,7 @@ if (argv.help) {
 
 // initialise the Router
 var Router = require('./router.js').router;
-var r = new Router();
+var r = new Router("energy-router, command line client");
 
 // add router moules:
 require('./module_history.js').init(r, 'ram', {

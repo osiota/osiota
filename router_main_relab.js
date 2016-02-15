@@ -3,7 +3,7 @@
 var mysql_config = require("./router_main_relab_config.js").mysql_config;
 
 var Router = require('./router.js').router;
-var r = new Router();
+var r = new Router("IWF Forschungsfabrik");
 
 //require('./router_mysql.js').init(r, "/mysql", mysql_config);
 require('./router_console_out.js').init(r, "/console");

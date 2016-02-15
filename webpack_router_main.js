@@ -1,7 +1,7 @@
 /* Helper file to combine the router into one bundle file via webpack */
 
 var Router = require('./router.js').router;
-var r = new Router(name);
+var r = new Router("WebClient");
 
 require('./router_io_function.js').init(r);
 require('./router_io_mean.js').init(r);

@@ -1,7 +1,7 @@
 #!/usr/bin/node
 
 var Router = require('./router.js').router;
-var r = new Router();
+var r = new Router("Server, nerdbox");
 
 require('./router_console_out.js').init(r, "/console");
 require('./router_websockets.js').init(r, "", 8080);

@@ -19,7 +19,7 @@ if (argv.help) {
 
 // initialise the Router
 var Router = require('./router.js').router;
-var r = new Router();
+var r = new Router("energy-router, command line test server");
 
 require('./module_history.js').init(r, 'ram');
 
