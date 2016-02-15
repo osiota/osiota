@@ -33,6 +33,6 @@ exports.init = function(router, basename, nodefiles) {
 	for (var node in nodefiles) {
 		var filename = nodefiles[node];
 
-		router.register(basename + node, 'tocsvfile', filename);
+		router.node(basename + node).register('tocsvfile', filename);
 	}
 };

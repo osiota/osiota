@@ -63,7 +63,7 @@ exports.init = function(router, basename, mysql_config) {
 		for(var i=0;i<rows.length;i++) {
 			mid[rows[i].node] = rows[i].id;
 
-			var rentry = router.register(basename + "/" + rows[i].node, module_name, rows[i].id);
+			var rentry = router.node(basename + "/" + rows[i].node).register(module_name, rows[i].id);
 		}
 	});
 

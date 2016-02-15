@@ -292,7 +292,7 @@ exports.init = function(router, basename, command, args) {
 	};
 
 	exports.register = function(name, ids) {
-		router.register(basename + name, "agsbus", ids,
+		router.node(basename + name).register("agsbus", ids,
 				undefined, false);
 	};
 

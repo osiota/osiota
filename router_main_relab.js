@@ -22,11 +22,11 @@ r.connectArray(
 );
 
 //r.register('/ethercat/CNC/Global_voltage', 'multiply', '/ethercat/CNC/Exhaust', '/ethercat/CNC/Exhaust_current');
-r.register('/ethercat/DMU/P_L1', 'sum', '/DMU/P', [
+r.node('/ethercat/DMU/P_L1').register('sum', '/DMU/P', [
 		'/ethercat/DMU/P_L2',
 		'/ethercat/DMU/P_L2',
 ]);
-r.register('/ethercat/Engel/P_L1', 'sum', '/Engel/P', [
+r.node('/ethercat/Engel/P_L1').register('sum', '/Engel/P', [
 		'/ethercat/Engel/P_L2',
 		'/ethercat/Engel/P_L3',
 ]);

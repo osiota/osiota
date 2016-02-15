@@ -19,7 +19,7 @@ exports.init = function(router, basename, nodes) {
 		//code: '10011-4'
 		var code = nodes[n];
 
-		router.register(basename + n + '_s', 'rcswitch', code);
+		router.node(basename + n + '_s').register('rcswitch', code);
 	}
 };
 

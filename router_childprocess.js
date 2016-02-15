@@ -31,7 +31,7 @@ exports.init = function(router, basename, command, args) {
 					if (result) {
 						var node = result[1];
 
-						var rentry = router.register(basename + node, "childprocess", node, undefined, false);
+						var rentry = router.node(basename + node).register("childprocess", node, undefined, false);
 					}
 				}
 			}

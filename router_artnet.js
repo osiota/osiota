@@ -23,7 +23,7 @@ exports.init = function(router, basename, options, nodes) {
 	for (var n in nodes) {
 		var channel = nodes[n];
 
-		router.register(basename + n + '_s', 'artnet', channel);
+		router.node(basename + n + '_s').register('artnet', channel);
 	}
 };
 
