@@ -107,7 +107,10 @@ rclient.prototype.recv_single = function(data) {
 		"dests": ["data"]
 	};
 	if (data.hasOwnProperty("type")) {
-		if (this._rpc_process(data.type, d.args, function() {})) {
+		var args = data.args;
+		if (data.node)
+			args.unshift(data.node);
+		if (this._rpc_process(data.type, args, function() {})) {
 			return true;
 		}
 
@@ -243,6 +246,10 @@ rclient.prototype.rpc_reply = function(reply, ref, error, data) {
 	}
 };
 
+rclient.prototype.rpc_data = function(reply, node, time, value) {
+	this.event_emit("data", {node: node, time: time, value: value});
+};
+
 /* Process indirect rpc calls */
 rclient.prototype._rpc_process = function(method, args, reply, object) {
 	if (typeof object !== "object" || object === null) {
@@ -276,14 +283,14 @@ rclient.prototype._rpc_create_object = function(method) {
 
 rclient.prototype.rpc = function(method) {
 	var args = Array.prototype.slice.call(arguments);
-	var object = this._rpc_create_object.apply(router, args);
+	var object = this._rpc_create_object.apply(this, args);
 	this.send(object);
 };
 rclient.prototype.node_rpc = function(node, method) {
 	var args = Array.prototype.slice.call(arguments);
 	//var node =
 	args.shift();
-	var object = this._rpc_create_object.apply(router, args);
+	var object = this._rpc_create_object.apply(this, args);
 	object.node = node;
 	this.send(object);
 };
@@ -328,7 +335,7 @@ rclient.prototype.get_history = function(node, interval, callback) {
 
 		console.log("get history: ", n);
 
-		this.node_rpc(n, "get_history", interval, callback);
+		_rc.node_rpc(n, "history", interval, callback);
 	});
 };
 rclient.prototype.history = function(node, interval) {
@@ -379,7 +386,7 @@ rclient.prototype.get_dests = function(callback) {
 		}
 	}
 
-	this.rpc("get_dests", callback);
+	this.rpc("dests", callback);
 };
 rclient.prototype.connect = function(node, dnode) {
 	this.node_rpc(node, "connect", dnode);
