@@ -54,7 +54,7 @@ exports.init = function(router, basename, mysql_config) {
 		if (typeof node.value !== "undefined" && node.value !== null)
 			exports.insertdata([this.id, node.time, node.value]);
 			//exports.query('INSERT INTO Data(Measurement_id, Time, Value) VALUES(' + id + ', ' + time + ', ' + value + ')');
-	};
+	});
 
 
 	// Get measurement names

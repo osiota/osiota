@@ -14,7 +14,7 @@ exports.init = function(router, basename, port) {
 	var module_name = router.register_static_dest("wss", function(node, relative_name, do_not_add_to_history) {
 		// this == rentry
 		this.obj.node_rpc(this.id + relative_name, "data", node.time, node.value, false, do_not_add_to_history);
-	};
+	});
 
 
 	var WebSocketServer = WebSocket.Server;
