@@ -64,7 +64,7 @@ Response: ``"ping"``
 Get information about all nodes.
 
 ```json
-{"scope": "global", "type": "list"}
+{"scope": "global", "type": "list", "ref": UID}
 ```
 
 Response: ``nodes``<br>
@@ -94,7 +94,7 @@ Array with module names, ie ``["wss", "wsc", ...]``
 To execute commands on the node objects the attribute ``node`` has to be set.
 
 ```json
-{"scope": "node", "node": node, "type": command, "args": args, "uid": UID}
+{"scope": "node", "node": node, "type": command, "args": args, "ref": UID}
 ```
 
 ### bind()
