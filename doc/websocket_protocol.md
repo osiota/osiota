@@ -165,3 +165,22 @@ Array with enties
   * ``time``: Unix timestamp of the entry.
   * ``value``: Data entry.
 
+## RPC helper methods
+
+There are two helper methods bindet to the websocket objects:
+  * ``ws.rpc(method, args..., callback)``
+  * ``ws.node_rpc(node_name, method, args..., callback)``
+
+To execute a remote method in global scope:
+```javascript
+ws.rpc("hello", "i_am_an_energy_router", "my-auth-thoken", function(remote_name) {
+	console.log("remote name:", data);
+});
+```
+
+In the scope ``node`` (with extra param node):
+```javascript
+ws.node_rpc("/path/to/my/node", "history", function(hdata) {
+	console.log("history data:", hdata);
+});
+```
