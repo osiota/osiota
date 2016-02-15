@@ -31,7 +31,7 @@ exports.init = function(router, basename, command, args) {
 					if (result) {
 						var node = result[1];
 
-						var rentry = router.register(basename + node, "ethercat", node, undefined, false);
+						var rentry = router.register(basename + node, "childprocess", node, undefined, false);
 					}
 				}
 			}
@@ -47,7 +47,9 @@ exports.init = function(router, basename, command, args) {
 		childProcess.kill();
 	});
 
-	router.dests.ethercat = function(node) {
+	router.dests.childprocess = function(node) {
+		// this = rentry
+
 		//console.log("Router, Childprocess: sending: ", value);
 		childProcess.stdin.write(this.id + " [" + node.time + "]:\t" + node.value + "\n");
 	};
