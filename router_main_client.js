@@ -61,12 +61,12 @@ require('./router_websocket_client.js')
 		for(i=0; i<argv._.length; i++) {
 			var nodeName = argv._[i].toString();
 			if (argv.history !== null) {
-				o_ws.node_rpc(nodeName, "get_history", {
+				o_ws.node_rpc(nodeName, "history", {
 					"interval": argv.history,
 //					"maxCount": 3000,
 					"fromTime": 0
 				}, function(data) {
-					console.log("get_history:", data);
+					console.log("history:", data);
 				});
 			} else {
 				var node = r.node(nodeName);
@@ -76,7 +76,7 @@ require('./router_websocket_client.js')
 					var fromtime = 0;
 				console.log("lasttime", fromtime);
 				o_ws.node_rpc(nodeName, "bind");
-				o_ws.node_rpc(nodeName, "get_history", {
+				o_ws.node_rpc(nodeName, "history", {
 					"interval": 0,
 					"maxentries": null,
 					"fromtime": fromtime

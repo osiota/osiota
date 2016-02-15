@@ -24,7 +24,7 @@ exports.init = function(router, history_type, history_config) {
 		}
 
 		/* register remote procedure calls */
-		node.rpc_get_history = function(reply, config) {
+		node.rpc_history = function(reply, config) {
 			this.get_history(config, function(data) {
 				reply(null, data);
 			});
