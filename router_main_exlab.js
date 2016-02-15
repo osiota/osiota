@@ -10,7 +10,7 @@ require('./router_console_out.js').init(r, "/console");
 require('./router_websockets.js').init(r, "", 8080);
 require('./router_console_in.js').init(r, "");
 //require('./router_random_in.js').init(r, "/ethercat/Engel/Energie_P1", 20, 0, 100);
-require('./router_childprocess.js').init(r, "/ethercat", "../energy-router-ethercat/main", ["../ethercat_bridge/config.csv"]);
+require('./router_childprocess.js').init(r, "/ethercat", "../energy-router-ethercat/main", ["../energy-router-ethercat/config.csv"]);
 
 require('./router_io_function.js').init(r);
 require('./router_io_mean.js').init(r);
