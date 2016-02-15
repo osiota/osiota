@@ -10,6 +10,12 @@ Clients for NodeJS, JavaScript (all common web browsers) and MATLAB were impleme
 
 The communication is realized with a standard websocket connection. Transfered objects are json encoded.
 
+Multiple objects can be add to an array and transfered togetter:
+
+```json
+[obj1, obj2, ...]
+```
+
 ## Structure of the communication: RPC
 
 To send commands (and data with the commands) a two way rpc like interface was defined. The commands and arguments are combined in objects (and encoded with json). For example
