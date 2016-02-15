@@ -461,7 +461,7 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 			} else if (this._rpc_process(method, d.args, reply)) {
 				return;
 			}
-		} else (scope === "respond" && method === "reply") {
+		} else if (scope === "respond" && method === "reply") {
 			if (this._rpc_process(method, d.args, reply)) {
 				return;
 			}
