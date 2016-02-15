@@ -1,5 +1,6 @@
 var WebSocket = require('ws');
 var EventEmitter = require('events').EventEmitter;
+var util = require('util');
 
 // persistent websocket client:
 var pwsc = function(wpath) {
@@ -123,7 +124,7 @@ exports.init = function(router, basename, ws_url, init_callback) {
 		router.process_message(basename, data, ws.module_name, ws, function(data) { ws.respond(data); }, ws);
 	});
 
-	require('./router_websocket_generic.js').init(router, ws, module_name);
+	require('./router_websocket_generic.js').init(router, ws, ws.module_name);
 
 	return ws;
 };
