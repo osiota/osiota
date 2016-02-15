@@ -426,7 +426,7 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 			if (typeof error === "undefined") {
 				error = null;
 			}
-			respond({"type": "reply", "args": [ rpc_ref, error, data ]});
+			respond({"scope": "respond", "type": "reply", "args": [ rpc_ref, error, data ]});
 		}
 		rpc_ref = undefined;
 	};
@@ -445,7 +445,7 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 			scope = "node";
 		}
 
-		if (scope == "node") {
+		if (scope === "node") {
 			if (!d.hasOwnProperty('node')) {
 				throw new Error("Message scope needs attribute node: " + JSON.stringify(d));
 			}
@@ -455,10 +455,14 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 			} else if (n._rpc_process(method, d.args, reply)) {
 				return;
 			}
-		} else if (scope == "global") {
+		} else if (scope === "global") {
 			if (typeof module === "object" && this._rpc_process(method, d.args, reply, module)) {
 				return;
 			} else if (this._rpc_process(method, d.args, reply)) {
+				return;
+			}
+		} else (scope === "respond" && method === "reply") {
+			if (this._rpc_process(method, d.args, reply)) {
 				return;
 			}
 		}
