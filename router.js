@@ -42,6 +42,11 @@ exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to
 	// convert from string to number:
 	if (typeof time === "string")
 		time = time*1;
+
+	// if type is undefined: Use current time:
+	if (typeof time === "undefined")
+		time = new Date() / 1000;
+
 	// if type not number:
 	if (typeof time !== "number" && time !== null) {
 		return false;
