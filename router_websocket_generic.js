@@ -47,6 +47,41 @@ exports.init = function(router, ws, module_name) {
 			ws.remote = name;
 		reply(null, router.name);
 	};
+	ws.rpc_node_missed_data = function(reply, new_time) {
+		// this = node
+		var node = this;
+
+		ws.sync_history(node, node.time, new_time);
+		reply("thanks");
+	};
+
+	/* helpers */
+	ws.sync_history = function(node, fromtime, totime) {
+		if (!node.hasOwnProperty("history")) {
+			return;
+		}
+
+		if (typeof totime === "undefiend")
+			totime = null;
+		if (typeof fromtime === "undefined")
+			fromtime = null;
+
+		ws.node_rpc(node.name, "history", {
+			"interval": 0,
+			"maxentries": null,
+			"fromtime": fromtime,
+			"totime": totime
+		}, function(data) {
+			// newest element is added via bind
+			if (!totime)
+				data.pop()
+
+			data.forEach(function(d) {
+				node.history.add(d.time, d.value);
+			});
+			node.emit("history_refresh");
+		});
+	};
 
 	/* local RPC functions */
 	ws.rpc = function(method) {
@@ -77,6 +112,9 @@ exports.init = function(router, ws, module_name) {
 		}
 
 		ws.node_rpc(node, "bind");
+
+		var n = router.node(node);
+		ws.sync_history(n, n.time);
 	};
 	ws.unbind = function(node) {
 		ws.node_rpc(node, "unbind");
