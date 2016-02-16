@@ -50,10 +50,10 @@ require('./module_history.js').init(r, 'ram', {
 require('./router_console_out.js')
 	.init(r, "/");
 require('./router_websocket_client.js')
-		.init(r, "", argv.server, function(o_ws) {
+		.init(r, "", argv.server, function(ws) {
 	console.log("Connected.");
 	if (argv.list)
-		o_ws.rpc("list", function(data) {
+		ws.rpc("list", function(data) {
 			console.log("list:\n", data);
 		});
 
@@ -61,7 +61,7 @@ require('./router_websocket_client.js')
 		for(i=0; i<argv._.length; i++) {
 			var nodeName = argv._[i].toString();
 			if (argv.history !== null) {
-				o_ws.node_rpc(nodeName, "history", {
+				ws.node_rpc(nodeName, "history", {
 					"interval": argv.history,
 //					"maxCount": 3000,
 					"fromTime": 0
@@ -75,7 +75,7 @@ require('./router_websocket_client.js')
 				else
 					var fromtime = 0;
 				console.log("lasttime", fromtime);
-				o_ws.bind(nodeName);
+				ws.bind(nodeName);
 			}
 		}
 	} else {
