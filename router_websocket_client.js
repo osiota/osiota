@@ -1,6 +1,12 @@
-var WebSocket = require('ws');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
+
+var WebSocket;
+if (typeof window !== 'undefined') {
+	WebSocket = window.WebSocket || window.MozWebSocket;
+} else {
+	WebSocket = require('ws');
+}
 
 // persistent websocket client:
 var pwsc = function(wpath) {

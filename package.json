@@ -4,7 +4,7 @@
   "dependencies": {
     "binary-search": "^1.2.0",
     "optimist": "^0.6.1",
-    "ws": "~0.7.1"
+    "ws": "^1.0.1"
   },
   "devDependencies": {
     "webpack": "^1.12.13"

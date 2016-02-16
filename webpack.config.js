@@ -1,7 +1,7 @@
 
 var webpack = require('webpack');
 
-var ignore = new webpack.IgnorePlugin(/levelup/);
+var ignore = new webpack.IgnorePlugin(/levelup|^ws$/);
 
 module.exports = {
 	entry: "./webpack_router_main.js",
