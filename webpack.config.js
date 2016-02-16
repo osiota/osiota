@@ -1,3 +1,8 @@
+
+var webpack = require('webpack');
+
+var ignore = new webpack.IgnorePlugin(/levelup/);
+
 module.exports = {
 	entry: "./webpack_router_main.js",
 	target: "web",
@@ -16,5 +21,6 @@ module.exports = {
 		loaders: [
 			{ test: /\.css$/, loader: "style!css" }
 		]
-	}
+	},
+	plugins: [ignore]
 };
