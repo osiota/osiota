@@ -4,7 +4,6 @@ exports.init = function(router, basename, delay) {
         i++;
         if(i === 100)
             i = 0;
-        var time = new Date() / 1000;
-        router.node(basename).publish(time, i);
+        router.node(basename).publish(undefined, i);
     }, delay, router, basename);
 };
