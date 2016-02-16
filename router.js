@@ -359,7 +359,6 @@ exports.router.prototype.toJSON = function() {
 
 /* Get names and data of destinations */
 exports.router.prototype.get_dests = function() {
-	var dests = [];
 	return Object.keys(this.dests);
 };
 
