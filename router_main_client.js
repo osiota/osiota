@@ -75,19 +75,7 @@ require('./router_websocket_client.js')
 				else
 					var fromtime = 0;
 				console.log("lasttime", fromtime);
-				o_ws.node_rpc(nodeName, "bind");
-				o_ws.node_rpc(nodeName, "history", {
-					"interval": 0,
-					"maxentries": null,
-					"fromtime": fromtime
-				}, function(data) {
-					// newest element is added via bind
-					data.pop()
-					console.log("history:", data)
-					data.forEach(function(d) {
-						node.history.add(d.time, d.value);
-					});
-				});
+				o_ws.bind(nodeName);
 			}
 		}
 	} else {
