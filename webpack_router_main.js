@@ -3,6 +3,10 @@
 var Router = require('./router.js').router;
 var r = new Router("WebClient");
 
+require('./module_history.js').init(r, 'ram', {
+	"maxCount": 3000
+});
+
 require('./router_io_function.js').init(r);
 require('./router_io_mean.js').init(r);
 require('./router_io_bias.js').init(r);
