@@ -22,6 +22,7 @@ var pwsc = function(wpath) {
 
 		this.emit("close");
 
+		var pthis = this;
 		setTimeout(function() { pthis.init(); }, 1000);
 	});
 
