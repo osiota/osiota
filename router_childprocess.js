@@ -1,8 +1,9 @@
-
+/*
+ * This module starts a child process to collect or send data to other processes via stdin and stdout.
+ * The data format is decribed in the documentation.
+ */
 exports.init = function(router, basename, command, args) {
-	//var command = "../ethercat_bridge/main";
-	//var args = "";
-
+	// initialize the child process:
 	var spawn = require('child_process').spawn;
 	var childProcess = spawn(command, args);
 	childProcess.stdin.setEncoding('utf8');
@@ -50,7 +51,7 @@ exports.init = function(router, basename, command, args) {
 	router.dests.childprocess = function(node) {
 		// this = rentry
 
-		//console.log("Router, Childprocess: sending: ", value);
+		//console.log("Router, Childprocess: sending: ", node.value);
 		childProcess.stdin.write(this.id + " [" + node.time + "]:\t" + node.value + "\n");
 	};
 };

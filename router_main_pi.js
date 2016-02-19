@@ -9,6 +9,8 @@ require('./router_console_out.js').init(r, "/console");
 require('./router_websockets.js').init(r, "", 8080);
 require('./router_console_in.js').init(r, "");
 //require('./router_random_in.js').init(r, "/ethercat/Engel/Energie_P1", 20, 0, 100);
+
+// Start the plugwise daemon as a child process:
 require('./router_childprocess.js').init(r, "/plugwise", "/home/pi/plugwise_bridge/scripts/plugwise_log.pl", ["/dev/ttyUSB0"]);
 
 require('./router_io_function.js').init(r);
