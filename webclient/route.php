@@ -26,6 +26,10 @@
 			var $option = $("<li/>").attr("value", k).html("<b>"+k+"</b> ");
 			$option.append(" <a href=\"./live.php#"+encodeURI(k)+"\" class=\"live\">live</a>");
 			$option.append("<button class=\"route\" data=\""+k+"\">route</button>");
+			if (k.match(/_s$/)) {
+				$option.append("<button class=\"switch\" data=\""+k+"\" data-switch=\"1\">an</button>");
+				$option.append("<button class=\"switch\" data=\""+k+"\" data-switch=\"0\">aus</button>");
+			}
 			if (typeof d.value === "string") {
 				$option.append("<br/>["+t+" Uhr]: ");
 				if (d.value.match(/^data:image\/png/)) {
@@ -131,6 +135,11 @@
 
 				window.location.href = "./#" + node;
 			});
+			$("body").on("click", "button.switch", function() {
+				var node = $(this).attr("data");
+				var state = $(this).attr("data-switch");
+				ws.data(node, state);
+			});
 
 			$("body").on("click", "button.dialog_node_ok", function() {
 				var node = $("#dialog .node").text();
@@ -216,7 +225,7 @@
 			padding: 4px;
 			clear: both;
 		}
-		button.route, a.live {
+		button.route, button.switch, a.live {
 			display: block;
 			float: right;
 			margin: 5px;
