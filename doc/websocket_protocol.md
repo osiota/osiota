@@ -1,6 +1,6 @@
 # Energy router: Websocket protocol
 
-Version: 1.5
+Version: 1.5.1
 
 To be able to connect to the energy router a websocket based json-rpc interface has been developed.
 
@@ -53,7 +53,7 @@ Send a command to router object:
 {"scope": "global", "type": command, "ref": UID}
 ```
 
-### hello(my_name, auth_token)
+### hello(my_name, auth_token, version_string_protocol)
 
 Say hello. Optional pass ``my_name``. In later versions this command shall be used for authentification as well.
 
