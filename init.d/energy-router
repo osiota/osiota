@@ -13,9 +13,9 @@
 # Author: Simon Walz <walz@ifn.ing.tu-bs.de>
 
 BASE="$(dirname "$(dirname "$(readlink /etc/init.d/ifn_data_router)")")/"
-PID=/run/idr.pid
-LOG=/run/idr.log
-CLOG="${BASE}idr_output.log"
+PID=/run/energy-router.pid
+LOG=/run/energy-router.log
+CLOG="${BASE}energy-router-output.log"
 #CLOG=/dev/null
 
 USR=`stat -c %U "${BASE}"`
