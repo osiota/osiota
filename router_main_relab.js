@@ -5,11 +5,11 @@ var mysql_config = require("./router_main_relab_config.js").mysql_config;
 var Router = require('./router.js').router;
 var r = new Router("IWF Forschungsfabrik");
 
-//require('./router_mysql.js').init(r, "/mysql", mysql_config);
+require('./router_mysql.js').init(r, "/mysql", mysql_config);
 require('./router_console_out.js').init(r, "/console");
 require('./router_websockets.js').init(r, "", 8080);
 require('./router_console_in.js').init(r, "");
-require('./router_childprocess.js').init(r, "/ethercat", "../ethercat_bridge/main", ["../ethercat_bridge/config.csv"]);
+require('./router_childprocess.js').init(r, "/ethercat", "../energy-router-ethercat/main", ["../energy-router-ethercat/config.csv"]);
 
 require('./router_io_function.js').init(r);
 require('./router_io_mean.js').init(r);
@@ -22,12 +22,16 @@ r.connectArray(
 );
 
 //r.register('/ethercat/CNC/Global_voltage', 'multiply', '/ethercat/CNC/Exhaust', '/ethercat/CNC/Exhaust_current');
-r.node('/ethercat/DMU/P_L1').register('sum', '/DMU/P', [
-		'/ethercat/DMU/P_L2',
-		'/ethercat/DMU/P_L2',
+r.register('/ethercat/S40/P_L1', 'sum', '/S40/P', [
+		'/ethercat/S40/P_L2',
+		'/ethercat/S40/P_L2',
 ]);
-r.node('/ethercat/Engel/P_L1').register('sum', '/Engel/P', [
+r.register('/ethercat/Engel/P_L1', 'sum', '/Engel/P', [
 		'/ethercat/Engel/P_L2',
 		'/ethercat/Engel/P_L3',
 ]);
 
+r.register('/ethercat/DMU/P_L1', 'sum', '/DMU/P', [
+		'/ethercat/DMU/P_L2',
+		'/ethercat/DMU/P_L3',
+]);
