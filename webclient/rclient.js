@@ -335,7 +335,7 @@ rclient.prototype.get_history = function(node, interval, callback) {
 
 		console.log("get history: ", n);
 
-		_rc.node_rpc(n, "history", interval, callback);
+		_rc.node_rpc(n, "history", interval, cb);
 	});
 };
 rclient.prototype.history = function(node, interval) {
