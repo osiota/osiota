@@ -3,6 +3,8 @@
 var Router = require('./router.js').router;
 var r = new Router("Server, nerdbox: My Energy");
 
+require('./module_history.js').init(r, 'ram');
+
 require('./router_console_out.js').init(r, "/console");
 require('./router_websockets.js').init(r, "", 8081);
 

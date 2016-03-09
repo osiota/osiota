@@ -3,6 +3,8 @@
 var Router = require('./router.js').router;
 var r = new Router("WG");
 
+require('./module_history.js').init(r, 'ram');
+
 require('./router_console_out.js').init(r, "/console");
 require('./router_websockets.js').init(r, "", 8080);
 //require('./router_random_in.js').init(r, "/ethercat/Engel/Energie_P1", 20, 0, 100);

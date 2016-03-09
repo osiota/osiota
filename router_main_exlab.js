@@ -5,6 +5,8 @@ var mysql_config = require("./router_main_exlab_config.js").mysql_config;
 var Router = require('./router.js').router;
 var r = new Router("IWF, Experimentierfabrik");
 
+require('./module_history.js').init(r, 'ram');
+
 require('./router_mysql.js').init(r, "/mysql", mysql_config);
 require('./router_console_out.js').init(r, "/console");
 require('./router_websockets.js').init(r, "", 8080);
