@@ -22,6 +22,7 @@ exports.init = function(router, basename, port) {
 
 	wss.on('connection', function(ws) {
 		ws.closed = false;
+		ws.basename = basename;
 
 		ws.on('message', function(message) {
 			//console.log('received: %s', message);

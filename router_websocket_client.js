@@ -101,6 +101,7 @@ pwsc.prototype.sendjson = function(data) {
 
 exports.init = function(router, basename, ws_url, init_callback) {
 	var ws = new pwsc(ws_url);
+	ws.basename = basename;
 	ws.on("open", function() {
 		this.rpc("hello", router.name, function(name) {
 			if (typeof name === "string")

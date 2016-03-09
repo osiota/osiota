@@ -453,7 +453,7 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 			if (!d.hasOwnProperty('node')) {
 				throw new Error("Message scope needs attribute node: " + JSON.stringify(d));
 			}
-			var n = this.node(basename + d.node);
+			var n = this.node(this.nodename_transform(d.node, module.basename, module.remote_basename));
 			if (typeof module === "object" && n._rpc_process("node_" + method, d.args, reply, module)) {
 				return;
 			} else if (n._rpc_process(method, d.args, reply)) {
@@ -524,6 +524,23 @@ exports.router.prototype.no_cue = function(callback) {
 		}
 	};
 };
+
+exports.router.prototype.nodename_transform = function(nodename, basename_add, basename_remove) {
+	if (typeof basename_remove === "string") {
+		var regex = new RegExp("^" + RegExp.quote(basename_remove) + "(/.*)$", '');
+		var found = nodename.match(regex)
+		if (found) {
+			nodename = found[1];
+		} else {
+			throw new Error("nodename_transform: Basename not found: " + basename_remove);
+		}
+	}
+	if (typeof basename === "string") {
+		nodename = basename_add + nodename;
+	}
+
+	return nodename;
+}
 
 
 /* on signal: end the process */

@@ -8,13 +8,14 @@ exports.init = function(router, ws_url, nodes) {
 
 	var ws = require('./router_websocket_client.js')
 			.init(router, "/wsc", ws_url);
+	ws.remote_basename = "/"+hostname;
 
 	console.log("WS Client Connected.");
 	for (var ni=0; ni<nodes.length; ni++) {
 		name = nodes[ni];
-		console.log("# Rerouting '" + name + "' via WebSocket to '/" + hostname + name + "'");
+		console.log("# Rerouting '" + name + "' via WebSocket to '" + ws.remote_basename + name + "'");
 
-		ws.local_bind(router.node(name), "/" + hostname + name);
+		ws.local_bind(router.node(name), name);
 	}
 };
 
