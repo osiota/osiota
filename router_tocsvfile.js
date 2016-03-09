@@ -1,6 +1,8 @@
 /* Save data in a csv file */
 
-var fs = require('fs');
+// use graceful-fs to protect against EMFILE errors when opening to many files.
+//var fs = require('fs');
+var fs = require('graceful-fs');
 
 var module_appendFile = function(filename, content) {
 	fs.appendFile(filename, content, function(err) {
