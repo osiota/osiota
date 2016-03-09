@@ -7,7 +7,7 @@ exports.init = function(router, ws_url, nodes) {
 	var hostname = os.hostname();
 
 	var ws = require('./router_websocket_client.js')
-			.init(router, "/wsc", ws_url);
+			.init(router, "", ws_url);
 	ws.remote_basename = "/"+hostname;
 
 	console.log("WS Client Connected.");
