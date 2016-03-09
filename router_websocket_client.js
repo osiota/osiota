@@ -15,7 +15,6 @@ var pwsc = function(wpath) {
 	this.wpath = wpath;
 
 	this.closed = true;
-	this.reconnect = false;
 
 	this.on('need_reconnect', function() {
 		this.ws = undefined;
@@ -34,6 +33,7 @@ pwsc.prototype.init = function() {
 	try {
 		var pthis = this;
 		this.ws = new WebSocket(this.wpath);
+		this.ws.reconnect = false;
 		// Browser WebSocket is not an EventEmitter. So define on and emit:
 		if (!this.ws.on) {
 			this.ws.on = function(type, callback) {
@@ -65,15 +65,15 @@ pwsc.prototype.init = function() {
 		this.ws.on('close', function() {
 			pthis.closed = true;
 			/* try to reconnect: Use  */
-			if (!pthis.reconnect) {
-				pthis.reconnect = true;
+			if (!this.reconnect) {
+				this.reconnect = true;
 				pthis.emit("need_reconnect");
 			}
 		});
 		this.ws.on('error', function() {
 			pthis.closed = true;
-			if (!pthis.reconnect) {
-				pthis.reconnect = true;
+			if (!this.reconnect) {
+				this.reconnect = true;
 				pthis.emit("need_reconnect");
 			}
 		});
