@@ -5,6 +5,8 @@ var r = new Router("IfN, Raum 215 (Raspberry Pi)");
 
 //require('./router_jsonconnect.js').init(r, "http://localhost/energy/get_sensors.php");
 
+require('./module_history.js').init(r, 'ram');
+
 require('./router_console_out.js').init(r, "/console");
 require('./router_websockets.js').init(r, "", 8080);
 require('./router_console_in.js').init(r, "");
