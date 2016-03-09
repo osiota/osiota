@@ -4,7 +4,7 @@ exports.static_routes = {
 	'/plugwise/s_28FD198/energy': '/Küche/Geschirrspüler',
 	'/plugwise/s_28FD31F/energy': '/Küche/Kühlschrank',
 	'/plugwise/s_28FD32D/energy': '/Küche/Kaffeevollautomat',
-	'/plugwise/s_28FD4EE/energy': '/Küche/Kaffeemaschine',
+	'/plugwise/s_28FD4EE/energy': '/Küche/Herd',
 	'/plugwise/s_28FB858/energy': '/Küche/Microwelle'
 };
 
