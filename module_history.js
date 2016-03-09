@@ -29,10 +29,6 @@ exports.init = function(router, history_type, history_config) {
 				reply(null, data);
 			});
 		}
-
-		node.rpc_history = function(respond, hdata) {
-			console.log("history:", hdata);
-		};
 	});
 };
 
