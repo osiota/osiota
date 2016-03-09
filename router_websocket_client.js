@@ -114,14 +114,18 @@ exports.init = function(router, basename, ws_url, init_callback) {
 	});
 
 	ws.module_name = router.register_static_dest("wsc", function(node, relative_name, do_not_add_to_history) {
+		if (typeof this.missed_data === "undefined") {
+			this.missed_data = {};
+			this.missed_data[relative_name] = true;
+		}
 		// this = rentry
 		if (ws.closed) {
 			if (!do_not_add_to_history) {
-				this.missed_data = true;
+				this.missed_data[relative_name] = true;
 			}
 		} else {
-			if (typeof this.missed_data === "undefined" || this.missed_data) {
-				this.missed_data = false;
+			if (typeof this.missed_data[relative_name] === "undefined" || this.missed_data[relative_name]) {
+				this.missed_data[relative_name] = false;
 				ws.node_rpc(this.id + relative_name, "missed_data", node.time);
 			}
 			ws.node_rpc(this.id + relative_name, "data", node.time, node.value, false, do_not_add_to_history);
