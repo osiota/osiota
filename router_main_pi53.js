@@ -24,6 +24,7 @@ r.connectArray(
 );
 
 
+require('./router_websocket_sendto.js').init(r, "ws://sw.nerdbox.de:8081/", ['/Büro']);
 require('./router_websocket_sendto.js').init(r, "ws://sw.nerdbox.de:8080/", ['/Raum_215']);
 
 
