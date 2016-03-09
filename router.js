@@ -535,7 +535,7 @@ exports.router.prototype.nodename_transform = function(nodename, basename_add, b
 			throw new Error("nodename_transform: Basename not found: " + basename_remove);
 		}
 	}
-	if (typeof basename === "string") {
+	if (typeof basename_add === "string") {
 		nodename = basename_add + nodename;
 	}
 

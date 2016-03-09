@@ -100,7 +100,7 @@ exports.init = function(router, ws, module_name) {
 		args.shift();
 		var object = router._rpc_create_object.apply(router, args);
 
-		node = router.nodename_transform(node, this.remote_basename, this.basename);
+		node = router.nodename_transform(node, ws.remote_basename, ws.basename);
 		object.node = node;
 		ws.respond(object);
 		return true;
