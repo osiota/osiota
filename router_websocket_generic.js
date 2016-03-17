@@ -60,6 +60,7 @@ exports.init = function(router, ws, module_name) {
 		if (!node.hasOwnProperty("history")) {
 			return;
 		}
+		node.history.synced = false;
 
 		if (typeof totime === "undefiend")
 			totime = null;
@@ -79,7 +80,8 @@ exports.init = function(router, ws, module_name) {
 			data.forEach(function(d) {
 				node.history.add(d.time, d.value);
 			});
-			node.emit("history_refresh");
+			node.history.synced = true;
+			node.emit("history_synced");
 		});
 	};
 
@@ -114,9 +116,6 @@ exports.init = function(router, ws, module_name) {
 		}
 
 		ws.node_rpc(node, "bind");
-
-		var n = router.node(node);
-		ws.sync_history(n, n.time);
 	};
 	ws.unbind = function(node) {
 		ws.node_rpc(node, "unbind");
