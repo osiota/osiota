@@ -8,6 +8,24 @@
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
+EventEmitter.once_timeout = function(event, handler, timeout) {
+	var timer = null;
+	var listener = function() {
+		if (timer !== null) {
+			clearTimeout(timer);
+			timer = null;
+		}
+		handler(false);
+	};
+	timer = setTimeout(function() {
+		_this.removeListener(event, listener);
+		was_timedout = true;
+		handler(true);
+		timer = null;
+	}, timeout);
+	this.once(event, listener);
+};
+
 /* Class: RemoteCall */
 exports.remotecall = function() {
 	this._rpc_calls = {};
