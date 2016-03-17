@@ -13,7 +13,15 @@ exports.init = function(router, basename, port) {
 
 	var module_name = router.register_static_dest("wss", function(node, relative_name, do_not_add_to_history) {
 		// this == rentry
-		this.obj.node_rpc(this.id + relative_name, "data", node.time, node.value, false, do_not_add_to_history);
+		if (typeof this.missed_data === "undefined") {
+			this.missed_data = {};
+			this.missed_data["n"+relative_name] = true;
+		}
+		if (typeof this.missed_data["n"+relative_name] === "undefined" || this.missed_data["n"+relative_name]) {
+			this.missed_data["n"+relative_name] = false;
+			ws.node_rpc(this.id + relative_name, "missed_data", node.time);
+		}
+		ws.node_rpc(this.id + relative_name, "data", node.time, node.value, false, do_not_add_to_history);
 	});
 
 
