@@ -13,6 +13,7 @@ exports.init = function(router, basename, port) {
 
 	var module_name = router.register_static_dest("wss", function(node, relative_name, do_not_add_to_history) {
 		// this == rentry
+		var ws = this.obj;
 		if (typeof this.missed_data === "undefined") {
 			this.missed_data = {};
 			this.missed_data["n"+relative_name] = true;
