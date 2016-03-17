@@ -8,19 +8,20 @@
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
-EventEmitter.once_timeout = function(event, handler, timeout) {
+EventEmitter.prototype.once_timeout = function(event, handler, timeout) {
+	var _this = this;
 	var timer = null;
 	var listener = function() {
 		if (timer !== null) {
 			clearTimeout(timer);
 			timer = null;
 		}
-		handler(false);
+		handler.call(_this, false);
 	};
 	timer = setTimeout(function() {
 		_this.removeListener(event, listener);
 		was_timedout = true;
-		handler(true);
+		handler.call(_this, true);
 		timer = null;
 	}, timeout);
 	this.once(event, listener);
