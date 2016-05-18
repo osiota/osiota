@@ -102,17 +102,6 @@ pwsc.prototype.sendjson = function(data) {
 exports.init = function(router, basename, ws_url, init_callback) {
 	var ws = new pwsc(ws_url);
 	ws.basename = basename;
-	ws.on("open", function() {
-		this.rpc("hello", router.name, function(name) {
-			if (typeof name === "string")
-				ws.remote = name;
-			console.log("Connected to", ws.remote);
-		});
-
-		if (typeof init_callback === "function")
-			init_callback(ws);
-	});
-
 	ws.module_name = router.register_static_dest("wsc", function(node, relative_name, do_not_add_to_history) {
 		if (typeof this.missed_data === "undefined") {
 			this.missed_data = {};
@@ -137,6 +126,17 @@ exports.init = function(router, basename, ws_url, init_callback) {
 	});
 
 	require('./router_websocket_generic.js').init(router, ws, ws.module_name);
+	
+	ws.on("open", function() {
+		this.rpc("hello", router.name, function(name) {
+			if (typeof name === "string")
+				ws.remote = name;
+			console.log("Connected to", ws.remote);
+		});
+
+		if (typeof init_callback === "function")
+			init_callback(ws);
+	});
 
 	return ws;
 };
