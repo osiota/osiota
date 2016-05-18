@@ -48,7 +48,7 @@ require('./module_history.js').init(r, 'ram', {
 });
 
 require('./router_console_out.js')
-	.init(r, "/");
+	.init(r, "");
 require('./router_websocket_client.js')
 		.init(r, "", argv.server, function(ws) {
 	console.log("Connected.");

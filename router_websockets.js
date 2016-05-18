@@ -44,20 +44,11 @@ exports.init = function(router, basename, port) {
 			}
 		});
 		ws.on('error', function() {
-			ws.emit('close');
 		});
 		/* unregister on close: */
 		ws.on('close', function() {
 			if (!ws.closed) {
 				ws.closed = true;
-
-				// unregister nodes:
-				if (typeof ws.registered_nodes !== "undefined") {
-					for(var i=0; i<ws.registered_nodes.length; i++) {
-						router.node(ws.registered_nodes[i].node).unregister(ws.registered_nodes[i].ref);
-					}
-					ws.registered_nodes = [];
-				}
 			}
 		});
 

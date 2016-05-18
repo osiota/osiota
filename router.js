@@ -370,6 +370,8 @@ exports.router.prototype.get_dests = function() {
 
 /* Get data of a node */
 exports.router.prototype.node = function(name, create_new_node) {
+	if (typeof name === "object") return name;
+
 	if (name == "") name = "/";
 
 	if (this.nodes.hasOwnProperty(name)) {

@@ -1,3 +1,124 @@
+/*
+ * Generic RPC WebSocket functions
+ *
+ * Simon Walz, IfN, 2016
+ */
+
+var EventEmitter = require('events').EventEmitter;
+
+
+/* cmd state maschine:
+ *
+ *  -- open
+ *     -- start
+ *     |
+ *     -- end
+ *
+ *     --start
+ *     |
+ *  -- close
+ *
+ *  -- open ( do a restart )
+ *     |
+ *     -- end
+ *
+ *  -- close
+ */
+var cmd_stack = function() {
+	this.stack = {};
+};
+cmd_stack.prototype.get = function(key) {
+	var _this = this;
+	if (!this.stack.hasOwnProperty(key)) {
+		var e = new EventEmitter();
+		e.on("end", function() {
+			this.removeAllListeners("open");
+			this.removeAllListeners("close");
+		});
+
+		e.init = function(cb_start, cb_end) {
+			e.emit("end");
+			e.once("start", function() {
+				console.log("--- start");
+				cb_start.call(this, true);
+			});
+			e.on("open", function() {
+				console.log("--- open");
+				cb_start.call(this, false);
+			});
+			e.on("close", function() {
+				console.log("--- close");
+				cb_end.call(this, true);
+			});
+			e.once("end", function() {
+				console.log("--- end");
+				cb_end.call(this, false);
+			});
+			e.emit("start");
+			return e;
+		};
+		e.end = function() {
+			var cl = e.listeners("end").length;
+			e.emit("end");
+			_this.remove(key);
+			return cl > 1;
+		};
+
+		this.stack[key] = e;
+		return e;
+	}
+	return this.stack[key];
+}
+cmd_stack.prototype.remove = function(key) {
+	if (this.stack.hasOwnProperty(key)) {
+		delete this.stack[key];
+		return true;
+	}
+	return false;
+}
+cmd_stack.prototype.emit = function(subkey, remove) {
+	for (var key in this.stack) {
+		this.stack[key].emit(subkey);
+	}
+	if (typeof remove === "undefined" || remove) {
+		this.stack = {};
+	}
+};
+
+/* string key generated from method and nodename: */
+var mnkey = function(nodename, method) {
+	return method+"_"+nodename;
+}
+
+/* Persistent RPC functions */
+var prpcfunction = function(cmd_stack_obj, method, cb_start, cb_end) {
+	return function(reply) {
+		// this == node
+		var node = this;
+
+		var e = cmd_stack_obj.get(mnkey(node.name, method));
+		e.init(function() {
+			this.ref = cb_start.apply(node, arguments);
+		}, function() {
+			cb_end.call(node, this.ref);
+		});
+		reply(null, "okay");
+	};
+};
+var prpcfunction_remove = function(cmd_stack_obj, method) {
+	return function(reply) {
+		// this == node
+		var node = this;
+		var e = cmd_stack_obj.get(mnkey(node.name, method));
+		if (e.end()) {
+			reply(null, "okay");
+		} else {
+			reply("un"+method + ": not assigned.", this.name);
+
+		}
+	};
+};
+
 
 exports.init = function(router, ws, module_name) {
 	/* config */
@@ -8,40 +129,30 @@ exports.init = function(router, ws, module_name) {
 		ws.sendjson(data);
 	});
 
-	/* local bind and unbind */
-	ws.registered_nodes = [];
+	/* backward compatibility: local bind and unbind */
 	ws.local_bind = function(node, target_name) {
+		ws.node_local(node, "bind");
+	};
+	ws.local_unbind = function(node, ref) {
+		ws.node_local(node, "unbind");
+	};
+
+	ws.cmds = new cmd_stack();
+
+	/* RPC functions */
+	ws.rpc_node_bind = prpcfunction(ws.cmds, "bind", function() {
+		// this == node
+		var node = this;
 		if (typeof target_name !== "string")
 			target_name = node.name;
 
-		var ref = node.register(module_name, target_name, ws);
-
-		// inform bind:
-		ws.registered_nodes.push({"node": node.name, "ref": ref});
-	};
-	ws.local_unbind = function(node) {
-		for(var i=0; i<ws.registered_nodes.length; i++) {
-			if (node.name === ws.registered_nodes[i].node) {
-				var regnode = ws.registered_nodes.splice(i, 1);
-				node.unregister(regnode.ref);
-				return true;
-			}
-		}
-		return false;
-	};
-
-	/* RPC functions */
-	ws.rpc_node_bind = function(reply, target_name) {
+		return node.register(module_name, target_name, ws);
+	}, function(ref) {
 		// this == node
-		ws.local_bind(this, target_name);
-		reply(null, "okay");
-	};
-	ws.rpc_node_unbind = function(reply) {
-		// this == node
-		if (ws.local_unbind(this))
-			reply(null, "okay");
-		reply("unregister: node not registered", this.name);
-	};
+		this.unregister(ref);
+	});
+	ws.rpc_node_unbind = prpcfunction_remove(ws.cmds, "bind");
+
 	ws.rpc_hello = function(reply, name) {
 		if (typeof name === "string")
 			ws.remote = name;
@@ -103,34 +214,63 @@ exports.init = function(router, ws, module_name) {
 		var object = router._rpc_create_object.apply(router, args);
 
 		node = router.nodename_transform(node, ws.remote_basename, ws.basename);
+		object.scope = "node";
 		object.node = node;
+		console.log("send: ", ws.closed, object);
 		ws.respond(object);
 		return true;
 	};
+	ws.node_local = function(node, method) {
+		var args = Array.prototype.slice.call(arguments);
+		//var node =
+		args.shift();
+		//var method =
+		args.shift();
+
+		var reply = function(error, data) {
+			if (error !== null)
+				console.error("RPC(local)-Error: ", error, data);
+		};
+
+		var n = router.node(node);
+		if (typeof module === "object" && n._rpc_process("node_" + method, args, reply, ws)) {
+			return;
+		} else if (n._rpc_process(method, args, reply)) {
+			return;
+		}
+
+		return true;
+	};
+	ws.node_prpc = function(node, method) {
+		var ref = null;
+
+		var e = ws.cmds.get(mnkey(node, "rpc"+method));
+		return e.init(function() {
+			ws.node_rpc(node, method, function(answer) {
+				ref = answer;
+			});
+		}, function(closed) {
+			if (!closed)
+				ws.node_rpc(node, "un" + method, ref);
+		});
+	};
+	ws.node_prpc_remove = function(node, method) {
+		var e = ws.cmds.get(mnkey(node, "rpc"+method));
+		return e.end();
+	};
 
 	/* local bind functions */
-	ws.remote_nodes = [];
-	ws.bind = function(node, not_persistent) {
-		if (typeof not_persistent === "undefined" || !not_persistent) {
-			ws.remote_nodes.push(node);
-		}
-
-		ws.node_rpc(node, "bind");
+	ws.bind = function(node) {
+		ws.node_prpc(node, "bind");
 	};
 	ws.unbind = function(node) {
-		ws.node_rpc(node, "unbind");
-		for(var i=0; i<ws.remote_nodes.length; i++) {
-			if (node === ws.remote_nodes[i].node) {
-				ws.remote_nodes.splice(i, 1);
-				return;
-			}
-		}
-
+		ws.node_prpc_remove(node, "bind");
 	};
 	ws.on("open", function() {
-		ws.remote_nodes.forEach(function(node) {
-			ws.bind(node, true);
-		});
+		ws.cmds.emit("open");
+	});
+	ws.on("close", function() {
+		ws.cmds.emit("close");
 	});
 
 	return ws;
