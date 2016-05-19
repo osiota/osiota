@@ -314,7 +314,6 @@ exports.node.prototype.toJSON = function() {
 exports.router = function(name) {
 	this.nodes = {};
 	this.dests = {};
-	this.refs = {};
 
 	this.name = "energy-router";
 	if (typeof name === "string")

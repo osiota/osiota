@@ -86,12 +86,6 @@ exports.remotecall.prototype._rpc_process = function(method, args, reply, object
 	if (typeof method !== "string" || method === "")
 		return false;
 
-	if (typeof this.refs === "object") {
-		if (typeof this.refs[args[0]] === "object") {
-			this.refs[args[0]].reply(null, args[2]);
-			return true;
-		}
-	}
 	if (typeof object !== "object" || object === null) {
 		object = this;
 	}
@@ -127,16 +121,13 @@ exports.remotecall.prototype._rpc_create_object = function(method) {
 exports.remotecall.prototype._rpc_forwarding = function(obj, reply) {
 	// this == node
 	var ws = this.src_obj;
-	if (ws.closed) {
-		console.log("websocket is closed.");
-		return false;
-	}
+	var args = obj.args;
 
-	obj.args.unshift(obj.type);
-	obj.args.unshift(this.name);
-	var object = ws.node_rpc.apply(ws, obj.args);
-	obj.args.shift();
-	obj.args.shift();
-	this.router.refs[object.ref] = {"ref_obj":obj, "reply":reply};
-	return true;
+	args.unshift(obj.type);
+	args.unshift(this);
+	args.push(function(data) {
+		// TODO: forward error as well.
+		reply(null, data);
+	});
+	return ws.node_rpc.apply(ws, args);
 };
