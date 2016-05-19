@@ -55,8 +55,23 @@ exports.node = function(r, name, parentnode) {
 	this.on('unregistered', check_need_subscription);
 
 	r.emit('create_new_node', this);
+
+	this.announce();
 };
 util.inherits(exports.node, RemoteCall);
+/* Announce node */
+exports.node.prototype.announce = function(node) {
+	if (typeof node === "undefined") node = this;
+
+	if (this.parentnode !== null) {
+		this.parentnode.announce(node);
+	}
+	var _this = this;
+	this.announcement_listener.forEach(function(f) {
+		f.call(_this, node);
+	});
+}
+
 /* Set new data */
 exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to_history) {
 	// convert from string to number:
@@ -168,23 +183,17 @@ exports.node.prototype.add_rentry = function(rentry, push_data, type) {
 	rentry.time_added = new Date();
 
 	// add routing entry
-	if (typeof type === "string" && type === "subscribe_announcement")
-		this.announcement_listener.push(rentry);
-	else {
-		this.listener.push(rentry);
-		this.emit("registered", rentry);
-	}
+	this.listener.push(rentry);
+	this.emit("registered", rentry);
 
 	// push data to new entry:
-	if (push_data && type !== "subscribe_announcement") {
-		this.route_one(rentry);
+	this.route_one(rentry);
 
-		// get data of childs:
-		var allchildren = this.router.get_nodes(this.name);
-		for(var childname in allchildren) {
-			var nc = allchildren[childname];
-			nc.route_one(rentry, childname);
-		}
+	// get data of childs:
+	var allchildren = this.router.get_nodes(this.name);
+	for(var childname in allchildren) {
+		var nc = allchildren[childname];
+		nc.route_one(rentry, childname);
 	}
 
 	return rentry;
@@ -192,10 +201,7 @@ exports.node.prototype.add_rentry = function(rentry, push_data, type) {
 
 /* Register a callback or a link name for a route */
 exports.node.prototype.register = function(dest, id, obj, push_data, type) {
-	if (type !== "subscribe_announcement")
-		console.log("registering " + this.name);
-	else
-		console.log("registering for announcement of " + this.name);
+	console.log("registering " + this.name);
 
 	var rentry = {};
 
@@ -264,6 +270,35 @@ exports.node.prototype.unregister = function(rentry) {
 	}
 	console.log("\tfailed.");
 };
+
+/* Announcement Listener */
+exports.node.prototype.subscribe_announcement = function(object) {
+	// Save the time when this entry was added
+	object.time_added = new Date();
+
+	this.announcement_listener.push(object);
+
+	// get data of childs:
+	var allchildren = this.router.get_nodes(this.name);
+	for(var childname in allchildren) {
+		var nc = allchildren[childname];
+		object.call(this, nc);
+	}
+
+	return object;
+};
+
+exports.node.prototype.unsubscribe_announcement = function(object) {
+	console.log("unregistering " + this.name);
+	for(var j=0; j<this.announcement_listener.length; j++) {
+		if (this.announcement_listener[j] === object) {
+			this.announcement_listener.splice(j, 1);
+		}
+	}
+	throw new Error("unsubscription of announcement failed.");
+};
+
+
 
 /* Get a copy of the listeners */
 exports.node.prototype.get_listener = function(rentry) {
@@ -430,31 +465,9 @@ exports.router.prototype.node = function(name, create_new_node) {
 		var parentname = name.replace(/[\/@][^\/@]*$/, "");
 		parentnode = this.node(parentname);
 	}
-	this.nodes[name] = new exports.node(this, name);
-	var parent_nodes = this.get_parent_nodes(name);
-	this.announce(name, parent_nodes);
+	this.nodes[name] = new exports.node(this, name, parentnode);
 	return this.nodes[name];
 };
-
-/* Get data of parent nodes */
-exports.router.prototype.get_parent_nodes = function(name) {
-	var parent_nodes = {};
-	while (name !== "") {
-		name = name.replace(/[\/@][^\/@]*$/, "");
-		if (name !== "" && typeof this.nodes[name] !== "undefined") {
-			parent_nodes[name] = this.node(name);
-		}
-	}
-	return parent_nodes;
-};
-
-exports.router.prototype.announce = function(name, parent_nodes) {
-	Object.keys(parent_nodes).sort().forEach(function(parent_name) {
-		parent_nodes[parent_name].announcement_listener.forEach(function(rentry) {
-			rentry.obj.node_rpc(name, "announce");
-		});
-	});
-}
 
 /* set function for destination name */
 exports.router.prototype.register_static_dest = function(name, func, force_name) {
