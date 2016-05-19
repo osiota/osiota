@@ -158,12 +158,55 @@ exports.init = function(router, ws, module_name) {
 			ws.remote = name;
 		reply(null, router.name);
 	};
+	ws.rpc_node_announce = function(reply) {
+		// this == node
+		var name = this.name;
+		this.connection = ws;
+
+		//this.check_subscribe();
+		//if (this.listener.length > 0)
+		//	this.rpc("subscribe");
+		console.log("node announcement: " + name);
+		reply(null, "okay");
+	};
+	ws.rpc_node_subscribe_announcement = function(reply, target_name) {
+		// this == node
+		if (typeof target_name !== "string")
+			target_name = this.name;
+		this.register(module_name, target_name, ws, false, "subscribe_announcement");
+
+		var child_nodes = router.get_nodes(this.name);
+		var parent_nodes = {};
+		parent_nodes[target_name] = router.node(target_name);
+		Object.keys(child_nodes).sort().forEach(function(child_name) {
+			router.announce(target_name + child_name, parent_nodes);
+		});
+		reply(null, "okay");
+	};
 	ws.rpc_node_missed_data = function(reply, new_time) {
 		// this = node
 		var node = this;
 
 		ws.sync_history(node, node.time, new_time);
 		reply("thanks");
+	};
+	ws.rpc_node_subscribe = function(reply) {
+		// this == node
+		ws.local_bind(this);
+		console.log(this.name + " is by " + ws.remote + " subscribed.")
+		//if (typeof this.src_obj === "undefined" && typeof this.connection !== "undefined")
+			//	this.rpc("subscribe");
+		reply(null, "okay");
+	ws.rpc_node_unsubscribe = function(reply) {
+		// this == node
+		if (ws.local_unbind(this))
+			reply(null, "okay");
+		reply("unregister: node not registered", this.name);
+	};
+	ws.rpc_node_where_are_you_from = function(reply) {
+		// this == node
+		console.log("I'm from " + this.router.name);
+		reply(null, this.router.name);
 	};
 
 	/* helpers */
@@ -218,7 +261,7 @@ exports.init = function(router, ws, module_name) {
 		object.node = node;
 		console.log("send: ", ws.closed, object);
 		ws.respond(object);
-		return true;
+		return object;
 	};
 	ws.node_local = function(node, method) {
 		var args = Array.prototype.slice.call(arguments);
@@ -265,6 +308,10 @@ exports.init = function(router, ws, module_name) {
 	};
 	ws.unbind = function(node) {
 		ws.node_prpc_remove(node, "bind");
+	};
+
+	ws.subscribe_announcement = function(node_name) {
+		ws.node_rpc(node_name, "subscribe_announcement");
 	};
 	ws.on("open", function() {
 		ws.cmds.emit("open");

@@ -26,6 +26,7 @@ exports.node = function(r, name, parentnode) {
 	this.value = null;
 	this.time = null;
 
+	this.announcement_listener = [];
 	this.listener = [];
 
 	this.parentnode = parentnode;
@@ -85,9 +86,9 @@ exports.node.prototype.route = function(node, relative_name, do_not_add_to_histo
 		}
 	}
 
-	if (this.parentnode !== null) {
+/*	if (this.parentnode !== null) {
 		this.parentnode.route(node, this.nodename + relative_name, do_not_add_to_history);
-	}
+	}*/
 };
 
 /* Route data (synchronous) */
@@ -132,7 +133,7 @@ exports.node.prototype.route_one = function(rentry, relative_name, do_not_add_to
 };
 
 /* Add a routing entry */
-exports.node.prototype.add_rentry = function(rentry, push_data) {
+exports.node.prototype.add_rentry = function(rentry, push_data, type) {
 	if (typeof rentry !== "object") {
 		console.log("Router. Error: Type of rentry is not object. Type is: " + typeof rentry);
 		return;
@@ -148,10 +149,16 @@ exports.node.prototype.add_rentry = function(rentry, push_data) {
 	rentry.time_added = new Date();
 
 	// add routing entry
-	this.listener.push(rentry);
+	if (typeof type === "string" && type === "subscribe_announcement")
+		this.announcement_listener.push(rentry);
+	else {
+		this.listener.push(rentry);
+		if (this.hasOwnProperty("connection"))
+			this.rpc("subscribe");
+	}
 
 	// push data to new entry:
-	if (push_data) {
+	if (push_data && type !== "subscribe_announcement") {
 		this.route_one(rentry);
 
 		// get data of childs:
@@ -166,8 +173,11 @@ exports.node.prototype.add_rentry = function(rentry, push_data) {
 };
 
 /* Register a callback or a link name for a route */
-exports.node.prototype.register = function(dest, id, obj, push_data) {
-	console.log("registering " + this.name);
+exports.node.prototype.register = function(dest, id, obj, push_data, type) {
+	if (type !== "subscribe_announcement")
+		console.log("registering " + this.name);
+	else
+		console.log("registering for announcement of " + this.name);
 
 	var rentry = {};
 
@@ -182,7 +192,7 @@ exports.node.prototype.register = function(dest, id, obj, push_data) {
 	rentry.obj = obj;
 	rentry.type = "function";
 
-	return this.add_rentry(rentry, push_data);
+	return this.add_rentry(rentry, push_data, type);
 };
 
 
@@ -222,6 +232,9 @@ exports.node.prototype.unregister = function(rentry) {
 		for(var j=0; j<this.listener.length; j++) {
 			if (this.listener[j] === rentry) {
 				this.listener.splice(j, 1);
+
+				if (this.hasOwnProperty("connection"))
+					this.rpc("unsubscribe");
 				return;
 			} else if (this.listener[j].type === "node" &&
 					this.listener[j].dnode === rentry.dnode) {
@@ -264,6 +277,17 @@ exports.node.prototype.rpc_unregister = function(reply, rentry) {
 	this.unregister(rentry);
 	reply(null, "okay");
 };
+exports.node.prototype.rpc = function(method) {
+	if (!this.hasOwnProperty("connection"))
+		return false;
+	var ws = this.connection;
+
+	var args = Array.prototype.slice.call(arguments);
+
+	// Add node object to arguments:
+	args.unshift(this);
+	ws.node_rpc.apply(ws, args);
+};
 
 /* Overwrite function to convert object to string: */
 exports.node.prototype.toJSON = function() {
@@ -290,6 +314,7 @@ exports.node.prototype.toJSON = function() {
 exports.router = function(name) {
 	this.nodes = {};
 	this.dests = {};
+	this.refs = {};
 
 	this.name = "energy-router";
 	if (typeof name === "string")
@@ -387,9 +412,31 @@ exports.router.prototype.node = function(name, create_new_node) {
 		var parentname = name.replace(/[\/@][^\/@]*$/, "");
 		parentnode = this.node(parentname);
 	}
-	this.nodes[name] = new exports.node(this, name, parentnode);
+	this.nodes[name] = new exports.node(this, name);
+	var parent_nodes = this.get_parent_nodes(name);
+	this.announce(name, parent_nodes);
 	return this.nodes[name];
 };
+
+/* Get data of parent nodes */
+exports.router.prototype.get_parent_nodes = function(name) {
+	var parent_nodes = {};
+	while (name !== "") {
+		name = name.replace(/[\/@][^\/@]*$/, "");
+		if (name !== "" && typeof this.nodes[name] !== "undefined") {
+			parent_nodes[name] = this.node(name);
+		}
+	}
+	return parent_nodes;
+};
+
+exports.router.prototype.announce = function(name, parent_nodes) {
+	Object.keys(parent_nodes).sort().forEach(function(parent_name) {
+		parent_nodes[parent_name].announcement_listener.forEach(function(rentry) {
+			rentry.obj.node_rpc(name, "announce");
+		});
+	});
+}
 
 /* set function for destination name */
 exports.router.prototype.register_static_dest = function(name, func, force_name) {
@@ -455,10 +502,18 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 			if (!d.hasOwnProperty('node')) {
 				throw new Error("Message scope needs attribute node: " + JSON.stringify(d));
 			}
+
 			var n = this.node(this.nodename_transform(d.node, module.basename, module.remote_basename));
+
+			if (method === "data") {
+				n.src_obj = obj;
+			}
+
 			if (typeof module === "object" && n._rpc_process("node_" + method, d.args, reply, module)) {
 				return;
 			} else if (n._rpc_process(method, d.args, reply)) {
+				return;
+			} else if (typeof n.src_obj === "object" && n._rpc_forwarding(d, reply)) {
 				return;
 			}
 		} else if (scope === "global") {

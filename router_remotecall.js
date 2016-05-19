@@ -86,6 +86,12 @@ exports.remotecall.prototype._rpc_process = function(method, args, reply, object
 	if (typeof method !== "string" || method === "")
 		return false;
 
+	if (typeof this.refs === "object") {
+		if (typeof this.refs[args[0]] === "object") {
+			this.refs[args[0]].reply(null, args[2]);
+			return true;
+		}
+	}
 	if (typeof object !== "object" || object === null) {
 		object = this;
 	}
@@ -109,9 +115,28 @@ exports.remotecall.prototype._rpc_create_object = function(method) {
 	if (typeof args[args.length-1] === "function") {
 		var cb = args.pop();
 		object.ref = this._rpc_bind(method, cb);
+	} else {
+		var cb = function() {};
+		object.ref = this._rpc_bind(method, cb);
 	}
 	object.type = method;
 	object.args = args;
 	return object;
 };
 
+exports.remotecall.prototype._rpc_forwarding = function(obj, reply) {
+	// this == node
+	var ws = this.src_obj;
+	if (ws.closed) {
+		console.log("websocket is closed.");
+		return false;
+	}
+
+	obj.args.unshift(obj.type);
+	obj.args.unshift(this.name);
+	var object = ws.node_rpc.apply(ws, obj.args);
+	obj.args.shift();
+	obj.args.shift();
+	this.router.refs[object.ref] = {"ref_obj":obj, "reply":reply};
+	return true;
+};
