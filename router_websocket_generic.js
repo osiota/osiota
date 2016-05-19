@@ -261,7 +261,7 @@ exports.init = function(router, ws, module_name) {
 		object.node = node;
 		console.log("send: ", ws.closed, object);
 		ws.respond(object);
-		return object;
+		return true;
 	};
 	ws.node_local = function(node, method) {
 		var args = Array.prototype.slice.call(arguments);
