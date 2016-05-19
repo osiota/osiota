@@ -117,7 +117,7 @@ exports.remotecall.prototype._rpc_create_object = function(method) {
 
 exports.remotecall.prototype._rpc_forwarding = function(obj, reply) {
 	// this == node
-	var ws = this.src_obj;
+	var ws = this.connection;
 	var args = obj.args;
 
 	args.unshift(obj.type);
