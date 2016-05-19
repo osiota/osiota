@@ -119,10 +119,6 @@ exports.node.prototype.route = function(node, relative_name, do_not_add_to_histo
 			node.route_one(this.listener[i], relative_name, do_not_add_to_history);
 		}
 	}
-
-/*	if (this.parentnode !== null) {
-		this.parentnode.route(node, this.nodename + relative_name, do_not_add_to_history);
-	}*/
 };
 
 /* Route data (synchronous) */
@@ -167,7 +163,7 @@ exports.node.prototype.route_one = function(rentry, relative_name, do_not_add_to
 };
 
 /* Add a routing entry */
-exports.node.prototype.add_rentry = function(rentry, push_data, type) {
+exports.node.prototype.add_rentry = function(rentry, push_data) {
 	if (typeof rentry !== "object") {
 		console.log("Router. Error: Type of rentry is not object. Type is: " + typeof rentry);
 		return;
@@ -187,20 +183,22 @@ exports.node.prototype.add_rentry = function(rentry, push_data, type) {
 	this.emit("registered", rentry);
 
 	// push data to new entry:
-	this.route_one(rentry);
+	 if (push_data) {
+		this.route_one(rentry);
 
-	// get data of childs:
-	var allchildren = this.router.get_nodes(this.name);
-	for(var childname in allchildren) {
-		var nc = allchildren[childname];
-		nc.route_one(rentry, childname);
+		// get data of childs:
+		var allchildren = this.router.get_nodes(this.name);
+		for(var childname in allchildren) {
+			var nc = allchildren[childname];
+			nc.route_one(rentry, childname);
+		}
 	}
 
 	return rentry;
 };
 
 /* Register a callback or a link name for a route */
-exports.node.prototype.register = function(dest, id, obj, push_data, type) {
+exports.node.prototype.register = function(dest, id, obj, push_data) {
 	console.log("registering " + this.name);
 
 	var rentry = {};
@@ -216,7 +214,7 @@ exports.node.prototype.register = function(dest, id, obj, push_data, type) {
 	rentry.obj = obj;
 	rentry.type = "function";
 
-	return this.add_rentry(rentry, push_data, type);
+	return this.add_rentry(rentry, push_data);
 };
 
 
@@ -297,8 +295,6 @@ exports.node.prototype.unsubscribe_announcement = function(object) {
 	}
 	throw new Error("unsubscription of announcement failed.");
 };
-
-
 
 /* Get a copy of the listeners */
 exports.node.prototype.get_listener = function(rentry) {
@@ -533,13 +529,10 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 			if (!d.hasOwnProperty('node')) {
 				throw new Error("Message scope needs attribute node: " + JSON.stringify(d));
 			}
-
 			var n = this.node(this.nodename_transform(d.node, module.basename, module.remote_basename));
-
 			if (method === "data") {
 				n.src_obj = obj;
 			}
-
 			if (typeof module === "object" && n._rpc_process("node_" + method, d.args, reply, module)) {
 				return;
 			} else if (n._rpc_process(method, d.args, reply)) {

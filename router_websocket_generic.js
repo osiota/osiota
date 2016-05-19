@@ -171,17 +171,11 @@ exports.init = function(router, ws, module_name) {
 	};
 	ws.rpc_node_subscribe_announcement = function(reply, target_name) {
 		// this == node
-		if (typeof target_name !== "string")
-			target_name = this.name;
-		this.register(module_name, target_name, ws, false, "subscribe_announcement");
-
-		var child_nodes = router.get_nodes(this.name);
-		var parent_nodes = {};
-		parent_nodes[target_name] = router.node(target_name);
-		Object.keys(child_nodes).sort().forEach(function(child_name) {
-			router.announce(target_name + child_name, parent_nodes);
+		var node = this;
+		var ref = this.subscribe_annoucement(function(node) {
+			ws.node_rpc(node, "announce");
 		});
-		reply(null, "okay");
+		return "okay";
 	};
 	ws.rpc_node_missed_data = function(reply, new_time) {
 		// this = node
