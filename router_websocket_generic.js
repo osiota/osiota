@@ -39,19 +39,15 @@ cmd_stack.prototype.get = function(key) {
 		e.init = function(cb_start, cb_end) {
 			e.emit("end");
 			e.once("start", function() {
-				console.log("--- start");
 				cb_start.call(this, true);
 			});
 			e.on("open", function() {
-				console.log("--- open");
 				cb_start.call(this, false);
 			});
 			e.on("close", function() {
-				console.log("--- close");
 				cb_end.call(this, true);
 			});
 			e.once("end", function() {
-				console.log("--- end");
 				cb_end.call(this, false);
 			});
 			e.emit("start");
@@ -113,7 +109,7 @@ var prpcfunction_remove = function(cmd_stack_obj, method) {
 		if (e.end()) {
 			reply(null, "okay");
 		} else {
-			reply("un"+method + ": not assigned.", this.name);
+			reply("un"+method + ": not assigned: " + this.name);
 
 		}
 	};
@@ -161,11 +157,12 @@ exports.init = function(router, ws, module_name) {
 	}, function (ref) {
 		return this.unsubscribe_announcement(ref);
 	});
-	ws.rpc_node_subscribe_announcement = prpcfunction_remove(ws.cmds, "subscribe_announcement");
+	ws.rpc_node_unsubscribe_announcement = prpcfunction_remove(ws.cmds, "subscribe_announcement");
 	ws.rpc_node_subscribe = prpcfunction(ws.cmds, "subscribe", function() {
 		// this == node
 		var node = this;
-		return this.subscribe(function(node, initial) {
+		return this.subscribe(function(do_not_add_to_history, initial) {
+			var node = this;
 			if (initial === true)
 				ws.node_rpc(node, "missed_data", node.time);
 			ws.node_rpc(node, "data", node.time, node.value, false, do_not_add_to_history);
@@ -173,7 +170,7 @@ exports.init = function(router, ws, module_name) {
 	}, function (ref) {
 		return this.unsubscribe(ref);
 	});
-	ws.rpc_node_subscribe = prpcfunction_remove(ws.cmds, "subscribe");
+	ws.rpc_node_unsubscribe = prpcfunction_remove(ws.cmds, "subscribe");
 
 
 	ws.rpc_hello = function(reply, name) {
@@ -308,7 +305,14 @@ exports.init = function(router, ws, module_name) {
 		ws.node_prpc(node, "subscribe_announcement");
 	};
 	ws.unsubscribe_announcement = function(node) {
-		ws.node_prpc(node_remove, "subscribe_announcement");
+		ws.node_prpc_remove(node, "subscribe_announcement");
+	};
+
+	ws.subscribe = function(node) {
+		ws.node_prpc(node, "subscribe");
+	};
+	ws.unsubscribe = function(node) {
+		ws.node_prpc_remove(node, "subscribe");
 	};
 
 	ws.on("open", function() {

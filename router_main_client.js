@@ -75,7 +75,7 @@ require('./router_websocket_client.js')
 				else
 					var fromtime = 0;
 				console.log("lasttime", fromtime);
-				ws.bind(nodeName);
+				ws.subscribe(nodeName);
 			}
 		}
 	} else {

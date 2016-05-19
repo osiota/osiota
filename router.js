@@ -126,10 +126,7 @@ exports.node.prototype.route = function(node, relative_name, do_not_add_to_histo
 exports.node.prototype.publish_sync = function(time, value, only_if_differ, do_not_add_to_history) {
 	if (this.set(time, value, only_if_differ, do_not_add_to_history)) {
 		this.route(this, "", do_not_add_to_history);
-		var _this = this;
-		this.subscription_listener.forEach(function(f) {
-			f.call(_this, false);
-		});
+		this.subscription_notify(do_not_add_to_history);
 	}
 };
 
@@ -281,7 +278,7 @@ exports.node.prototype.subscribe = function(object) {
 
 	this.subscription_listener.push(object);
 
-	object.call(this, true);
+	object.call(this, true, true);
 
 	return object;
 };
@@ -293,6 +290,18 @@ exports.node.prototype.unsubscribe = function(object) {
 		}
 	}
 	throw new Error("unsubscription failed: " + this.name);
+};
+
+/* Notify the subscriptions */
+exports.node.prototype.subscription_notify = function(do_not_add_to_history) {
+	if (typeof do_not_add_to_history === "undefined") {
+		do_not_add_to_history = false;
+	}
+
+	var _this = this;
+	this.subscription_listener.forEach(function(f) {
+		f.call(_this, do_not_add_to_history, false);
+	});
 };
 
 /* Announcement Listener */
