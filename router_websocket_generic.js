@@ -165,7 +165,9 @@ exports.init = function(router, ws, module_name) {
 	ws.rpc_node_subscribe = prpcfunction(ws.cmds, "subscribe", function() {
 		// this == node
 		var node = this;
-		return this.subscribe(function(node) {
+		return this.subscribe(function(node, initial) {
+			if (initial === true)
+				ws.node_rpc(node, "missed_data", node.time);
 			ws.node_rpc(node, "data", node.time, node.value, false, do_not_add_to_history);
 		});
 	}, function (ref) {

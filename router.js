@@ -69,7 +69,7 @@ exports.node.prototype.announce = function(node) {
 	}
 	var _this = this;
 	this.announcement_listener.forEach(function(f) {
-		f.call(_this, node);
+		f.call(_this, node, false);
 	});
 }
 
@@ -128,7 +128,7 @@ exports.node.prototype.publish_sync = function(time, value, only_if_differ, do_n
 		this.route(this, "", do_not_add_to_history);
 		var _this = this;
 		this.subscription_listener.forEach(function(f) {
-			f.call(_this);
+			f.call(_this, false);
 		});
 	}
 };
@@ -281,7 +281,7 @@ exports.node.prototype.subscribe = function(object) {
 
 	this.subscription_listener.push(object);
 
-	object.call(this, this);
+	object.call(this, true);
 
 	return object;
 };
@@ -306,7 +306,7 @@ exports.node.prototype.subscribe_announcement = function(object) {
 	var allchildren = this.router.get_nodes(this.name);
 	for(var childname in allchildren) {
 		var nc = allchildren[childname];
-		object.call(this, nc);
+		object.call(this, nc, true);
 	}
 
 	return object;
