@@ -35,6 +35,25 @@ exports.node = function(r, name, parentnode) {
 
 	RemoteCall.call(this);
 
+	// subscripbe from remote host:
+	var is_subscriped = false;
+	var check_need_subscription = function() {
+		if (is_subscriped) {
+			if (this.listener.length == 0) {
+				this.rpc("unsubscribe");
+				is_subscriped = false;
+
+			}
+		} else {
+			if (this.listener.length > 0) {
+				this.rpc("subscribe");
+				is_subscriped = true;
+			}
+		}
+	};
+	this.on('registered', check_need_subscription);
+	this.on('unregistered', check_need_subscription);
+
 	r.emit('create_new_node', this);
 };
 util.inherits(exports.node, RemoteCall);
@@ -153,8 +172,7 @@ exports.node.prototype.add_rentry = function(rentry, push_data, type) {
 		this.announcement_listener.push(rentry);
 	else {
 		this.listener.push(rentry);
-		if (this.hasOwnProperty("connection"))
-			this.rpc("subscribe");
+		this.emit("registered", rentry);
 	}
 
 	// push data to new entry:
@@ -231,17 +249,15 @@ exports.node.prototype.unregister = function(rentry) {
 	if (this.hasOwnProperty("listener")) {
 		for(var j=0; j<this.listener.length; j++) {
 			if (this.listener[j] === rentry) {
-				this.listener.splice(j, 1);
+				var r = this.listener.splice(j, 1);
 
-				if (this.listener.length == 0)
-					this.rpc("unsubscribe");
+				this.emit("unregistered", r[0]);
 				return;
 			} else if (this.listener[j].type === "node" &&
 					this.listener[j].dnode === rentry.dnode) {
-				this.listener.splice(j, 1);
+				var r = this.listener.splice(j, 1);
 
-				if (this.listener.length == 0)
-					this.rpc("unsubscribe");
+				this.emit("unregistered", r[0]);
 				return;
 			}
 		}
