@@ -26,6 +26,7 @@ exports.node = function(r, name, parentnode) {
 	this.value = null;
 	this.time = null;
 
+	this.subscription_listener = [];
 	this.announcement_listener = [];
 	this.listener = [];
 
@@ -39,13 +40,13 @@ exports.node = function(r, name, parentnode) {
 	var is_subscriped = false;
 	var check_need_subscription = function() {
 		if (is_subscriped) {
-			if (this.listener.length == 0) {
+			if (this.listener.length == 0 && this.subscription_listener == 0) {
 				this.rpc("unsubscribe");
 				is_subscriped = false;
 
 			}
 		} else {
-			if (this.listener.length > 0) {
+			if (this.listener.length > 0 || this.subscription_listener > 0) {
 				this.rpc("subscribe");
 				is_subscriped = true;
 			}
@@ -125,6 +126,10 @@ exports.node.prototype.route = function(node, relative_name, do_not_add_to_histo
 exports.node.prototype.publish_sync = function(time, value, only_if_differ, do_not_add_to_history) {
 	if (this.set(time, value, only_if_differ, do_not_add_to_history)) {
 		this.route(this, "", do_not_add_to_history);
+		var _this = this;
+		this.subscription_listener.forEach(function(f) {
+			f.call(_this);
+		});
 	}
 };
 
@@ -269,6 +274,27 @@ exports.node.prototype.unregister = function(rentry) {
 	console.log("\tfailed.");
 };
 
+/* Subscribe Listener */
+exports.node.prototype.subscribe = function(object) {
+	// Save the time when this entry was added
+	object.time_added = new Date();
+
+	this.subscription_listener.push(object);
+
+	object.call(this, this);
+
+	return object;
+};
+
+exports.node.prototype.unsubscribe = function(object) {
+	for(var j=0; j<this.subscription_listener.length; j++) {
+		if (this.subscription_listener[j] === object) {
+			this.subscription_listener.splice(j, 1);
+		}
+	}
+	throw new Error("unsubscription failed: " + this.name);
+};
+
 /* Announcement Listener */
 exports.node.prototype.subscribe_announcement = function(object) {
 	// Save the time when this entry was added
@@ -287,13 +313,12 @@ exports.node.prototype.subscribe_announcement = function(object) {
 };
 
 exports.node.prototype.unsubscribe_announcement = function(object) {
-	console.log("unregistering " + this.name);
 	for(var j=0; j<this.announcement_listener.length; j++) {
 		if (this.announcement_listener[j] === object) {
 			this.announcement_listener.splice(j, 1);
 		}
 	}
-	throw new Error("unsubscription of announcement failed.");
+	throw new Error("unsubscription of announcements failed: " + this.name);
 };
 
 /* Get a copy of the listeners */

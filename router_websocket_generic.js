@@ -162,6 +162,17 @@ exports.init = function(router, ws, module_name) {
 		return this.unsubscribe_announcement(ref);
 	});
 	ws.rpc_node_subscribe_announcement = prpcfunction_remove(ws.cmds, "subscribe_announcement");
+	ws.rpc_node_subscribe = prpcfunction(ws.cmds, "subscribe", function() {
+		// this == node
+		var node = this;
+		return this.subscribe(function(node) {
+			ws.node_rpc(node, "data", node.time, node.value, false, do_not_add_to_history);
+		});
+	}, function (ref) {
+		return this.unsubscribe(ref);
+	});
+	ws.rpc_node_subscribe = prpcfunction_remove(ws.cmds, "subscribe");
+
 
 	ws.rpc_hello = function(reply, name) {
 		if (typeof name === "string")
@@ -180,19 +191,6 @@ exports.init = function(router, ws, module_name) {
 
 		ws.sync_history(node, node.time, new_time);
 		reply("thanks");
-	};
-	ws.rpc_node_subscribe = function(reply) {
-		// this == node
-		ws.local_bind(this);
-		console.log(this.name + " is by " + ws.remote + " subscribed.")
-		//if (typeof this.src_obj === "undefined" && typeof this.connection !== "undefined")
-			//	this.rpc("subscribe");
-		reply(null, "okay");
-	ws.rpc_node_unsubscribe = function(reply) {
-		// this == node
-		if (ws.local_unbind(this))
-			reply(null, "okay");
-		reply("unregister: node not registered", this.name);
 	};
 	ws.rpc_node_where_are_you_from = function(reply) {
 		// this == node
@@ -242,6 +240,9 @@ exports.init = function(router, ws, module_name) {
 	ws.node_rpc = function(node, method) {
 		if (ws.closed)
 			return false;
+		if (typeof node === "object")
+			node = node.name;
+
 		var args = Array.prototype.slice.call(arguments);
 		//var node =
 		args.shift();
