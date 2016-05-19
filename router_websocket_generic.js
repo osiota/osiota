@@ -152,6 +152,16 @@ exports.init = function(router, ws, module_name) {
 		this.unregister(ref);
 	});
 	ws.rpc_node_unbind = prpcfunction_remove(ws.cmds, "bind");
+	ws.rpc_node_subscribe_announcement = prpcfunction(ws.cmds, "subscribe_announcement", function() {
+		// this == node
+		var node = this;
+		return this.subscribe_annoucement(function(node) {
+			ws.node_rpc(node, "announce");
+		});
+	}, function (ref) {
+		return this.unsubscribe_annoucement(ref);
+	});
+	ws.rpc_node_subscribe_announcement = prpcfunction_remove(ws.cmds, "subscribe_announcement");
 
 	ws.rpc_hello = function(reply, name) {
 		if (typeof name === "string")
@@ -168,14 +178,6 @@ exports.init = function(router, ws, module_name) {
 		//	this.rpc("subscribe");
 		console.log("node announcement: " + name);
 		reply(null, "okay");
-	};
-	ws.rpc_node_subscribe_announcement = function(reply, target_name) {
-		// this == node
-		var node = this;
-		var ref = this.subscribe_annoucement(function(node) {
-			ws.node_rpc(node, "announce");
-		});
-		return "okay";
 	};
 	ws.rpc_node_missed_data = function(reply, new_time) {
 		// this = node

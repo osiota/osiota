@@ -183,7 +183,7 @@ exports.node.prototype.add_rentry = function(rentry, push_data) {
 	this.emit("registered", rentry);
 
 	// push data to new entry:
-	 if (push_data) {
+	if (push_data) {
 		this.route_one(rentry);
 
 		// get data of childs:
