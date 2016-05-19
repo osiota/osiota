@@ -233,12 +233,15 @@ exports.node.prototype.unregister = function(rentry) {
 			if (this.listener[j] === rentry) {
 				this.listener.splice(j, 1);
 
-				if (this.hasOwnProperty("connection"))
+				if (this.listener.length == 0)
 					this.rpc("unsubscribe");
 				return;
 			} else if (this.listener[j].type === "node" &&
 					this.listener[j].dnode === rentry.dnode) {
 				this.listener.splice(j, 1);
+
+				if (this.listener.length == 0)
+					this.rpc("unsubscribe");
 				return;
 			}
 		}
