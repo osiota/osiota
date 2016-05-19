@@ -109,9 +109,6 @@ exports.remotecall.prototype._rpc_create_object = function(method) {
 	if (typeof args[args.length-1] === "function") {
 		var cb = args.pop();
 		object.ref = this._rpc_bind(method, cb);
-	} else {
-		var cb = function() {};
-		object.ref = this._rpc_bind(method, cb);
 	}
 	object.type = method;
 	object.args = args;
