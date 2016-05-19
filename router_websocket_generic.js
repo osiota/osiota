@@ -155,11 +155,11 @@ exports.init = function(router, ws, module_name) {
 	ws.rpc_node_subscribe_announcement = prpcfunction(ws.cmds, "subscribe_announcement", function() {
 		// this == node
 		var node = this;
-		return this.subscribe_annoucement(function(node) {
+		return this.subscribe_announcement(function(node) {
 			ws.node_rpc(node, "announce");
 		});
 	}, function (ref) {
-		return this.unsubscribe_annoucement(ref);
+		return this.unsubscribe_announcement(ref);
 	});
 	ws.rpc_node_subscribe_announcement = prpcfunction_remove(ws.cmds, "subscribe_announcement");
 
@@ -170,14 +170,9 @@ exports.init = function(router, ws, module_name) {
 	};
 	ws.rpc_node_announce = function(reply) {
 		// this == node
-		var name = this.name;
 		this.connection = ws;
 
-		//this.check_subscribe();
-		//if (this.listener.length > 0)
-		//	this.rpc("subscribe");
-		console.log("node announcement: " + name);
-		reply(null, "okay");
+		return true;
 	};
 	ws.rpc_node_missed_data = function(reply, new_time) {
 		// this = node
@@ -306,9 +301,13 @@ exports.init = function(router, ws, module_name) {
 		ws.node_prpc_remove(node, "bind");
 	};
 
-	ws.subscribe_announcement = function(node_name) {
-		ws.node_rpc(node_name, "subscribe_announcement");
+	ws.subscribe_announcement = function(node) {
+		ws.node_prpc(node, "subscribe_announcement");
 	};
+	ws.unsubscribe_announcement = function(node) {
+		ws.node_prpc(node_remove, "subscribe_announcement");
+	};
+
 	ws.on("open", function() {
 		ws.cmds.emit("open");
 	});
