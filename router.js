@@ -277,6 +277,7 @@ exports.node.prototype.subscribe = function(object) {
 	object.time_added = new Date();
 
 	this.subscription_listener.push(object);
+	this.emit("registered", object);
 
 	object.call(this, true, true);
 
@@ -286,7 +287,9 @@ exports.node.prototype.subscribe = function(object) {
 exports.node.prototype.unsubscribe = function(object) {
 	for(var j=0; j<this.subscription_listener.length; j++) {
 		if (this.subscription_listener[j] === object) {
-			this.subscription_listener.splice(j, 1);
+			var r = this.subscription_listener.splice(j, 1);
+			this.emit("unregistered", r[0]);
+			return true;
 		}
 	}
 	throw new Error("unsubscription failed: " + this.name);
@@ -325,6 +328,7 @@ exports.node.prototype.unsubscribe_announcement = function(object) {
 	for(var j=0; j<this.announcement_listener.length; j++) {
 		if (this.announcement_listener[j] === object) {
 			this.announcement_listener.splice(j, 1);
+			return true;
 		}
 	}
 	throw new Error("unsubscription of announcements failed: " + this.name);
