@@ -7,7 +7,7 @@ var dataurl_base64 = function(mimetype) {
 	return function(content, meta) {
 		var b = new Buffer(content, "utf8").toString('base64');
 		//var b = Buffer.from(content, "utf8").toString('base64');
-		meta.type = "info." + mimetype.replace(/[\/].*$/, "");
+		meta.type = mimetype.replace(/[\/].*$/, "") + ".info";
 		return 'data:'+mimetype+';base64,'+b;
 	};	
 };
@@ -15,11 +15,11 @@ var dataurl_base64 = function(mimetype) {
 /* content converter */
 var cc = {};
 cc.txt = function(content, meta) {
-	meta.type = "info.text";
+	meta.type = "text.info";
 	return content.toString();
 };
 cc.html = function(content, meta) {
-	meta.type = "info.html";
+	meta.type = "html.info";
 	return content.toString();
 };
 cc.jpeg = dataurl_base64("image/jpeg");
@@ -70,23 +70,26 @@ exports.init = function(router, basename, structure_dir) {
 				var matches = path.match(/\.(.*)$/i);
 				var meta = {};
 				meta.time = time;
+				meta.type = "";
 				if (matches) {
 					var type = matches[1].toLowerCase();
 					meta.type = type;
 					if (cc.hasOwnProperty(type)) {
 						content = cc[type](content, meta);
-					} else if (type.match(/^data/)) {
+					} else if (type.match(/\.data$/)) {
 						content = cc["data"](content, meta);
 					} else if (type.match(/json/)) {
 						content = cc["json"](content, meta);
 					} else {
-						content = true;
+						content = null;
 					}
 				} else {
-					content = true;
+					content = null;
 				}
 				path = path.replace(/\/@/, "@");
 				path = path.replace(/\.[^\/]*$/, "");
+				if (meta.type != "")
+					path = path + "." + meta.type;
 				router.node(basename + "/" + path).publish(meta.time, content);
 			});
 		});
