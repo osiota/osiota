@@ -72,12 +72,9 @@ cmd_stack.prototype.remove = function(key) {
 	}
 	return false;
 }
-cmd_stack.prototype.emit = function(subkey, remove) {
+cmd_stack.prototype.emit = function(subkey) {
 	for (var key in this.stack) {
 		this.stack[key].emit(subkey);
-	}
-	if (typeof remove === "undefined" || remove) {
-		this.stack = {};
 	}
 };
 
