@@ -19,7 +19,10 @@ var pwsc = function(wpath) {
 	this.on('need_reconnect', function() {
 		this.ws = undefined;
 
-		this.emit("close");
+		if (!this.closed) {
+			this.closed = true;
+			this.emit("close");
+		}
 
 		var pthis = this;
 		setTimeout(function() { pthis.init(); }, 1000);
@@ -63,7 +66,6 @@ pwsc.prototype.init = function() {
 			}
 		});
 		this.ws.on('close', function() {
-			pthis.closed = true;
 			/* try to reconnect: Use  */
 			if (!this.reconnect) {
 				this.reconnect = true;
@@ -71,7 +73,6 @@ pwsc.prototype.init = function() {
 			}
 		});
 		this.ws.on('error', function() {
-			pthis.closed = true;
 			if (!this.reconnect) {
 				this.reconnect = true;
 				pthis.emit("need_reconnect");
