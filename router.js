@@ -120,6 +120,10 @@ exports.node.prototype.route = function(node, relative_name, do_not_add_to_histo
 			node.route_one(this.listener[i], relative_name, do_not_add_to_history);
 		}
 	}
+
+	if (this.parentnode !== null) {
+		this.parentnode.route(node, this.nodename + relative_name, do_not_add_to_history);
+	}
 };
 
 /* Route data (synchronous) */
