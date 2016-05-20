@@ -175,12 +175,15 @@ exports.init = function(router, ws, module_name) {
 			ws.remote = name;
 		reply(null, router.name);
 	};
-	ws.rpc_node_announce = function(reply) {
+	ws.rpc_node_announce = prpcfunction(ws.cmds, "announce", function() {
 		// this == node
 		this.connection = ws;
+	}, function () {
+		if (this.connection === ws)
+			delete this.connection;
+	});
+	ws.rpc_node_unannounce = prpcfunction_remove(ws.cmds, "announce");
 
-		return true;
-	};
 	ws.rpc_node_missed_data = function(reply, new_time) {
 		// this = node
 		var node = this;
