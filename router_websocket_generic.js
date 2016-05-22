@@ -250,7 +250,7 @@ exports.init = function(router, ws, module_name) {
 		node = router.nodename_transform(node, ws.remote_basename, ws.basename);
 		object.scope = "node";
 		object.node = node;
-		console.log("send: ", ws.closed, object);
+//		console.log("send: ", ws.closed, object);
 		ws.respond(object);
 		return true;
 	};
@@ -302,6 +302,7 @@ exports.init = function(router, ws, module_name) {
 	};
 
 	ws.subscribe_announcement = function(node) {
+		router.node(node).connection = ws;
 		ws.node_prpc(node, "subscribe_announcement");
 	};
 	ws.unsubscribe_announcement = function(node) {
