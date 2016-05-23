@@ -22,6 +22,7 @@ exports.init = function(router, history_type, history_config) {
 		node.get_history = function(config, callback) {
 			this.history.get(config, callback);
 		};
+		node.history.synced = false;
 		node.get_history_on_initialsync = function(config, callback) {
 			if (!this.history.synced) {
 				var _this = this;
