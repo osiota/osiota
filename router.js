@@ -40,13 +40,13 @@ exports.node = function(r, name, parentnode) {
 	var is_subscriped = false;
 	var check_need_subscription = function() {
 		if (is_subscriped) {
-			if (this.listener.length == 0 && this.subscription_listener == 0) {
+			if (this.listener.length == 0 && this.subscription_listener.length == 0) {
 				this.rpc("unsubscribe");
 				is_subscriped = false;
 
 			}
 		} else {
-			if (this.listener.length > 0 || this.subscription_listener > 0) {
+			if (this.listener.length > 0 || this.subscription_listener.length > 0) {
 				this.rpc("subscribe");
 				is_subscriped = true;
 			}
