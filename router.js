@@ -317,6 +317,8 @@ exports.node.prototype.subscribe_announcement = function(object) {
 	object.time_added = new Date();
 
 	this.announcement_listener.push(object);
+	
+	object.call(this, this, true);
 
 	// get data of childs:
 	var allchildren = this.router.get_nodes(this.name);
@@ -467,6 +469,18 @@ exports.router.prototype.get_nodes = function(basename) {
 		}
 	});
 	return nodes;
+};
+
+exports.router.prototype.get_children_names = function(nodename) {
+	var nodes = this.get_nodes(nodename);
+	var children_names = [];
+	Object.keys(nodes).sort().forEach(function(name) {
+		var temp_array = name.split("/", 2);
+		for(i = 0; i < children_names.length && children_names[i] != temp_array[1]; i++);
+		if (i === children_names.length)
+			children_names.push(temp_array[1]);
+	});
+	return children_names;
 };
 
 /* Overwrite function to convert object to string: */
