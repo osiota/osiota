@@ -1,21 +1,24 @@
 #!/usr/bin/node
 
-var optimist = require('optimist')
-	.usage('Connect to a data router.\nUsage: $0 [nodes ...]')
-	.alias('port', 'p')
-	.describe('port', 'WebSocket server port to open')
-	.default('port', 8080)
-	.alias('random', 'r')
-	.describe('random', 'Insert a node with random data.')
-	.default('random', false)
-	.alias('help', 'h')
-	.describe('help', 'Display the usage');
-var argv = optimist.argv;
-
-if (argv.help) {
-	optimist.showHelp();
-	process.exit(0);
-}
+var argv = require('yargs')
+	.usage('Connect to a data router.\n'+
+		'Usage: $0 [-args]', {
+		port: {
+			alias: "p",
+			describe: "WebSocket server port to open",
+			default: 8080,
+			type: "number"
+		},
+		random: {
+			alias: "r",
+			describe: "Insert a node with random data",
+			default: false,
+			type: "boolean"
+		}
+	})
+	.example('$0 -p 8081', "- Open server on port 8081")
+	.help().version().config()
+	.argv;
 
 // initialise the Router
 var Router = require('./router.js').router;

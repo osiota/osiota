@@ -1,24 +1,30 @@
 #!/usr/bin/node
 
-var optimist = require('optimist')
-	.usage('Connect to a data router.\nUsage: $0 [nodes ...]')
-	.alias('server', 's')
-	.describe('server', 'WebSocketServer to connect to.')
-	.default('server', "ws://localhost:8080/")
-	.boolean('list')
-	.alias('list', 'l')
-	.describe('list', 'List nodes of the router')
-	.alias('history', 'his')
-	.describe('history', 'Get history data with interval for all nodes\n\tinterval in seconds')
-	.default('history', null)
-	.alias('help', 'h')
-	.describe('help', 'Display the usage');
-var argv = optimist.argv;
-
-if (argv.help) {
-	optimist.showHelp();
-	process.exit(0);
-}
+var argv = require('yargs')
+	.usage( 'Connect to a data router.\n'+
+		'Usage: $0 [-args] [nodes ...]', {
+		server: {
+			alias: "s",
+			describe: "WebSocket server to connect to",
+			default: "ws://localhost:8080/",
+			type: "string"
+		},
+		list: {
+			alias: "l",
+			describe: "List nodes of the server",
+			default: false,
+			type: "boolean"
+		},
+		history: {
+			alias: "his",
+			describe: "Get historical data with interval for all given nodes\ninterval in seconds",
+			default: null,
+			type: "number"
+		}
+	})
+	.example('$0 -s ws://server05:8080/ /random', '- Get data from node "random" of server05')
+	.help().version().config()
+	.argv;
 
 // initialise the Router
 var Router = require('./router.js').router;
