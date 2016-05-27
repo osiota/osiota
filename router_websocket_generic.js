@@ -39,19 +39,15 @@ cmd_stack.prototype.get = function(key) {
 		e.init = function(cb_start, cb_end) {
 			e.emit("end");
 			e.once("start", function() {
-				console.log("--- start");
 				cb_start.call(this, true);
 			});
 			e.on("open", function() {
-				console.log("--- open");
 				cb_start.call(this, false);
 			});
 			e.on("close", function() {
-				console.log("--- close");
 				cb_end.call(this, true);
 			});
 			e.once("end", function() {
-				console.log("--- end");
 				cb_end.call(this, false);
 			});
 			e.emit("start");
@@ -76,12 +72,9 @@ cmd_stack.prototype.remove = function(key) {
 	}
 	return false;
 }
-cmd_stack.prototype.emit = function(subkey, remove) {
+cmd_stack.prototype.emit = function(subkey) {
 	for (var key in this.stack) {
 		this.stack[key].emit(subkey);
-	}
-	if (typeof remove === "undefined" || remove) {
-		this.stack = {};
 	}
 };
 
@@ -113,7 +106,7 @@ var prpcfunction_remove = function(cmd_stack_obj, method) {
 		if (e.end()) {
 			reply(null, "okay");
 		} else {
-			reply("un"+method + ": not assigned.", this.name);
+			reply("un"+method + ": not assigned: " + this.name);
 
 		}
 	};
@@ -152,18 +145,56 @@ exports.init = function(router, ws, module_name) {
 		this.unregister(ref);
 	});
 	ws.rpc_node_unbind = prpcfunction_remove(ws.cmds, "bind");
+	ws.rpc_node_subscribe_announcement = prpcfunction(ws.cmds, "subscribe_announcement", function() {
+		// this == node
+		var node = this;
+		return this.subscribe_announcement(function(node) {
+			ws.node_rpc(node, "announce");
+		});
+	}, function (ref) {
+		return this.unsubscribe_announcement(ref);
+	});
+	ws.rpc_node_unsubscribe_announcement = prpcfunction_remove(ws.cmds, "subscribe_announcement");
+	ws.rpc_node_subscribe = prpcfunction(ws.cmds, "subscribe", function() {
+		// this == node
+		var node = this;
+		return this.subscribe(function(do_not_add_to_history, initial) {
+			var node = this;
+			if (initial === true)
+				ws.node_rpc(node, "missed_data", node.time);
+			ws.node_rpc(node, "data", node.time, node.value, false, do_not_add_to_history);
+		});
+	}, function (ref) {
+		return this.unsubscribe(ref);
+	});
+	ws.rpc_node_unsubscribe = prpcfunction_remove(ws.cmds, "subscribe");
+
 
 	ws.rpc_hello = function(reply, name) {
 		if (typeof name === "string")
 			ws.remote = name;
 		reply(null, router.name);
 	};
+	ws.rpc_node_announce = prpcfunction(ws.cmds, "announce", function() {
+		// this == node
+		this.connection = ws;
+	}, function () {
+		if (this.connection === ws)
+			delete this.connection;
+	});
+	ws.rpc_node_unannounce = prpcfunction_remove(ws.cmds, "announce");
+
 	ws.rpc_node_missed_data = function(reply, new_time) {
 		// this = node
 		var node = this;
 
 		ws.sync_history(node, node.time, new_time);
 		reply("thanks");
+	};
+	ws.rpc_node_where_are_you_from = function(reply) {
+		// this == node
+		console.log("I'm from " + this.router.name);
+		reply(null, this.router.name);
 	};
 
 	/* helpers */
@@ -208,6 +239,9 @@ exports.init = function(router, ws, module_name) {
 	ws.node_rpc = function(node, method) {
 		if (ws.closed)
 			return false;
+		if (typeof node === "object")
+			node = node.name;
+
 		var args = Array.prototype.slice.call(arguments);
 		//var node =
 		args.shift();
@@ -216,7 +250,6 @@ exports.init = function(router, ws, module_name) {
 		node = router.nodename_transform(node, ws.remote_basename, ws.basename);
 		object.scope = "node";
 		object.node = node;
-		console.log("send: ", ws.closed, object);
 		ws.respond(object);
 		return true;
 	};
@@ -266,6 +299,21 @@ exports.init = function(router, ws, module_name) {
 	ws.unbind = function(node) {
 		ws.node_prpc_remove(node, "bind");
 	};
+
+	ws.subscribe_announcement = function(node) {
+		ws.node_prpc(node, "subscribe_announcement");
+	};
+	ws.unsubscribe_announcement = function(node) {
+		ws.node_prpc_remove(node, "subscribe_announcement");
+	};
+
+	ws.subscribe = function(node) {
+		ws.node_prpc(node, "subscribe");
+	};
+	ws.unsubscribe = function(node) {
+		ws.node_prpc_remove(node, "subscribe");
+	};
+
 	ws.on("open", function() {
 		ws.cmds.emit("open");
 	});

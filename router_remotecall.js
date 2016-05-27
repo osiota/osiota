@@ -115,3 +115,16 @@ exports.remotecall.prototype._rpc_create_object = function(method) {
 	return object;
 };
 
+exports.remotecall.prototype._rpc_forwarding = function(obj, reply) {
+	// this == node
+	var ws = this.connection;
+	var args = obj.args;
+
+	args.unshift(obj.type);
+	args.unshift(this);
+	args.push(function(data) {
+		// TODO: forward error as well.
+		reply(null, data);
+	});
+	return ws.node_rpc.apply(ws, args);
+};

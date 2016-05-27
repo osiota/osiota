@@ -26,6 +26,8 @@ exports.node = function(r, name, parentnode) {
 	this.value = null;
 	this.time = null;
 
+	this.subscription_listener = [];
+	this.announcement_listener = [];
 	this.listener = [];
 
 	this.parentnode = parentnode;
@@ -34,9 +36,43 @@ exports.node = function(r, name, parentnode) {
 
 	RemoteCall.call(this);
 
+	// subscripbe from remote host:
+	var is_subscriped = false;
+	var check_need_subscription = function() {
+		if (is_subscriped) {
+			if (this.listener.length == 0 && this.subscription_listener.length == 0) {
+				this.rpc("unsubscribe");
+				is_subscriped = false;
+
+			}
+		} else {
+			if (this.listener.length > 0 || this.subscription_listener.length > 0) {
+				this.rpc("subscribe");
+				is_subscriped = true;
+			}
+		}
+	};
+	this.on('registered', check_need_subscription);
+	this.on('unregistered', check_need_subscription);
+
 	r.emit('create_new_node', this);
+
+	this.announce();
 };
 util.inherits(exports.node, RemoteCall);
+/* Announce node */
+exports.node.prototype.announce = function(node) {
+	if (typeof node === "undefined") node = this;
+
+	if (this.parentnode !== null) {
+		this.parentnode.announce(node);
+	}
+	var _this = this;
+	this.announcement_listener.forEach(function(f) {
+		f.call(_this, node, false);
+	});
+}
+
 /* Set new data */
 exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to_history) {
 	// convert from string to number:
@@ -94,6 +130,7 @@ exports.node.prototype.route = function(node, relative_name, do_not_add_to_histo
 exports.node.prototype.publish_sync = function(time, value, only_if_differ, do_not_add_to_history) {
 	if (this.set(time, value, only_if_differ, do_not_add_to_history)) {
 		this.route(this, "", do_not_add_to_history);
+		this.subscription_notify(do_not_add_to_history);
 	}
 };
 
@@ -149,6 +186,7 @@ exports.node.prototype.add_rentry = function(rentry, push_data) {
 
 	// add routing entry
 	this.listener.push(rentry);
+	this.emit("registered", rentry);
 
 	// push data to new entry:
 	if (push_data) {
@@ -221,16 +259,85 @@ exports.node.prototype.unregister = function(rentry) {
 	if (this.hasOwnProperty("listener")) {
 		for(var j=0; j<this.listener.length; j++) {
 			if (this.listener[j] === rentry) {
-				this.listener.splice(j, 1);
+				var r = this.listener.splice(j, 1);
+
+				this.emit("unregistered", r[0]);
 				return;
 			} else if (this.listener[j].type === "node" &&
 					this.listener[j].dnode === rentry.dnode) {
-				this.listener.splice(j, 1);
+				var r = this.listener.splice(j, 1);
+
+				this.emit("unregistered", r[0]);
 				return;
 			}
 		}
 	}
 	console.log("\tfailed.");
+};
+
+/* Subscribe Listener */
+exports.node.prototype.subscribe = function(object) {
+	// Save the time when this entry was added
+	object.time_added = new Date();
+
+	this.subscription_listener.push(object);
+	this.emit("registered", object);
+
+	object.call(this, true, true);
+
+	return object;
+};
+
+exports.node.prototype.unsubscribe = function(object) {
+	for(var j=0; j<this.subscription_listener.length; j++) {
+		if (this.subscription_listener[j] === object) {
+			var r = this.subscription_listener.splice(j, 1);
+			this.emit("unregistered", r[0]);
+			return true;
+		}
+	}
+	throw new Error("unsubscription failed: " + this.name);
+};
+
+/* Notify the subscriptions */
+exports.node.prototype.subscription_notify = function(do_not_add_to_history) {
+	if (typeof do_not_add_to_history === "undefined") {
+		do_not_add_to_history = false;
+	}
+
+	var _this = this;
+	this.subscription_listener.forEach(function(f) {
+		f.call(_this, do_not_add_to_history, false);
+	});
+};
+
+/* Announcement Listener */
+exports.node.prototype.subscribe_announcement = function(object) {
+	// Save the time when this entry was added
+	object.time_added = new Date();
+
+	this.announcement_listener.push(object);
+	
+	object.call(this, this, true);
+
+	// get data of childs:
+	var allchildren = this.router.get_nodes(this.name);
+	for(var childname in allchildren) {
+		var nc = allchildren[childname];
+		object.call(this, nc, true);
+	}
+
+	return object;
+};
+
+exports.node.prototype.unsubscribe_announcement = function(object) {
+	for(var j=0; j<this.announcement_listener.length; j++) {
+		if (this.announcement_listener[j] === object) {
+			this.announcement_listener.splice(j, 1);
+			return true;
+		}
+	}
+	throw new Error("unsubscription of announcements failed: " + this.name);
 };
 
 /* Get a copy of the listeners */
@@ -263,6 +370,17 @@ exports.node.prototype.rpc_register = function(reply, dest, id, obj) {
 exports.node.prototype.rpc_unregister = function(reply, rentry) {
 	this.unregister(rentry);
 	reply(null, "okay");
+};
+exports.node.prototype.rpc = function(method) {
+	if (!this.hasOwnProperty("connection"))
+		return false;
+	var ws = this.connection;
+
+	var args = Array.prototype.slice.call(arguments);
+
+	// Add node object to arguments:
+	args.unshift(this);
+	ws.node_rpc.apply(ws, args);
 };
 
 /* Overwrite function to convert object to string: */
@@ -456,9 +574,14 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 				throw new Error("Message scope needs attribute node: " + JSON.stringify(d));
 			}
 			var n = this.node(this.nodename_transform(d.node, module.basename, module.remote_basename));
+			if (method === "data") {
+				n.connection = obj;
+			}
 			if (typeof module === "object" && n._rpc_process("node_" + method, d.args, reply, module)) {
 				return;
 			} else if (n._rpc_process(method, d.args, reply)) {
+				return;
+			} else if (typeof n.connection === "object" && n._rpc_forwarding(d, reply)) {
 				return;
 			}
 		} else if (scope === "global") {
