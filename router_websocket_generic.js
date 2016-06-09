@@ -124,7 +124,7 @@ exports.init = function(router, ws, module_name) {
 
 	/* backward compatibility: local bind and unbind */
 	ws.local_bind = function(node, target_name) {
-		ws.node_local(node, "bind");
+		ws.node_local(node, "bind", target_name);
 	};
 	ws.local_unbind = function(node, ref) {
 		ws.node_local(node, "unbind");
@@ -133,7 +133,7 @@ exports.init = function(router, ws, module_name) {
 	ws.cmds = new cmd_stack();
 
 	/* RPC functions */
-	ws.rpc_node_bind = prpcfunction(ws.cmds, "bind", function() {
+	ws.rpc_node_bind = prpcfunction(ws.cmds, "bind", function(target_name) {
 		// this == node
 		var node = this;
 		if (typeof target_name !== "string")
