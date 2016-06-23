@@ -76,6 +76,8 @@ exports.init = function(router, basename, structure_dir) {
 					meta.type = type;
 					if (cc.hasOwnProperty(type)) {
 						content = cc[type](content, meta);
+					} else if (type.match(/program\.data$/)) {
+						content = cc["txt"](content, meta);
 					} else if (type.match(/\.data$/)) {
 						content = cc["data"](content, meta);
 					} else if (type.match(/json/)) {
