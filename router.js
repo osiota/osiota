@@ -60,6 +60,17 @@ exports.node = function(r, name, parentnode) {
 	this.announce();
 };
 util.inherits(exports.node, RemoteCall);
+/* Get a node */
+exports.node.prototype.node = function(name) {
+	if (name.match(/^\//))
+		return this.router.node(name);
+	var is_parent = name.match(/^\.\.\/(.*)$/);
+	if (is_parent && this.parentnode) {
+		return this.parentnode.node(is_parent[1]);
+	}
+	return this.router.node(this.name + "/" + name);
+};
+
 /* Announce node */
 exports.node.prototype.announce = function(node) {
 	if (typeof node === "undefined") node = this;
