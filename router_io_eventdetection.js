@@ -40,12 +40,12 @@ exports.init = function(router) {
 			this.eventdetection.energy += node.value * duration_last;
 
 			// event senden:
-			router.node(this.id).publish(node.time, JSON.stringify(this.eventdetection), false, true);
+			router.node(this.id).publish(node.time, this.eventdetection, false, true);
 		} else {
 			if (this.eventdetection.aktivitaet != "") {
 				this.eventdetection.running = 0;
 				// event senden:
-				router.node(this.id).publish(node.time, JSON.stringify(this.eventdetection));
+				router.node(this.id).publish(node.time, this.eventdetection);
 				// delete event:
 				this.eventdetection = {
 					aktivitaet: ""
