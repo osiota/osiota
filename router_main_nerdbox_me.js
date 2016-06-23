@@ -127,4 +127,5 @@ r.dests.reaktion_foehn = function(node, relative_name) {
 
 r.node('/wohnung/Küche/Herd').register('reaktion_foehn');
 
+require("./router_config_readdir.js").init(r, "/TUBS", "Struktur_Router/");
 
