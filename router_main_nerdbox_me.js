@@ -23,6 +23,8 @@ require('./router_io_accumulate.js').init(r);
 r.eventdetection = require('./router_io_eventdetection.js').init.bind(r, r);
 require('./router_io_eventdetection2.js').init(r);
 
+r.random = require('./router_random_in.js').init.bind(r, r);
+
 require('./router_device_virtual.js').init(r, {
 	'/virtual/Mitbewohner': {
 		'filename': 'energy_Mitbewohner.csv',
@@ -129,3 +131,50 @@ r.node('/wohnung/Küche/Herd').register('reaktion_foehn');
 
 require("./router_config_readdir.js").init(r, "/TUBS", "Struktur_Router/");
 
+r.node('/TUBS/IfN/Energieverbrauch.energy.data').register('sum',
+			'/TUBS/Energieverbrauch.energy.data', [ ]);
+
+r.node('/TUBS/IfN/Teeküche/Energieverbrauch.energy.data').register('sum',
+			'/TUBS/IfN/Energieverbrauch.energy.data', [ ]);
+
+r.node('/TUBS/IfN/Teeküche/Geschirrspüler/Energieverbrauch.energy.data').register('sum',
+			'/TUBS/IfN/Teeküche/Energieverbrauch.energy.data', [
+		'/TUBS/IfN/Teeküche/Herd/Energieverbrauch.energy.data',
+		'/TUBS/IfN/Teeküche/Kaffeevollautomat/Energieverbrauch.energy.data',
+		'/TUBS/IfN/Teeküche/Kühlschrank/Energieverbrauch.energy.data',
+		'/TUBS/IfN/Teeküche/Mikrowelle/Energieverbrauch.energy.data',
+		'/TUBS/IfN/Teeküche/Warmwasserboiler/Energieverbrauch.energy.data',
+		'/TUBS/IfN/Teeküche/Wasserkocher/Energieverbrauch.energy.data'
+]);
+
+
+r.node('/rsp-2a/Küche/Wasserkocher').connect('/TUBS/IfN/Teeküche/Wasserkocher/Energieverbrauch.energy.data');
+r.node('/rsp-2a/Küche/Warmwasserboiler').connect('/TUBS/IfN/Teeküche/Warmwasserboiler/Energieverbrauch.energy.data');
+r.node('/rsp-2a/Küche/Microwelle').connect('/TUBS/IfN/Teeküche/Mikrowelle/Energieverbrauch.energy.data');
+r.node('/rsp-2a/Küche/Geschirrspüler').connect('/TUBS/IfN/Teeküche/Geschirrspüler/Energieverbrauch.energy.data');
+r.node('/rsp-2a/Küche/Kaffeevollautomat').connect('/TUBS/IfN/Teeküche/Kaffeevollautomat/Energieverbrauch.energy.data');
+r.node('/rsp-2a/Küche/Kühlschrank').connect('/TUBS/IfN/Teeküche/Kühlschrank/Energieverbrauch.energy.data');
+r.node('/rsp-2a/Küche/Herd').connect('/TUBS/IfN/Teeküche/Herd/Energieverbrauch.energy.data');
+
+r.node('/wohnung/Küche/Wasserkocher').connect('/TUBS/IfN/Teeküche/Wasserkocher/Status.status');
+r.node('/wohnung/Küche/Warmwasserboiler').connect('/TUBS/IfN/Teeküche/Warmwasserboiler/Status.status');
+r.node('/wohnung/Küche/Microwelle').connect('/TUBS/IfN/Teeküche/Mikrowelle/Status.status');
+r.node('/wohnung/Küche/Geschirrspüler').connect('/TUBS/IfN/Teeküche/Geschirrspüler/Status.status');
+r.node('/wohnung/Küche/Kaffeevollautomat').connect('/TUBS/IfN/Teeküche/Kaffeevollautomat/Status.status');
+r.node('/wohnung/Küche/Kühlschrank').connect('/TUBS/IfN/Teeküche/Kühlschrank/Status.status');
+r.node('/wohnung/Küche/Herd').connect('/TUBS/IfN/Teeküche/Herd/Status.status');
+
+
+r.random("/TUBS/IfN/Teeküche/Helligkeit.light.data", 10*1000, 0, 100, 20, 0);
+r.random("/TUBS/IfN/Teeküche/Temperatur.temperature.data", 10*1000, 20, 22, 20, 1);
+r.random("/TUBS/IfN/Teeküche/Kaffeevollautomat/Temperatur-Heizstäbe.temperature.data", 1000, 30, 120, 5, 1);
+r.random("/TUBS/IfN/Teeküche/Warmwasserboiler/Temperatur.temperature.data", 1000, 22, 80, 5, 1);
+r.random("/TUBS/IfN/Teeküche/Wasserkocher/Temperatur.temperature.data", 1000, 22, 100, 5, 1);
+
+r.rpc_node_analyse_add = function(reply, type, name, settings) {
+	var node = this;
+
+	require("./analysen/" + type.replace(/[^A-Za-z0-9_]/g, '') + ".js").init(r, node, name, settings);
+
+	reply(null, "ok");
+};
