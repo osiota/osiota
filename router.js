@@ -296,6 +296,8 @@ exports.node.prototype.subscribe = function(object) {
 
 	object.call(this, true, true);
 
+	object.remove = this.unsubscribe.bind(this, object);
+
 	return object;
 };
 
