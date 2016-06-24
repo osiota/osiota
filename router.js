@@ -592,6 +592,8 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 				return;
 			} else if (n._rpc_process(method, d.args, reply)) {
 				return;
+			} else if (n._rpc_process("node_" + method, d.args, reply, this)) {
+				return;
 			} else if (typeof n.connection === "object" && n._rpc_forwarding(d, reply)) {
 				return;
 			}
