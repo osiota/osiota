@@ -1,29 +1,25 @@
 
-exports.init = function(router) {
-	router.dests.eventdetection = function(node, relative_name) {
-		if (relative_name !== "") return;
-
-		var schwellen = this.obj;
-
-		if (!this.hasOwnProperty("eventdetection")) {
-			this.eventdetection = {
-				aktivitaet: "",
-				timestamp: node.time
+exports.init = function(router, node, target, schwellen) {
+	return node.subscribe_h(function() {
+		if (!node.hasOwnProperty("eventdetection")) {
+			node.eventdetection = {
+				program: "",
+				timestamp: this.time
 			};
 		}
 
 		var neue_aktivitaet = "";
 		for (var schwelle in schwellen) {
-			if (node.value > schwelle) {
+			if (this.value > schwelle) {
 				neue_aktivitaet = schwellen[schwelle];
 			}
 		}
 		if (neue_aktivitaet != "") {
-			if (this.eventdetection.aktivitaet == "") {
+			if (node.eventdetection.program == "") {
 				// neue Event:
-				this.eventdetection = {
-					timestamp: node.time,
-					time: node.time,
+				node.eventdetection = {
+					timestamp: this.time,
+					time: this.time,
 					duration_sec: 0,
 					running: 1,
 					program: neue_aktivitaet,
@@ -32,26 +28,26 @@ exports.init = function(router) {
 			};
 
 			// Ereignislänge neu berechnen:
-			this.eventdetection.duration_sec = node.time - this.eventdetection.timestamp;
+			node.eventdetection.duration_sec = this.time - node.eventdetection.timestamp;
 
 			// Energie addieren (Länge ermitteln):
-			var timestamp_last = this.eventdetection_timestamp_last || (node.time - 1);
-			var duration_last = node.time - timestamp_last;
-			this.eventdetection.energy += node.value * duration_last;
+			var timestamp_last = node.eventdetection_timestamp_last || (this.time - 1);
+			var duration_last = this.time - timestamp_last;
+			node.eventdetection.energy += this.value * duration_last;
 
 			// event senden:
-			router.node(this.id).publish(node.time, this.eventdetection, false, true);
+			router.node(target).publish(this.time, node.eventdetection, false, true);
 		} else {
-			if (this.eventdetection.aktivitaet != "") {
-				this.eventdetection.running = 0;
+			if (node.eventdetection.program != "") {
+				node.eventdetection.running = 0;
 				// event senden:
-				router.node(this.id).publish(node.time, this.eventdetection);
+				router.node(target).publish(this.time, node.eventdetection);
 				// delete event:
-				this.eventdetection = {
-					aktivitaet: ""
+				node.eventdetection = {
+					program: ""
 				};
 			}
 		}
-		this.eventdetection_timestamp_last = node.time;
-	};
+		node.eventdetection_timestamp_last = this.time;
+	}, 15*1000);
 };

@@ -20,7 +20,7 @@ require('./router_tocsvfile.js').init(r, '', {
 });
 
 require('./router_io_accumulate.js').init(r);
-require('./router_io_eventdetection.js').init(r);
+r.eventdetection = require('./router_io_eventdetection.js').init.bind(r, r);
 require('./router_io_eventdetection2.js').init(r);
 
 require('./router_device_virtual.js').init(r, {
@@ -46,14 +46,14 @@ r.node('/wohnung/Küche').register('sum', '/wohnung', [
 r.node('/virtual/Heizungspumpe').register('sum', '/sum/Flur', []);
 r.node('/sum/Flur').register('accumulate', '/wohnung/Flur');
 
-r.node('/virtual/Heizungspumpe').register('eventdetection', '/wohnung/Flur/Heizungspumpe', {
+r.eventdetection( r.node('/virtual/Heizungspumpe'), '/wohnung/Flur/Heizungspumpe', {
 	25: "Pumpt"
 });
 
 // Bad
 r.node('/virtual/Föhn').register('sum', '/sum/Bad', []);
 r.node('/sum/Bad').register('accumulate', '/wohnung/Bad');
-r.node('/virtual/Föhn').register('eventdetection', '/wohnung/Bad/Föhn', {
+r.eventdetection( r.node('/virtual/Föhn'), '/wohnung/Bad/Föhn', {
 	1000: "Föhnt"
 });
 
@@ -82,16 +82,16 @@ r.node('/rsp-2a/Küche/Kühlschrank').register('sum', '/sum/Küche', [
 ]);
 r.node('/sum/Küche').register('accumulate', '/wohnung/Küche');
 
-r.node('/rsp-2a/Küche/Wasserkocher').register('eventdetection', '/wohnung/Küche/Wasserkocher', {
+r.eventdetection( r.node('/rsp-2a/Küche/Wasserkocher'), '/wohnung/Küche/Wasserkocher', {
 	1000: "An"
 });
-r.node('/rsp-2a/Küche/Warmwasserboiler').register('eventdetection', '/wohnung/Küche/Warmwasserboiler', {
+r.eventdetection( r.node('/rsp-2a/Küche/Warmwasserboiler'), '/wohnung/Küche/Warmwasserboiler', {
 	1000: "An"
 });
-r.node('/rsp-2a/Küche/Microwelle').register('eventdetection', '/wohnung/Küche/Microwelle', {
+r.eventdetection( r.node('/rsp-2a/Küche/Microwelle'), '/wohnung/Küche/Microwelle', {
 	38: "An"
 });
-r.node('/rsp-2a/Küche/Geschirrspüler').register('eventdetection', '/wohnung/Küche/Geschirrspüler', {
+r.eventdetection( r.node('/rsp-2a/Küche/Geschirrspüler'), '/wohnung/Küche/Geschirrspüler', {
 	1000: "An"
 });
 /*
@@ -102,10 +102,10 @@ r.node('/rsp-2a/Küche/Kaffeemaschine').register('eventdetection', '/wohnung/Kü
 r.node('/rsp-2a/Küche/Kaffeevollautomat').register('eventdetection2', '/wohnung/Küche/Kaffeevollautomat', {
 	25: "Heizt"
 });
-r.node('/rsp-2a/Küche/Kühlschrank').register('eventdetection', '/wohnung/Küche/Kühlschrank', {
+r.eventdetection( r.node('/rsp-2a/Küche/Kühlschrank'), '/wohnung/Küche/Kühlschrank', {
 	80: "Kühlt"
 });
-r.node('/rsp-2a/Küche/Herd').register('eventdetection', '/wohnung/Küche/Herd', {
+r.eventdetection( r.node('/rsp-2a/Küche/Herd'), '/wohnung/Küche/Herd', {
 	100: "Heizt"
 });
 
