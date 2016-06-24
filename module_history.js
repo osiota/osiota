@@ -23,12 +23,13 @@ exports.init = function(router, history_type, history_config) {
 			this.history.get(config, callback);
 		};
 		node.history.synced = false;
-		node.get_history_on_initialsync = function(config, callback) {
+		node.get_history_on_initialsync = function(config, callback, timeout) {
+			if (typeof timeout !== "number") timeout = 1000;
 			if (!this.history.synced) {
 				var _this = this;
 				this.once_timeout("history_synced", function(was_timedout) {
 					_this.get_history(config, callback);
-				}, 1000);
+				}, timeout);
 			} else {
 				this.get_history(config, callback);
 			}
