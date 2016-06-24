@@ -19,6 +19,18 @@ exports.init = function(router, history_type, history_config) {
 			}
 		});
 
+		node.subscribe_h = function(object, timeout) {
+			this.get_history_on_initialsync({
+				"totime": this.time
+			}, function(hdata) {
+				hdata.forEach(function(d) {
+					object.call(d, true, true);
+				});
+				node.subscribe(object);
+			}, timeout);
+			return object;
+		};
+
 		node.get_history = function(config, callback) {
 			this.history.get(config, callback);
 		};
