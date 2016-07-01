@@ -54,6 +54,7 @@ exports.node = function(r, name, parentnode) {
 	};
 	this.on('registered', check_need_subscription);
 	this.on('unregistered', check_need_subscription);
+	this.on('node_update', check_need_subscription);
 
 	r.emit('create_new_node', this);
 
