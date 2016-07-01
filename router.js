@@ -407,6 +407,7 @@ exports.node.prototype.toJSON = function() {
 	n.value = this.value;
 	n.time = this.time;
 
+	/*
 	n.listener = [];
 	var _this = this;
 	if (this.hasOwnProperty("listener")) {
@@ -414,6 +415,7 @@ exports.node.prototype.toJSON = function() {
 			return _this.get_listener(rentry);
 		});
 	}
+	*/
 
 	// stringify ??
 	return n;
