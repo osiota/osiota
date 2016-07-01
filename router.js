@@ -85,7 +85,7 @@ exports.node.prototype.announce = function(node) {
 }
 
 /* Children of a node */
-exports.node.prototype.get_children = function(node) {
+exports.node.prototype.get_children = function() {
 	return this.router.get_nodes(this.name, false);
 };
 
