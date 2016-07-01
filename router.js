@@ -84,6 +84,11 @@ exports.node.prototype.announce = function(node) {
 	});
 }
 
+/* Children of a node */
+exports.node.prototype.get_children = function(node) {
+	return this.router.get_nodes(this.name, false);
+};
+
 /* Set new data */
 exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to_history) {
 	// convert from string to number:
@@ -464,8 +469,9 @@ exports.router.prototype.publish = function(name, time, value, only_if_differ, d
 
 
 /* Get names and data of the nodes */
-exports.router.prototype.get_nodes = function(basename) {
+exports.router.prototype.get_nodes = function(basename, children_of_children) {
 	if (typeof basename !== "string") basename = "";
+	if (typeof children_of_children === "undefined") children_of_children = true;
 
 	var nodes = {};
 	var _this = this;
@@ -476,6 +482,10 @@ exports.router.prototype.get_nodes = function(basename) {
 
 		// Filter nodes:
 		var regex = new RegExp("^" + RegExp.quote(basename) + "(/.*)$", '');
+		if (!children_of_children) {
+			// only direct children:
+			regex = new RegExp("^" + RegExp.quote(basename) + "(/[^/@]*)$", '');
+		}
 		var found = name.match(regex)
 		if (found) {
 			nodes[found[1]] = n;
