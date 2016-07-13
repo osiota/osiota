@@ -89,10 +89,14 @@ var prpcfunction = function(cmd_stack_obj, method, cb_start, cb_end) {
 		// this == node
 		var node = this;
 
+		var args = Array.prototype.slice.call(arguments);
+		//var reply =
+		args.shift();
+
 		var e = cmd_stack_obj.get(mnkey(node.name, method));
-		e.init(function() {
-			this.ref = cb_start.apply(node, arguments);
-		}, function() {
+		e.init(function(start) {
+			this.ref = cb_start.apply(node, args);
+		}, function(close) {
 			cb_end.call(node, this.ref);
 		});
 		reply(null, "okay");
@@ -295,8 +299,8 @@ exports.init = function(router, ws, module_name) {
 	};
 
 	/* local bind functions */
-	ws.bind = function(node) {
-		ws.node_prpc(node, "bind");
+	ws.bind = function(node, target_name) {
+		ws.node_prpc(node, "bind", target_name);
 	};
 	ws.unbind = function(node) {
 		ws.node_prpc_remove(node, "bind");
