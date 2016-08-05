@@ -92,13 +92,13 @@ exports.node.prototype.get_children = function() {
 
 /* Set new data */
 exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to_history) {
+	// if type is undefined: Use current time:
+	if (typeof time === "undefined" || time === "undefined")
+		time = new Date() / 1000;
+
 	// convert from string to number:
 	if (typeof time === "string")
 		time = time*1;
-
-	// if type is undefined: Use current time:
-	if (typeof time === "undefined")
-		time = new Date() / 1000;
 
 	// if type not number:
 	if (typeof time !== "number" && time !== null) {
