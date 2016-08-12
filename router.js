@@ -65,7 +65,11 @@ util.inherits(exports.node, RemoteCall);
 exports.node.prototype.node = function(name) {
 	if (name.match(/^\//))
 		return this.router.node(name);
-	var is_parent = name.match(/^\.\.\/(.*)$/);
+
+	if (name == "." || name == "")
+		return this;
+
+	var is_parent = name.match(/^\.\.\/(.*)$|^\.\.$/);
 	if (is_parent && this.parentnode) {
 		return this.parentnode.node(is_parent[1]);
 	}
