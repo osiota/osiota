@@ -152,8 +152,8 @@ exports.init = function(router, ws, module_name) {
 	ws.rpc_node_subscribe_announcement = prpcfunction(ws.cmds, "subscribe_announcement", function() {
 		// this == node
 		var node = this;
-		return this.subscribe_announcement(function(node) {
-			ws.node_rpc(node, "announce");
+		return this.subscribe_announcement(function(node, method) {
+			ws.node_rpc(node, method);
 		});
 	}, function (ref) {
 		return this.unsubscribe_announcement(ref);
@@ -181,12 +181,16 @@ exports.init = function(router, ws, module_name) {
 	};
 	ws.rpc_node_announce = prpcfunction(ws.cmds, "announce", function() {
 		// this == node
+		if (typeof this.connection !== undefined && this.connection === null) {
+			this.announce();
+		}
 		this.connection = ws;
 
-		this.emit("node_update");
+		this.emit("node_update", true);
 	}, function () {
 		if (this.connection === ws)
-			delete this.connection;
+			this.connection = null;
+		this.unannounce();
 	});
 	ws.rpc_node_unannounce = prpcfunction_remove(ws.cmds, "announce");
 

@@ -38,12 +38,15 @@ exports.node = function(r, name, parentnode) {
 
 	// subscripbe from remote host:
 	var is_subscriped = false;
-	var check_need_subscription = function() {
+	var check_need_subscription = function(reinit) {
+		if (reinit === true) {
+			is_subscriped = false;
+		}
+
 		if (is_subscriped) {
 			if (this.listener.length == 0 && this.subscription_listener.length == 0) {
 				this.rpc("unsubscribe");
 				is_subscriped = false;
-
 			}
 		} else {
 			if (this.listener.length > 0 || this.subscription_listener.length > 0) {
@@ -85,9 +88,21 @@ exports.node.prototype.announce = function(node) {
 	}
 	var _this = this;
 	this.announcement_listener.forEach(function(f) {
-		f.call(_this, node, false);
+		f.call(_this, node, "announce", false);
 	});
-}
+};
+
+exports.node.prototype.unannounce = function(node) {
+	if (typeof node === "undefined") node = this;
+
+	if (this.parentnode !== null) {
+		this.parentnode.unannounce(node);
+	}
+	var _this = this;
+	this.announcement_listener.forEach(function(f) {
+		f.call(_this, node, "unannounce", false);
+	});
+};
 
 /* Children of a node */
 exports.node.prototype.get_children = function() {
@@ -341,13 +356,13 @@ exports.node.prototype.subscribe_announcement = function(object) {
 
 	this.announcement_listener.push(object);
 	
-	object.call(this, this, true);
+	object.call(this, this, "announce", true);
 
 	// get data of childs:
 	var allchildren = this.router.get_nodes(this.name);
 	for(var childname in allchildren) {
 		var nc = allchildren[childname];
-		object.call(this, nc, true);
+		object.call(this, nc, "announce", true);
 	}
 
 	return object;
@@ -403,7 +418,8 @@ exports.node.prototype.rpc = function(method) {
 
 	// Add node object to arguments:
 	args.unshift(this);
-	ws.node_rpc.apply(ws, args);
+	if (ws !== null)
+		ws.node_rpc.apply(ws, args);
 };
 
 /* Overwrite function to convert object to string: */
