@@ -1,10 +1,12 @@
 {
   "name": "energy-router",
-  "version": "1.5.0",
-  "main": "router.js",
+  "version": "1.6.0",
+  "main": "main.js",
+  "bin": "main_cli.js",
   "dependencies": {
     "binary-search": "^1.2.0",
     "yargs": "^4.7.1",
+    "npm": "^3.10.6",
     "ws": "^1.0.1"
   },
   "devDependencies": {
@@ -20,5 +22,8 @@
     "mysql": "^2.10.2",
     "readdirp": "^2.0.0",
     "serialport": "^2.0.6"
+  },
+  "scripts": {
+    "start": "node main_cli.js"
   }
 }
