@@ -10,7 +10,7 @@
 	],
 	"app": [
 		{
-			"name": "app-ifn-cluster",
+			"name": "er-app-ifn-cluster",
 			"config": {}
 		}
 	],

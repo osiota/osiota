@@ -63,7 +63,7 @@ main.prototype.startup_all = function(type, host_info) {
 main.prototype.require_npm_install = function(app, app_config, host_info, auto_install) {
 	var _this = this;
 	try {
-		var m = require("er-app-" + app);
+		var m = this.require_1(app);
 		return m;
 	} catch(error) {
 		if (auto_install && error.code == 'MODULE_NOT_FOUND') {

@@ -1,4 +1,4 @@
-var Router = require("energy-router").router;
+var Router = require("./router").router;
 
 function main(router_name) {
 	this.router = new Router(router_name);
@@ -43,11 +43,11 @@ main.prototype.config = function(config) {
 }
 
 main.prototype.create_websocket_server = function(server_port) {
-	require('energy-router/router_websockets').init(this.router, "", server_port);
+	require('./router_websockets').init(this.router, "", server_port);
 }
 
 main.prototype.create_websocket_client = function(url, nodes) {
-	var ws = require('energy-router/router_websocket_client').init(this.router, "", url);
+	var ws = require('./router_websocket_client').init(this.router, "", url);
 	if (Array.isArray(nodes)) {
 		nodes.forEach(function(node) {
 			ws.node_local(node, "subscribe_announcement");
@@ -59,7 +59,7 @@ main.prototype.create_websocket_client = function(url, nodes) {
 
 // TODO: Config:
 main.prototype.create_console_output = function() {
-	require('energy-router/router_console_out').init(this.router, "");
+	require('./router_console_out').init(this.router, "");
 }
 
 main.prototype.node = function(name) {
