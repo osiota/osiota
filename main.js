@@ -54,6 +54,15 @@ main.prototype.create_websocket_client = function(url, nodes) {
 		});
 	} else if (typeof nodes === "string") {
 		ws.node_local(nodes, "subscribe_announcement");
+	} else {
+		// data to UPSTREAM
+		ws.node_local("/", "subscribe_announcement");
+		// add "/" + this.router.name
+		ws.remote_basename = "/" + this.router.name;
+
+		// data from UPSTREAM
+		//ws.subscribe_announcement("/");
+		// add ":" + remote.name ???
 	}
 }
 
