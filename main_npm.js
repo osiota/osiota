@@ -59,7 +59,7 @@ main.prototype.startup_all = function(type, host_info) {
 	});
 };
 
-main.prototype.require_module_orig = main.prototype.require_module_orig;
+main.prototype.require_module_orig = main.prototype.require_module;
 main.prototype.require_module = function(app, app_config, host_info, auto_install) {
 	var _this = this;
 

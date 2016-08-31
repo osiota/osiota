@@ -83,7 +83,7 @@ main.prototype.node = function(name) {
 
 main.prototype.try_require = function(require_fkt, app, app_config, host_info, auto_install) {
 	try {
-		return require_fkt(app, app_config, host_info, auto_install);
+		return require_fkt.call(this, app, app_config, host_info, auto_install);
 	} catch(error) {
 		if (error.code == 'MODULE_NOT_FOUND') {
 			return false;
@@ -118,7 +118,7 @@ main.prototype.require_auto = function(app, app_config, host_info, auto_install)
 	throw new Error("Module not found.");
 };
 
-main.prototype.require = main.prototype.require_module;
+main.prototype.require = main.prototype.require_auto;
 
 main.prototype.startup = function(app, app_config, host_info, auto_install) {
 	console.log("startup:", app);
