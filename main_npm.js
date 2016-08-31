@@ -59,22 +59,21 @@ main.prototype.startup_all = function(type, host_info) {
 	});
 };
 
-main.prototype.require_npm_install = function(app, app_config, host_info, auto_install) {
+main.prototype.require_module_orig = main.prototype.require_module_orig;
+main.prototype.require_module = function(app, app_config, host_info, auto_install) {
 	var _this = this;
-	try {
-		var m = this.require_1(app);
-		return m;
-	} catch(error) {
-		if (auto_install && error.code == 'MODULE_NOT_FOUND') {
-			_this.install(app, function() {
-				_this.startup(app, app_config, host_info, false);
-			});
-			throw new Error("Module will be installed automatically: " + app);
-		}
-		throw error;
-	}
+
+	var m = this.require_module_orig(app, app_config, host_info, auto_install);
+	if (m) return m;
+
+	if (auto_install) {
+		_this.install(app, function() {
+			_this.startup(app, app_config, host_info, false);
+		});
+		throw new Error("Module will be installed automatically: " + app);
+	};
+	return false;
 };
-main.prototype.require = main.prototype.require_npm_install;
 
 module.exports = main;
 
