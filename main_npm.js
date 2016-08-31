@@ -2,25 +2,24 @@
 var npm = require('npm');
 if (npm) {
 	npm.command = function(command) {
-	    var args = Array.prototype.slice.call(arguments);
-        // var command = 
-        args.shift();
-        var callback = 
-        args.pop();
+		var args = Array.prototype.slice.call(arguments);
+		// var command =
+		args.shift();
+		var callback = args.pop();
 
 		this.load(function(err, npm) {
-            if (err) throw new Error("npm load error: " + JSON.stringify(err));
+			if (err) throw new Error("npm load error: " + JSON.stringify(err));
 			if (!this.commands.hasOwnProperty(command))
 				throw new Error("npm command not found");
 
 			console.log("run: npm ", command, args);
 
-            args.push(function(err, data, lite) {
+			args.push(function(err, data, lite) {
 				if (err) throw new Error("npm error: " + JSON.stringify(err));
 				if (typeof callback === "function") {
 					callback(data, lite);
 				}
-            });
+			});
 
 			this.commands[command].apply(this.commands, args);
 		});
