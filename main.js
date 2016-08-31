@@ -40,7 +40,8 @@ main.prototype.config = function(config) {
 
 		config.app.forEach(function(app) {
 			if (typeof app.name === "string") {
-				_this.apps[app.name] = _this.startup(app.name, app.config, _this.router.name, config.auto_install);
+				//_this.apps[app.name] =
+				_this.startup(app.name, app.config, _this.router.name, config.auto_install);
 			} else {
 				console.log("Waring: Application config options missing.", app);
 			}
@@ -127,7 +128,9 @@ main.prototype.startup = function(app, app_config, host_info, auto_install) {
 		var m = this.require(app, app_config, host_info, auto_install);
 
 		// TODO: Change Arguments:
-		m.init(app_config, this, host_info);
+		var n = this.node("/app/"+app);
+		this.apps[app] = m;
+		m.init(n, app_config, this, host_info);
 	} catch(error) {
 		console.log("error starting app: ", error);
 	}
