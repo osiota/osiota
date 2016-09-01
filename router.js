@@ -709,7 +709,11 @@ exports.router.prototype.nodename_transform = function(nodename, basename_add, b
 		}
 	}
 	if (typeof basename_add === "string") {
-		nodename = basename_add + nodename;
+		if (nodename == "/") {
+			nodename = basename_add;
+		} else {
+			nodename = basename_add + nodename;
+		}
 	}
 
 	return nodename;
