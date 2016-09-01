@@ -551,6 +551,8 @@ exports.router.prototype.node = function(name, create_new_node) {
 	if (!name.match(/^[\/@]+$/)) {
 		var parentname = name.replace(/[\/@][^\/@]*$/, "");
 		parentnode = this.node(parentname);
+	} else if (name !== "/") {
+		parentnode = this.node("/");
 	}
 	this.nodes[name] = new exports.node(this, name, parentnode);
 	return this.nodes[name];
