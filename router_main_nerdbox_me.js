@@ -117,7 +117,7 @@ r.dests.reaktion_foehn = function(node, relative_name) {
 		var rdata = JSON.parse(node.value);
 		if (!rdata.running) {
 			setTimeout(function() {
-				r.play_device('/virtual/Föhn', {
+				r.play_device(r.node('/virtual/Föhn'), {
 					filename: 'foehn.csv',
 					repeats: 1,
 					interval: 1

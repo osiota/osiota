@@ -4,8 +4,7 @@
 
 var fs = require('fs');
 
-exports.play_device = function(nodename, c) {
-	var _r = this;
+exports.play_device = function(node, c) {
 	// config:
 	var filename = c.filename || "external.csv";
 	var interval = c.interval || 1;
@@ -18,8 +17,11 @@ exports.play_device = function(nodename, c) {
 		// read contents:
 		var energy = data.toString().split(/\n/);
 		// convert to integer:
-		for(var i=0; i<energy.length;i++) energy[i] = +energy[i];
-		
+		for(var i=0; i<energy.length;i++) {
+			energy[i] = energy[i].replace(/^.*[\t,]/, "");
+			energy[i] = +energy[i];
+		}
+
 		var energy_i = 0;
 		var si = setInterval(function() {
 			energy_i++;
@@ -39,7 +41,7 @@ exports.play_device = function(nodename, c) {
 
 			// publish:
 			var time = new Date() / 1000;
-			_r.node(nodename).publish(time, value);
+			node.publish(time, value);
 		}, 1000 * interval);
 	});
 }
@@ -47,7 +49,8 @@ exports.play_device = function(nodename, c) {
 exports.init = function(router, config) {
 	router.play_device = exports.play_device;
 	for (var n in config) {
-		router.play_device(n, config[n]);
+		var node = router.node(n);
+		router.play_device(node, config[n]);
 	}
 };
 
