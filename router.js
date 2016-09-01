@@ -537,6 +537,7 @@ exports.router.prototype.node = function(name, create_new_node) {
 	if (typeof name === "object") return name;
 
 	if (name == "") name = "/";
+	name = name.replace(/\/{2,}/, "/");
 
 	if (this.nodes.hasOwnProperty(name)) {
 		return this.nodes[name];
@@ -547,7 +548,7 @@ exports.router.prototype.node = function(name, create_new_node) {
 	}
 	// get parent node:
 	var parentnode = null;
-	if (!name.match(/^[\/@]*$/)) {
+	if (!name.match(/^[\/@]+$/)) {
 		var parentname = name.replace(/[\/@][^\/@]*$/, "");
 		parentnode = this.node(parentname);
 	}
