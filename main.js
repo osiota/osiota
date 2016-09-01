@@ -2,6 +2,12 @@ var Router = require("./router").router;
 
 function main(router_name) {
 	this.router = new Router(router_name);
+	require('./router_io_function.js').init(this.router);
+	require('./router_io_mean.js').init(this.router);
+	require('./router_io_bias.js').init(this.router);
+	require('./router_io_multiply.js').init(this.router);
+	require('./router_io_sum.js').init(this.router);
+	require('./router_io_accumulate.js').init(this.router);
 
 	this.remotes = {};
 	this.apps = {};
@@ -13,6 +19,11 @@ main.prototype.config = function(config) {
 	if (typeof config.hostname !== "undefined") {
 		this.router.name = config.hostname;
 	}
+
+	// TODO: Load history module
+	require('./module_history.js').init(this.router, 'ram');
+	// TODO: Load console output
+	//require('./router_console_out.js').init(this.router, "/console");
 
 	if (typeof config.server !== "undefined" && config.server) {
 		this.create_websocket_server(config.server);
@@ -93,6 +104,14 @@ main.prototype.try_require = function(require_fkt, app, app_config, host_info, a
 	}
 };
 
+main.prototype.require_router_module = function(app) {
+	if (app.match(/^router_/)) {
+		app = app.replace(/^router_/, "");
+		return require("./router_" + app);
+	}
+	return false;
+};
+
 main.prototype.require_indir = function(app) {
 	app = app.replace(/^er-app-/, "");
 	return require("./er-app-" + app);
@@ -107,6 +126,9 @@ main.prototype.require_module = function(app) {
 };
 main.prototype.require_auto = function(app, app_config, host_info, auto_install) {
 	var m;
+	m = this.try_require(this.require_router_module, app, app_config, host_info, auto_install);
+	if (m) return m;
+
 	m = this.try_require(this.require_indir, app, app_config, host_info, auto_install);
 	if (m) return m;
 	
@@ -116,7 +138,7 @@ main.prototype.require_auto = function(app, app_config, host_info, auto_install)
 	m = this.try_require(this.require_module, app, app_config, host_info, auto_install);
 	if (m) return m;
 
-	throw new Error("Module not found.");
+	throw new Error("Application not found: " + app);
 };
 
 main.prototype.require = main.prototype.require_auto;
@@ -130,7 +152,7 @@ main.prototype.startup = function(app, app_config, host_info, auto_install) {
 		// TODO: Change Arguments:
 		var n = this.node("/app/"+app);
 		this.apps[app] = m;
-		m.init(n, app_config, this, host_info);
+		m.init(n, app_config, this, host_info, auto_install);
 	} catch(error) {
 		console.log("error starting app: ", error);
 	}
