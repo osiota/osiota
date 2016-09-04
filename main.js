@@ -28,6 +28,9 @@ main.prototype.config = function(config) {
 	if (typeof config.server !== "undefined" && config.server) {
 		this.create_websocket_server(config.server);
 	}
+	if (typeof config.connect === "object") {
+		this.router.connectArray(config.connect);
+	}
 
 	if (Array.isArray(config.remote)) {
 		config.remote.forEach(function(c) {
