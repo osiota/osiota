@@ -37,7 +37,7 @@ exports.init = function(router, history_type, history_config) {
 		node.history.synced = false;
 		node.get_history_on_initialsync = function(config, callback, timeout) {
 			if (typeof timeout !== "number") timeout = 1000;
-			if (!this.history.synced) {
+			if (this.connection && !this.history.synced) {
 				var _this = this;
 				this.once_timeout("history_synced", function(was_timedout) {
 					_this.get_history(config, callback);
