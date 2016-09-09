@@ -1,0 +1,24 @@
+{
+	"hostname": "ifn-cluster",
+	"server": 8080,
+	"remote": [
+	],
+	"app": [
+		{
+			"name": "er-app-tubs",
+			"config": {}
+		},
+		{
+			"name": "er-app-icce-demo",
+			"config": {}
+		},
+		{
+			"name": "er-app-analysis",
+			"config": {}
+		},
+		{
+			"name": "er-app-peak-manager",
+			"config": {}
+		}
+	]
+}
