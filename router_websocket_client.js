@@ -96,13 +96,13 @@ pwsc.prototype.sendjson = function(data) {
 		console.log("bWSc: Socket not connected. Exception (send): " + e);
 	}
 };
-pwsc.protoype.close = function() {
+pwsc.prototype.close = function() {
 	if (!this.closed &&
 			typeof this.ws !== "undefined") {
 		this.ws.close();
 	}
 };
-pwsc.protoype.reconnect = function(wpath) {
+pwsc.prototype.reconnect = function(wpath) {
 	if (typeof wpath === "string") {
 		this.wpath = wpath;
 	}
