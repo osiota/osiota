@@ -181,7 +181,8 @@ exports.init = function(router, ws, module_name) {
 	};
 	ws.rpc_node_announce = prpcfunction(ws.cmds, "announce", function() {
 		// this == node
-		if (typeof this.connection !== undefined && this.connection === null) {
+		// TODO: Stimmt das so?
+		if (typeof this.connection !== "undefined" && this.connection === null) {
 			this.announce();
 		}
 		this.connection = ws;
