@@ -105,6 +105,7 @@ pwsc.protoype.close = function() {
 pwsc.protoype.reconnect = function(wpath) {
 	if (typeof wpath === "string") {
 		this.wpath = wpath;
+	}
 	this.close();
 };
 
