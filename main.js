@@ -61,11 +61,11 @@ main.prototype.config = function(config) {
 			}
 		});
 	}
-}
+};
 
 main.prototype.create_websocket_server = function(server_port) {
 	require('./router_websockets').init(this.router, "", server_port);
-}
+};
 
 main.prototype.create_websocket_client = function(url, nodes) {
 	var ws = require('./router_websocket_client').init(this.router, "", url);
@@ -85,16 +85,16 @@ main.prototype.create_websocket_client = function(url, nodes) {
 		//ws.subscribe_announcement("/");
 		// add ":" + remote.name ???
 	}
-}
+};
 
 // TODO: Config:
 main.prototype.create_console_output = function() {
 	require('./router_console_out').init(this.router, "");
-}
+};
 
 main.prototype.node = function(name) {
 	return this.router.node(name);
-}
+};
 
 main.prototype.try_require = function(require_fkt, app, app_config, host_info, auto_install) {
 	try {
