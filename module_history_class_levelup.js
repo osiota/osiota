@@ -55,7 +55,9 @@ exports.history = function (nodeName, history_config) {
 };
 
 exports.history.prototype.add = function (time, value) {
-	var nodeName = this.nodeName;
+	if (time === null) {
+		return;
+	}
 	this.timebases.forEach(function(d) {
 		d.add(time, value);
 	});
