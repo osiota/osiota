@@ -20,7 +20,16 @@ CLOG="${BASE}energy-router-output.log"
 
 USR=`stat -c %U "${BASE}"`
 
-COMMAND="${BASE}main"
+SCRIPTNAME="${0##*/}"
+SCRIPTNAME="${SCRIPTNAME##[KS][0-9][0-9]}"
+
+ERCONFIG="config"
+if [ "${SCRIPTNAME##energy-router-}" != "$SCRIPTNAME" ] ; then
+	ERCONFIG="-${SCRIPTNAME##energy-router-}"
+fi
+
+
+COMMAND="${BASE}main ${ERCONFIG}"
  
 status() {
 	echo
