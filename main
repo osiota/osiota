@@ -1,0 +1,11 @@
+#!/bin/sh
+
+cd "$(dirname "$0")"
+
+erconfig="config.json"
+if test "x$1" != "x"
+	erconfig="$1.json"
+fi
+
+/usr/bin/env nodejs ./main_cli.js --config "${erconfig}"
+
