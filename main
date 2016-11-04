@@ -2,6 +2,12 @@
 
 cd "$(dirname "$0")"
 
+if test -f ./router_main_init.js
+then
+	./router_main_init.js
+	exit 0
+fi
+
 erconfig="config.json"
 if test "x$1" != "x"
 	erconfig="$1.json"
