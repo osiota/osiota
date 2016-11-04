@@ -16,6 +16,10 @@ exports.play_device = function(node, c) {
 
 		// read contents:
 		var energy = data.toString().split(/\n/);
+		// remove last empty line
+		if (energy[energy.length-1] == "")
+			energy.pop();
+
 		// convert to integer:
 		for(var i=0; i<energy.length;i++) {
 			energy[i] = energy[i].replace(/^.*[\t,]/, "");
