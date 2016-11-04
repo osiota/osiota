@@ -7,5 +7,5 @@ if test "x$1" != "x"
 	erconfig="$1.json"
 fi
 
-/usr/bin/env nodejs ./main_cli.js --config "${erconfig}"
+/usr/bin/screen -dmS er /usr/bin/env nodejs ./main_cli.js --config "${erconfig}"
 

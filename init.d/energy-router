@@ -20,7 +20,7 @@ CLOG="${BASE}energy-router-output.log"
 
 USR=`stat -c %U "${BASE}"`
 
-COMMAND="${BASE}router_main_init.js"
+COMMAND="${BASE}main"
  
 status() {
 	echo
