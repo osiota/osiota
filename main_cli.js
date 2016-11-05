@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var os = require("os");
-var main = require("./main_npm");
+var main = require("./main_npm.js");
 
 var argv = require('yargs')
 	.usage('Usage: $0 [-args]', {

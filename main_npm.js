@@ -27,7 +27,7 @@ if (npm) {
 };
 
 
-var main = require("./main");
+var main = require("./main.js");
 
 main.prototype.install = function(app, callback) {
 	app = app.replace(/^er-app-/, "");

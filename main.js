@@ -38,6 +38,7 @@ main.prototype.config = function(config) {
 	this.sub_config(config);
 };
 main.prototype.sub_config = function(config) {
+	var _this = this;
 
 	if (typeof config.connect === "object") {
 		this.router.connectArray(config.connect);
