@@ -45,8 +45,48 @@ cc.json = function(content, meta) {
 	return object;
 };
 
+exports.config_readfile_fileobject = function(basenode, file) {
+	var path = file.path;
+	var time = file.stat.mtime / 1000;
+	return exports.conifg_readfile(basenode, fullpath, path, time);
+};
+
+exports.config_readfile = function(basenode, fullpath, path, time) {
+	fs.readFile(fullpath, function(err, content) {
+		if (err) throw err;
+		var matches = path.match(/\.(.*)$/i);
+		var meta = {};
+		meta.time = time;
+		meta.type = "";
+		if (matches) {
+			var type = matches[1].toLowerCase();
+			meta.type = type;
+			if (cc.hasOwnProperty(type)) {
+				content = cc[type](content, meta);
+			} else if (type.match(/program\.data$/)) {
+				content = cc["txt"](content, meta);
+			} else if (type.match(/\.data$/)) {
+				content = cc["data"](content, meta);
+			} else if (type.match(/json/)) {
+				content = cc["json"](content, meta);
+			} else {
+				content = null;
+			}
+		} else {
+			content = null;
+		}
+		path = path.replace(/\/@/, "@");
+		path = path.replace(/\.[^\/]*$/, "");
+		if (meta.type != "")
+			path = path + "." + meta.type;
+		basenode.node(path).publish(meta.time, content);
+	});
+
+};
 
 exports.init = function(router, basename, structure_dir) {
+	var basenode = router.node(basename);
+
 	readdirp({
 		root: structure_dir,
 		directoryFilter: function(f) {
@@ -63,37 +103,7 @@ exports.init = function(router, basename, structure_dir) {
 		if (err) throw err;
 
 		files.files.forEach(function(file) {
-			var path = file.path;
-			var time = file.stat.mtime / 1000;
-			fs.readFile(file.fullPath, function(err, content) {
-				if (err) throw err;
-				var matches = path.match(/\.(.*)$/i);
-				var meta = {};
-				meta.time = time;
-				meta.type = "";
-				if (matches) {
-					var type = matches[1].toLowerCase();
-					meta.type = type;
-					if (cc.hasOwnProperty(type)) {
-						content = cc[type](content, meta);
-					} else if (type.match(/program\.data$/)) {
-						content = cc["txt"](content, meta);
-					} else if (type.match(/\.data$/)) {
-						content = cc["data"](content, meta);
-					} else if (type.match(/json/)) {
-						content = cc["json"](content, meta);
-					} else {
-						content = null;
-					}
-				} else {
-					content = null;
-				}
-				path = path.replace(/\/@/, "@");
-				path = path.replace(/\.[^\/]*$/, "");
-				if (meta.type != "")
-					path = path + "." + meta.type;
-				router.node(basename + "/" + path).publish(meta.time, content);
-			});
+			exports.config_readfile_fileobject(basenode, file);
 		});
 	});
 
