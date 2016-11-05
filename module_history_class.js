@@ -18,6 +18,8 @@ exports.history.prototype.add = function(time, value) {
 		var lasttime = this.history_data[this.history_data.length - 1].time;
 	else
 		var lasttime = 0;
+	if (time === null)
+		return;
 	if (time === lasttime)
 		return;
 	if (time > lasttime) {

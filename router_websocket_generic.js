@@ -151,9 +151,12 @@ exports.init = function(router, ws, module_name) {
 	ws.rpc_node_unbind = prpcfunction_remove(ws.cmds, "bind");
 	ws.rpc_node_subscribe_announcement = prpcfunction(ws.cmds, "subscribe_announcement", function() {
 		// this == node
-		var node = this;
 		return this.subscribe_announcement(function(node, method) {
-			ws.node_rpc(node, method);
+			// Do not send remote nodes back to the same system:
+			if (typeof node.connection !== "undefined" && node.connection === ws) {
+				return;
+			}
+			ws.node_rpc(node, method, node.metadata);
 		});
 	}, function (ref) {
 		return this.unsubscribe_announcement(ref);
@@ -161,7 +164,6 @@ exports.init = function(router, ws, module_name) {
 	ws.rpc_node_unsubscribe_announcement = prpcfunction_remove(ws.cmds, "subscribe_announcement");
 	ws.rpc_node_subscribe = prpcfunction(ws.cmds, "subscribe", function() {
 		// this == node
-		var node = this;
 		return this.subscribe(function(do_not_add_to_history, initial) {
 			var node = this;
 			if (initial === true)
@@ -179,18 +181,22 @@ exports.init = function(router, ws, module_name) {
 			ws.remote = name;
 		reply(null, router.name);
 	};
-	ws.rpc_node_announce = prpcfunction(ws.cmds, "announce", function() {
+	ws.rpc_node_announce = prpcfunction(ws.cmds, "announce", function(metadata) {
 		// this == node
-		if (typeof this.connection !== undefined && this.connection === null) {
-			this.announce();
+		if (typeof this.name != 'undefined') {
+			if (this.name != "/") {
+				ws.subscribe(this.name);
+			}
 		}
 		this.connection = ws;
+		this.announce(metadata);
 
 		this.emit("node_update", true);
 	}, function () {
-		if (this.connection === ws)
+		if (this.connection === ws) {
 			this.connection = null;
-		this.unannounce();
+			this.unannounce();
+		}
 	});
 	ws.rpc_node_unannounce = prpcfunction_remove(ws.cmds, "announce");
 

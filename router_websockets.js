@@ -54,4 +54,6 @@ exports.init = function(router, basename, port) {
 
 		require('./router_websocket_generic.js').init(router, ws, module_name);
 	});
+
+	return wss;
 };

@@ -26,6 +26,8 @@ exports.node = function(r, name, parentnode) {
 	this.value = null;
 	this.time = null;
 
+	this.metadata = null;
+
 	this.subscription_listener = [];
 	this.announcement_listener = [];
 	this.listener = [];
@@ -60,8 +62,6 @@ exports.node = function(r, name, parentnode) {
 	this.on('node_update', check_need_subscription);
 
 	r.emit('create_new_node', this);
-
-	this.announce();
 };
 util.inherits(exports.node, RemoteCall);
 /* Get a node */
@@ -80,34 +80,85 @@ exports.node.prototype.node = function(name) {
 };
 
 /* Announce node */
-exports.node.prototype.announce = function(node) {
-	if (typeof node === "undefined") node = this;
-
-	if (this.parentnode !== null) {
-		this.parentnode.announce(node);
+exports.node.prototype.announce = function(metadata) {
+	if (typeof metadata !== "object" || metadata === null) {
+		metadata = {};
 	}
-	var _this = this;
-	this.announcement_listener.forEach(function(f) {
-		f.call(_this, node, "announce", false);
-	});
-};
+	this.metadata = metadata;
 
+	this.announce_climb(this, "announce");
+};
 exports.node.prototype.unannounce = function(node) {
-	if (typeof node === "undefined") node = this;
+	this.metadata = null;
 
-	if (this.parentnode !== null) {
-		this.parentnode.unannounce(node);
+	this.announce_climb(this, "announce");
+};
+
+/* Announce node (climber) */
+exports.node.prototype.announce_climb = function(node, method) {
+	if (typeof node !== "object" || node === null) {
+		node = this;
 	}
 	var _this = this;
 	this.announcement_listener.forEach(function(f) {
-		f.call(_this, node, "unannounce", false);
+		f.call(_this, node, method, false);
 	});
+
+	// climp to parent:
+	if (this.parentnode !== null) {
+		this.parentnode.announce_climb(node, method);
+	}
 };
+
 
 /* Children of a node */
 exports.node.prototype.get_children = function() {
 	return this.router.get_nodes(this.name, false);
 };
+
+/* Generates metadata based on nodenames */
+exports.node.prototype.generate_metadata = function() {
+	this.metadata = {};
+	if (this.name.match(/\.energy$/)) {
+		this.add_metadata({
+			unit:"Watt",
+			datatype:"float",
+			//TODO adding interval?
+		});
+	} else if (this.name.match(/\.temp$/)) {
+		this.add_metadata({
+			unit:"°C",
+			datatype:"float",
+			//TODO adding interval?
+		})
+	} else if (this.name.match(/\.state$/)) {
+		this.add_metadata({
+			// no default values yet
+		})
+	} else if (this.name.match(/\.description$/)) {
+		this.add_metadata({
+			// no default values yet
+		})
+	}
+}
+
+/* add metadata to node-object
+ * 	data example: {value:"energy"}
+ */
+exports.node.prototype.add_metadata = function(data) {
+	if (this.metadata !== "object") this.metadata = {};
+
+	if(data !== null && typeof data === 'object'){
+		for (var key in data){
+			this.metadata[key] = data[key];
+		}
+	}
+}
+
+/*gets metadata of node-object*/
+exports.node.prototype.get_metadata = function() {
+	return this.metadata;
+}
 
 /* Set new data */
 exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to_history) {
@@ -134,6 +185,11 @@ exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to
 			this.value !== null &&
 			this.value === value) {
 		return false;
+	}
+
+	// TODO: Workaround: generate metadata:
+	if (this.metadata === null) {
+		this.generate_metadata();
 	}
 
 	// set new data:
