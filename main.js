@@ -64,7 +64,8 @@ main.prototype.config = function(config) {
 };
 
 main.prototype.create_websocket_server = function(server_port) {
-	require('./router_websockets').init(this.router, "", server_port);
+	var wss = require('./router_websockets').init(this.router, "", server_port);
+	return wss;
 };
 
 main.prototype.create_websocket_client = function(url, nodes) {
@@ -85,6 +86,8 @@ main.prototype.create_websocket_client = function(url, nodes) {
 		//ws.subscribe_announcement("/");
 		// add ":" + remote.name ???
 	}
+
+	return ws;
 };
 
 // TODO: Config:
