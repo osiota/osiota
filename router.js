@@ -92,7 +92,7 @@ exports.node.prototype.unannounce = function(node) {
 };
 
 /* Announce node (climber) */
-exports.node.protoype.annouce_climb = function(node, method) {
+exports.node.prototype.announce_climb = function(node, method) {
 	if (typeof node === "undefined"){
 		node = this;
 	}
@@ -114,23 +114,23 @@ exports.node.prototype.get_children = function() {
 /* Generates metadata based on nodenames */
 exports.node.prototype.generate_metadata = function() {
 	this.metadata = {};
-	if (this.name.endsWith(".energy")) {
+	if (this.name.match(/\.energy$/)) {
 		this.add_metadata({
 			unit:"Watt",
 			datatype:"float",
 			//TODO adding interval?
 		});
-	} else if (this.name.endsWith(".temp")) {
+	} else if (this.name.match(/\.temp$/)) {
 		this.add_metadata({
 			unit:"°C",
 			datatype:"float",
 			//TODO adding interval?
 		})
-	} else if (this.name.endsWith(".state")) {
+	} else if (this.name.match(/\.state$/)) {
 		this.add_metadata({
 			// no default values yet
 		})
-	} else if (this.name.endsWith(".description")) {
+	} else if (this.name.match(/\.description$/)) {
 		this.add_metadata({
 			// no default values yet
 		})
