@@ -137,7 +137,7 @@ main.prototype.require_auto = function(app, app_config, host_info, auto_install)
 
 	m = this.try_require(this.require_indir, app, app_config, host_info, auto_install);
 	if (m) return m;
-	
+
 	m = this.try_require(this.require_inpdir, app, app_config, host_info, auto_install);
 	if (m) return m;
 
