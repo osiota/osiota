@@ -53,6 +53,7 @@ pwsc.prototype.init = function() {
 			pthis.emit('open');
 		});
 		this.ws.on('message', function(message) {
+			//console.log('received:', message);
 			try {
 				// Browser WebSocket sends an event with message in field data:
 				if (typeof message === "object" && message.data)
@@ -90,6 +91,7 @@ pwsc.prototype.sendjson = function(data) {
 		if (!this.closed &&
 				typeof this.ws !== "undefined" &&
 				this.ws.readyState == 1) {
+			//console.log("send:", JSON.stringify(data));
 			this.ws.send(JSON.stringify(data));
 		}
 	} catch (e) {
