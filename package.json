@@ -7,7 +7,9 @@
     "binary-search": "^1.2.0",
     "yargs": "^4.7.1",
     "npm": "^3.10.6",
-    "ws": "^1.0.1"
+    "ws": "^1.0.1",
+    "underscore": "^1.8.3",
+    "jsonschema": "^1.1.0"
   },
   "devDependencies": {
     "webpack": "^1.12.13"

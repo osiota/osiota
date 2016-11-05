@@ -173,6 +173,24 @@ exports.init = function(router, ws, module_name) {
 	}, function (ref) {
 		return this.unsubscribe(ref);
 	});
+	ws.rpc_node_subscribe_for_aggregated_data =prpcfunction(ws.cmds, "subscribe", function() {
+		var policy_checker = this.router.policy_checker;
+		var policy = arguments[0];
+		var callback;
+		if (policy.action_extra.type == "count") {
+			callback = policy_checker.create_callback_by_count(this, this.router, policy, function(time, value, node){
+				ws.node_rpc(node, "data", time, value, false, false);
+			})
+		}else if (policy.action_extra.type == "time") {
+			callback = policy_checker.create_callback_by_time(this, this.router, policy, function(time, value, node){
+				ws.node_rpc(node, "data", time, value, false, false);
+			})
+		}
+		return this.subscribe(callback);
+	}, function(ref) {
+		return this.unsubscribe(ref);
+	});
+
 	ws.rpc_node_unsubscribe = prpcfunction_remove(ws.cmds, "subscribe");
 
 
@@ -262,6 +280,16 @@ exports.init = function(router, ws, module_name) {
 		//var node =
 		args.shift();
 		var object = router._rpc_create_object.apply(router, args);
+
+		if (router.hasOwnProperty('policy_checker')) {
+			//checks if the remote is allowed to perform this method on this node
+			var reaction = router.policy_checker.check(router.node(node), ws.wpath, method, 'to_remote');
+			if (reaction != null && reaction.reaction_id == 'hide_value_and_metadata'){
+				if (object.args.length > 1) {
+					object.args.splice(1, 1);
+				}
+			}
+		}
 
 		node = router.nodename_transform(node, ws.remote_basename, ws.basename);
 		object.scope = "node";

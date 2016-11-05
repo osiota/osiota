@@ -1,4 +1,5 @@
 var Router = require("./router").router;
+var Policy_checker = require("./module_policycheck.js");
 
 function main(router_name) {
 	this.router = new Router(router_name);
@@ -15,6 +16,14 @@ function main(router_name) {
 
 main.prototype.config = function(config) {
 	var _this = this;
+	this.router.policy_checker = new Policy_checker.Policy_checker();
+
+	if(typeof config.policies !== 'undefined'){
+		var policies = config.policies;
+		for (var i = 0; i < policies.length; i++) {
+			this.router.policy_checker.add_policy("user_level",policies[i]);
+		}
+	}
 
 	if (typeof config.hostname !== "undefined") {
 		this.router.name = config.hostname;
@@ -52,6 +61,9 @@ main.prototype.sub_config = function(config) {
 					_this.create_websocket_client(c.url, c.node);
 			} else {
 				console.log("Waring: Remote config options missing.", c);
+			}
+			if (c.secure === "true"){
+				_this.router.policy_checker.add_observed_connection(c.url);
 			}
 		});
 	}
