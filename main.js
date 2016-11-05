@@ -28,6 +28,17 @@ main.prototype.config = function(config) {
 	if (typeof config.server !== "undefined" && config.server) {
 		this.create_websocket_server(config.server);
 	}
+
+	if (typeof config.require_method === "string") {
+		if (!this.hasOwnProperty("require_" + config.require_method))
+			throw new Error("require method not found.");
+		this.require = this["require_" + config.require_method];
+	}
+
+	this.sub_config(config);
+};
+main.prototype.sub_config = function(config) {
+
 	if (typeof config.connect === "object") {
 		this.router.connectArray(config.connect);
 	}
@@ -42,12 +53,6 @@ main.prototype.config = function(config) {
 				console.log("Waring: Remote config options missing.", c);
 			}
 		});
-	}
-
-	if (typeof config.require_method === "string") {
-		if (!this.hasOwnProperty("require_" + config.require_method))
-			throw new Error("require method not found.");
-		this.require = this["require_" + config.require_method];
 	}
 
 	if (Array.isArray(config.app)) {
