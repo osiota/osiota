@@ -61,6 +61,10 @@ exports.init = function(router, basename, options, nodes) {
 			var channel = nodes[n];
 
 			router.node(basename + n + '_s').register('usbdmx', channel);
+			router.node(basename + n + '_s').rpc_set = function(reply, value) {
+				this.publish(undefined, value);
+				reply(null, "ok");
+			};
 		}
 	});
 };
