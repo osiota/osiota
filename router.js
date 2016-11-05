@@ -81,6 +81,9 @@ exports.node.prototype.node = function(name) {
 
 /* Announce node */
 exports.node.prototype.announce = function(metadata) {
+	if (typeof metadata !== "object" || metadata === null) {
+		metadata = {};
+	}
 	this.metadata = metadata;
 
 	this.announce_climb(this, "announce");
@@ -93,16 +96,18 @@ exports.node.prototype.unannounce = function(node) {
 
 /* Announce node (climber) */
 exports.node.prototype.announce_climb = function(node, method) {
-	if (typeof node === "undefined"){
+	if (typeof node !== "object" || node === null) {
 		node = this;
-	}
-	if (this.parentnode !== null) {
-		this.parentnode.announce(node);
 	}
 	var _this = this;
 	this.announcement_listener.forEach(function(f) {
 		f.call(_this, node, method, false);
 	});
+
+	// climp to parent:
+	if (this.parentnode !== null) {
+		this.parentnode.announce_climb(node, method);
+	}
 };
 
 
