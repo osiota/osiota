@@ -91,7 +91,7 @@ exports.node.prototype.announce = function(metadata) {
 exports.node.prototype.unannounce = function(node) {
 	this.metadata = null;
 
-	this.announce_climb(this, "announce");
+	this.announce_climb(this, "unannounce");
 };
 
 /* Announce node (climber) */
@@ -412,13 +412,16 @@ exports.node.prototype.subscribe_announcement = function(object) {
 
 	this.announcement_listener.push(object);
 	
-	object.call(this, this, "announce", true);
+	if (this.metadata !== null)
+		object.call(this, this, "announce", true);
 
 	// get data of childs:
 	var allchildren = this.router.get_nodes(this.name);
 	for(var childname in allchildren) {
 		var nc = allchildren[childname];
-		object.call(this, nc, "announce", true);
+		if (nc.metadata !== null) {
+			object.call(this, nc, "announce", true);
+		}
 	}
 
 	return object;
@@ -791,12 +794,14 @@ exports.router.prototype.no_cue = function(callback) {
 
 exports.router.prototype.nodename_transform = function(nodename, basename_add, basename_remove) {
 	if (typeof basename_remove === "string") {
-		var regex = new RegExp("^" + RegExp.quote(basename_remove) + "(/.*)$", '');
+		var regex = new RegExp("^" + RegExp.quote(basename_remove) + "(/.*)?$", '');
 		var found = nodename.match(regex)
 		if (found) {
 			nodename = found[1];
+			if (typeof nodename !== "string")
+				nodename = "/";
 		} else {
-			throw new Error("nodename_transform: Basename not found: " + basename_remove);
+			throw new Error("nodename_transform: Basename not found: " + basename_remove + " (node: " + nodename + ")");
 		}
 	}
 	if (typeof basename_add === "string") {

@@ -150,6 +150,8 @@ exports.init = function(router, ws, module_name) {
 	});
 	ws.rpc_node_unbind = prpcfunction_remove(ws.cmds, "bind");
 	ws.rpc_node_subscribe_announcement = prpcfunction(ws.cmds, "subscribe_announcement", function() {
+		if (ws.closed)
+			return false;
 		// this == node
 		return this.subscribe_announcement(function(node, method) {
 			// Do not send remote nodes back to the same system:
@@ -164,6 +166,8 @@ exports.init = function(router, ws, module_name) {
 	ws.rpc_node_unsubscribe_announcement = prpcfunction_remove(ws.cmds, "subscribe_announcement");
 	ws.rpc_node_subscribe = prpcfunction(ws.cmds, "subscribe", function() {
 		// this == node
+		if (ws.closed)
+			return false;
 		return this.subscribe(function(do_not_add_to_history, initial) {
 			var node = this;
 			if (initial === true)
