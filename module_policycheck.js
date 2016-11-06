@@ -378,11 +378,12 @@ exports.Policy_checker.prototype.create_group_node = function (router, group_nod
 };
 
 exports.Policy_checker.prototype.get_nodes_for_group = function (router, policy, wpath, group_callback, group_entry) {
+    var _this = this;
     router.node("/").subscribe_announcement(function(node, method, initial) {
         if (!node.hasOwnProperty('group_node')) {
             group_entry.nodes.push(node);
 
-            var this_policy = this.find_most_relevant_policy(node, wpath, node.get_metadata(), "read");
+            var this_policy = _this.find_most_relevant_policy(node, wpath, node.get_metadata(), "read");
             if(_.isEqual(policy, this_policy)){
                 node.subscribe(group_callback);
             }
