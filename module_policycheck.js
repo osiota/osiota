@@ -368,11 +368,11 @@ exports.Policy_checker.prototype.create_group_node = function (router, group_nod
     return group_node;
 };
 
-exports.Policy_checker.prototype.get_nodes_for_group = function (router, policy, ws) {
+exports.Policy_checker.prototype.get_nodes_for_group = function (router, policy, wpath) {
     var nodes = [];
     for (var node in router.nodes){
         if(!(node.hasOwnProperty('group_node'))){
-            var this_policy = this.find_most_relevant_policy(router.node(node), ws.wpath, router.node(node).get_metadata(), "read");
+            var this_policy = this.find_most_relevant_policy(router.node(node), wpath, router.node(node).get_metadata(), "read");
             if(_.isEqual(policy, this_policy)){
                 nodes.push(router.nodes[node].name);
             }

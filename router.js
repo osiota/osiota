@@ -699,7 +699,7 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 							var group = policy_checker.get_group(policy, module);
 							if (group == null) {
 								var group_node = policy_checker.create_group_node(router, policy.action_extra.group);
-								var nodes = policy_checker.get_nodes_for_group(router, policy, module);
+								var nodes = policy_checker.get_nodes_for_group(router, policy, module.wpath);
 								policy_checker.init_group(nodes, group_node, router, policy, module.wpath);
 								throw new Error("Blocked by Policy-Management");
 							}else if (group != null){
