@@ -21,7 +21,7 @@ USR=`stat -c %U "${BASE}"`
 SCRIPTNAME="${0##*/}"
 SCRIPTNAME="${SCRIPTNAME##[KS][0-9][0-9]}"
 
-ERCONFIG="config"
+ERCONFIG=""
 if [ "${SCRIPTNAME##energy-router-}" != "$SCRIPTNAME" ] ; then
 	ERCONFIG="-${SCRIPTNAME##energy-router-}"
 	name="${SCRIPTNAME##*/}"
