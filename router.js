@@ -69,6 +69,8 @@ exports.node.prototype.node = function(name) {
 	if (name.match(/^\//))
 		return this.router.node(name);
 
+	name  = name.replace(/^\.\//, '');
+
 	if (name == "." || name == "")
 		return this;
 
