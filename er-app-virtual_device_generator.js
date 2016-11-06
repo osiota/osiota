@@ -34,38 +34,36 @@
  *              }
  */
 
-exports.init = function(app, app_config, router_config, autoinstall) {
+exports.init = function(node, app_config, main, autoinstall) {
 
-    var r = router_config.router;
-    require('./module_history.js').init(r, 'ram');
-    require('./router_device_virtual.js').init(r);
-    r.eventdetection = require('./router_io_eventdetection.js').init.bind(r, r);
+	var r = main.router;
+	require('./module_history.js').init(r, 'ram');
+	require('./router_device_virtual.js').init(r);
+	r.eventdetection = require('./router_io_eventdetection.js').init.bind(r, r);
 
-    for(device in app_config){
+	for (var device in app_config) {
 
-        var state_node= "/app/er-app-virtual_device_generator/"+device+".status";
-        var energy_node = "/app/er-app-virtual_device_generator/"+device+".energy";
+		(function(device) {
 
-        try {
-            //create an energy-node for the device and start publishing energy-data
-            r.node(energy_node).announce();
-            if (app_config[device].filepath === "") {
-                require('./router_random_in.js').init(r, energy_node,
-                    (app_config[device].interval*1000 || 1000));
-            } else {
-                r.play_device(energy_node ,{
-                    "filename": app_config[device].filepath,
-                    "interval": (app_config[device].interval || 1),
-                });
-            }
-            //add a state-node for the device (if "states" in config) which changes state on the defined event
-            if (typeof app_config[device].states !== 'undefined'){
-                //r.node(state_node).announce();
-                r.eventdetection( r.node(energy_node), state_node, app_config[device].states);
-            }
+			var state_node = node.node(device+".status");
+			var energy_node = node.node(device+".energy");
 
-        }catch(error){
-            throw error;
-        }
-    }
+			//create an energy-node for the device and start publishing energy-data
+			energy_node.announce();
+			if (app_config[device].filepath === "") {
+				require('./router_random_in.js').init(r, energy_node,
+					(app_config[device].interval*1000 || 1000));
+			} else {
+				r.play_device(energy_node ,{
+					"filename": app_config[device].filepath,
+					"interval": (app_config[device].interval || 1),
+				});
+			}
+			//add a state-node for the device (if "states" in config) which changes state on the defined event
+			if (typeof app_config[device].states !== 'undefined'){
+				r.eventdetection( energy_node, state_node, app_config[device].states );
+			}
+
+		})(device);
+	}
 }
