@@ -44,7 +44,7 @@ var TYPE_TO_METHOD = {
 /*
 Policy_checker contructor
  */
-exports.Policy_checker = function Policy_checker() {
+exports.Policy_checker = function() {
     this.policy_set = [[], [], []];// policySet[2] = user-level, policySet[1] = application-level, policySet[0] = default-level,
     this.observed_connections = [];
     this.groups = [];
@@ -304,7 +304,7 @@ function get_parent_level(parent, child) {
 
 
 exports.Policy_checker.prototype.init_group = function (router, policy, remote_id){
-    var group_node = policy_checker.create_group_node(router, policy.action_extra.group);
+    var group_node = this.create_group_node(router, policy.action_extra.group);
 
     var group_callback;
     var group_entry;
@@ -328,7 +328,7 @@ exports.Policy_checker.prototype.init_group = function (router, policy, remote_i
     this.groups.push(group_entry);
 
     //link data from nodes to callback
-    policy_checker.get_nodes_for_group(router, policy, module.wpath, group_callback, group_entry);
+    this.get_nodes_for_group(router, policy, module.wpath, group_callback, group_entry);
 
 };
 
