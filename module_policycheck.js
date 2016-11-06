@@ -292,6 +292,9 @@ function get_parent_level(parent, child) {
     while(parent.name != node.name){
         level ++;
         node = node.parentnode
+	if (node === null) {
+		throw new Error("get_parent_level: child is not child of parent");
+	}
     }
     return level;
 }
