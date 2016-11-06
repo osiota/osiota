@@ -90,6 +90,8 @@ exports.node.prototype.announce = function(metadata) {
 };
 exports.node.prototype.unannounce = function(node) {
 	this.metadata = null;
+	this.value = null;
+	this.time = null;
 
 	this.announce_climb(this, "unannounce");
 };
