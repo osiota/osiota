@@ -49,7 +49,7 @@ exports.config_readfile_fileobject = function(basenode, file) {
 	var path = file.path;
 	var fullpath = file.fullPath;
 	var time = file.stat.mtime / 1000;
-	return exports.conifg_readfile(basenode, fullpath, path, time);
+	return exports.config_readfile(basenode, fullpath, path, time);
 };
 
 exports.config_readfile = function(basenode, fullpath, path, time) {
