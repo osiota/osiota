@@ -4,7 +4,7 @@ cd "$(dirname "$0")"
 
 if test -f ./router_main_init.js
 then
-	./router_main_init.js
+	./router_main_init.js >${clog} 2>&1
 	exit 0
 fi
 
