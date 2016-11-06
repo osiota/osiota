@@ -300,7 +300,7 @@ function get_parent_level(parent, child) {
 //--------------------------  methods for grouping nodes depending on policy-action-extras ---------------------------
 
 
-exports.Policy_checker.prototype.init_group = function (nodes, group_node, router, policy, remote_id){
+exports.Policy_checker.prototype.init_group = function (group_node, router, policy, remote_id){
     var group_callback;
     var group_entry;
     //init callback and link data from callback to group_node
@@ -314,6 +314,7 @@ exports.Policy_checker.prototype.init_group = function (nodes, group_node, route
         });
     }
     //link data from nodes to callback
+    var nodes = policy_checker.get_nodes_for_group(router, policy, module.wpath);
     for (i = 0; i < nodes.length; i++) {
         router.node(nodes[i]).subscribe(group_callback);
     }
@@ -338,10 +339,12 @@ exports.Policy_checker.prototype.get_group = function (policy, ws){
     return null;
 };
 
+/* not used:
 exports.Policy_checker.prototype.update_group = function (node, group){
     group.nodes.push(node.name);
     node.subscribe(group.function);
 };
+*/
 
 exports.Policy_checker.prototype.create_group_node = function (router, group_node_name, ws) {
     var count = 0;
