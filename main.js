@@ -16,21 +16,23 @@ function main(router_name) {
 
 main.prototype.config = function(config) {
 	var _this = this;
-	this.router.policy_checker = new Policy_checker.Policy_checker(this.router);
 
-	if(typeof config.policies !== 'undefined'){
+	if (typeof config.hostname !== "undefined") {
+		this.router.name = config.hostname;
+	}
+
+	// Load history module
+	require('./module_history.js').init(this.router, 'ram');
+
+	// Load policy checker module
+	this.router.policy_checker = new Policy_checker.Policy_checker(this.router);
+	if (typeof config.policies !== 'undefined'){
 		var policies = config.policies;
 		for (var i = 0; i < policies.length; i++) {
 			this.router.policy_checker.add_policy("user_level",policies[i]);
 		}
 	}
 
-	if (typeof config.hostname !== "undefined") {
-		this.router.name = config.hostname;
-	}
-
-	// TODO: Load history module
-	require('./module_history.js').init(this.router, 'ram');
 	// TODO: Load console output
 	//require('./router_console_out.js').init(this.router, "/console");
 
