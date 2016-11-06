@@ -24,6 +24,10 @@ SCRIPTNAME="${SCRIPTNAME##[KS][0-9][0-9]}"
 ERCONFIG="config"
 if [ "${SCRIPTNAME##energy-router-}" != "$SCRIPTNAME" ] ; then
 	ERCONFIG="-${SCRIPTNAME##energy-router-}"
+	name="${SCRIPTNAME##*/}"
+	PID=/run/energy-router-${name}.pid
+	LOG=/run/energy-router-${name}.log
+
 fi
 
 
@@ -57,7 +61,7 @@ start() {
 	echo "==== Start"
 	cd "$BASE"
 	touch $PID
-	if nohup sudo -u $USR $COMMAND &
+	if nohup sudo -u $USR $COMMAND >/dev/null 2>&1 &
 	then
 		echo $! >$PID
 		echo "Done."
