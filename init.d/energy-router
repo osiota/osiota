@@ -15,8 +15,6 @@
 BASE="$(dirname "$(dirname "$(readlink /etc/init.d/energy-router)")")/"
 PID=/run/energy-router.pid
 LOG=/run/energy-router.log
-CLOG="${BASE}energy-router-output.log"
-#CLOG=/dev/null
 
 USR=`stat -c %U "${BASE}"`
 
@@ -59,7 +57,7 @@ start() {
 	echo "==== Start"
 	cd "$BASE"
 	touch $PID
-	if nohup sudo -u $USR $COMMAND >$CLOG 2>&1 &
+	if nohup sudo -u $USR $COMMAND &
 	then
 		echo $! >$PID
 		echo "Done."
