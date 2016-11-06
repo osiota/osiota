@@ -288,11 +288,16 @@ exports.init = function(router, ws, module_name) {
 
 		if (router.hasOwnProperty('policy_checker')) {
 			//checks if the remote is allowed to perform this method on this node
-			var reaction = router.policy_checker.check(router.node(node), ws.wpath, method, 'to_remote');
-			if (reaction != null && reaction.reaction_id == 'hide_value_and_metadata'){
-				if (object.args.length > 1) {
-					object.args.splice(1, 1);
+			try {
+				var reaction = router.policy_checker.check(router.node(node), ws.wpath, method, 'to_remote');
+				if (reaction != null && reaction.reaction_id == 'hide_value_and_metadata'){
+					if (object.args.length > 1) {
+						object.args.splice(1, 1);
+					}
 				}
+			} catch (e) {
+				console.log("Blocked", e);
+				return false;
 			}
 		}
 

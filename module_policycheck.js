@@ -112,6 +112,10 @@ function get_reaction (node, remote_id, method, data_flow, policy) {
                 //remove metadata
                 return {reaction_id : 'remove_metadata',
                         args : policy_action_extra};
+            } else if (policy_action == 'preprocess_value') {
+                if (policy.action_extra.hasOwnProperty('group')) { // aggregating data of group of nodes
+                    throw new Error("Blocked by Policy-Management");
+                }
             }
         }
     }
