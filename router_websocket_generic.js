@@ -177,18 +177,19 @@ exports.init = function(router, ws, module_name) {
 	}, function (ref) {
 		return this.unsubscribe(ref);
 	});
-	ws.rpc_node_subscribe_for_aggregated_data =prpcfunction(ws.cmds, "subscribe", function() {
-		var policy_checker = this.router.policy_checker;
-		var policy = arguments[0];
+	ws.rpc_node_subscribe_for_aggregated_data =prpcfunction(ws.cmds, "subscribe", function(policy) {
+		var policy_checker = router.policy_checker;
 		var callback;
 		if (policy.action_extra.type == "count") {
-			callback = policy_checker.create_callback_by_count(this, this.router, policy, function(time, value, node){
+			callback = policy_checker.create_callback_by_count(this, policy, function(time, value, node){
 				ws.node_rpc(node, "data", time, value, false, false);
 			})
 		}else if (policy.action_extra.type == "time") {
-			callback = policy_checker.create_callback_by_time(this, this.router, policy, function(time, value, node){
+			callback = policy_checker.create_callback_by_time(this, policy, function(time, value, node){
 				ws.node_rpc(node, "data", time, value, false, false);
 			})
+		} else {
+			throw new Error("subscribe_for_aggregated_data: Unnknown callback type");
 		}
 		return this.subscribe(callback);
 	}, function(ref) {

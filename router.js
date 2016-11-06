@@ -687,21 +687,16 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 			var n = this.node(this.nodename_transform(d.node, module.basename, module.remote_basename));
 
 			if(this.hasOwnProperty('policy_checker')) {
-				var router = this;
-				var policy_checker = router.policy_checker;
+				var policy_checker = this.policy_checker;
 				//checks if the remote is allowed to perform this method on this node
 				var policy = policy_checker.check(n, module.wpath, method, 'from_remote');
 				//react respectively to the policy-action if a policy was found
 				if (policy != null) {
-					//d.args.push(policy);
 					if (policy.action == 'preprocess_value') {
 						if (policy.action_extra.hasOwnProperty('group')) { // aggregating data of group of nodes
-							var group = policy_checker.get_group(policy, module);
-							if (group == null) {
-								policy_checker.init_group(router, policy, module.wpath);
-							}
 							throw new Error("Blocked by Policy-Management");
 						} else { // aggregating data of requested node
+							d.args = [ policy ];
 							method = 'subscribe_for_aggregated_data';
 						}
 					}

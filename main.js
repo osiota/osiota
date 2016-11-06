@@ -16,7 +16,7 @@ function main(router_name) {
 
 main.prototype.config = function(config) {
 	var _this = this;
-	this.router.policy_checker = new Policy_checker.Policy_checker();
+	this.router.policy_checker = new Policy_checker.Policy_checker(this.router);
 
 	if(typeof config.policies !== 'undefined'){
 		var policies = config.policies;

@@ -44,10 +44,11 @@ var TYPE_TO_METHOD = {
 /*
 Policy_checker contructor
  */
-exports.Policy_checker = function() {
+exports.Policy_checker = function(router) {
     this.policy_set = [[], [], []];// policySet[2] = user-level, policySet[1] = application-level, policySet[0] = default-level,
     this.observed_connections = [];
     this.groups = [];
+    this.router = router;
 };
 
 /*
@@ -141,9 +142,21 @@ exports.Policy_checker.prototype.add_policy = function (policy_level, policy) {
             console.log(policy_level + ' is an invalid policy-level! Please choose one of the following: ' +
                 'default_level, application_level or user_level');
         }
+	this.activate_policy(policy_level, policy);
     }else{
         console.log("Your policy "+ policy.toString() +" has an error!!");
     }
+};
+
+exports.Policy_checker.prototype.activate_policy = function (policy_level, policy) {
+	if (policy.action == 'preprocess_value') {
+		if (policy.action_extra.hasOwnProperty('group')) { // aggregating data of group of nodes
+			var group = this.get_group(policy, module);
+			if (group == null) {
+				this.init_group(policy, module.wpath);
+			}
+		}
+	}
 };
 
 /*returns the relevant policy from the given policies-array dependent on the node_name, remote, metadata and policy_type
@@ -303,18 +316,18 @@ function get_parent_level(parent, child) {
 //--------------------------  methods for grouping nodes depending on policy-action-extras ---------------------------
 
 
-exports.Policy_checker.prototype.init_group = function (router, policy, remote_id){
-    var group_node = this.create_group_node(router, policy.action_extra.group);
+exports.Policy_checker.prototype.init_group = function (policy, remote_id){
+    var group_node = this.create_group_node(policy.action_extra.group);
 
     var group_callback;
     var group_entry;
     //init callback and link data from callback to group_node
     if (policy.action_extra.type == "time"){
-        group_callback = this.create_callback_by_time(group_node, router, policy, function (time, value, group_node) {
+        group_callback = this.create_callback_by_time(group_node, policy, function (time, value, group_node) {
             group_node.publish(time, value);
         });
     }else{ // policy.action_extra.type = count
-        group_callback = this.create_callback_by_count(group_node, router, policy, function(time, value, group_node) {
+        group_callback = this.create_callback_by_count(group_node, policy, function(time, value, group_node) {
             group_node.publish(time, value);
         });
     }
@@ -328,7 +341,7 @@ exports.Policy_checker.prototype.init_group = function (router, policy, remote_i
     this.groups.push(group_entry);
 
     //link data from nodes to callback
-    this.get_nodes_for_group(router, policy, module.wpath, group_callback, group_entry);
+    this.get_nodes_for_group(policy, module.wpath, group_callback, group_entry);
 
 };
 
@@ -350,9 +363,10 @@ exports.Policy_checker.prototype.update_group = function (node, group){
 };
 */
 
-exports.Policy_checker.prototype.create_group_node = function (router, group_node_name, ws) {
+exports.Policy_checker.prototype.create_group_node = function (group_node_name, ws) {
     var count = 0;
     var new_group_node_name = group_node_name;
+    var router = this.router;
 
     function check_if_already_used(group_node_name){
         if(router.nodes.hasOwnProperty(group_node_name)){
@@ -377,9 +391,9 @@ exports.Policy_checker.prototype.create_group_node = function (router, group_nod
     return group_node;
 };
 
-exports.Policy_checker.prototype.get_nodes_for_group = function (router, policy, wpath, group_callback, group_entry) {
+exports.Policy_checker.prototype.get_nodes_for_group = function (policy, wpath, group_callback, group_entry) {
     var _this = this;
-    router.node("/").subscribe_announcement(function(node, method, initial) {
+    this.router.node("/").subscribe_announcement(function(node, method, initial) {
         if (!node.hasOwnProperty('group_node')) {
             group_entry.nodes.push(node);
 
@@ -393,7 +407,7 @@ exports.Policy_checker.prototype.get_nodes_for_group = function (router, policy,
 
 
 // the aggregated value is published by the group_node after n values got received
-exports.Policy_checker.prototype.create_callback_by_count = function (destination_node, router, policy, publish_to) {
+exports.Policy_checker.prototype.create_callback_by_count = function (destination_node, policy, publish_to) {
     var policy_checker = this;
     var values = {};
     var memory = {};
@@ -439,7 +453,7 @@ exports.Policy_checker.prototype.create_callback_by_count = function (destinatio
 
 
 // the aggregated value is published by the group_node after x seconds passed
-exports.Policy_checker.prototype.create_callback_by_time = function (destination_node, router, policy, publish_to) {
+exports.Policy_checker.prototype.create_callback_by_time = function (destination_node, policy, publish_to) {
     var values = {};
     var memory = {};
     var interval_start = new Date().getTime()/1000;
