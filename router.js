@@ -140,6 +140,8 @@ exports.node.prototype.generate_metadata = function() {
 			// no default values yet
 		})
 	}
+
+	this.announce(this.metadata);
 }
 
 /* add metadata to node-object
@@ -553,6 +555,7 @@ exports.router.prototype.publish = function(name, time, value, only_if_differ, d
 /* Get names and data of the nodes */
 exports.router.prototype.get_nodes = function(basename, children_of_children) {
 	if (typeof basename !== "string") basename = "";
+	if (basename === "/") basename = "";
 	if (typeof children_of_children === "undefined") children_of_children = true;
 
 	var nodes = {};
