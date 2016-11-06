@@ -693,7 +693,7 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 				var policy = policy_checker.check(n, module.wpath, method, 'from_remote');
 				//react respectively to the policy-action if a policy was found
 				if (policy != null) {
-					d.args.push(policy);
+					//d.args.push(policy);
 					if (policy.action == 'preprocess_value') {
 						if (policy.action_extra.hasOwnProperty('group')) { // aggregating data of group of nodes
 							var group = policy_checker.get_group(policy, module);

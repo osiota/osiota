@@ -300,17 +300,19 @@ function get_parent_level(parent, child) {
 //--------------------------  methods for grouping nodes depending on policy-action-extras ---------------------------
 
 
-exports.Policy_checker.prototype.init_group = function (group_node, router, policy, remote_id){
+exports.Policy_checker.prototype.init_group = function (router, policy, remote_id){
+    var group_node = policy_checker.create_group_node(router, policy.action_extra.group);
+
     var group_callback;
     var group_entry;
     //init callback and link data from callback to group_node
     if (policy.action_extra.type == "time"){
         group_callback = this.create_callback_by_time(group_node, router, policy, function (time, value, group_node) {
-            router.node(group_node.name).publish(time, value);
+            group_node.publish(time, value);
         });
     }else{ // policy.action_extra.type = count
-        group_callback = this.create_callback_by_count(group_node, router, policy, function(time, value, group_node){
-            router.node(group_node.name).publish(time, value);
+        group_callback = this.create_callback_by_count(group_node, router, policy, function(time, value, group_node) {
+            group_node.publish(time, value);
         });
     }
     //create and add group-entry;
