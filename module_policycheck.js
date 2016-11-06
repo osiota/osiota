@@ -368,7 +368,9 @@ exports.Policy_checker.prototype.create_group_node = function (router, group_nod
             "action": "forward_all"
         }
     );
-    group_node.announce(group_node);
+    group_node.announce({
+        "type": "energys.data"
+    });
     return group_node;
 };
 
