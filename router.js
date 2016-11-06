@@ -698,15 +698,7 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 						if (policy.action_extra.hasOwnProperty('group')) { // aggregating data of group of nodes
 							var group = policy_checker.get_group(policy, module);
 							if (group == null) {
-								var group_node = policy_checker.create_group_node(router, policy.action_extra.group);
-								policy_checker.init_group(group_node, router, policy, module.wpath);
-								throw new Error("Blocked by Policy-Management");
-							}else if (group != null){
-								/*
-								if (!(group.nodes.indexOf(n.name) > -1)){
-									policy_checker.update_group(n, group);
-								}
-								*/
+								policy_checker.init_group(router, policy, module.wpath);
 							}
 							throw new Error("Blocked by Policy-Management");
 						} else { // aggregating data of requested node

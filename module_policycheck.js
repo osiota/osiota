@@ -313,19 +313,18 @@ exports.Policy_checker.prototype.init_group = function (group_node, router, poli
             router.node(group_node.name).publish(time, value);
         });
     }
-    //link data from nodes to callback
-    var nodes = policy_checker.get_nodes_for_group(router, policy, module.wpath);
-    for (i = 0; i < nodes.length; i++) {
-        router.node(nodes[i]).subscribe(group_callback);
-    }
     //create and add group-entry;
     var group_entry = {};
     group_entry.node_name = policy.node_name;
     group_entry.metadata = policy.metadata;
     group_entry.remote = remote_id;
-    group_entry.nodes = nodes;
+    group_entry.nodes = [];
     group_entry.function = group_callback;
     this.groups.push(group_entry);
+
+    //link data from nodes to callback
+    policy_checker.get_nodes_for_group(router, policy, module.wpath, group_callback, group_entry);
+
 };
 
 exports.Policy_checker.prototype.get_group = function (policy, ws){
@@ -371,17 +370,17 @@ exports.Policy_checker.prototype.create_group_node = function (router, group_nod
     return group_node;
 };
 
-exports.Policy_checker.prototype.get_nodes_for_group = function (router, policy, wpath) {
-    var nodes = [];
-    for (var node in router.nodes){
-        if(!(node.hasOwnProperty('group_node'))){
-            var this_policy = this.find_most_relevant_policy(router.node(node), wpath, router.node(node).get_metadata(), "read");
+exports.Policy_checker.prototype.get_nodes_for_group = function (router, policy, wpath, group_callback, group_entry) {
+    router.node("/").subscribe_announcement(function(node, method, initial) {
+        if (!node.hasOwnProperty('group_node')) {
+            group_entry.nodes.push(node);
+
+            var this_policy = this.find_most_relevant_policy(node, wpath, node.get_metadata(), "read");
             if(_.isEqual(policy, this_policy)){
-                nodes.push(router.nodes[node].name);
+                node.subscribe(group_callback);
             }
         }
-    }
-    return nodes;
+    });
 };
 
 
