@@ -10,6 +10,7 @@ fi
 
 erconfig="config.json"
 if test "x$1" != "x"
+then
 	erconfig="$1.json"
 fi
 

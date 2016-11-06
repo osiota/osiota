@@ -3,9 +3,12 @@
 cd "$(dirname "$0")"
 
 erconfig="config.json"
+sname="er"
 if test "x$1" != "x"
+then
 	erconfig="$1.json"
+	sname="er-${1##*/}"
 fi
 
-/usr/bin/screen -dmS er /usr/bin/env nodejs ./main_cli.js --config "${erconfig}"
+/usr/bin/screen -dmS "${sname}" /usr/bin/env nodejs ./main_cli.js --config "${erconfig}"
 
