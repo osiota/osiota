@@ -481,13 +481,13 @@ exports.Policy_checker.prototype.create_callback_by_time = function (destination
     return function(do_not_add_to_history, initial){
         // collecting node values
         var node = this;
-        if (node.time != null){
+        if (node.time !== null){
             if (!values.hasOwnProperty(node.name)){
                 values[node.name] = [];
             }
             values[node.name].push({
                 time: node.time,
-                value: node.value
+                value: node.value*1
             });
         }
     }
@@ -577,6 +577,7 @@ function calculate_integral(value_group, memory, interval_start, interval_end) {
     return result;
 }
 
+// Was tut das round dort?
 function calculate_integral_avg(integral, interval_start, interval_end) {
     var timespan = Math.round(interval_end - interval_start);
     return integral / timespan;
