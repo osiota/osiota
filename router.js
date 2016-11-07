@@ -123,24 +123,28 @@ exports.node.prototype.get_children = function() {
 /* Generates metadata based on nodenames */
 exports.node.prototype.generate_metadata = function() {
 	this.metadata = {};
-	if (this.name.match(/\.energy$/)) {
+	if (this.name.match(/\.energy\.data$/)) {
 		this.add_metadata({
-			unit:"Watt",
+			type: "energy.data",
+			unit: "Watt",
 			datatype:"float",
 			//TODO adding interval?
 		});
-	} else if (this.name.match(/\.temp$/)) {
+	} else if (this.name.match(/\.temperature\.data$/)) {
 		this.add_metadata({
-			unit:"°C",
+			type: "temperature.data",
+			unit: "°C",
 			datatype:"float",
 			//TODO adding interval?
 		})
-	} else if (this.name.match(/\.state$/)) {
+	} else if (this.name.match(/\.state\.data$/)) {
 		this.add_metadata({
+			type: "state.data"
 			// no default values yet
 		})
-	} else if (this.name.match(/\.description$/)) {
+	} else if (this.name.match(/\.text\.info$/)) {
 		this.add_metadata({
+			type: "text.info"
 			// no default values yet
 		})
 	}
