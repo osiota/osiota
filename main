@@ -19,7 +19,7 @@ fi
 
 
 /usr/bin/env nodejs ./main_cli.js --config "${erconfig}" >${clog} 2>&1
-if test "x$?" = "x127"
+if test "x$?" = "x127" || test "x$?" = "x126"
 then
 	/usr/bin/env node ./main_cli.js --config "${erconfig}" >${clog} 2>&1
 fi
