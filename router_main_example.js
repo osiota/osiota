@@ -1,4 +1,4 @@
-#!/usr/bin/node
+#!/usr/bin/env node
 
 var Router = require('./router.js').router;
 var r = new Router();

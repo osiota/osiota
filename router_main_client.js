@@ -1,4 +1,4 @@
-#!/usr/bin/node
+#!/usr/bin/env node
 
 var argv = require('yargs')
 	.usage( 'Connect to a data router.\n'+
