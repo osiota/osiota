@@ -2,12 +2,6 @@
 
 cd "$(dirname "$0")"
 
-if test -f ./router_main_init.js
-then
-	./router_main_init.js >${clog} 2>&1
-	exit 0
-fi
-
 erconfig="config.json"
 clog="er-output.log"
 if test "x$1" != "x"
@@ -17,5 +11,16 @@ then
 	clog="er-output-${name}.log"
 fi
 
+if test -f ./router_main_init.js
+then
+	./router_main_init.js >${clog} 2>&1
+	exit 0
+fi
+
+
 /usr/bin/env nodejs ./main_cli.js --config "${erconfig}" >${clog} 2>&1
+if test "x$?" = "x127"
+then
+	/usr/bin/env node ./main_cli.js --config "${erconfig}" >${clog} 2>&1
+fi
 
