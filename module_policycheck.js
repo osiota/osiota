@@ -425,9 +425,12 @@ exports.Policy_checker.prototype.create_callback_by_count = function (destinatio
             // calculates aggregated value
             var result = policy_checker.aggregate_values(policy.action_extra.method, values, memory, interval_start, node.time);
             // saving last value of every node to memory-variable so the integral can be fully calculated
-            for (var node_name in values){
-                memory[node_name] = values[node_name][values[node_name].length-1]
+	    for (var node_name in values){
+		if (values[node_name].length > 0) {
+	            memory[node_name] = values[node_name][values[node_name].length-1]
+		}
             }
+
             values = {};
             count = 0;
             // publishes aggregated value
@@ -470,7 +473,9 @@ exports.Policy_checker.prototype.create_callback_by_time = function (destination
         var result = policy_checker.aggregate_values(method, values, memory, interval_start, interval_end);
         // saving last value of every node to memory-variable so the integral can be fully calculated
         for (var node_name in values){
-            memory[node_name] = values[node_name][values[node_name].length-1]
+		if (values[node_name].length > 0) {
+	            memory[node_name] = values[node_name][values[node_name].length-1]
+		}
         }
         values = {};
         // publish
@@ -541,6 +546,7 @@ function calculate_avg(value_group) {
 
 }
 
+// TODO: Die Nutzung von fremden Zeitstempeln ist gefährlich.
 function calculate_integral(value_group, memory, interval_start, interval_end) {
     var result = null;
     var values;
@@ -557,21 +563,21 @@ function calculate_integral(value_group, memory, interval_start, interval_end) {
         }else{
             value = memory[node].value
         };
-        upper_limit = values[0].time;
         lower_limit = interval_start;
-        interval = Math.round((upper_limit-lower_limit));
+        upper_limit = values[0].time;
+        interval = Math.max(upper_limit-lower_limit,0);
         result += interval * value;
         for (var i = 0; i < values.length-1; i++) {
             value = values[i].value;
             upper_limit = values[i+1].time;
             lower_limit = values[i].time;
-            interval = Math.round((upper_limit-lower_limit));
+            interval = Math.max(upper_limit-lower_limit,0);
             result += interval * value;
         }
         value = values[values.length-1].value;
         upper_limit = interval_end;
         lower_limit = values[values.length-1].time;
-        interval = Math.round((upper_limit-lower_limit));
+        interval = Math.max(upper_limit-lower_limit,0);
         result += interval * value;
     }
     return result;
@@ -579,7 +585,7 @@ function calculate_integral(value_group, memory, interval_start, interval_end) {
 
 // Was tut das round dort?
 function calculate_integral_avg(integral, interval_start, interval_end) {
-    var timespan = Math.round(interval_end - interval_start);
+    var timespan = interval_end - interval_start;
     return integral / timespan;
 }
 
