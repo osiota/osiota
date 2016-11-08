@@ -390,7 +390,7 @@ exports.Policy_checker.prototype.create_group_node = function (group_node_name, 
         }
     );
     group_node.announce({
-        "type": "energys.data"
+        "type": "energy.data"
     });
     return group_node;
 };
