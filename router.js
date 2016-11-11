@@ -122,34 +122,41 @@ exports.node.prototype.get_children = function() {
 
 /* Generates metadata based on nodenames */
 exports.node.prototype.generate_metadata = function() {
-	this.metadata = {};
+	var metadata = {};
 	if (this.name.match(/\.energy\.data$/)) {
-		this.add_metadata({
+		metadata = {
 			type: "energy.data",
 			unit: "Watt",
 			datatype:"float",
 			//TODO adding interval?
-		});
+		};
 	} else if (this.name.match(/\.temperature\.data$/)) {
-		this.add_metadata({
+		metadata = {
 			type: "temperature.data",
 			unit: "°C",
 			datatype:"float",
 			//TODO adding interval?
-		})
+		};
 	} else if (this.name.match(/\.state\.data$/)) {
-		this.add_metadata({
+		metadata = {
 			type: "state.data"
 			// no default values yet
-		})
+		};
 	} else if (this.name.match(/\.text\.info$/)) {
-		this.add_metadata({
+		metadata = {
 			type: "text.info"
 			// no default values yet
-		})
+		};
+	} else {
+		var type = this.name.match(/\.[^\/]*$/);
+		if (type) {
+			metadata = {
+				type: type
+			};
+		}
 	}
 
-	this.announce(this.metadata);
+	this.announce(metadata);
 }
 
 /* add metadata to node-object
