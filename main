@@ -9,12 +9,12 @@ then
 	erconfig="$1.json"
 	name="${1##*/}"
 	clog="er-output-${name}.log"
-fi
-
-if test -f ./router_main_init.js
-then
-	./router_main_init.js >${clog} 2>&1
-	exit 0
+else
+	if test -f ./router_main_init.js
+	then
+		./router_main_init.js >${clog} 2>&1
+		exit 0
+	fi
 fi
 
 
