@@ -40,9 +40,12 @@ status() {
 	if [ -f $PID ]
 		then
 		echo
-		echo "Pid file: $( cat $PID ) [$PID]"
+		pidc="$(cat $PID)"
+		echo "Pid file: $pidc [$PID]"
+		pgrp=$(echo $( ps -p${pidc} o pgrp=))
+		echo "PGRP: ${pgrp}"
 		echo
-		ps -ef | grep -v grep | grep $( cat $PID )
+		ps -e -O pgrp | grep -v grep | grep $pgrp
 	else
 		echo
 		echo "No Pid file"
@@ -78,7 +81,9 @@ stop() {
  
 	if [ -f $PID ]
 	then
-		if kill $( cat $PID )
+		pidc="$(cat $PID)"
+		pgrp=$(echo $( ps -p${pidc} o pgrp=))
+		if kill -- -${pgrp}
 		then
 			echo "Done."
 			echo "$(date '+%Y-%m-%d %X'): STOP" >>$LOG
