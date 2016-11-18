@@ -8,5 +8,6 @@ exports.static_routes = {
 	'/TUBS/IWF/Forschungsfabrik/VB1 Metallbearbeitung/DMU 100 MonoBLOCK/Vibration_y.vibration.data':'/mysql/DMU/Vibration_y',
 	'/Engel/P':'/mysql/Engel/P',
 	'/Spinner/P':'/mysql/Spinner/P',
-	'/DMU/CA':'/mysql/DMU/CA'
+	'/DMU/CA':'/mysql/DMU/CA',
+	'/TUBS/IWF/TGA/Regenerative Energien/Windkraftanlage/Windstärke.windintensity.data':'/mysql/RenewableEnergy/WindSpeed'
 };
