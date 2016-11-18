@@ -60,7 +60,7 @@ main.prototype.sub_config = function(config) {
 			if (typeof c.name === "string" &&
 					typeof c.url === "string") {
 				_this.remotes[c.name] =
-					_this.create_websocket_client(c.url, c.node);
+					_this.create_websocket_client(c.url, c.node, c);
 			} else {
 				console.log("Waring: Remote config options missing.", c);
 			}
@@ -88,8 +88,18 @@ main.prototype.create_websocket_server = function(server_port) {
 	return wss;
 };
 
-main.prototype.create_websocket_client = function(url, nodes) {
+main.prototype.create_websocket_client = function(url, nodes, config) {
 	var ws = require('./router_websocket_client').init(this.router, "", url);
+	if (typeof config.remote_basename === "string") {
+		ws.remote_basename = config.remote_basename;
+	} else {
+		ws.remote_basename = "/" + this.router.name;
+	}
+	if (typeof config.basename === "string") {
+		ws.basename = config.basename;
+	}
+
+	// data to UPSTREAM
 	if (Array.isArray(nodes)) {
 		nodes.forEach(function(node) {
 			ws.node_local(node, "subscribe_announcement");
@@ -97,14 +107,12 @@ main.prototype.create_websocket_client = function(url, nodes) {
 	} else if (typeof nodes === "string") {
 		ws.node_local(nodes, "subscribe_announcement");
 	} else {
-		// data to UPSTREAM
 		ws.node_local("/", "subscribe_announcement");
-		// add "/" + this.router.name
-		ws.remote_basename = "/" + this.router.name;
+	}
 
-		// data from UPSTREAM
-		//ws.subscribe_announcement("/");
-		// add ":" + remote.name ???
+	// data from UPSTREAM
+	if (typeof config.subscribe === "string") {
+		ws.subscribe_announcement(config.subscribe);
 	}
 
 	return ws;
