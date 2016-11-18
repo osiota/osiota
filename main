@@ -12,13 +12,13 @@ then
 else
 	if test -f ./router_main_init.js
 	then
-		./router_main_init.js >${clog} 2>&1
+		./router_main_init.js 2>&1 | tee "${clog}"
 		exit 0
 	fi
 fi
 
 
-/usr/bin/env nodejs ./main_cli.js --config "${erconfig}" >${clog} 2>&1
+/usr/bin/env nodejs ./main_cli.js --config "${erconfig}" 2>&1 | tee "${clog}"
 if test "x$?" = "x127" || test "x$?" = "x126"
 then
 	/usr/bin/env node ./main_cli.js --config "${erconfig}" 2>&1 | tee "${clog}"
