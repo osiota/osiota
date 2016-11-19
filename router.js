@@ -486,16 +486,41 @@ exports.node.prototype.rpc_unregister = function(reply, rentry) {
 	reply(null, "okay");
 };
 exports.node.prototype.rpc = function(method) {
-	if (!this.hasOwnProperty("connection"))
-		return false;
-	var ws = this.connection;
+	if (!this.hasOwnProperty("connection")) {
+		var args = Array.prototype.slice.call(arguments);
+		//var method =
+		args.shift();
 
-	var args = Array.prototype.slice.call(arguments);
+		var callback = null;
+		if (typeof args[args.length-1] === "function") {
+			callback = args.pop();
+		}
 
-	// Add node object to arguments:
-	args.unshift(this);
-	if (ws !== null)
-		ws.node_rpc.apply(ws, args);
+		var reply = function(error, data) {
+			if (error !== null) {
+				console.error("RPC(local)-Error: ", error, data);
+			} else {
+				if (callback) {
+					callback(data);
+				}
+			}
+		};
+
+		if (this._rpc_process(method, args, reply)) {
+			return;
+		}
+
+		return true;
+	} else {
+		var ws = this.connection;
+
+		var args = Array.prototype.slice.call(arguments);
+
+		// Add node object to arguments:
+		args.unshift(this);
+		if (ws !== null)
+			ws.node_rpc.apply(ws, args);
+	}
 };
 
 /* Overwrite function to convert object to string: */
