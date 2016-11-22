@@ -15,7 +15,9 @@ RegExp.quote = function(str) {
 var RemoteCall = require('./router_remotecall.js').remotecall;
 
 /**
- * Class: Node
+ * Create a node instance
+ * @class
+ * @classdesc Node class
  * @param {router} r - The router instance
  * @param {string} name - The name of the node
  * @param {node} parentnode - The parent node
@@ -69,7 +71,7 @@ exports.node = function(r, name, parentnode) {
 	r.emit('create_new_node', this);
 };
 util.inherits(exports.node, RemoteCall);
-/* Get a node */
+/** Get a node */
 exports.node.prototype.node = function(name) {
 	if (name.match(/^\//))
 		return this.router.node(name);
@@ -86,7 +88,10 @@ exports.node.prototype.node = function(name) {
 	return this.router.node(this.name + "/" + name);
 };
 
-/* Announce node */
+/**
+ * Announce a node with meta data
+ * @param {object} metadata - Meta data describing the node
+ */
 exports.node.prototype.announce = function(metadata) {
 	if (typeof metadata !== "object" || metadata === null) {
 		metadata = {};
@@ -95,7 +100,8 @@ exports.node.prototype.announce = function(metadata) {
 
 	this.announce_climb(this, "announce");
 };
-exports.node.prototype.unannounce = function(node) {
+/** Unannounce a node */
+exports.node.prototype.unannounce = function() {
 	this.metadata = null;
 	this.value = null;
 	this.time = null;
@@ -389,7 +395,10 @@ exports.node.prototype.unregister = function(rentry) {
 	console.log("\tfailed.");
 };
 
-/* Subscribe Listener */
+/**
+ * Subscribe to the changes of a node
+ * @param {function} object - The function to be called on new data
+ */
 exports.node.prototype.subscribe = function(object) {
 	// Save the time when this entry was added
 	object.time_added = new Date();
@@ -404,6 +413,10 @@ exports.node.prototype.subscribe = function(object) {
 	return object;
 };
 
+/**
+ * Unsubscribe to the changes of a node
+ * @param {function} object - The function to be unsubscribed
+ */
 exports.node.prototype.unsubscribe = function(object) {
 	for(var j=0; j<this.subscription_listener.length; j++) {
 		if (this.subscription_listener[j] === object) {
@@ -552,7 +565,9 @@ exports.node.prototype.toJSON = function() {
 
 
 /**
- * Class: Router
+ * Creates a Router instance
+ * @class
+ * @classdesc Router class
  * @param {string} name - The name of the router, optional
  */
 exports.router = function(name) {
