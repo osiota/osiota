@@ -1,4 +1,4 @@
-/**
+/*
  * Created by Saskia on 02.09.2016.
  *
  * This application is used for simulation real-world devices. It generates energy- and status values for the devices

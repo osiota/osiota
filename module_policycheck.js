@@ -1,4 +1,4 @@
-/**
+/*
  * Created by Saskia on 18.08.2016.
  *
  * This module introduces a security-mechanism to prevent two things:

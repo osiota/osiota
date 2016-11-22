@@ -1,4 +1,4 @@
-/**
+/*
  * Created by Saskia on 27.09.2016.
  *
  * JSON schema validator using "jsonschema"-package which is designed to be fast and simple to use.
