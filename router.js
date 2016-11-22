@@ -71,7 +71,10 @@ exports.node = function(r, name, parentnode) {
 	r.emit('create_new_node', this);
 };
 util.inherits(exports.node, RemoteCall);
-/** Get a node */
+/**
+ * Get a node instance
+ * @param {string} name - Name of the node
+ */
 exports.node.prototype.node = function(name) {
 	if (name.match(/^\//))
 		return this.router.node(name);
@@ -440,7 +443,10 @@ exports.node.prototype.subscription_notify = function(do_not_add_to_history) {
 	});
 };
 
-/* Announcement Listener */
+/**
+ * Subscribe to announcements
+ * @param {function} object - The function to be called an new announcements
+ */
 exports.node.prototype.subscribe_announcement = function(object) {
 	// Save the time when this entry was added
 	object.time_added = new Date();
@@ -462,6 +468,10 @@ exports.node.prototype.subscribe_announcement = function(object) {
 	return object;
 };
 
+/**
+ * Unsubscribe announcements
+ * @param {function} object - The function to be unsubscribed
+ */
 exports.node.prototype.unsubscribe_announcement = function(object) {
 	for(var j=0; j<this.announcement_listener.length; j++) {
 		if (this.announcement_listener[j] === object) {
@@ -503,6 +513,12 @@ exports.node.prototype.rpc_unregister = function(reply, rentry) {
 	this.unregister(rentry);
 	reply(null, "okay");
 };
+/**
+ * Execute a RPC command on the node
+ * @param {string} method - Method to be called
+ * @param args - Extra arguments
+ * @param {function} callback - Callback to get the result
+ */
 exports.node.prototype.rpc = function(method) {
 	if (!this.hasOwnProperty("connection")) {
 		var args = Array.prototype.slice.call(arguments);
@@ -657,7 +673,10 @@ exports.router.prototype.get_dests = function() {
 };
 
 
-/* Get data of a node */
+/**
+ * Get a node instance
+ * @param {string} name - Name of the node
+ */
 exports.router.prototype.node = function(name, create_new_node) {
 	if (typeof name === "object") return name;
 
