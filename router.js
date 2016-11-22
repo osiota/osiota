@@ -30,9 +30,12 @@ exports.node = function(r, name, parentnode) {
 
 	this.router = r;
 
+	/** Value of the node */
 	this.value = null;
+	/** Timestamp of the last change */
 	this.time = null;
 
+	/** Meta data describing the data in the node */
 	this.metadata = null;
 
 	this.subscription_listener = [];
@@ -74,6 +77,7 @@ util.inherits(exports.node, RemoteCall);
 /**
  * Get a node instance
  * @param {string} name - Name of the node
+ * @returns {node}
  */
 exports.node.prototype.node = function(name) {
 	if (name.match(/^\//))
@@ -400,7 +404,7 @@ exports.node.prototype.unregister = function(rentry) {
 
 /**
  * Subscribe to the changes of a node
- * @param {function} object - The function to be called on new data
+ * @param {node~subscribeCallback} object - The function to be called on new data
  */
 exports.node.prototype.subscribe = function(object) {
 	// Save the time when this entry was added
@@ -415,6 +419,14 @@ exports.node.prototype.subscribe = function(object) {
 
 	return object;
 };
+
+/**
+ * Callback to be used when subscribing a node
+ * @callback node~subscribeCallback
+ * @param {boolean} do_not_add_to_history - Shall this new entry be added to the history?
+ * @param {boolean} initial - Is called initialy?
+ */
+
 
 /**
  * Unsubscribe to the changes of a node
@@ -516,8 +528,8 @@ exports.node.prototype.rpc_unregister = function(reply, rentry) {
 /**
  * Execute a RPC command on the node
  * @param {string} method - Method to be called
- * @param args - Extra arguments
- * @param {function} callback - Callback to get the result
+ * @param {...*} args - Extra arguments
+ * @param {function} [callback] - Callback to get the result
  */
 exports.node.prototype.rpc = function(method) {
 	if (!this.hasOwnProperty("connection")) {
@@ -584,7 +596,7 @@ exports.node.prototype.toJSON = function() {
  * Creates a Router instance
  * @class
  * @classdesc Router class
- * @param {string} name - The name of the router, optional
+ * @param {string} [name] - The name of the router
  */
 exports.router = function(name) {
 	this.nodes = {};
@@ -676,6 +688,7 @@ exports.router.prototype.get_dests = function() {
 /**
  * Get a node instance
  * @param {string} name - Name of the node
+ * @returns {node}
  */
 exports.router.prototype.node = function(name, create_new_node) {
 	if (typeof name === "object") return name;
