@@ -14,7 +14,12 @@ RegExp.quote = function(str) {
 
 var RemoteCall = require('./router_remotecall.js').remotecall;
 
-/* Class: Node */
+/**
+ * Class: Node
+ * @param {router} r - The router instance
+ * @param {string} name - The name of the node
+ * @param {node} parentnode - The parent node
+ */
 exports.node = function(r, name, parentnode) {
 	this.name = name;
 	if (typeof name === "string") {
@@ -546,7 +551,10 @@ exports.node.prototype.toJSON = function() {
 
 
 
-/* Class: Router */
+/**
+ * Class: Router
+ * @param {string} name - The name of the router, optional
+ */
 exports.router = function(name) {
 	this.nodes = {};
 	this.dests = {};
