@@ -414,6 +414,7 @@ exports.node.prototype.unregister = function(rentry) {
 /**
  * Subscribe to the changes of a node
  * @param {node~subscribeCallback} object - The function to be called on new data
+ * @this node
  */
 exports.node.prototype.subscribe = function(object) {
 	// Save the time when this entry was added
