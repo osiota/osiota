@@ -30,12 +30,21 @@ exports.node = function(r, name, parentnode) {
 
 	this.router = r;
 
-	/** Value of the node */
+	/**
+	 * Value of the node
+	 * @type {*}
+	 */
 	this.value = null;
-	/** Timestamp of the last change */
+	/**
+	 * Timestamp of the last change
+	 * @type {timestamp}
+	 */
 	this.time = null;
 
-	/** Meta data describing the data in the node */
+	/**
+	 * Meta data describing the data in the node
+	 * @type {object}
+	 */
 	this.metadata = null;
 
 	this.subscription_listener = [];
