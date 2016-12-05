@@ -175,10 +175,10 @@ exports.node.prototype.generate_metadata = function() {
 			// no default values yet
 		};
 	} else {
-		var type = this.name.match(/\.[^\/]*$/);
+		var type = this.name.match(/\.([^\/]*)$/);
 		if (type) {
 			metadata = {
-				type: type
+				type: type[1]
 			};
 		}
 	}
