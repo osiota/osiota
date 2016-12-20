@@ -1,6 +1,6 @@
 var Router = require("./router").router;
 var Policy_checker = require("./module_policycheck.js");
-var Application = require("./application.js");
+var Application = require("./application.js").application;
 
 var require_vm = require("./helper_require_vm.js");
 
@@ -140,12 +140,13 @@ main.prototype.startup = function(app, app_config, host_info, auto_install, call
 
 	var app_identifier = app;
 	var app_increment = 2;
-	while(this.app.hasOwnProperty(app_identifier)) {
+	while(this.apps.hasOwnProperty(app_identifier)) {
 		app_identifier = app + "_" + app_increment++;
 	}
 
 	try {
-		var a = new Application(app_identifier, app, node, app_config, this, hist_info);
+		var node = this.node("/app/" + app_identifier);
+		var a = new Application(app_identifier, app, node, app_config, this, host_info);
 		this.apps[app_identifier] = a;
 
 		a._bind_module( this.require(app, app_config, host_info, auto_install) );
@@ -154,9 +155,9 @@ main.prototype.startup = function(app, app_config, host_info, auto_install, call
 		if (typeof callback === "function") {
 			callback(a);
 		}
-	} catch(error) {
-		console.log("error starting app: ", error);
-		this.apps[app_identifier].error = error;
+	} catch(e) {
+		console.log("error starting app: ", e, e.stack.split("\n"));
+		this.apps[app_identifier].error = e;
 	}
 	return app;
 };
