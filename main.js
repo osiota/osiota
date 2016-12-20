@@ -1,5 +1,6 @@
 var Router = require("./router").router;
 var Policy_checker = require("./module_policycheck.js");
+var Application = require("./application.js");
 
 var require_vm = require("./helper_require_vm.js");
 
@@ -130,22 +131,32 @@ main.prototype.node = function(name) {
 };
 
 main.prototype.require = function(app) {
-	app = "er-app-" + app.replace(/^er-app-/, "");
 	return require_vm(app, ["./", "../", ""]);
 };
 
-main.prototype.startup = function(app, app_config, host_info, auto_install) {
+main.prototype.startup = function(app, app_config, host_info, auto_install, callback) {
+	app = "er-app-" + app.replace(/^er-app-/, "");
 	console.log("startup:", app);
 
-	try {
-		var m = this.require(app, app_config, host_info, auto_install);
+	var app_identifier = app;
+	var app_increment = 2;
+	while(this.app.hasOwnProperty(app_identifier)) {
+		app_identifier = app + "_" + app_increment++;
+	}
 
-		// TODO: Change Arguments:
-		var n = this.node("/app/"+app);
-		this.apps[app] = m;
-		m.init(n, app_config, this, host_info, auto_install);
+	try {
+		var a = new Application(app_identifier, app, node, app_config, this, hist_info);
+		this.apps[app_identifier] = a;
+
+		a._bind_module( this.require(app, app_config, host_info, auto_install) );
+		a._init();
+
+		if (typeof callback === "function") {
+			callback(a);
+		}
 	} catch(error) {
 		console.log("error starting app: ", error);
+		this.apps[app_identifier].error = error;
 	}
 	return app;
 };
