@@ -37,6 +37,7 @@ main.prototype.install = function(app, callback) {
 	});
 };
 
+/*
 main.prototype.get_allapps = function(callback) {
 	npm.command("ls", [], true, function(data, lite) {
 		var library_names = [];
@@ -74,6 +75,7 @@ main.prototype.require_module = function(app, app_config, host_info, auto_instal
 	};
 	return false;
 };
+*/
 
 module.exports = main;
 
