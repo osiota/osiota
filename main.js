@@ -1,6 +1,8 @@
 var Router = require("./router").router;
 var Policy_checker = require("./module_policycheck.js");
 
+var require_vm = require("./helper_require_vm.js");
+
 function main(router_name) {
 	this.router = new Router(router_name);
 	require('./router_io_function.js').init(this.router);
@@ -127,55 +129,10 @@ main.prototype.node = function(name) {
 	return this.router.node(name);
 };
 
-main.prototype.try_require = function(require_fkt, app, app_config, host_info, auto_install) {
-	try {
-		return require_fkt.call(this, app, app_config, host_info, auto_install);
-	} catch(error) {
-		if (error.code == 'MODULE_NOT_FOUND') {
-			return false;
-		}
-		throw error;
-	}
+main.prototype.require = function(app) {
+	app = "er-app-" + app.replace(/^er-app-/, "");
+	return require_vm(app, ["./", "../", ""]);
 };
-
-main.prototype.require_router_module = function(app) {
-	if (app.match(/^router_/)) {
-		app = app.replace(/^router_/, "");
-		return require("./router_" + app);
-	}
-	return false;
-};
-
-main.prototype.require_indir = function(app) {
-	app = app.replace(/^er-app-/, "");
-	return require("./er-app-" + app);
-};
-main.prototype.require_inpdir = function(app) {
-	app = app.replace(/^er-app-/, "");
-	return require("../er-app-" + app);
-};
-main.prototype.require_module = function(app) {
-	app = app.replace(/^er-app-/, "");
-	return require("er-app-" + app);
-};
-main.prototype.require_auto = function(app, app_config, host_info, auto_install) {
-	var m;
-	m = this.try_require(this.require_router_module, app, app_config, host_info, auto_install);
-	if (m) return m;
-
-	m = this.try_require(this.require_indir, app, app_config, host_info, auto_install);
-	if (m) return m;
-
-	m = this.try_require(this.require_inpdir, app, app_config, host_info, auto_install);
-	if (m) return m;
-
-	m = this.try_require(this.require_module, app, app_config, host_info, auto_install);
-	if (m) return m;
-
-	throw new Error("Application not found: " + app);
-};
-
-main.prototype.require = main.prototype.require_auto;
 
 main.prototype.startup = function(app, app_config, host_info, auto_install) {
 	console.log("startup:", app);
