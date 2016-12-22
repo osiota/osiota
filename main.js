@@ -43,12 +43,6 @@ main.prototype.config = function(config) {
 		this.create_websocket_server(config.server);
 	}
 
-	if (typeof config.require_method === "string") {
-		if (!this.hasOwnProperty("require_" + config.require_method))
-			throw new Error("require method not found.");
-		this.require = this["require_" + config.require_method];
-	}
-
 	this.sub_config(config);
 };
 main.prototype.sub_config = function(config) {
