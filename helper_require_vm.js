@@ -8,7 +8,9 @@ if (!internalModuleReadFile) {
 
 // include vm2 if nodejs support it:
 if (parseInt(process.versions.node.split(".")[0]) >= 6) {
-	var NodeVM = require("vm2/lib/main").NodeVM;
+	try {
+		var NodeVM = require("vm2/lib/main").NodeVM;
+	} catch(e) {}
 } else {
 	console.warn("node.js version is lower than 6: vm2 can not be used.");
 }
