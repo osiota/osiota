@@ -43,6 +43,11 @@ main.prototype.config = function(config) {
 		this.create_websocket_server(config.server);
 	}
 
+	this.apps_use_vm = true;
+	if (typeof config.apps_use_vm !== "undefined") {
+		this.apps_use_vm = config.apps_use_vm;
+	}
+
 	this.sub_config(config);
 };
 main.prototype.sub_config = function(config) {
@@ -125,7 +130,7 @@ main.prototype.node = function(name) {
 };
 
 main.prototype.require = function(app) {
-	return require_vm(app, ["./", "../", ""]);
+	return require_vm(app, ["./", "../", ""], this.apps_use_vm);
 };
 
 main.prototype.startup = function(app, app_config, host_info, auto_install, callback) {

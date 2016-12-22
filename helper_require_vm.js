@@ -45,7 +45,8 @@ var readPackage = function(requestPath) {
 	return pkg;
 };
 
-var require_vm = function(module_name, paths) {
+var require_vm = function(module_name, paths, use_vm) {
+	if (typeof use_vm === "undefined") use_vm = true;
 	var options = {
 		sandbox: {},
 		console: "inherit",
@@ -88,7 +89,7 @@ var require_vm = function(module_name, paths) {
 	//console.log("root", dirname);
 	options.require.root = dirname;
 
-	if (NodeVM) {
+	if (NodeVM && use_vm) {
 		return new NodeVM(options).run(fs.readFileSync(filename, 'utf8'), filename);
 	} else {
 		return require(filename);
