@@ -33,7 +33,7 @@ exports.application.prototype._bind_module = function(module) {
 exports.application.prototype._init = function() {
 	if (typeof this.init === "function") {
 		// TODO: Change Arguments:
-		this.init(this.node, this.app_config, this.main, this.extra);
+		this.init(this.node, this.config, this.main, this.extra);
 	}
 
 	this.state = "RUNNING";
