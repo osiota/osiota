@@ -1,6 +1,7 @@
 var http = require("http");
 
-exports.init = function(router, url) {
+exports.init = function(node, app_config, main, host_info) {
+	var url = app_config.url;
 
 	http.get(url, function(res) {
 		var body = '';
@@ -11,15 +12,16 @@ exports.init = function(router, url) {
 
 		res.on('end', function() {
 			try {
-				var static_routes = JSON.parse(body)
-				router.connectArray(static_routes);
+				var config = JSON.parse(body);
+				main.sub_config(config);
 			} catch (e) {
-				console.log("JSONConnect, on message, Exception: ", e);
+				console.log("Remote Config, " +
+						"JSON Exception: ", e);
 				console.log("\tMessage: ", body);
 			}
 
 		});
 	}).on('error', function(e) {
-		console.log("Got error: ", e);
+		console.log("Remote COnfig, HTTP Exception: ", e);
 	});
 };
