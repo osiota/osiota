@@ -83,7 +83,15 @@ pwsc.prototype.init = function() {
 	} catch(e) {
 		console.log("bWSc: Exception while creating socket: ", e);
 		this.ws = undefined;
-		setTimeout(function() { pthis.init(); }, 3000);
+		if (e.name == "SecurityError" && e.message == "The operation is insecure.") {
+			if (typeof alert == "function") {
+				alert("Can not downgrade SSL connection. Use WebSocket over SSL: wss://");
+			} else {
+				console.warn("Can not downgrade SSL connection. Use WebSocket over SSL: wss://");
+			}
+		} else {
+			setTimeout(function() { pthis.init(); }, 3000);
+		}
 	}
 };
 pwsc.prototype.sendjson = function(data) {
