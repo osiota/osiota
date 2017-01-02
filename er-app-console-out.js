@@ -4,7 +4,6 @@ exports.init = function(node, app_config, main, host_info) {
 
 	node(basename).subscribe(function() {
 		console.log(basename + " [" + this.time + "]:\t" + this.value);
-
 	});
 };
 
