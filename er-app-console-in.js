@@ -1,5 +1,7 @@
 
-exports.init = function(router, basename) {
+exports.init = function(node, app_config, main, host_info) {
+	var basename = app_config.basename;
+
 	process.stdin.setEncoding('utf8');
 	process.stdin.on('readable', function() {
 		var chunk = process.stdin.read();
@@ -14,7 +16,12 @@ exports.init = function(router, basename) {
 						var time = result[2];
 						var value = result[3];
 						if (value === "undefined") value = null;
-						router.node(basename + name).publish(time, value);
+						if (typeof time === "string" && time !== "") {
+							time = time * 1;
+						} else {
+							time = undefined;
+						}
+						node(basename + name).publish(time, value);
 					}
 				}
 			}

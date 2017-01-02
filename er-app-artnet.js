@@ -5,25 +5,23 @@
  * that.send(universe, 512, callback);
  */
 
-exports.init = function(router, basename, options, nodes) {
+exports.init = function(node, app_config, main, host_info) {
+	var options = app_config.options;
+	var nodes = app_config.nodes;
+
 	var artnet = require('artnet')(options);
 
-	router.dests.artnet = function(node) {
-		var channel = this.id;
-		var value = node.value;
-		if (value !== null) {
-			value *= 1;
-			artnet.set(channel, value);
-		}
-
-		var dnode = node.name.replace(/_s$|@s$/, "");
-		router.node(dnode).publish(node.time, value);
-	};
-
 	for (var n in nodes) {
-		var channel = nodes[n];
+		let channel = nodes[n];
 
-		router.node(basename + n + '_s').register('artnet', channel);
+		node(n).rpc_set(function(value) {
+			if (typeof value !== "number")
+				value *= 1;
+			if (value !== null)
+				artnet.set(channel, value);
+
+			this.publish(undefined, value);
+		});
 	}
 };
 
