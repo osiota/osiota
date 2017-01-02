@@ -3,7 +3,7 @@
 exports.init = function(router, history_type, history_config) {
 	var History;
 	if (history_type == "ram")
-		History = require('./module_history_class.js').history;
+		History = require('./module_history_class_memory.js').history;
 	else if (history_type == "levelup")
 		History = require('./module_history_class_levelup.js').history;
 	else
