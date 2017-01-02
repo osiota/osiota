@@ -1,5 +1,12 @@
 
-exports.init = function(router, basename, delay, cmin, cmax, exp, round) {
+exports.init = function(node, app_config, main, host_info) {
+	var basename = app_config.basename;
+	var delay = app_config.delay;
+	var cmin = app_config.cmin;
+	var cmax = app_config.cmax;
+	var exp = app_config.exp;
+	var round = app_config.round;
+
 	if (typeof delay === "undefined")
 		delay = 1000;
 	if (typeof cmin === "undefined")
@@ -12,7 +19,7 @@ exports.init = function(router, basename, delay, cmin, cmax, exp, round) {
 		round = null;
 
 	var last_value = 0.5;
-	setInterval(function(router, basename, cmin, cmax) {
+	setInterval(function(node, basename, cmin, cmax) {
 		var v = Math.random();
 		v = last_value + (v-0.5)/exp;
 		v = Math.max(Math.min(v, 1), 0);
@@ -22,8 +29,8 @@ exports.init = function(router, basename, delay, cmin, cmax, exp, round) {
 		if (round !== null) {
 			v = Math.round( v * Math.pow(10, round) ) / Math.pow(10, round);
 		}
-		router.node(basename).publish(undefined, v);
-	}, delay, router, basename, cmin, cmax);
+		node(basename).publish(undefined, v);
+	}, delay, node, basename, cmin, cmax);
 
 };
 
