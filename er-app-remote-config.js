@@ -3,6 +3,9 @@ var http = require("http");
 exports.init = function(node, app_config, main, host_info) {
 	var url = app_config.url;
 
+	// todo:
+	// warning if not SSL or localhost
+
 	http.get(url, function(res) {
 		var body = '';
 
