@@ -10,7 +10,7 @@ exports.init = function(router, history_type, history_config) {
 		throw Exception("Not history type defined.");
 
 	router.on("create_new_node", function(node) {
-		node.history = new History(node.name, history_config);
+		node.history = new History(node, history_config);
 
 		node.on("set", function(time, value, only_if_differ, do_not_add_to_history) {
 			// add history:
@@ -36,6 +36,8 @@ exports.init = function(router, history_type, history_config) {
 		};
 		node.history.synced = false;
 		node.get_history_on_initialsync = function(config, callback, timeout) {
+			// this = node
+
 			if (typeof timeout !== "number") timeout = 1000;
 			if (this.connection && !this.history.synced) {
 				var _this = this;

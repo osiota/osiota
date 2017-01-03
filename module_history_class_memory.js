@@ -2,7 +2,7 @@
 var binarysearch = require("binary-search");
 
 /* history */
-exports.history = function(nodename, history_config) {
+exports.history = function(node, history_config) {
 	this.history_length = 3000;
 	if (typeof history_config === "object" &&
 			history_config.hasOwnProperty("max_data") &&
@@ -92,6 +92,5 @@ exports.history.prototype.get = function(interval, callback) {
 
 	// return data:
 	callback(data);
-}
-
+};
 

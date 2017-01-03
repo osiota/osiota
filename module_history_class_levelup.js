@@ -30,8 +30,9 @@ var helper_change_timebase = function (interval, callback) {
 	};
 }
 
-exports.history = function (nodeName, history_config) {
+exports.history = function (node, history_config) {
 	var _this = this;
+	var nodeName = node.name;
 	this.nodeName = nodeName;
 	this.timebases = [];
 	levelUP('./level_db' + nodeName);
