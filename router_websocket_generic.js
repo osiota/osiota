@@ -170,8 +170,11 @@ exports.init = function(router, ws, module_name) {
 			return false;
 		return this.subscribe(function(do_not_add_to_history, initial) {
 			var node = this;
-			if (initial === true)
-				ws.node_rpc(node, "missed_data", node.time);
+			if (initial === true) {
+				if (node.hasOwnProperty("history")) {
+					ws.node_rpc(node, "missed_data", node.time);
+				}
+			}
 			ws.node_rpc(node, "data", node.time, node.value, false, do_not_add_to_history);
 		});
 	}, function (ref) {
