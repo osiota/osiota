@@ -4,30 +4,30 @@ Zu erledigende Aufgaben
 
 ## Allgemein
 
-* History (load data again) -- Chao
-* History mit Zusammenfassung -- Chao
+* History-Module zusammenführen
  
-* Persistenz: Daten speichern und wieder laden -- Chao
-* Neustart im laufenden Betrieb
+* Config Persistenz: Daten speichern und wieder laden
 
-* Kern von Modulen abschotten
-
+* Kern von Modulen abschotten, Test
 * Multikern-Tauiglichkeit
 
-* Metadaten (Typ für Daten) ermöglichen
-
 ## Webclient
-* Browserfy
-* Backbone model binding
+
+* Graph-Aufruf mit History-Einschränkung.
+* Design:
+  * white
+  * black
+* Kacheln für white und black design.
+* Button anhand von Meta (ist Knopf, hat RPC-Funktion)
+
 
 ## Router
 
 * Authentifizierung (IBR)
 * Sicherheit (IBR)
-* Routing-Funktionalität (IBR, Saskia)
+* Routing-Funktionalität in eigenes Modul
 
 ## Kleinigkeiten
 
-* Bug: Wenn man das Root-Element abboniert wird, dann wird ein Slash zu viel vorgesetzt.
-* Doku: init.d
-* PHP entfernen
+* Doku: Start-Skripte, init.d
+
