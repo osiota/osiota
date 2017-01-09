@@ -29,7 +29,11 @@ var resolveFilename = function(request, parent, isMain) {
 // from: https://github.com/nodejs/node/blob/master/lib/module.js
 var readPackage = function(requestPath) {
 	const jsonPath = pa.resolve(requestPath, "package.json");
-	const json = internalModuleReadFile(pa._makeLong(jsonPath));
+	try {
+		var json = internalModuleReadFile(pa._makeLong(jsonPath));
+	} catch (e) {
+		return false;
+	}
 
 	if (json === undefined) {
 		return false;
