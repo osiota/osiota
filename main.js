@@ -20,6 +20,8 @@ function main(router_name) {
 main.prototype.config = function(config) {
 	var _this = this;
 
+	this._config = config;
+
 	if (typeof config.hostname !== "undefined") {
 		this.router.name = config.hostname;
 	}
