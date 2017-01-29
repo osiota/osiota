@@ -53,8 +53,6 @@ exports.node = function(r, name, parentnode) {
 
 	this.parentnode = parentnode;
 
-	console.log("new node: " + name);
-
 	RemoteCall.call(this);
 
 	// subscripbe from remote host:
@@ -113,6 +111,7 @@ exports.node.prototype.announce = function(metadata) {
 		metadata = {};
 	}
 	this.metadata = metadata;
+	console.log("new node:", this.name);
 
 	this.announce_climb(this, "announce");
 };
