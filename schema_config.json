@@ -11,6 +11,29 @@
 		"server": {
 			"type": "number"
 		},
+		"connect": {
+			"type": "object",
+			"title": "Connect nodes to each other",
+			"patternProperties": {
+				"^(.+)$": {
+					"type": "object",
+					"properties": {
+						"address": {
+							"type": "number"
+						},
+						"default": {
+							"type": "number"
+						}
+					},
+					"required": ["address"]
+				}
+			},
+			"additionalProperties": true,
+			"options": {
+				"disable_properties": false,
+				"disable_edit_json": false
+			}
+		},
 		"remote": {
 			"type": "array",
 			"title": "Remotes",
@@ -24,7 +47,7 @@
 					},
 					"url": {
 						"type": "string",
-						"format": "url"
+						"pattern": "^ws(s)?:\/\/[a-zA-Z0-9-_\.]+(?:[0-9]+)(?:/.*)$"
 					},
 					"node": {
 						"type": "string"
@@ -42,77 +65,8 @@
 				"type": "object",
 				"title": "Application",
 				"oneOf": [
-					{ "$ref": "#/definitions/er-app-admin" },
-					{ "$ref": "#/definitions/er-app-usbdmx" },
-					{ "$ref": "#/definitions/er-app-other" }
 				]
 			}
 		}
-	},
-	"definitions": {
-		"app1": {
-			"type": "object",
-			"title": "Anwendung 1",
-			"properties": {
-				"name": { "type": "string", "enum": ["app1"], "options": { "hidden": true }},
-				"hallo": { "type": "string" }
-			},
-			"required": [ "name" ],
-			"additionalProperties": false
-		},
-		"app2": {
-			"type": "object",
-			"title": "Anwendung 2",
-			"properties": {
-				"name": { "type": "string", "enum": ["app2"], "options": { "hidden": true }},
-				"hi": { "type": "string", "format": "color", "default": "#ffa500" }
-			},
-			"required": [ "name" ],
-			"additionalProperties": false
-		},
-		"er-app-admin": {
-			"type": "object",
-			"title": "Admin",
-			"properties": {
-				"name": { "type": "string", "enum": ["er-app-admin", "admin"], "options": { "hidden": true }},
-				"config": { "type": "object", "options": { "hidden": true } }
-			},
-			"required": [ "name" ],
-			"additionalProperties": false
-		},
-		"er-app-other": {
-			"type": "object",
-			"title": "Other",
-			"properties": {
-				"name": { "type": "string", "enum": ["er-app-tubs-extradata", "er-app-icce-demo", "er-app-analysis", "er-app-peak-manager", "er-app-jsoneditor-test"] },
-				"config": { "type": "object" }
-			},
-			"required": [ "name" ],
-			"additionalProperties": false
-		},
-		"er-app-usbdmx": {
-			"type": "object",
-			"title": "usbDMX",
-			"properties": {
-				"name": { "type": "string", "enum": ["er-app-usbdmx", "usbdmx"], "options": { "hidden": true }},
-				"config": {
-					"type": "object",
-					"options": { "hidden": true },
-					"properties": {
-						"device": {
-							"type": "string",
-							"title": "USB device"
-						},
-						"nodes": {
-							"type": "object",
-							"title": "Nodes"
-						}
-					}
-				}
-			},
-			"required": [ "name" ],
-			"additionalProperties": false
-		}
-
 	}
 }
