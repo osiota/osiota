@@ -2,7 +2,7 @@ const fs = require("fs");
 
 exports.init = function(node, app_config, main, host_info) {
 	var n = node.node("config.config.object");
-	var schema = require(__dirname + "/schema_config_3.json");
+	var schema = require(__dirname + "/schema_config.json");
 	schema.properties.app.items.oneOf = load_schema_apps();
 		
 	n.announce({
@@ -44,7 +44,7 @@ var load_schema_file = function(file) {
 		var stats = fs.statSync(file);
 		// if is_dir
 		if (stats.isDirectory()) {
-			return read_schema_file(file + "/config_schema.json");
+			return read_schema_file(file + "/schema_config.json");
 		}
 		// if is_file
 		else if (stats.isFile()) {

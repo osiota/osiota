@@ -18,14 +18,11 @@
 				"^(.+)$": {
 					"type": "object",
 					"properties": {
-						"address": {
-							"type": "number"
-						},
-						"default": {
-							"type": "number"
+						"target": {
+							"type": "string"
 						}
 					},
-					"required": ["address"]
+					"required": ["target"]
 				}
 			},
 			"additionalProperties": true,
@@ -43,14 +40,16 @@
 				"title": "Remote",
 				"properties": {
 					"name": {
-						"type": "string"
+						"type": "string",
+						"default": "remote"
 					},
 					"url": {
 						"type": "string",
-						"pattern": "^ws(s)?:\/\/[a-zA-Z0-9-_\.]+(?:[0-9]+)(?:/.*)$"
+						"pattern": "^ws(s)?://[a-zA-Z0-9-_.]+(:[0-9]+)?(/.*)?$"
 					},
 					"node": {
-						"type": "string"
+						"type": "string",
+						"default": "/"
 					}
 				},
 				"required": ["name", "url"]
