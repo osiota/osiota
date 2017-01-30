@@ -2,33 +2,51 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"description": "schema for an energy router config file",
 	"type": "object",
-	"required": [ "hostname" ],
+	"required": [ "hostname", "connect", "remote", "app" ],
 	"title": "energy-router configuration",
 	"properties": {
 		"hostname": {
 			"type": "string"
 		},
 		"server": {
-			"type": "number"
+			"oneOf": [
+				{
+					"type": "boolean",
+					"title": "deaktiviert",
+					"format": "checkbox",
+					"options": {
+						"hidden": true
+					}
+				},
+				{
+					"type": "number",
+					"title": "Port",
+					"minimum": 1,
+					"default": 8080
+				}
+			],
+			"default": false,
+			"options": {
+				"keep_oneof_values": false
+			}
+
 		},
 		"connect": {
-			"type": "object",
-			"title": "Connect nodes to each other",
-			"patternProperties": {
-				"^(.+)$": {
-					"type": "object",
-					"properties": {
-						"target": {
-							"type": "string"
-						}
+			"type": "array",
+			"format": "table",
+			"title": "Forward nodes",
+			"items": {
+				"type": "object",
+				"title": "Connection",
+				"properties": {
+					"source": {
+						"type": "string"
 					},
-					"required": ["target"]
-				}
-			},
-			"additionalProperties": true,
-			"options": {
-				"disable_properties": false,
-				"disable_edit_json": false
+					"target": {
+						"type": "string"
+					}
+				},
+				"required": ["source", "target"]
 			}
 		},
 		"remote": {
@@ -45,7 +63,8 @@
 					},
 					"url": {
 						"type": "string",
-						"pattern": "^ws(s)?://[a-zA-Z0-9-_.]+(:[0-9]+)?(/.*)?$"
+						"pattern": "^ws(s)?://[a-zA-Z0-9-_.]+(:[0-9]+)?(/.*)?$",
+						"default": "ws://localhost:8081"
 					},
 					"node": {
 						"type": "string",
@@ -59,12 +78,14 @@
 			"type": "array",
 			"title": "Applications",
 			"format": "tabs",
-			"keep_oneof_values": false,
 			"items": {
 				"type": "object",
 				"title": "Application",
 				"oneOf": [
-				]
+				],
+				"options": {
+					"keep_oneof_values": false
+				}
 			}
 		}
 	}
