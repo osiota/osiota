@@ -2,21 +2,18 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"description": "schema for an energy router config file",
 	"type": "object",
-	"required": [ "hostname", "connect", "remote", "app" ],
+	"required": [ "hostname", "connect", "server", "remote", "app" ],
 	"title": "energy-router configuration",
 	"properties": {
 		"hostname": {
-			"type": "string"
+			"type": "string",
+			"description": "Name of the energy-router"
 		},
 		"server": {
 			"oneOf": [
 				{
-					"type": "boolean",
-					"title": "deaktiviert",
-					"format": "checkbox",
-					"options": {
-						"hidden": true
-					}
+					"type": "null",
+					"title": "deaktiviert"
 				},
 				{
 					"type": "number",
@@ -29,7 +26,6 @@
 			"options": {
 				"keep_oneof_values": false
 			}
-
 		},
 		"connect": {
 			"type": "array",
