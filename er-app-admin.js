@@ -98,7 +98,7 @@ var load_schema_apps_in_dir = function(dir, schema) {
 				"options": {
 					"disable_collapse": false
 				}
-			}
+			};
 			schema.push(schema_a);
 			console.log(short_name, sub_schema);
 		}
