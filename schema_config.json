@@ -87,7 +87,7 @@
 				"oneOf": [
 				],
 				"options": {
-					"keep_oneof_values": false
+					"keep_oneof_values": true
 				}
 			}
 		}

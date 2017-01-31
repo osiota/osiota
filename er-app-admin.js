@@ -6,7 +6,9 @@ exports.init = function(node, app_config, main, host_info) {
 	schema.properties.app.items.oneOf = load_schema_apps();
 		
 	n.announce({
-		schema: schema
+		type: "config.object",
+		schema: schema,
+		extrabutton: "save"
 	});
 	n.publish(undefined,
 		require("./" + main._config.config)
@@ -18,7 +20,20 @@ exports.init = function(node, app_config, main, host_info) {
 		);
 		reply(null, "ok");
 	};
-
+	n.rpc_save = function(reply) {
+		var value = n.value;
+		console.log("saving config", value);
+		fs.writeFile("./" + main._config.config,
+				JSON.stringify(value, null, '\t'),
+				function(err) {
+			if (err) {
+				reply(err);
+				return;
+			}
+			reply(null, "config saved to file '" +
+					main._config.config + "'");
+		});
+	};
 };
 
 var read_schema_file = function(file, cb) {
@@ -105,6 +120,34 @@ var load_schema_apps_in_dir = function(dir, schema) {
 	});
 };
 
+var add_default_schema = function(schema) {
+	var sub_schema = create_default_schema();
+	var schema_a = {
+		"type": "object",
+		"title": "Sonstiges ...",
+		"properties": {
+			"disabled": {
+				"type": "string",
+				"enum": ["disabled"],
+				"options": {
+					"hidden": true
+				}
+			},
+			"name": {
+				"type": "string",
+			 },
+			"config": sub_schema
+		},
+		"required": [ "name", "disabled" ],
+		"additionalProperties": false,
+		"options": {
+			"disable_collapse": false
+		}
+	};
+
+	schema.unshift(schema_a);
+}
+
 var load_schema_apps = function(cb) {
 	var schema_apps = [];
 	load_schema_apps_in_dir("./node_modules/", schema_apps);
@@ -116,6 +159,9 @@ var load_schema_apps = function(cb) {
 			a.title < b.title ? -1 : 1
 		);
 	});
+
+	add_default_schema(schema_apps);
+
 	return schema_apps;
 };
 

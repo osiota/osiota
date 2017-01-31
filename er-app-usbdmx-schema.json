@@ -1,0 +1,33 @@
+{
+	"type": "object",
+	"title": "Settings",
+	"properties": {
+		"device": {
+			"type": "string",
+			"title": "USB device"
+		},
+		"nodes": {
+			"type": "array",
+			"format": "table",
+			"title": "DMX Kanäle",
+			"items": {
+				"type": "object",
+				"title": "Zuordnung",
+				"properties": {
+					"node": {
+						"type": "string"
+					},
+					"address": {
+						"type": "number",
+						"minimum": 0
+					},
+					"default": {
+						"type": "number"
+					}
+				},
+				"required": ["node", "address"]
+			}
+		}
+	},
+	"additionalProperties": false
+}
