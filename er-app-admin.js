@@ -14,7 +14,6 @@ exports.init = function(node, app_config, main, host_info) {
 		require("./" + main._config.config)
 	);
 	n.rpc_publish = function(reply, time, value) {
-		console.log("new config", value);
 		n.publish(undefined,
 			value
 		);
