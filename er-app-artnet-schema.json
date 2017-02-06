@@ -18,7 +18,7 @@
 		"nodes": {
 			"type": "array",
 			"format": "table",
-			"title": "Channels",
+			"title": "ArtNet Channels",
 			"items": {
 				"type": "object",
 				"title": "Mapping",

@@ -9,10 +9,10 @@
 		"nodes": {
 			"type": "array",
 			"format": "table",
-			"title": "DMX Kanäle",
+			"title": "DMX channels",
 			"items": {
 				"type": "object",
-				"title": "Zuordnung",
+				"title": "Mapping",
 				"properties": {
 					"node": {
 						"type": "string"
