@@ -19,5 +19,5 @@ sudo update-rc.d energy-router defaults
 
 ## Log file
 
-A log file with the name ``energy-router-output.log`` is created in the energy-router main directory containing the console output of your energy-router instance.
+A log file with the name ``er-output.log`` is created in the energy-router main directory containing the console output of your energy-router instance.
 
