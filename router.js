@@ -908,10 +908,3 @@ exports.router.prototype.nodename_transform = function(nodename, basename_add, b
 	return nodename;
 }
 
-
-/* on signal: end the process */
-if (process.on) { /* if NodeJS */
-	process.on('SIGINT', function() { process.exit(0); });
-	process.on('SIGTERM', function() { process.exit(0); });
-}
-

@@ -163,5 +163,16 @@ main.prototype.startup = function(app, app_config, host_info, auto_install, call
 	return app;
 };
 
+
+/* on signal: end the process */
+if (process.on) { /* if NodeJS */
+	process.on('SIGINT', function() { process.exit(0); });
+	process.on('SIGTERM', function() { process.exit(0); });
+
+	process.on('uncaughtException', function(err) {
+		console.log('Caught exception:', err);
+	});
+}
+
 module.exports = main;
 
