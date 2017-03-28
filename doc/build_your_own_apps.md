@@ -12,6 +12,7 @@ _*App:*_
 
 
 _config_file:_
+
 The config-JSON-file contains all information your ER needs every time it is started. It contains the Hostname and Port which the ER should use, as well as the connection to other ERs that should be established automatically. Furthermore all apps, their configuration parameters and all policies for the privacy functions are specified here.
 For example, a config file could look like the following:
 ```JSON
