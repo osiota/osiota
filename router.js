@@ -97,7 +97,7 @@ exports.node.prototype.node = function(name) {
 
 	var is_parent = name.match(/^\.\.\/(.*)$|^\.\.$/);
 	if (is_parent && this.parentnode) {
-		return this.parentnode.node(is_parent[1]);
+		return this.parentnode.node(is_parent[1] || ".");
 	}
 	return this.router.node(this.name + "/" + name);
 };
