@@ -22,22 +22,22 @@ exports.init = function(router, basename, mysql_config) {
 			if (err) {
 				if (connection)
 					connection.release();
-				console.warn("Error in connection database");
+				console.warn("mysql: Error while asking for a connection:", err);
 				return;
 			}
 			if (!connection.listeners("error")) {
 				connection.on("error", function(err) {
-					console.warn("Error in connection database: Error: " + err);
+					console.warn("mysql: Error while processing query. Error:", err);
 				});
 			}
 			connection.query(query, data, function(err, rows, fields) {
 				connection.release();
 				if (err) {
-					console.log('Error while performing Query: ' + err);
-				} else {
-					if (typeof callback === "function")
-						callback(rows, fields);
+					console.log('mysql: Error while performing query:', err);
+					return;
 				}
+				if (typeof callback === "function")
+					callback(rows, fields);
 			});
 		});
 	};
