@@ -702,7 +702,7 @@ exports.router.prototype.get_dests = function() {
 exports.router.prototype.node = function(name) {
 	if (typeof name === "object") return name;
 
-	if (name == "") name = "/";
+	name = "/" + name;
 	name = name.replace(/\/{2,}/, "/");
 
 	if (this.nodes.hasOwnProperty(name)) {
@@ -721,6 +721,7 @@ exports.router.prototype.node = function(name) {
 			parentnode = this.node("/");
 		}
 	}
+	// create new node:
 	this.nodes[name] = new exports.node(this, name, parentnode);
 	return this.nodes[name];
 };
