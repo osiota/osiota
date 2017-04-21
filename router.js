@@ -699,7 +699,7 @@ exports.router.prototype.get_dests = function() {
  * @param {string} name - Name of the node
  * @returns {node}
  */
-exports.router.prototype.node = function(name, create_new_node) {
+exports.router.prototype.node = function(name) {
 	if (typeof name === "object") return name;
 
 	if (name == "") name = "/";
@@ -708,17 +708,18 @@ exports.router.prototype.node = function(name, create_new_node) {
 	if (this.nodes.hasOwnProperty(name)) {
 		return this.nodes[name];
 	}
-	if (typeof create_new_node !== "undefined" && create_new_node === false) {
-		//throw new Error("node not found.");
-		return new exports.node(this, null);
-	}
+
 	// get parent node:
 	var parentnode = null;
-	if (!name.match(/^[\/@]+$/)) {
-		var parentname = name.replace(/[\/@][^\/@]*$/, "");
-		parentnode = this.node(parentname);
-	} else if (name !== "/") {
-		parentnode = this.node("/");
+	if (name == "/") {
+		parentnode = null;
+	} else {
+		if (name.match(/[\/@]/)) {
+			var parentname = name.replace(/[\/@][^\/@]*$/, "");
+			parentnode = this.node(parentname);
+		} else {
+			parentnode = this.node("/");
+		}
 	}
 	this.nodes[name] = new exports.node(this, name, parentnode);
 	return this.nodes[name];
