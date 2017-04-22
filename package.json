@@ -4,6 +4,7 @@
   "main": "main.js",
   "bin": "main_cli.js",
   "dependencies": {
+    "console-stamp": "^0.2.5",
     "binary-search": "^1.2.0",
     "yargs": "^4.7.1",
     "npm": "^3.10.6",

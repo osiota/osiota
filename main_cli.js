@@ -91,6 +91,14 @@ for (var key in keys) {
 	}
 }
 
+// create console
+try {
+	// TODO: configure logging via options
+	require('console-stamp')(console, 'HH:MM:ss');
+} catch(err) {
+
+}
+
 var m = new main(argv.hostname);
 m.config(argv);
 
