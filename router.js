@@ -876,6 +876,38 @@ exports.router.prototype.cue = function(callback) {
 		});
 	};
 };
+/* Cue data, getter */
+exports.router.prototype.cue_getter = function(callback) {
+	var cue_data = [];
+	var processing = false;
+	return function(entry) {
+		if (cue_data.length > 100000) {
+			console.warn("Cue data exceeding limit of 100 000 entries. Is your processing function broken? Flushing cue to avoid memory overflow.");
+			cue_data = [];
+			return;
+		}
+		cue_data.push(entry);
+		process.nextTick(function() {
+			try {
+				if (cue_data.length > 0 && !processing) {
+					processing = true;
+					callback(function(err) {
+						processing = false;
+						if (err) {
+							return;
+						}
+						var data = cue_data.splice(0,cue_data.length);
+						return data;
+					});
+				}
+			} catch (e) {
+				console.log("Exception (Router, cue):\n", e);
+				processing = false;
+			}
+		});
+	};
+};
+
 /* direct data processing without cue */
 exports.router.prototype.no_cue = function(callback) {
 	return function(data) {
