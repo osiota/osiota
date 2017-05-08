@@ -111,7 +111,7 @@ Subscribe to changes of this node. Changes are send back via the `data()` RPC ca
 
 Example:
 ```
-{"scope": "node", "node": "/example", "type": "bind"}
+{"scope": "node", "node": "/example", "type": "subscribe"}
 ```
 
 Response: `"okay"`
