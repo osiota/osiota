@@ -10,11 +10,12 @@ exports.init = function(router, basename, command, args) {
 	childProcess.stdout.setEncoding('utf8');
 	childProcess.stderr.setEncoding('utf8');
 
+	var buffer = "";
 	childProcess.stdout.on("data", function (data) {
 		//console.error("LOG "+data.toString());
-		var str = data.toString();
-		var lines = str.split(/\r?\n/g);
-		for (var i=0; i<lines.length; i++) {
+		buffer += data.toString();
+		var lines = buffer.split(/\r?\n/g);
+		for (var i=0; i<lines.length-1; i++) {
 			if (lines[i] != "") {
 				//console.log("LOG "+lines[i]);
 				var result = lines[i].match(/^([^\[]+)\s+\[([0-9.]+)\]:\s+([-0-9.]+)$/);
@@ -37,6 +38,7 @@ exports.init = function(router, basename, command, args) {
 				}
 			}
 		}
+		buffer = lines[lines.length-1];
 	});
 
 	childProcess.stderr.on("data", function (data) {
