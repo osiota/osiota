@@ -48,7 +48,7 @@ exports.history = function (node, history_config) {
 		(function(vdb, t) {
 			_this.timebases[t].add = helper_change_timebase(_this.timebases[t].delta_t, function(time, value) {
 				vdb.put(nodeName, value, {version: time}, function (err, version) {
-					if(err) return console.log('Error:', err);
+					if(err) return console.warn('Error:', err);
 				});
 			});
 		})(vdb, t);
@@ -111,10 +111,10 @@ exports.history.prototype.get = function (interval, callback) {
 		hdata.unshift(json);
 	})
 	.on('error', function (err) {
-		console.log('Error from getting history:',err);
+		console.warn('Error from getting history:',err);
 	})
 	.on('close', function () {
-		console.log('Getting history stream closed.');
+		console.warn('Getting history stream closed.');
 	})
 	.on('end', function() {
 		// from and to time not included: Remove them:

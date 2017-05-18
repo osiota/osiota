@@ -112,7 +112,7 @@ exports.node.prototype.announce = function(metadata, update) {
 		metadata = {};
 	}
 	if (this.metadata === null)
-		console.log("new node:", this.name);
+		console.info("new node:", this.name);
 
 	this.metadata = metadata;
 
@@ -300,12 +300,12 @@ exports.node.prototype.route_one = function(rentry, relative_name, do_not_add_to
 				dest_f.call(rentry, this, relative_name, do_not_add_to_history);
 
 			} catch (e) {
-				console.log("Exception (Router, call dest \""+rentry.dest+"\"):\n", e);
+				console.warn("Exception (Router, call dest \""+rentry.dest+"\"):\n", e.stack || e);
 			}
 		} else if (rentry.type == "node" && typeof rentry.dnode === "string") {
 			this.router.publish(rentry.dnode + relative_name, this.time, this.value, false, do_not_add_to_history);
 		} else {
-			console.log("Route [" + this.name + "]: Unknown destination type: ", rentry.type);
+			console.warn("Route [" + this.name + "]: Unknown destination type: ", rentry.type);
 		}
 	}
 };
@@ -313,7 +313,7 @@ exports.node.prototype.route_one = function(rentry, relative_name, do_not_add_to
 /* Add a routing entry */
 exports.node.prototype.add_rentry = function(rentry, push_data) {
 	if (typeof rentry !== "object") {
-		console.log("Router. Error: Type of rentry is not object. Type is: " + typeof rentry);
+		console.warn("Router. Error: Type of rentry is not object. Type is: " + typeof rentry);
 		return;
 	}
 	if (typeof push_data !== "boolean") {
@@ -347,13 +347,13 @@ exports.node.prototype.add_rentry = function(rentry, push_data) {
 
 /* Register a callback or a link name for a route */
 exports.node.prototype.register = function(dest, id, obj, push_data) {
-	console.log("registering " + this.name);
+	console.info("registering " + this.name);
 
 	var rentry = {};
 
 	var sdest = this.router.get_static_dest(dest);
 	if (typeof sdest === "undefined") {
-		console.log("Router. Error: Register function not found on ", dest);
+		console.warn("Router. Error: Register function not found on ", dest);
 		return;
 	}
 
@@ -378,13 +378,13 @@ exports.node.prototype.connect = function(dnode) {
 	if (typeof dnode !== "string")
 		return;
 
-	console.log("connecting " + this.name + " to " + dnode);
+	console.info("connecting " + this.name + " to " + dnode);
 
 	rentry = {};
 
 	// Set ref:
 	if (typeof dnode !== "string") {
-		console.log("Router. Error: Type of node is not string. Type is: " + typeof dnode);
+		console.warn("Router. Error: Type of node is not string. Type is: " + typeof dnode);
 		return;
 	}
 	// node.connections.push(dnode);
@@ -397,7 +397,7 @@ exports.node.prototype.connect = function(dnode) {
 
 /* Delete a routing entry */
 exports.node.prototype.unregister = function(rentry) {
-	console.log("unregistering " + this.name);
+	console.info("unregistering " + this.name);
 	if (this.hasOwnProperty("listener")) {
 		for(var j=0; j<this.listener.length; j++) {
 			if (this.listener[j] === rentry) {
@@ -414,7 +414,7 @@ exports.node.prototype.unregister = function(rentry) {
 			}
 		}
 	}
-	console.log("\tfailed.");
+	console.warn("\tfailed.");
 };
 
 /**
@@ -843,9 +843,10 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 			" Packet: "+ JSON.stringify(d));
 
 	} catch (e) {
-		console.log("Exception (Router, process_single_message:\n", e);
-		console.log("Packet: "+ JSON.stringify(d));
-		reply("Exception", e);
+		console.warn("Router, process_single_message:\n",
+				e.stack || e);
+		console.warn("Packet: "+ JSON.stringify(d));
+		reply("Exception", e.stack || e);
 	}
 };
 
@@ -878,7 +879,8 @@ exports.router.prototype.cue = function(callback) {
 					callback(data);
 				}
 			} catch (e) {
-				console.log("Exception (Router, cue):\n", e);
+				console.warn("Exception (Router, cue):",
+						e.stack || e);
 			}
 		});
 	};
@@ -908,7 +910,8 @@ exports.router.prototype.cue_getter = function(callback) {
 					});
 				}
 			} catch (e) {
-				console.log("Exception (Router, cue):\n", e);
+				console.warn("Exception (Router, cue):",
+						e.stack || e);
 				processing = false;
 			}
 		});
@@ -921,7 +924,8 @@ exports.router.prototype.no_cue = function(callback) {
 		try {
 			callback(data);
 		} catch (e) {
-			console.log("Exception (Router, nocue):\n", e);
+			console.warn("Exception (Router, nocue):",
+					e.stack || e);
 		}
 	};
 };

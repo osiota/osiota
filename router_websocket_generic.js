@@ -299,7 +299,7 @@ exports.init = function(router, ws, module_name) {
 					}
 				}
 			} catch (e) {
-				console.log("Blocked", e);
+				console.log("Blocked", e.stack || e);
 				return false;
 			}
 		}

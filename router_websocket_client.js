@@ -62,7 +62,8 @@ pwsc.prototype.init = function() {
 				var data = JSON.parse(message);
 				pthis.emit('message', data);
 			} catch(e) {
-				console.log("bWSc: Exception (on message): ", e);
+				console.log("bWSc: Exception (on message):",
+						e.stack || e);
 				console.log("message:", message);
 			}
 		});
@@ -81,7 +82,8 @@ pwsc.prototype.init = function() {
 		});
 
 	} catch(e) {
-		console.log("bWSc: Exception while creating socket: ", e);
+		console.log("bWSc: Exception while creating socket:",
+				e.stack || e);
 		this.ws = undefined;
 		if (e.name == "SecurityError" && e.message == "The operation is insecure.") {
 			if (typeof alert == "function") {
@@ -103,7 +105,8 @@ pwsc.prototype.sendjson = function(data) {
 			this.ws.send(JSON.stringify(data));
 		}
 	} catch (e) {
-		console.log("bWSc: Socket not connected. Exception (send): " + e);
+		console.log("bWSc: Socket not connected. Exception (send):",
+				e.stack || e);
 	}
 };
 pwsc.prototype.close = function() {

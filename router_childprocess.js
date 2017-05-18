@@ -12,12 +12,10 @@ exports.init = function(router, basename, command, args) {
 
 	var buffer = "";
 	childProcess.stdout.on("data", function (data) {
-		//console.error("LOG "+data.toString());
 		buffer += data.toString();
 		var lines = buffer.split(/\r?\n/g);
 		for (var i=0; i<lines.length-1; i++) {
 			if (lines[i] != "") {
-				//console.log("LOG "+lines[i]);
 				var result = lines[i].match(/^([^\[]+)\s+\[([0-9.]+)\]:\s+([-0-9.]+)$/);
 				if (result) {
 					var name = result[1];
@@ -43,8 +41,6 @@ exports.init = function(router, basename, command, args) {
 
 	childProcess.stderr.on("data", function (data) {
 		console.error(data.toString().replace(/(\n|\r)+$/, ''));
-		//console.error("Error in child_process: "+data.toString() + "\n"
-		//	+ "Command: " + command + " " + args);
 	});
 	process.on('exit', function () {
 		childProcess.kill();

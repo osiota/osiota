@@ -66,7 +66,7 @@ main.prototype.sub_config = function(config) {
 				_this.remotes[c.name] =
 					_this.create_websocket_client(c.url, c.node, c);
 			} else {
-				console.log("Waring: Remote config options missing.", c);
+				console.warn("Waring: Remote config options missing.", c);
 			}
 			if (c.secure === "true"){
 				_this.router.policy_checker.add_observed_connection(c.url);
@@ -131,7 +131,7 @@ main.prototype.require = function(app) {
 
 main.prototype.startup = function(node, app, app_config, host_info, auto_install, callback) {
 	app = "er-app-" + app.replace(/^er-app-/, "");
-	console.log("startup:", app);
+	console.info("startup:", app);
 
 	var app_identifier = app;
 	var app_increment = 2;
@@ -153,7 +153,7 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 			callback(a);
 		}
 	} catch(e) {
-		console.log("error starting app: ", e, e.stack.split("\n"));
+		console.error("error starting app:", e.stack || e);
 		this.apps[app_identifier].error = e;
 	}
 	return app;
@@ -187,8 +187,8 @@ if (process.on) { /* if NodeJS */
 	process.on('SIGINT', function() { process.exit(0); });
 	process.on('SIGTERM', function() { process.exit(0); });
 
-	process.on('uncaughtException', function(err) {
-		console.log('Caught exception:', err);
+	process.on('uncaughtException', function(e) {
+		console.error('Uncaught exception:', e.stack || e);
 	});
 }
 

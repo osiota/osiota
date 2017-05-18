@@ -21,7 +21,7 @@ exports.init = function(node, app_config, main, host_info) {
 	};
 	n.rpc_save = function(reply) {
 		var value = n.value;
-		console.log("saving config", value);
+		console.info("saving config", value);
 		fs.writeFile("./" + main._config.config,
 				JSON.stringify(value, null, '\t'),
 				function(err) {

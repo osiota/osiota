@@ -7,7 +7,8 @@ exports.init = function(router, basename, port) {
 			if (!this.closed)
 				this.send(JSON.stringify(data));
 		} catch (e) {
-			console.log("Websocket, sendjson: Exception: " + e);
+			console.log("Websocket, sendjson: Exception:",
+					e.stack || e);
 		}
 	};
 

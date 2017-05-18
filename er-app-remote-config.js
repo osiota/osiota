@@ -18,13 +18,14 @@ exports.init = function(node, app_config, main, host_info) {
 				var config = JSON.parse(body);
 				main.sub_config(config);
 			} catch (e) {
-				console.log("Remote Config, " +
-						"JSON Exception: ", e);
-				console.log("\tMessage: ", body);
+				console.warn("Remote Config, " +
+						"JSON Exception:",
+							e.stack || e);
+				console.warn("\tMessage:", body);
 			}
 
 		});
 	}).on('error', function(e) {
-		console.log("Remote COnfig, HTTP Exception: ", e);
+		console.warn("Remote Config, HTTP Exception:", e.stack || e);
 	});
 };
