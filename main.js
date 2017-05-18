@@ -160,6 +160,13 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 };
 
 main.prototype.startup_struct = function(node, struct, host_info, auto_install, callback) {
+	if (typeof struct !== "object") {
+		if (typeof struct === "string") {
+			struct = {"name": struct};
+		} else {
+			struct = {};
+		}
+	}
 	if (typeof struct.config !== "object") {
 		struct.config = {};
 	}
@@ -169,7 +176,7 @@ main.prototype.startup_struct = function(node, struct, host_info, auto_install, 
 	if (typeof struct.name === "string") {
 		this.startup(node, struct.name, struct.config, host_info, auto_install, callback);
 	} else {
-		console.log("Waring: Application config options missing.", struct);
+		console.warn("Waring: Application config options missing.", struct);
 	}
 };
 
