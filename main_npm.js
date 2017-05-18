@@ -55,7 +55,7 @@ main.prototype.startup_all = function(type, host_info) {
 	var _this = this;
 	this.get_allapps(function(library_names) {
 		library_names.forEach(function(name) {
-			_this.startup(name, type, host_info)
+			_this.startup(null, name, type, host_info)
 		});
 	});
 };
@@ -69,7 +69,7 @@ main.prototype.require_module = function(app, app_config, host_info, auto_instal
 
 	if (auto_install) {
 		_this.install(app, function() {
-			_this.startup(app, app_config, host_info, false);
+			_this.startup(null, app, app_config, host_info, false);
 		});
 		throw new Error("Module will be installed automatically: " + app);
 	};

@@ -75,14 +75,8 @@ main.prototype.sub_config = function(config) {
 	}
 
 	if (Array.isArray(config.app)) {
-
-		config.app.forEach(function(app) {
-			if (typeof app.name === "string") {
-				//_this.apps[app.name] =
-				_this.startup(app.name, app.config, _this.router.name, config.auto_install);
-			} else {
-				console.log("Waring: Application config options missing.", app);
-			}
+		config.app.forEach(function(struct) {
+			_this.startup_struct(null, struct, _this.router.name, config.auto_install);
 		});
 	}
 };
@@ -135,7 +129,7 @@ main.prototype.require = function(app) {
 	return require_vm(app, ["./", "../", ""], this.apps_use_vm);
 };
 
-main.prototype.startup = function(app, app_config, host_info, auto_install, callback) {
+main.prototype.startup = function(node, app, app_config, host_info, auto_install, callback) {
 	app = "er-app-" + app.replace(/^er-app-/, "");
 	console.log("startup:", app);
 
@@ -146,7 +140,9 @@ main.prototype.startup = function(app, app_config, host_info, auto_install, call
 	}
 
 	try {
-		var node = this.node("/app/" + app_identifier);
+		if (typeof node !== "object" || node === null) {
+			node = this.node("/app/" + app_identifier);
+		}
 		var a = new Application(app_identifier, app, node, app_config, this, host_info);
 		this.apps[app_identifier] = a;
 
@@ -162,6 +158,21 @@ main.prototype.startup = function(app, app_config, host_info, auto_install, call
 	}
 	return app;
 };
+
+main.prototype.startup_struct = function(node, struct, host_info, auto_install, callback) {
+	if (typeof struct.config !== "object") {
+		struct.config = {};
+	}
+	if (typeof struct.config.node === "string") {
+		node = this.node(struct.config.node);
+	}
+	if (typeof struct.name === "string") {
+		this.startup(node, struct.name, struct.config, host_info, auto_install, callback);
+	} else {
+		console.log("Waring: Application config options missing.", struct);
+	}
+};
+
 
 
 /* on signal: end the process */
