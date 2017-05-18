@@ -153,12 +153,12 @@ exports.init = function(router, ws, module_name) {
 		if (ws.closed)
 			return false;
 		// this == node
-		return this.subscribe_announcement(function(node, method) {
+		return this.subscribe_announcement(function(node, method, update) {
 			// Do not send remote nodes back to the same system:
 			if (typeof node.connection !== "undefined" && node.connection === ws) {
 				return;
 			}
-			ws.node_rpc(node, method, node.metadata);
+			ws.node_rpc(node, method, node.metadata, !!update);
 		});
 	}, function (ref) {
 		return this.unsubscribe_announcement(ref);
@@ -207,7 +207,7 @@ exports.init = function(router, ws, module_name) {
 			ws.remote = name;
 		reply(null, router.name);
 	};
-	ws.rpc_node_announce = prpcfunction(ws.cmds, "announce", function(metadata) {
+	ws.rpc_node_announce = prpcfunction(ws.cmds, "announce", function(metadata, update) {
 		// this == node
 		if (typeof this.name != 'undefined') {
 			if (this.name != "/") {
@@ -215,7 +215,7 @@ exports.init = function(router, ws, module_name) {
 			}
 		}
 		this.connection = ws;
-		this.announce(metadata);
+		this.announce(metadata, update);
 
 		this.emit("node_update", true);
 	}, function () {

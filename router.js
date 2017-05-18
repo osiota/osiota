@@ -105,15 +105,18 @@ exports.node.prototype.node = function(name) {
 /**
  * Announce a node with meta data
  * @param {object} metadata - Meta data describing the node
+ * @param {boolean} update - If true, this is just an update of the meta data.
  */
-exports.node.prototype.announce = function(metadata) {
+exports.node.prototype.announce = function(metadata, update) {
 	if (typeof metadata !== "object" || metadata === null) {
 		metadata = {};
 	}
-	this.metadata = metadata;
-	console.log("new node:", this.name);
+	if (this.metadata === null)
+		console.log("new node:", this.name);
 
-	this.announce_climb(this, "announce");
+	this.metadata = metadata;
+
+	this.announce_climb(this, "announce", update);
 };
 /** Unannounce a node */
 exports.node.prototype.unannounce = function() {
@@ -125,18 +128,18 @@ exports.node.prototype.unannounce = function() {
 };
 
 /* Announce node (climber) */
-exports.node.prototype.announce_climb = function(node, method) {
+exports.node.prototype.announce_climb = function(node, method, update) {
 	if (typeof node !== "object" || node === null) {
 		node = this;
 	}
 	var _this = this;
 	this.announcement_listener.forEach(function(f) {
-		f.call(_this, node, method, false);
+		f.call(_this, node, method, false, update);
 	});
 
 	// climp to parent:
 	if (this.parentnode !== null) {
-		this.parentnode.announce_climb(node, method);
+		this.parentnode.announce_climb(node, method, update);
 	}
 };
 
@@ -189,13 +192,17 @@ exports.node.prototype.generate_metadata = function() {
  * 	data example: {value:"energy"}
  */
 exports.node.prototype.add_metadata = function(data) {
-	if (this.metadata !== "object") this.metadata = {};
+	if (typeof this.metadata !== "object" || this.metadata === null) {
+		this.metadata = {};
+	}
 
-	if(data !== null && typeof data === 'object'){
+	if (typeof data === 'object' && data !== null){
 		for (var key in data){
 			this.metadata[key] = data[key];
 		}
 	}
+
+	this.announce(this.metadata, true);
 }
 
 /*gets metadata of node-object*/

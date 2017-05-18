@@ -149,9 +149,9 @@ Unsubscribe the announcements of a node.
 
 Response: `"okay"`
 
-### announce(meta_data)
+### announce(meta_data, update)
 
-Announce a new node with meta data. The meta data is describing the data contents of the node.
+Announce a new node with meta data. The meta data is describing the data contents of the node. If update is true, this announcement is just an update of the meta data.
 
 Response: `"okay"`
 
