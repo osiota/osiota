@@ -846,7 +846,7 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 		console.warn("Router, process_single_message:\n",
 				e.stack || e);
 		console.warn("Packet: "+ JSON.stringify(d));
-		reply("Exception", e.stack || e);
+		reply("Exception:", (e.stack || e).toString());
 	}
 };
 
