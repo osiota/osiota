@@ -548,6 +548,7 @@ exports.node.prototype.rpc_unregister = function(reply, rentry) {
  * @param {function} [callback] - Callback to get the result
  */
 exports.node.prototype.rpc = function(method) {
+	var _this = this;
 	if (!this.hasOwnProperty("connection")) {
 		var args = Array.prototype.slice.call(arguments);
 		//var method =
@@ -559,12 +560,12 @@ exports.node.prototype.rpc = function(method) {
 		}
 
 		var reply = function(error, data) {
-			if (error !== null) {
-				console.error("RPC(local)-Error: ", error, data);
-			} else {
-				if (callback) {
-					callback(data);
+			if (!callback) {
+				if (error !== null) {
+					console.error("RPC(local)-Error: ", error, data);
 				}
+			} else {
+				callback.call(_this, error, data);
 			}
 		};
 

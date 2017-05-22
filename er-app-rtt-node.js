@@ -13,7 +13,8 @@ exports.init = function(node, app_config, main, host_info) {
 			if (!remotes.hasOwnProperty(remote)) {
 					node.publish(undefined, null);
 			} else {
-				remotes[remote].rpc("ping", function() {
+				remotes[remote].rpc("ping", function(err) {
+					if (err) throw err;
 					var t = new Date()*1 - t_start;
 					node.publish(t_start/1000, t);
 				});

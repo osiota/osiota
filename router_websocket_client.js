@@ -154,7 +154,9 @@ exports.init = function(router, basename, ws_url, init_callback) {
 	require('./router_websocket_generic.js').init(router, ws, ws.module_name);
 	
 	ws.on("open", function() {
-		this.rpc("hello", router.name, function(name) {
+		this.rpc("hello", router.name, function(error, name) {
+			if (error) throw error;
+
 			if (typeof name === "string")
 				ws.remote = name;
 			console.log("Connected to", ws.remote);

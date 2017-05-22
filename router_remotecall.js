@@ -68,16 +68,15 @@ exports.remotecall.prototype._rpc_bind_get = function(ref) {
 
 /* Parse the answer of a remote call (and call the saved callback) */
 exports.remotecall.prototype.rpc_reply = function(reply, ref, error, data) {
-	if (error !== null) {
-		console.log("RPC-Error:", error, data);
-
+	var cb = this._rpc_bind_get(ref);
+	if (!cb) {
+		if (error !== null) {
+			console.warn("RPC-Error:", error, data);
+		}
+	} else {
+		cb.call(this, error, data);
 		// delete the reference:
 		this._rpc_bind_get(ref);
-	} else {
-		var cb = this._rpc_bind_get(ref);
-		if (cb) {
-			cb.call(this, data);
-		}
 	}
 };
 

@@ -59,7 +59,8 @@ require('./router_websocket_client.js')
 		.init(r, "", argv.server, function(ws) {
 	console.log("Connected.");
 	if (argv.list)
-		ws.rpc("list", function(data) {
+		ws.rpc("list", function(error, data) {
+			if (error) throw error;
 			console.log("list:\n", data);
 		});
 

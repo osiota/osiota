@@ -10,7 +10,8 @@ exports.init = function(node, app_config, main, host_info) {
 	if (typeof interval === "number" && interval) {
 		setInterval(function() {
 			var t_start = new Date()*1;
-			ws.rpc("ping", function() {
+			ws.rpc("ping", function(err) {
+				if (err) throw err;
 				var t = new Date()*1 - t_start;
 				node.publish(t_start/1000, t);
 			});
