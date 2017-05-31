@@ -141,9 +141,22 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 
 	try {
 		if (typeof node !== "object" || node === null) {
-			node = this.node("/app/" + app_identifier);
+			node = this.node("/app");
 		}
-		var a = new Application(app_identifier, app, node, app_config, this, host_info);
+
+		var node_destination = null;
+		if (typeof app_config.node === "string") {
+			node_destination = node.node(app_config.node);
+		} else {
+			node_destination = node.node(app_identifier.replace(/^er-app-/, ""));
+		}
+		var node_source = node;
+		if (typeof app_config.source === "string") {
+			node_source = node.node(app_config.source);
+		}
+
+		var a = new Application(app_identifier, app, node_destination, app_config, this, host_info);
+		a._source = node_source;
 		this.apps[app_identifier] = a;
 
 		a._bind_module( this.require(app, app_config, host_info, auto_install) );
@@ -170,9 +183,7 @@ main.prototype.startup_struct = function(node, struct, host_info, auto_install, 
 	if (typeof struct.config !== "object") {
 		struct.config = {};
 	}
-	if (typeof struct.config.node === "string") {
-		node = this.node(struct.config.node);
-	}
+
 	if (typeof struct.name === "string") {
 		this.startup(node, struct.name, struct.config, host_info, auto_install, callback);
 	} else {
