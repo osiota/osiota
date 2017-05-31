@@ -6,7 +6,7 @@ exports.init = function(app_node, app_config, main, host_info) {
 	}
 	app_config.metadata.type = "device.object";
 
-	node.announce(app_config.metadata);
+	app_node.announce(app_config.metadata);
 
 	if (Array.isArray(app_config.app)) {
 		app_config.app.forEach(function(struct) {
