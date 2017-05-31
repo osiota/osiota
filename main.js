@@ -154,7 +154,7 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 		}
 	} catch(e) {
 		console.error("error starting app:", e.stack || e);
-		this.apps[app_identifier].error = e;
+		this.apps[app_identifier]._error = e;
 	}
 	return app;
 };
