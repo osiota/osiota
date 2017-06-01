@@ -40,6 +40,9 @@ exports.application.prototype._init = function() {
 	this._state = "RUNNING";
 };
 exports.application.prototype._unload = function() {
+	if (this._state !== "RUNNING")
+		return;
+
 	if (typeof this.unload === "function") {
 		this.unload(this._object);
 	} else {
