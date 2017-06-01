@@ -116,6 +116,8 @@ exports.node.prototype.announce = function(metadata, update) {
 
 	this.metadata = metadata;
 
+	this.router.emit("announce", this);
+
 	this.announce_climb(this, "announce", update);
 };
 /** Unannounce a node */
