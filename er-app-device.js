@@ -7,11 +7,4 @@ exports.init = function(app_node, app_config, main, host_info) {
 	app_config.metadata.type = "device.object";
 
 	app_node.announce(app_config.metadata);
-
-	if (Array.isArray(app_config.app)) {
-		app_config.app.forEach(function(struct) {
-			main.startup_struct(app_node, struct, main.router.name,
-					main._config.auto_install);
-		});
-	}
 };
