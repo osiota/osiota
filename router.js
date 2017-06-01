@@ -571,11 +571,20 @@ exports.node.prototype.rpc = function(method) {
 			}
 		};
 
-		if (this._rpc_process(method, args, reply)) {
-			return;
+		try {
+			if (this._rpc_process(method, args, reply)) {
+				return;
+			}
+			else if (this._rpc_process("node_" + method, args,
+						reply, this.router)) {
+				return;
+			}
+			throw new Error("method not found:" + method);
+		} catch (e) {
+			console.warn("Router, process local rpc:\n",
+				e.stack || e);
+			reply("Exception:", (e.stack || e).toString());
 		}
-
-		return true;
 	} else {
 		var ws = this.connection;
 
