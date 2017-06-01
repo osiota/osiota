@@ -20,7 +20,7 @@ exports.init = function(router, history_type, history_config) {
 		});
 
 		node.subscribe_h = function(object, timeout) {
-			this.get_history_on_initialsync({
+			var s = this.get_history_on_initialsync({
 				"totime": this.time
 			}, function(hdata) {
 				hdata.forEach(function(d) {
@@ -28,6 +28,10 @@ exports.init = function(router, history_type, history_config) {
 				});
 				node.subscribe(object);
 			}, timeout);
+			if (typeof s !== "undefined") {
+				object.remove = s.remove;
+			}
+
 			return object;
 		};
 
@@ -41,11 +45,13 @@ exports.init = function(router, history_type, history_config) {
 			if (typeof timeout !== "number") timeout = 1000;
 			if (this.connection && !this.history.synced) {
 				var _this = this;
-				this.once_timeout("history_synced", function(was_timedout) {
+				return this.once_timeout("history_synced",
+						function(was_timedout) {
 					_this.get_history(config, callback);
 				}, timeout);
 			} else {
 				this.get_history(config, callback);
+				return undefined;
 			}
 		};
 
