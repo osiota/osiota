@@ -222,6 +222,49 @@ main.prototype.startup_struct = function(node, struct, host_info, auto_install, 
 	}
 };
 
+var add_app_helper = function(config, app, settings) {
+        if (!Array.isArray(config.app)) {
+                config.app = [];
+        }
+        var struct = {
+                "name": app,
+                "config": settings
+        }
+        config.app.push(struct);
+        return struct;
+};
+
+main.prototype.app_add = function(app, settings, node, config, callback) {
+        // save to config:
+	if (!config) {
+		config = this._config;
+	}
+	if (typeof settings !== "object")
+		settings = {};
+	if (node) {
+		if (node.app) {
+			config = node.app._config;
+		// if node has global position and source is not set:
+		} else if (typeof settings.source !== "string" &&
+				typeof settings.node === "string"  &&
+				settings.node.match(/^\//)) {
+			settings.source = node.name;
+		// if not global position
+		} else if (typeof settings.source !== "string" ||
+				!settings.source.match(/^\//) ||
+				typeof settings.node !== "string" ||
+				!settings.node.match(/^\//)) {
+			var struct_n = add_app_helper(config, "node", {
+				"node": node.name
+			});
+			this.startup_struct(node, struct_n);
+			config = struct_n.config;
+		}
+	}
+
+        var struct = add_app_helper(config, app, settings);
+	this.startup_struct(node, struct, undefined, undefined, callback);
+};
 
 
 /* on signal: end the process */
