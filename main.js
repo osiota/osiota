@@ -50,6 +50,14 @@ main.prototype.config = function(config) {
 		this.apps_use_vm = config.apps_use_vm;
 	}
 
+	if (typeof config.app_dir === "string") {
+		config.app_dir = [ config.app_dir ];
+	}
+	if (typeof config.app_dir === "object" &&
+			Array.isArray(config.app_dir)) {
+		Array.prototype.push.apply(_this.app_dirs, config.app_dir);
+	}
+
 	this.sub_config(config);
 };
 main.prototype.sub_config = function(config) {
@@ -125,8 +133,9 @@ main.prototype.node = function(name) {
 	return this.router.node(name);
 };
 
+main.prototype.app_dirs = [__dirname+"/", __dirname+"/../", "./", "../", ""];
 main.prototype.require = function(app) {
-	return require_vm(app, ["./", "../", ""], this.apps_use_vm);
+	return require_vm(app, this.app_dirs, this.apps_use_vm);
 };
 
 main.prototype.startup = function(node, app, app_config, host_info, auto_install, callback) {
