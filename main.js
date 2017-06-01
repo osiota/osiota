@@ -42,7 +42,7 @@ main.prototype.config = function(config) {
 	//require('./router_console_out.js').init(this.router, "/console");
 
 	if (typeof config.server !== "undefined" && config.server) {
-		this.create_websocket_server(config.server);
+		this.wss = this.create_websocket_server(config.server);
 	}
 
 	this.apps_use_vm = true;
@@ -264,6 +264,36 @@ main.prototype.app_add = function(app, settings, node, config, callback) {
 
         var struct = add_app_helper(config, app, settings);
 	this.startup_struct(node, struct, undefined, undefined, callback);
+};
+
+main.prototype.close = function() {
+	for (var a in this.apps) {
+		this.apps[a]._unload();
+	}
+
+	for (var r in this.remotes) {
+		console.log("closing remote", r);
+		this.remotes[r].close();
+	}
+
+	if (this.wss) {
+		console.log("closing websocket server");
+		this.wss.close();
+		this.wss = undefined;
+	}
+};
+
+main.prototype.reload = function(callback) {
+	var config = this._config;
+	this.close();
+
+	console.warn("\n\nRELOADING ...");
+	var s = setTimeout(function() {
+		var m = new main();
+		m.config(config);
+		if (typeof callback === "function")
+			callback(m);
+	}, 1000);
 };
 
 
