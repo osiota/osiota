@@ -20,11 +20,20 @@ EventEmitter.prototype.once_timeout = function(event, handler, timeout) {
 	};
 	timer = setTimeout(function() {
 		_this.removeListener(event, listener);
-		was_timedout = true;
 		handler.call(_this, true);
 		timer = null;
 	}, timeout);
 	this.once(event, listener);
+
+	return {
+		remove: function() {
+			if (timer !== null) {
+				clearTimeout(timer);
+				timer = null;
+			}
+			_this.removeListener(event, listener);
+		}
+	};
 };
 
 /* Class: RemoteCall */
