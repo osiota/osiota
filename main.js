@@ -182,6 +182,13 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 };
 
 main.prototype.startup_struct = function(node, struct, host_info, auto_install, callback) {
+	if (typeof auto_install === "undefined") {
+		auto_install = this._config.auto_install;
+	}
+	if (typeof host_info === "undefined") {
+		host_info = this;
+	}
+
 	if (typeof struct !== "object") {
 		if (typeof struct === "string") {
 			struct = {"name": struct};
