@@ -139,6 +139,8 @@ main.prototype.require = function(app) {
 };
 
 main.prototype.startup = function(node, app, app_config, host_info, auto_install, callback) {
+	var _this = this;
+
 	app = "er-app-" + app.replace(/^er-app-/, "");
 	console.info("startup:", app);
 
@@ -168,17 +170,29 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 		a._source = node_source;
 		this.apps[app_identifier] = a;
 
+		if (app !== "er-app-node" || !node_destination.app)
+			node_destination.app = a;
+
 		a._bind_module( this.require(app, app_config, host_info, auto_install) );
 		a._init();
 
 		if (typeof callback === "function") {
 			callback(a);
 		}
+
+		if (Array.isArray(app_config.app)) {
+			app_config.app.forEach(function(struct) {
+				_this.startup_struct(node_destination, struct);
+			});
+		}
+
+		return a;
 	} catch(e) {
 		console.error("error starting app:", e.stack || e);
 		this.apps[app_identifier]._error = e;
+
+		return null;
 	}
-	return app;
 };
 
 main.prototype.startup_struct = function(node, struct, host_info, auto_install, callback) {
