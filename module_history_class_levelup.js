@@ -49,6 +49,34 @@ var setup_lu = function(t, config, nodeName) {
 	return to;
 };
 
+var read_lu = function(vdb, config, callback) {
+	var hdata = [];
+	vdb.createVersionStream(this.nodeName, {
+		versionLimit: config.maxentries,
+		minVersion: config.fromtime,
+		maxVersion: config.totime
+	})
+	.on('data', function (data) {
+		var json = {"time":data.version, "value":data.value};
+		hdata.unshift(json);
+	})
+	.on('error', function (err) {
+		console.warn('Error from getting history:',err);
+		callback(null);
+	})
+	.on('close', function () {
+		console.warn('Getting history stream closed.');
+	})
+	.on('end', function() {
+		// from and to time not included: Remove them:
+		if (config.fromtime != null)
+			hdata.shift();
+		if (config.totime != null)
+			hdata.pop();
+		callback(hdata);
+	});
+}
+
 exports.history = function (node, history_config) {
 	var _this = this;
 	var nodeName = node.name;
@@ -106,28 +134,7 @@ exports.history.prototype.get = function (interval, callback) {
 	if (typeof vdb === "undefined")
 		return;
 
-	var hdata = [];
-	vdb.createVersionStream(this.nodeName, {
-		versionLimit: config.maxentries,
-		minVersion: config.fromtime,
-		maxVersion: config.totime
-	})
-	.on('data', function (data) {
-		var json = {"time":data.version, "value":data.value};
-		hdata.unshift(json);
-	})
-	.on('error', function (err) {
-		console.warn('Error from getting history:',err);
-	})
-	.on('close', function () {
-		console.warn('Getting history stream closed.');
-	})
-	.on('end', function() {
-		// from and to time not included: Remove them:
-		if (config.fromtime != null)
-			hdata.shift();
-		if (config.totime != null)
-			hdata.pop();
+	read_lu(vdb, config, function(hdata) {
 		callback(hdata, false);
 	});
 };
