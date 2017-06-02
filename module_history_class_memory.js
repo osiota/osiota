@@ -1,16 +1,20 @@
 
+var util = require('util');
+var HistoryGlobal = require("./module_history_global.js");
 var binarysearch = require("binary-search");
 
 /* history */
-exports.history = function(node, history_config) {
+exports.history = function(node, config) {
 	this.history_length = 3000;
-	if (typeof history_config === "object" &&
-			history_config.hasOwnProperty("max_data") &&
-			typeof history_config.max_data === "number") {
-		this.history_length = history_config.max_data;
+	if (typeof config === "object" &&
+			config.hasOwnProperty("max_data") &&
+			typeof config.max_data === "number") {
+		this.history_length = config.max_data;
 	}
 	this.history_data = [];
 };
+util.inherits(exports.history, HistoryGlobal.history);
+
 /* history: add new data */
 exports.history.prototype.add = function(time, value) {
 	if (typeof this.history_data[this.history_data.length - 1] !== "undefined")
@@ -81,7 +85,6 @@ exports.history.prototype.get = function(interval, callback) {
 			else index = index + 1;
 
 			if (index) {
-				console.log("limited: because of fromtime");
 				limited = true;
 			}
 
@@ -99,7 +102,6 @@ exports.history.prototype.get = function(interval, callback) {
 			data = data.slice(0,index-1);
 		}
 		if (data.length - config.maxentries >= 0) {
-			console.log("limited: because of maxentries");
 			limited = true;
 		}
 		data = data.slice(Math.max(data.length - config.maxentries, 0));
@@ -108,4 +110,6 @@ exports.history.prototype.get = function(interval, callback) {
 		callback(data, !limited);
 	});
 };
+
+HistoryGlobal.modules.memory = exports.history;
 

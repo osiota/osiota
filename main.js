@@ -26,8 +26,7 @@ main.prototype.config = function(config) {
 		this.router.name = config.hostname;
 	}
 
-	// Load history module
-	require('./module_history.js').init(this.router, 'ram');
+	this.setup_history(config.save_history);
 
 	// Load policy checker module
 	this.router.policy_checker = new Policy_checker.Policy_checker(this.router);
@@ -88,6 +87,51 @@ main.prototype.sub_config = function(config) {
 		});
 	}
 };
+
+
+main.prototype.setup_history = function(save_history) {
+	// Load history module
+	var history_config = {
+		"type": "global",
+		"submodules": [{
+			"type": "timebase",
+			"interval": 60,
+			"submodules": [{
+				"type": "timebase",
+				"interval": 3600,
+				"submodules": [{
+					"type": "timebase",
+					"interval": 3600*24,
+					"submodules": [{
+						"type": "file",
+						"filename": "1d.vdb"
+					}]
+				},{
+					"type": "file",
+					"filename": "60min.vdb"
+				}]
+			},{
+				"type": "file",
+				"filename": "60sec.vdb"
+			}]
+		},{
+			"type": "memory",
+			"max_data": 3000
+		},{
+			"type": "file",
+			"filename": "0.vdb"
+		},{
+			"type": "remote"
+		}]
+	};
+	require('./module_history_class_memory.js');
+	require('./module_history_class_remote.js');
+	require('./module_history_class_timebase.js');
+	if (save_history) {
+		require('./module_history_class_file.js');
+	}
+	require('./module_history.js').init(this.router, history_config);
+}
 
 main.prototype.create_websocket_server = function(server_port) {
 	var wss = require('./router_websockets').init(this.router, "", server_port);
