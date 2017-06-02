@@ -30,28 +30,34 @@ var helper_change_timebase = function (interval, callback) {
 	};
 }
 
+var setup_lu = function(t, config, nodeName) {
+	var to = [];
+	to.filename = config.filename;
+	to.delta_t = config.delta_t;
+
+	var ldb = levelUP('./.level_db' + nodeName + '/' + to.filename);
+	var vdb = version(ldb);
+	to.vdb = vdb;
+
+	to.add = helper_change_timebase(to.delta_t, function(time, value) {
+		vdb.put(nodeName, value, {version: time},
+				function (err, version) {
+			if(err) return console.warn('Error:', err);
+		});
+	});
+
+	return to;
+};
+
 exports.history = function (node, history_config) {
 	var _this = this;
 	var nodeName = node.name;
 	this.nodeName = nodeName;
 	this.timebases = [];
-	levelUP('./level_db' + nodeName);
+	levelUP('./.level_db' + nodeName);
 	for (var t = 0; t < history_config.timebases.length; t++) {
-		this.timebases[t] = [];
-		this.timebases[t].filename = history_config.timebases[t].filename;
-		this.timebases[t].delta_t = history_config.timebases[t].delta_t;
-
-		var ldb = levelUP('./level_db' + nodeName + '/' + this.timebases[t].filename);
-		var vdb = version(ldb);
-		this.timebases[t].vdb = vdb;
-		
-		(function(vdb, t) {
-			_this.timebases[t].add = helper_change_timebase(_this.timebases[t].delta_t, function(time, value) {
-				vdb.put(nodeName, value, {version: time}, function (err, version) {
-					if(err) return console.warn('Error:', err);
-				});
-			});
-		})(vdb, t);
+		this.timebases[t] = setup_lu(t, history_config.timebases[t],
+				nodeName);
 	}
 };
 
