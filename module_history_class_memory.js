@@ -55,6 +55,8 @@ exports.history.prototype.get = function(interval, callback) {
 	config.fromtime = null; // not included
 	config.totime = null; // not included.
 
+	var limited = false;
+
 	// read config from interval object
 	if (typeof interval !== "object") {
 		interval = {};
@@ -65,32 +67,45 @@ exports.history.prototype.get = function(interval, callback) {
 			config[configname] = interval[configname];
 		}
 	}
-	var data = this.history_data;
-	if (config.fromtime !== null) {
-		// find start index:
-		var index = binarysearch(data, {"time": config.fromtime},
-				function(a, b) { return a.time - b.time; });
-		// if time was not found, index is bitwise flipped.
-		if (index < 0) index = ~index;
-		// do not include the element itself:
-		else index = index + 1;
 
-		// from start index (included) to end:
-		data = data.slice(index);
-	}
-	if (config.totime !== null) {
-		// find end index:
-		var index = binarysearch(data, {"time": config.totime},
-				function(a, b) { return a.time - b.time; });
-		// if time was not found, index is bitwise flipped.
-		if (index < 0) index = ~index;
+	var _this = this;
+	setImmediate(function() {
+		var data = _this.history_data;
+		if (config.fromtime !== null) {
+			// find start index:
+			var index = binarysearch(data, {"time": config.fromtime},
+					function(a, b) { return a.time - b.time; });
+			// if time was not found, index is bitwise flipped.
+			if (index < 0) index = ~index;
+			// do not include the element itself:
+			else index = index + 1;
 
-		// from zero to end index (not included):
-		data = data.slice(0,index-1);
-	}
-	data = data.slice(Math.max(data.length - config.maxentries, 0));
+			if (index) {
+				console.log("limited: because of fromtime");
+				limited = true;
+			}
 
-	// return data:
-	callback(data);
+			// from start index (included) to end:
+			data = data.slice(index);
+		}
+		if (config.totime !== null) {
+			// find end index:
+			var index = binarysearch(data, {"time": config.totime},
+					function(a, b) { return a.time - b.time; });
+			// if time was not found, index is bitwise flipped.
+			if (index < 0) index = ~index;
+
+			// from zero to end index (not included):
+			data = data.slice(0,index-1);
+		}
+		if (data.length - config.maxentries >= 0) {
+			console.log("limited: because of maxentries");
+			limited = true;
+		}
+		data = data.slice(Math.max(data.length - config.maxentries, 0));
+
+		// return data:
+		callback(data, !limited);
+	});
 };
 

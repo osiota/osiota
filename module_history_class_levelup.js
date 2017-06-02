@@ -128,6 +128,6 @@ exports.history.prototype.get = function (interval, callback) {
 			hdata.shift();
 		if (config.totime != null)
 			hdata.pop();
-		callback(hdata);
+		callback(hdata, false);
 	});
 };
