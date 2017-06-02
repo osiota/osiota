@@ -7,7 +7,7 @@ exports.init = function(router, history_type, history_config) {
 	else if (history_type == "levelup")
 		History = require('./module_history_class_levelup.js').history;
 	else
-		throw Exception("Not history type defined.");
+		throw new Error("Not history type defined.");
 
 	router.on("create_new_node", function(node) {
 		node.history = new History(node, history_config);
