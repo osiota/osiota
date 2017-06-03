@@ -4,6 +4,11 @@ exports.init = function(node, app_config, main, host_info) {
 		app_config = {};
 	}
 
+	node.announce({
+		display: "hidden",
+		app: "webstate"
+	});
+
 	node.rpc_send_state = function(reply, state) {
 		this.publish(undefined, state);
 	};
