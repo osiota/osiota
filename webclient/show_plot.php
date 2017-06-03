@@ -35,7 +35,7 @@
 					$img = $("<img />");
 					$img.appendTo("#img");
 				}
-				$img.attr("src", data);
+				$img.attr("src", data.value);
 			});
 			ws.init();
 		});

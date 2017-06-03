@@ -32,17 +32,24 @@
 			}
 			if (typeof d.value === "string") {
 				$option.append("<br/>["+t+" Uhr]: ");
-				if (d.value.match(/^data:image\/png/)) {
+				if (d.value.match(/^data:image\//)) {
 					$option.append("<a href=\"show_plot.php#"+encodeURI(k)+"\">"+
-						"PNG Bild</a>");
+						"Picture ("+ Math.round(d.value.length / 1024 / ( 1 + 0.36) )+" KB)</a>");
 				} else {
 					$option.append("<code>"+d.value+"</code>");
 				}
 			}
+			else if (typeof d.value === "number" ||
+					typeof d.value === "boolean") {
+				$option.append("<br/>");
+				if (d.time !== null) $option.append("["+t+" Uhr]: ");
+				$option.append("<code>" + d.value +"</code>");
+
+			}
 			else if (typeof d.value !== "undefined" && d.value !== null) {
 				$option.append("<br/>");
 				if (d.time !== null) $option.append("["+t+" Uhr]: ");
-				$option.append("<code>"+d.value+"</code>");
+				$option.append("<code>object: "+JSON.stringify(d.value)+"</code>");
 			}
 
 			if (typeof d.listener !== "undefined") {
