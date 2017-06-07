@@ -8,18 +8,20 @@
  * INIT -- (*) --> RUNNING
  */
 
-exports.application = function(id, app, node, app_config, main, extra) {
+exports.application = function(app) {
 	this._state = "INIT";
 
-	this._id = id;
 	this._app = app;
-	this._config = app_config;
-	this._extra = extra;
+	this._config = {};
 
-	this._node = node;
-	this._main = main;
+	this._node = null;
 
 	this._error = null;
+};
+exports.application.prototype._bind = function(id, main, extra) {
+	this._id = id;
+	this._extra = extra;
+	this._main = main;
 };
 exports.application.prototype._bind_module = function(module) {
 	this._module = module;
@@ -30,7 +32,10 @@ exports.application.prototype._bind_module = function(module) {
 	}
 	return this;
 };
-exports.application.prototype._init = function() {
+exports.application.prototype._init = function(app_config) {
+	if (typeof app_config === "object" && app_config !== null) {
+		this._config = app_config;
+	}
 	if (typeof this.init === "function") {
 		// TODO: Change Arguments:
 		this._object = this.init(this._node, this._config,
@@ -54,16 +59,13 @@ exports.application.prototype._unload = function() {
 exports.application.prototype._reinit = function(app_config) {
 	this._state = "REINIT";
 	if (typeof this.reinit === "function") {
-		if (typeof app_config === "object") {
+		if (typeof app_config === "object" && app_config !== null) {
 			this._config = app_config;
 		}
-		this.reinit(this._config);
+		this.reinit(this._node, this._config, this._main, this._extra);
 	} else {
 		this._unload();
-		if (typeof app_config === "object") {
-			this._config = app_config;
-		}
-		this._init();
+		this._init(app_config);
 	}
 
 	this._state = "RUNNING";

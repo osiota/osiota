@@ -185,13 +185,24 @@ main.prototype.require = function(app) {
 main.prototype.startup = function(node, app, app_config, host_info, auto_install, callback) {
 	var _this = this;
 
-	app = "er-app-" + app.replace(/^er-app-/, "");
-	console.info("startup:", app);
+	if (typeof host_info === "undefined") {
+		host_info = this;
+	}
+	if (typeof auto_install === "undefined") {
+		auto_install = this._config.auto_install;
+	}
 
-	var app_identifier = app;
+	var appname = app;
+	if (typeof app === "object") {
+		appname = app._app;
+	}
+	appname = "er-app-" + appname.replace(/^er-app-/, "");
+	console.info("startup:", appname);
+
+	var app_identifier = appname;
 	var app_increment = 2;
 	while(this.apps.hasOwnProperty(app_identifier)) {
-		app_identifier = app + "_" + app_increment++;
+		app_identifier = appname + "_" + app_increment++;
 	}
 
 	try {
@@ -200,6 +211,10 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 		}
 
 		var node_destination = null;
+		if (typeof app_config !== "object") {
+			app_config = {};
+		}
+
 		if (typeof app_config.node === "string") {
 			node_destination = node.node(app_config.node);
 		} else {
@@ -210,15 +225,28 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 			node_source = node.node(app_config.source);
 		}
 
-		var a = new Application(app_identifier, app, node_destination, app_config, this, host_info);
-		a._source = node_source;
+		var a;
+		if (typeof app === "string") {
+			a = new Application(appname);
+			a._bind_module( this.require(appname, app_config, host_info, auto_install) );
+		} else if (typeof app === "object") {
+			a = app;
+		} else {
+			throw new Error("variable app has unknown type.");
+		}
+
+		// bind:
+		a._bind(app_identifier, this, host_info);
 		this.apps[app_identifier] = a;
 
-		if (app !== "er-app-node" || !node_destination.app)
-			node_destination.app = a;
+		a._source = node_source;
+		a._node = node_destination;
 
-		a._bind_module( this.require(app, app_config, host_info, auto_install) );
-		a._init();
+		if (appname !== "er-app-node" || !node_destination.app)
+			node_destination._app = a;
+
+		// init:
+		a._init(app_config);
 
 		if (typeof callback === "function") {
 			callback(a);
@@ -240,13 +268,6 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 };
 
 main.prototype.startup_struct = function(node, struct, host_info, auto_install, callback) {
-	if (typeof auto_install === "undefined") {
-		auto_install = this._config.auto_install;
-	}
-	if (typeof host_info === "undefined") {
-		host_info = this;
-	}
-
 	if (typeof struct !== "object") {
 		if (typeof struct === "string") {
 			struct = {"name": struct};
@@ -286,8 +307,9 @@ main.prototype.app_add = function(app, settings, node, config, callback) {
 	if (typeof settings !== "object")
 		settings = {};
 	if (node) {
-		if (node.app) {
-			config = node.app._config;
+		if (typeof node._app === "object"
+				&& node._app._state === "RUNNING") {
+			config = node._app._config;
 		// if node has global position and source is not set:
 		} else if (typeof settings.source !== "string" &&
 				typeof settings.node === "string"  &&
