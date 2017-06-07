@@ -107,6 +107,14 @@ exports.node.prototype.node = function(name) {
 };
 
 /**
+ * Create a virtual node for data handling
+ * @returns {node}
+ */
+exports.node.prototype.virtualnode = function() {
+	return new exports.node(this, this.name, null);
+};
+
+/**
  * Announce a node with meta data
  * @param {object} metadata - Meta data describing the node
  * @param {boolean} update - If true, this is just an update of the meta data.
@@ -149,6 +157,9 @@ exports.node.prototype.announce_climb = function(node, method, update) {
 	}
 };
 
+exports.node.prototype.get_nodes = function(basename, children_of_children) {
+	return this.router.get_nodes(basename, children_of_children);
+};
 
 /* Children of a node */
 exports.node.prototype.get_children = function() {
