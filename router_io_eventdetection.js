@@ -1,5 +1,8 @@
 
 exports.init = function(router, node, target, schwellen) {
+	console.warn("using router_io_eventdetection: "+
+			"This module is deprecated.\n"+
+			"please use er-app-analysis/eventdetecion");
 	return node.subscribe_h(function() {
 		if (!node.hasOwnProperty("eventdetection")) {
 			node.eventdetection = {
