@@ -1,10 +1,16 @@
 var Router = require("./router").router;
+var Node = require("./router").node;
 var Policy_checker = require("./module_policycheck.js");
 var Application = require("./application.js").application;
 
 var require_vm = require("./helper_require_vm.js");
 
+var EventEmitter = require('events').EventEmitter;
+var util = require('util');
+
 function main(router_name) {
+	EventEmitter.call(this);
+
 	this.router = new Router(router_name);
 	require('./router_io_function.js').init(this.router);
 	require('./router_io_mean.js').init(this.router);
@@ -15,7 +21,8 @@ function main(router_name) {
 
 	this.remotes = {};
 	this.apps = {};
-}
+};
+util.inherits(main, EventEmitter);
 
 main.prototype.config = function(config) {
 	var _this = this;
@@ -268,10 +275,18 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 
 		return a;
 	} catch(e) {
-		console.error("error starting app:", e.stack || e);
+		// save error:
 		if (!this.apps[app_identifier])
 			this.apps[app_identifier] = {};
 		this.apps[app_identifier]._error = e;
+
+		// trigger global callback:
+		if (this.emit("app_loading_error", e, node, app, app_config,
+					host_info, auto_install, callback))
+			return null;
+
+		// show error:
+		console.error("error starting app:", e.stack || e);
 
 		return null;
 	}
