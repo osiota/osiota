@@ -10,3 +10,4 @@ level_db/
 .*.un~
 
 config.json
+config_*.json
