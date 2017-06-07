@@ -19,6 +19,60 @@ function main(router_name) {
 	require('./router_io_sum.js').init(this.router);
 	require('./router_io_accumulate.js').init(this.router);
 
+	var _this = this;
+	Node.prototype.app = function(app, app_config) {
+		return _this.startup(this, app, app_config);
+	};
+	Node.prototype.map = function(config, app, map_extra_elements) {
+		var node = this;
+		var map = {};
+		if (!Array.isArray(config)) {
+			return;
+		}
+		config.forEach(function(app_config) {
+			var s = app_config.map;
+
+			var vn = node.virtualnode();
+			var a = vn.app(app, app_config);
+			map[s] = { vn: vn, a: a };
+		});
+		var callback = function(s) {
+			if (this.map.hasOwnProperty(s)) {
+				return map[s].vn;
+			}
+			if (map_extra_elements) {
+				var app_config = {};
+				if (typeof map_extra_elements === "object") {
+					app_config = map_extra_elemets;
+				}
+				app_config.node = s;
+				if (typeof map_extra_elements === "function") {
+					app_config = map_extra_elements(app_config);
+				}
+				app_config.map = s;
+				config.push(app_config);
+
+				var vn = node.virtualnode();
+				var a = vn.app(app, app_config);
+				map[s] = { vn: vn, a: a };
+				return vn;
+			}
+			return null;
+		};
+		return {
+			unload: function() {
+				for(var s in map) {
+					if (map.hasOwnProperty(s)) {
+						map[s].vn.unannounce();
+						map[s].a.unload();
+						delete map[s];
+					}
+				}
+			},
+			node: callback
+		};
+	};
+
 	this.remotes = {};
 	this.apps = {};
 };
