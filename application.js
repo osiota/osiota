@@ -11,7 +11,10 @@
 exports.application = function(app) {
 	this._state = "INIT";
 
-	this._app = app;
+	this._app = "er-app-unknown";
+	if (typeof app === "string")
+		this._app = app;
+
 	this._config = {};
 
 	this._node = null;
@@ -27,7 +30,8 @@ exports.application.prototype._bind_module = function(module) {
 	this._module = module;
 	for (var field in module) {
 		if (module.hasOwnProperty(field)) {
-			this[field] = module[field];
+			if (!field.match(/^_/))
+				this[field] = module[field];
 		}
 	}
 	return this;

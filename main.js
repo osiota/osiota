@@ -194,7 +194,9 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 
 	var appname = app;
 	if (typeof app === "object") {
-		appname = app._app;
+		appname = "unknown";
+		if (typeof app._app === "string")
+			appname = app._app;
 	}
 	appname = "er-app-" + appname.replace(/^er-app-/, "");
 	console.info("startup:", appname);
@@ -230,7 +232,13 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 			a = new Application(appname);
 			a._bind_module( this.require(appname, app_config, host_info, auto_install) );
 		} else if (typeof app === "object") {
-			a = app;
+			if (app.hasOwnProperty("_state") &&
+					app._state === "INIT") {
+				a = app;
+			} else {
+				a = new Application(appname);
+				a._bind_module( app );
+			}
 		} else {
 			throw new Error("variable app has unknown type.");
 		}
@@ -261,6 +269,8 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 		return a;
 	} catch(e) {
 		console.error("error starting app:", e.stack || e);
+		if (!this.apps[app_identifier])
+			this.apps[app_identifier] = {};
 		this.apps[app_identifier]._error = e;
 
 		return null;
