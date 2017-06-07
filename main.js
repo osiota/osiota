@@ -200,7 +200,9 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 	}
 
 	var appname = app;
-	if (typeof app === "object") {
+	if (typeof app === "undefined" || app === null) {
+		return;
+	} else if (typeof app === "object") {
 		appname = "unknown";
 		if (typeof app._app === "string")
 			appname = app._app;
