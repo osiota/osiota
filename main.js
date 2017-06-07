@@ -410,7 +410,58 @@ main.prototype.app_add = function(app, settings, node, config, callback) {
 	}
 
         var struct = add_app_helper(config, app, settings);
-	this.startup_struct(node, struct, undefined, undefined, callback);
+	return this.startup_struct(node, struct, undefined, undefined,callback);
+};
+
+main.prototype.app_remove = function(app) {
+	if (typeof app === "string") {
+		app = this.apps[app];
+	}
+	if (typeof app !== "object") {
+		console.log("type", typeof app);
+		throw new Error("app_remove: app is not an object");
+	}
+
+	// unload app:
+	app._unload();
+
+	// remove from config:
+	app._config.__remove_app = true;
+
+	// init config cleaning:
+	this.config_cleaning();
+};
+
+var fmap = function(array, callback) {
+	return array.reduce(function(acc, value, index, oa) {
+		var n = callback.call(acc, value, index, oa);
+		if (typeof n !== "undefined") {
+			acc.push(n)
+		}
+		return acc;
+	}, []);
+};
+
+main.prototype.config_cleaning = function(config) {
+	if (typeof config === "undefined") {
+		config = this._config;
+	}
+	var _this = this;
+	if (typeof config !== "object") {
+		return config;
+	}
+	if (typeof config.config === "object") {
+		if (config.config.__remove_app) {
+			return undefined;
+		}
+	}
+	if (config.hasOwnProperty("app")) {
+		config.app = fmap(config.app, function(c) {
+			return _this.config_cleaning(c);
+		});
+	}
+
+	return config;
 };
 
 main.prototype.close = function() {
