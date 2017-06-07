@@ -61,6 +61,10 @@ exports.node = function(r, name, parentnode) {
 		if (reinit === true) {
 			is_subscriped = false;
 		}
+		// not a remote node
+		if (!this.hasOwnProperty("connection")) {
+			return;
+		}
 
 		if (is_subscriped) {
 			if (this.listener.length == 0 && this.subscription_listener.length == 0) {
