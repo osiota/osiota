@@ -74,6 +74,18 @@ exports.application.prototype._reinit = function(app_config) {
 
 	this._state = "RUNNING";
 };
+exports.application.prototype._reinit_delay = function(delay, app_config) {
+	if (typeof delay !== "number")
+		delay = 1000;
+
+	var _this = this;
+	this._state = "REINIT";
+	setTimeout(function() {
+		if (_this._state === "REINIT")
+			_this._reinit(app_config);
+	}, delay);
+};
+
 exports.application.prototype._unload_object = function(object) {
 	var _this = this;
 	if (typeof object === "function") {
