@@ -82,6 +82,7 @@ main.prototype.config = function(config) {
 	var _this = this;
 
 	this._config = config;
+	this.config_cleaning();
 
 	if (typeof config.hostname !== "undefined") {
 		this.router.name = config.hostname;
@@ -368,7 +369,7 @@ main.prototype.startup_struct = function(node, struct, host_info, auto_install, 
 	}
 };
 
-var add_app_helper = function(config, app, settings) {
+main.prototype.app_add_helper = function(config, app, settings) {
         if (!Array.isArray(config.app)) {
                 config.app = [];
         }
@@ -376,6 +377,8 @@ var add_app_helper = function(config, app, settings) {
                 "name": app,
                 "config": settings
         }
+	this.config_cleaning(struct);
+
         config.app.push(struct);
         return struct;
 };
@@ -385,11 +388,15 @@ main.prototype.app_add = function(app, settings, node, config, callback) {
 	if (!config) {
 		config = this._config;
 	}
+	if (config.__is_persistent !== true) {
+		throw new Error("given config is not persistent");
+	}
 	if (typeof settings !== "object")
 		settings = {};
 	if (node) {
-		if (typeof node._app === "object"
-				&& node._app._state === "RUNNING") {
+		if (typeof node._app === "object" &&
+				node._app._state === "RUNNING" &&
+				node._app._config.__is_persistent === true) {
 			config = node._app._config;
 		// if node has global position and source is not set:
 		} else if (typeof settings.source !== "string" &&
@@ -401,7 +408,7 @@ main.prototype.app_add = function(app, settings, node, config, callback) {
 				!settings.source.match(/^\//) ||
 				typeof settings.node !== "string" ||
 				!settings.node.match(/^\//)) {
-			var struct_n = add_app_helper(config, "node", {
+			var struct_n = this.app_add_helper(config, "node", {
 				"node": node.name
 			});
 			this.startup_struct(node, struct_n);
@@ -409,7 +416,7 @@ main.prototype.app_add = function(app, settings, node, config, callback) {
 		}
 	}
 
-        var struct = add_app_helper(config, app, settings);
+        var struct = this.app_add_helper(config, app, settings);
 	return this.startup_struct(node, struct, undefined, undefined,callback);
 };
 
@@ -446,6 +453,9 @@ main.prototype.config_cleaning = function(config) {
 	if (typeof config === "undefined") {
 		config = this._config;
 	}
+	config.__is_persistent = true;
+	Object.defineProperty(config, '__is_persistent', {enumerable: false});
+
 	var _this = this;
 	if (typeof config !== "object") {
 		return config;
@@ -455,10 +465,22 @@ main.prototype.config_cleaning = function(config) {
 			return undefined;
 		}
 	}
-	if (config.hasOwnProperty("app")) {
-		config.app = fmap(config.app, function(c) {
-			return _this.config_cleaning(c);
-		});
+	for (var k in config) {
+		if (config.hasOwnProperty(k) &&
+				typeof config[k] === "object") {
+			if (Array.isArray(config[k])) {
+				config.app = fmap(config.app, function(c) {
+					return _this.config_cleaning(c);
+				});
+			} else {
+				var c = _this.config_cleaning(config[k]);
+				if (typeof c === "undefined") {
+					delete config[k];
+				} else {
+					config[k] = c;
+				}
+			}
+		}
 	}
 
 	return config;
