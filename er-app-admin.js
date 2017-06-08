@@ -1,26 +1,25 @@
 const fs = require("fs");
 
 exports.init = function(node, app_config, main, host_info) {
-	var n = node.node("config.config.object");
 	var schema = require(__dirname + "/schema_config.json");
 	schema.properties.app.items.oneOf = load_schema_apps(main);
 		
-	n.announce({
+	node.announce({
 		type: "config.object",
 		schema: schema,
 		extrabutton: "save"
 	});
-	n.publish(undefined,
+	node.publish(undefined,
 		require("./" + main._config.config)
 	);
-	n.rpc_publish = function(reply, time, value) {
-		n.publish(undefined,
+	node.rpc_publish = function(reply, time, value) {
+		node.publish(undefined,
 			value
 		);
 		reply(null, "ok");
 	};
-	n.rpc_save = function(reply) {
-		var value = n.value;
+	node.rpc_save = function(reply) {
+		var value = node.value;
 		console.info("saving config", value);
 		fs.writeFile("./" + main._config.config,
 				JSON.stringify(value, null, '\t'),
