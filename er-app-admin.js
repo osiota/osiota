@@ -3,7 +3,7 @@ const fs = require("fs");
 exports.init = function(node, app_config, main, host_info) {
 	var n = node.node("config.config.object");
 	var schema = require(__dirname + "/schema_config.json");
-	schema.properties.app.items.oneOf = load_schema_apps();
+	schema.properties.app.items.oneOf = load_schema_apps(main);
 		
 	n.announce({
 		type: "config.object",
@@ -147,11 +147,14 @@ var add_default_schema = function(schema) {
 	schema.unshift(schema_a);
 }
 
-var load_schema_apps = function(cb) {
+var load_schema_apps = function(main) {
 	var schema_apps = [];
-	load_schema_apps_in_dir("./node_modules/", schema_apps);
-	load_schema_apps_in_dir("./", schema_apps);
-	load_schema_apps_in_dir("../", schema_apps);
+	main.app_dirs.forEach(function(app_dir) {
+		if (app_dir == "") {
+			app_dir = "./node_modules/"
+		}
+		load_schema_apps_in_dir(app_dir, schema_apps);
+	};
 
 	schema_apps.sort(function(a, b) {
 		return a.title == b.title ? 0 : (
