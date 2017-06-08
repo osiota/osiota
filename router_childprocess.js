@@ -3,6 +3,10 @@
  * The data format is decribed in the documentation.
  */
 exports.init = function(router, basename, command, args) {
+	console.warn("using router_childprocess: "+
+			"This module is deprecated.\n"+
+			"please use er-app-childprocess");
+
 	// initialize the child process:
 	var spawn = require('child_process').spawn;
 	var childProcess = spawn(command, args);
