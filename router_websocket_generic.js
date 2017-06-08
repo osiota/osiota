@@ -256,7 +256,11 @@ exports.init = function(router, ws, module_name) {
 			"maxentries": null,
 			"fromtime": fromtime,
 			"totime": totime
-		}, function(data) {
+		}, function(err, data) {
+			if (err) {
+				console.warn("history: unable to load data:", err);
+				return;
+			}
 			// newest element is added via bind
 			if (!totime)
 				data.pop()

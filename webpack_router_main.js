@@ -3,9 +3,20 @@
 var Router = require('./router.js').router;
 var r = new Router("WebClient");
 
-require('./module_history.js').init(r, 'ram', {
-	"maxCount": 3000
-});
+// Load history module
+var history_config = {
+	"type": "global",
+	"submodules": [{
+		"type": "memory",
+		"max_data": 3000
+	},{
+		"type": "remote"
+	}]
+};
+
+require('./module_history_class_memory.js');
+require('./module_history_class_remote.js');
+require('./module_history.js').init(r, history_config);
 
 require('./router_io_function.js').init(r);
 require('./router_io_mean.js').init(r);
