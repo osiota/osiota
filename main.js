@@ -271,27 +271,12 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 		app_identifier = appname + "_" + app_increment++;
 	}
 
+	var a = null;
 	try {
-		if (typeof node !== "object" || node === null) {
-			node = this.node("/app");
-		}
-
-		var node_destination = null;
 		if (typeof app_config !== "object") {
 			app_config = {};
 		}
 
-		if (typeof app_config.node === "string") {
-			node_destination = node.node(app_config.node);
-		} else {
-			node_destination = node.node(app_identifier.replace(/^er-app-/, ""));
-		}
-		var node_source = node;
-		if (typeof app_config.source === "string") {
-			node_source = node.node(app_config.source);
-		}
-
-		var a;
 		if (typeof app === "string") {
 			a = new Application(appname);
 			a._bind_module( this.require(appname, app_config, host_info, auto_install) );
@@ -310,6 +295,23 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 		// bind:
 		a._bind(app_identifier, this, host_info);
 		this.apps[app_identifier] = a;
+
+		if (typeof node !== "object" || node === null) {
+			node = this.node("/app");
+		}
+
+		var node_destination = null;
+		if (typeof app_config.node === "string") {
+			node_destination = node.node(app_config.node);
+		} else if (typeof a.default_node_name === "string") {
+			node_destination = node.node(a.default_node_name);
+		} else {
+			node_destination = node.node(app_identifier.replace(/^er-app-/, ""));
+		}
+		var node_source = node;
+		if (typeof app_config.source === "string") {
+			node_source = node.node(app_config.source);
+		}
 
 		a._source = node_source;
 		a._node = node_destination;
@@ -333,14 +335,26 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 		return a;
 	} catch(e) {
 		// save error:
-		if (!this.apps[app_identifier])
-			this.apps[app_identifier] = {};
+		if (a === null) {
+			a = {};
+		}
+		if (!this.apps[app_identifier]) {
+			this.apps[app_identifier] = a;
+		}
 		this.apps[app_identifier]._error = e;
 
 		// trigger global callback:
 		if (this.emit("app_loading_error", e, node, app, app_config,
-					host_info, auto_install, callback))
-			return null;
+					host_info, auto_install, function(an) {
+			if (typeof an === "object") {
+				a = an;
+				if (typeof callback === "function") {
+					callback(a);
+				}
+			}
+		})) {
+			return a;
+		}
 
 		// show error:
 		console.error("error starting app:", e.stack || e);
