@@ -153,7 +153,7 @@ var load_schema_apps = function(main) {
 			app_dir = "./node_modules/"
 		}
 		load_schema_apps_in_dir(app_dir, schema_apps);
-	};
+	});
 
 	schema_apps.sort(function(a, b) {
 		return a.title == b.title ? 0 : (
@@ -166,4 +166,3 @@ var load_schema_apps = function(main) {
 	return schema_apps;
 };
 
-load_schema_apps();
