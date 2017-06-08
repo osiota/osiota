@@ -463,7 +463,7 @@ exports.Policy_checker.prototype.create_callback_by_count = function (destinatio
 exports.Policy_checker.prototype.create_callback_by_time = function (destination_node, policy, publish_to) {
     var values = {};
     var memory = {};
-    var interval_start = new Date().getTime()/1000;
+    var interval_start = new Date()/1000;
     var interval_end;
 
     // calculates and publishes aggregated value
@@ -558,8 +558,9 @@ function calculate_integral(value_group, memory, interval_start, interval_end) {
 
     for (var node in value_group) {
         values = value_group[node];
-        if (memory[node] == undefined) {
+        if (typeof memory[node] === "undefined") {
             value = 0;
+	    return null;
         }else{
             value = memory[node].value
         };
