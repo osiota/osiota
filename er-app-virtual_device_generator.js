@@ -45,11 +45,11 @@ exports.init = function(node, app_config, main, autoinstall) {
 
 		(function(device) {
 
-			var state_node = node.node(device+".status");
-			var energy_node = node.node(device+".energy");
+			var state_node = node.node(device+"/Energieverbrauch.status");
+			var energy_node = node.node(device+"/Energieverbrauch.energy.data");
 
 			//create an energy-node for the device and start publishing energy-data
-			energy_node.announce();
+			energy_node.announce({"type": "energy.data"});
 			if (app_config[device].filepath === "") {
 				require('./router_random_in.js').init(r, energy_node,
 					(app_config[device].interval*1000 || 1000));
