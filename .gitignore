@@ -5,7 +5,7 @@ energy-router-output.log
 er-output*
 webclient/bower_components
 webclient/ethercat/bower_components
-level_db/
+.level_db/
 
 .*.un~
 
