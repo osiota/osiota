@@ -56,6 +56,7 @@ exports.application.prototype._unload = function() {
 		this.unload(this._object);
 	} else {
 		this._unload_object(this._object);
+		this._object = null;
 	}
 
 	this._state = "UNLOADED";
