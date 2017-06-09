@@ -294,7 +294,6 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 
 		// bind:
 		a._bind(app_identifier, this, host_info);
-		this.apps[app_identifier] = a;
 
 		if (typeof node !== "object" || node === null) {
 			node = this.node("/app");
@@ -316,8 +315,7 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 		a._source = node_source;
 		a._node = node_destination;
 
-		if (appname !== "er-app-node" || !node_destination.app)
-			node_destination._app = a;
+		this.app_register(a);
 
 		// init:
 		a._init(app_config);
@@ -383,6 +381,27 @@ main.prototype.startup_struct = function(node, struct, host_info, auto_install, 
 	}
 };
 
+main.prototype.app_register = function(a) {
+	this.apps[a._id] = a;
+
+	var appname = a._app;
+	var node = a._node;
+
+	if (appname !== "er-app-node" || !node._app) {
+		node._app = a;
+	}
+};
+
+main.prototype.app_unregister = function(a) {
+	delete this.apps[a._id];
+
+	var node = a._node;
+	if (typeof node._app == "object" &&
+			node._app === a) {
+		delete node._app;
+	}
+};
+
 main.prototype.app_add_helper = function(config, app, settings) {
         if (!Array.isArray(config.app)) {
                 config.app = [];
@@ -445,6 +464,8 @@ main.prototype.app_remove = function(app) {
 
 	// unload app:
 	app._unload();
+
+	this.app_unregister(app);
 
 	// remove from config:
 	app._config.__remove_app = true;
