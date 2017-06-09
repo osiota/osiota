@@ -301,6 +301,15 @@ exports.node.prototype.publish = function(time, value, only_if_differ, do_not_ad
 	});
 };
 
+/* Route data (give a callback to subscribe) */
+exports.node.prototype.publish_subscribe_cb = function() {
+	var dnode = this;
+	return function(do_not_add_to_history, initial) {
+		dnode.publish(this.time, this.value, undefined,
+				do_not_add_to_history);
+	};
+};
+
 /* Route data by a single routing entry */
 exports.node.prototype.route_one = function(rentry, relative_name, do_not_add_to_history) {
 	if (typeof relative_name === "undefined") {
