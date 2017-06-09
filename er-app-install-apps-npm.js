@@ -46,18 +46,3 @@ exports.init = function(node, app_config, main, host_info) {
 	}
 };
 
-/*
-main.prototype.get_allapps = function(callback) {
-	npm.command("ls", [], true, function(data, lite) {
-		var library_names = [];
-		var regexp = new RegExp("^er-app-");
-		Object.keys(lite.dependencies).sort().forEach(function(name) {
-			if(name.match(regexp)) {
-				library_names.push(name);
-			}
-		});
-		callback(library_names);
-	});
-};
-*/
-
