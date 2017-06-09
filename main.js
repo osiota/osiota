@@ -563,6 +563,7 @@ main.prototype.reload = function(callback) {
 if (process.on) { /* if NodeJS */
 	process.on('SIGINT', function() { process.exit(0); });
 	process.on('SIGTERM', function() { process.exit(0); });
+	//process.on('exit');
 
 	process.on('uncaughtException', function(e) {
 		console.error('Uncaught exception:', e.stack || e);
