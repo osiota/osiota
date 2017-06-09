@@ -5,7 +5,7 @@ exports.init = function(node, app_config, main, host_info) {
 	schema.properties.app.items.oneOf = load_schema_apps(main);
 		
 	node.announce({
-		type: "config.object",
+		type: "config.basic",
 		schema: schema,
 		extrabutton: "save"
 	});
