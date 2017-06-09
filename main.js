@@ -305,7 +305,8 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 		} else if (typeof a.default_node_name === "string") {
 			node_destination = node.node(a.default_node_name);
 		} else {
-			node_destination = node.node(app_identifier.replace(/^er-app-/, ""));
+			node_destination = node.node(app_identifier.
+				replace(/^er-app-/, "").replace(/\//g, "-"));
 		}
 		var node_source = node;
 		if (typeof app_config.source === "string") {
