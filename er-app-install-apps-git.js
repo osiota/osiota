@@ -27,10 +27,10 @@ exports.init = function(node, app_config, main, host_info) {
 	node.rpc_install_app = function(reply, app) {
 		install_app(app, app_config, function(err) {
 			if (err) {
-				reply("Error installing app", err);
+				reply("Error installing app (git)", err);
+				return;
 			}
 
-			// todo: check error.
 			reply(null, "okay");
 		});
 	};
@@ -38,19 +38,20 @@ exports.init = function(node, app_config, main, host_info) {
 	if (typeof app_config.auto_install_missing_apps === "boolean" &&
 			app_config.auto_install_missing_apps) {
 		main.removeAllListeners("app_loading_error");
-		var running = false;
+		var try_to_install = {};
 		main.on("app_loading_error", function(e, node, app, l_app_config, host_info, auto_install, callback) {
-			if (running) return;
-			running = true;
+			if (try_to_install.hasOwnProperty("app"))
+				return;
+			try_to_install[app] = true;
 			if (e.hasOwnProperty("code") && e.code === "ER_APP_NOT_FOUND") {
 				install_app(app, app_config, function(err, stdout) {
 					if (err) throw err;
 					main.startup(node, app, l_app_config,
 						host_info, auto_install, callback);
-					running = false;
 				});
 			} else {
-				console.error("error starting app:", e.stack || e);
+				console.error("error starting app:",
+						e.stack || e);
 			}
 		});
 	}
