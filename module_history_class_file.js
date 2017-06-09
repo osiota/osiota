@@ -7,23 +7,26 @@ var HistoryGlobal = require("./module_history_global.js");
 var levelUP = require("levelup");
 var version = require("level-version");
 
+var dbdir = "./.level_db/";
+
 var vdb_setup = function(node, config) {
 	try {
-		fs.mkdirSync("./.level_db/");
+		fs.mkdirSync(dbdir);
 	} catch(e) {}
 	console.log("vdb_setup", node.name);
-	var dbname = node.name+"/";
-	dbname = dbname.replace(/^\/+/,"").replace(/[\/@]/, "_");
+	var dbname = node.name+"/" + config.filename;
+	dbname = dbname.replace(/^\/+/,"").replace(/[\/@]/g, "_");
+	dbname = dbdir + dbname;
 
-	console.log("filename", './.level_db/' + dbname + config.filename);
-	var ldb = levelUP('./.level_db/' + dbname + config.filename);
+	console.log("filename", dbname);
+	var ldb = levelUP(dbname);
 	var vdb = version(ldb);
 	return vdb;
 };
 
-var vdb_read = function(vdb, config, node_name, callback) {
+var vdb_read = function(vdb, config, callback) {
 	var hdata = [];
-	vdb.createVersionStream(node_name, {
+	vdb.createVersionStream("", {
 		versionLimit: config.maxentries,
 		minVersion: config.fromtime,
 		maxVersion: config.totime
@@ -51,7 +54,6 @@ var vdb_read = function(vdb, config, node_name, callback) {
 
 exports.history = function (node, config) {
 	console.log("node, file", node.name);
-	this.node_name = node.name;
 
 	this.vdb = vdb_setup(node, config);
 };
@@ -62,7 +64,7 @@ exports.history.prototype.add = function (time, value) {
 		return;
 	}
 
-	this.vdb.put(this.node_name, value, {version: time}, function(err, version) {
+	this.vdb.put("", value, {version: time}, function(err, version) {
 		if(err)
 			console.warn('Error:', err);
 	});
@@ -98,7 +100,7 @@ exports.history.prototype.get = function (parameters, callback) {
 	}
 
 	// search version db
-	vdb_read(this.vdb, config, this.node_name, function(hdata) {
+	vdb_read(this.vdb, config, function(hdata) {
 		if (hdata === null) {
 			callback(hdata, true);
 		} else {
