@@ -1,25 +1,24 @@
 
 exports.init = function(node, app_config, main, host_info) {
-	var basename = app_config.basename;
-	var delay = app_config.delay;
-	var cmin = app_config.cmin;
-	var cmax = app_config.cmax;
-	var exp = app_config.exp;
-	var round = app_config.round;
+	var delay = 1000;
+	var cmin = 0;
+	var cmax = 100;
+	var exp = 5;
+	var round = null;
 
-	if (typeof delay === "undefined")
-		delay = 1000;
-	if (typeof cmin === "undefined")
-		cmin = 0;
-	if (typeof cmax === "undefined")
-		cmax = 100;
-	if (typeof exp !== "number")
-		exp = 5;
-	if (typeof round !== "number")
-		round = null;
+	if (typeof app_config.delay === "number")
+		delay = app_config.delay;
+	if (typeof app_config.cmin === "number")
+		cmin = app_config.cmin;
+	if (typeof app_config.cmax === "number")
+		cmax = app_config.cmax;
+	if (typeof app_config.exp === "number")
+		exp = app_config.exp;
+	if (typeof app_config.round === "number")
+		round = app_config.round;
 
 	var last_value = 0.5;
-	setInterval(function(node, basename, cmin, cmax) {
+	var tid = setInterval(function() {
 		var v = Math.random();
 		v = last_value + (v-0.5)/exp;
 		v = Math.max(Math.min(v, 1), 0);
@@ -29,9 +28,10 @@ exports.init = function(node, app_config, main, host_info) {
 		if (round !== null) {
 			v = Math.round( v * Math.pow(10, round) ) / Math.pow(10, round);
 		}
-		node(basename).publish(undefined, v);
-	}, delay, node, basename, cmin, cmax);
+		node.publish(undefined, v);
+	}, delay);
 
+	return [node, tid];
 };
 
 
