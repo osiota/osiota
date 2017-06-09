@@ -1,13 +1,15 @@
 var execFile = require('child_process').execFile;
 
 var install_app = function(app, app_config, callback) {
+	app = app.replace(/^er-app-/, "").replace(/\/.*$/, "");
+	console.log("install app (git):", app);
 	var install_dir = "../";
 	if (typeof app_config.install_dir === "string" &&
 			app_config.install_dir !== "") {
 		install_dir = app_config.install_dir.replace(/\/$/, "") + "/";
 	}
-	app = app.replace(/^er-app-/, "");
 	execFile("git", ["clone", "git@gitlab.ibr.cs.tu-bs.de:eneff-campus-2020/er-app-" + app + ".git", install_dir + "er-app-" + app], function(err) {
+		console.log("run npm install:", app);
 		if (err) {
 			callback(err);
 			return;

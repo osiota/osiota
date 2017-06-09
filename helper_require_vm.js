@@ -70,7 +70,8 @@ var require_vm = function(module_name, paths, use_vm) {
 	});
 	if (!filename) {
 		var err = new Error("Cannot find module '" + module_name + "'");
-		err.code = 'MODULE_NOT_FOUND';
+		//err.code = 'MODULE_NOT_FOUND';
+		err.code = 'ER_APP_NOT_FOUND';
 		throw err;
 	}
 
