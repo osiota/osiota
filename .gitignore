@@ -6,6 +6,7 @@ er-output*
 webclient/bower_components
 webclient/ethercat/bower_components
 .level_db/
+.persistent/
 
 .*.un~
 
