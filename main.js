@@ -78,6 +78,12 @@ function main(router_name) {
 };
 util.inherits(main, EventEmitter);
 
+main.prototype.classes = {
+	"Router": Router,
+	"Node": Node,
+	"Application": Application
+};
+
 main.prototype.config = function(config) {
 	var _this = this;
 
