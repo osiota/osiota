@@ -511,7 +511,7 @@ main.prototype.config_cleaning = function(config) {
 		if (config.hasOwnProperty(k) &&
 				typeof config[k] === "object") {
 			if (Array.isArray(config[k])) {
-				config.app = fmap(config.app, function(c) {
+				config[k] = fmap(config[k], function(c) {
 					return _this.config_cleaning(c);
 				});
 			} else {
