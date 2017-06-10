@@ -61,38 +61,45 @@ exports.init = function(node, app_config, main, host_info) {
 	port.on('open', function() {
 		port.init();
 
-		for (var n in app_config.nodes) {
-			var channel = app_config.nodes[n];
-			(function(channel) {
-				var value = 0;
-				if (Array.isArray(channel)) {
-					if (channel.length >= 2) {
-						value = channel[1];
-					}
-					channel = channel[0];
-				}
-				if (typeof channel === "object" &&
-					typeof channel.channel === "number" &&
-					typeof channel.value === "number") {
-					value = channel.value;
-					channel = channel.channel;
-				}
+	// set loop (see artnet)
+	for (var n in app_config.nodes) {
+		var channel = app_config.nodes[n];
+		var default_value = null;
+		var nn = node.node(n);
 
-				node.node(n).rpc_publish =
-						function(reply, value) {
-					this.publish(undefined, value);
-					/* port.set(channel, value); */
-					reply(null, "ok");
-				};
-				node.node(n).subscribe(function() {
-					if (this.value === null) {
-						port.set(channel, value);
-					} else {
-						port.set(channel, this.value);
-					}
-				});
-			})(channel);
+		if (Array.isArray(channel)) {
+			if (channel.length >= 2) {
+				default_value = channel[1];
+			}
+			channel = channel[0];
 		}
+
+		if (typeof channel === "object" &&
+				typeof channel.channel === "number" &&
+				typeof channel.value === "number") {
+			default_value = channel.value;
+			channel = channel.channel;
+		}
+
+		(function(nn, channel, default_value) {
+		nn.rpc_set = function(reply, value) {
+			if (value === null)
+				value = default_value;
+			if (typeof value !== "number")
+				value *= 1;
+
+			port.set(channel, value);
+			this.publish(undefined, value);
+
+			reply(null, "ok");
+		};
+		})(nn, channel, default_value);
+
+		if (default_value !== null) {
+			nn.rpc_set(function() {}, default_value);
+		}
+	}
+	// end set loop
 	});
 };
 
