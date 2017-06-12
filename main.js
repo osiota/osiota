@@ -11,6 +11,8 @@ var util = require('util');
 function main(router_name) {
 	EventEmitter.call(this);
 
+	this._config = {};
+
 	this.router = new Router(router_name);
 	require('./router_io_function.js').init(this.router);
 	require('./router_io_mean.js').init(this.router);
