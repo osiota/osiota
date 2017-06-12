@@ -27,7 +27,8 @@ var vdb_setup = function(node, config) {
 var vdb_read = function(vdb, config, callback) {
 	var hdata = [];
 	vdb.createVersionStream("", {
-		versionLimit: config.maxentries,
+		//versionLimit: config.maxentries,
+		limit: config.maxentries,
 		minVersion: config.fromtime,
 		maxVersion: config.totime
 	})
