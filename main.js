@@ -495,13 +495,16 @@ main.prototype.config_cleaning = function(config) {
 	if (typeof config === "undefined") {
 		config = this._config;
 	}
-	config.__is_persistent = true;
-	Object.defineProperty(config, '__is_persistent', {enumerable: false});
 
 	var _this = this;
+
 	if (typeof config !== "object") {
 		return config;
 	}
+
+	config.__is_persistent = true;
+	Object.defineProperty(config, '__is_persistent', {enumerable: false});
+
 	if (typeof config.config === "object") {
 		if (config.config.__remove_app) {
 			return undefined;
