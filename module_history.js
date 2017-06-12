@@ -15,10 +15,12 @@ exports.init = function(router, config) {
 			}
 		});
 
-		node.subscribe_h = function(object, timeout) {
-			var s = this.get_history_on_initialsync({
-				"totime": this.time
-			}, function(hdata) {
+		node.subscribe_h = function(object, timeout, config) {
+			if (typeof config !== "object")
+				config = {};
+			config.totime = this.time;
+			var s = this.get_history_on_initialsync(config,
+					function(hdata) {
 				hdata.forEach(function(d) {
 					object.call(d, true, true);
 				});
