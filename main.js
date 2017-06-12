@@ -12,6 +12,7 @@ function main(router_name) {
 	EventEmitter.call(this);
 
 	this._config = {};
+	this._system_start = new Date();
 
 	this.router = new Router(router_name);
 	require('./router_io_function.js').init(this.router);
