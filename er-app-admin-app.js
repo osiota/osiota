@@ -19,7 +19,7 @@ exports.init = function(node, app_config, main, host_info) {
 		cn.publish(undefined, a._config);
 
 		cn.rpc_publish = function(reply, time, value) {
-			a._config = this.config_update(value, a._config);
+			a._config = main.config_update(value, a._config);
 			this.publish(undefined,
 				value
 			);
@@ -53,21 +53,31 @@ exports.init = function(node, app_config, main, host_info) {
 
 var get_schema = function(app_dirs, app) {
 	app = "er-app-" + app.replace(/^er-app-/, "");
+	var schema = null;
 	app_dirs.forEach(function(app_dir) {
+		if (schema) return;
 		if (app_dir == "") {
 			app_dir = "./node_modules/"
 		}
 	
 		try {
-			return read_schema_file_simple(app_dir + app + "-schema.json");
+			schema = read_schema_file_simple(app_dir + app +
+					"-schema.json");
+			return;
 		} catch(e) {}
 		try {
-			return read_schema_file_simple(app_dir + app + "/schema_config.json");
+			schema = read_schema_file_simple(app_dir + app +
+					"/schema_config.json");
+			return;
 		} catch(e) {}
 		try {
-			return read_schema_file_simple(app_dir + app + "/schema.json");
+			schema = read_schema_file_simple(app_dir + app +
+					"/schema.json");
+			return;
 		} catch(e) {}
 	});
+	if (schema)
+		return schema;
 
 	return create_default_schema();
 };

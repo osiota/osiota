@@ -348,8 +348,6 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 	a._source = node_source;
 	a._node = node_destination;
 
-	this.app_register(a);
-
 	// init:
 	try {
 		if (!a._error) {
@@ -362,6 +360,8 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 	} catch(e) {
 		// save error:
 		a._error = e;
+		if (a._config)
+			a._config = app_config;
 
 		// trigger global callback:
 		this.emit("app_init_error", e, node, app, app_config,
@@ -369,6 +369,8 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 		// show error:
 		console.error("error starting app:", e.stack || e);
 	}
+
+	this.app_register(a);
 
 	// load child apps:
 	if (Array.isArray(app_config.app)) {
