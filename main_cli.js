@@ -2,6 +2,7 @@
 
 var os = require("os");
 var main = require("./main.js");
+const fs = require("fs");
 
 var argv = require('yargs')
 	.usage('Usage: $0 [-args]', {
@@ -100,5 +101,15 @@ try {
 }
 
 var m = new main(argv.hostname);
+m.on("config_save", function() {
+	var _this = this;
+	fs.writeFile("./" + _this._config.config,
+			JSON.stringify(value, null, '\t'),
+			function(err) {
+		if (err) {
+			throw err;
+		}
+	});
+});
 m.config(argv);
 

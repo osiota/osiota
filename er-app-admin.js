@@ -21,16 +21,11 @@ exports.init = function(node, app_config, main, host_info) {
 	node.rpc_save = function(reply) {
 		var value = node.value;
 		console.info("saving config", value);
-		fs.writeFile("./" + main._config.config,
-				JSON.stringify(value, null, '\t'),
-				function(err) {
-			if (err) {
-				reply(err);
-				return;
-			}
-			reply(null, "config saved to file '" +
-					main._config.config + "'");
-		});
+		if (main.emit("config_save")) {
+			reply(null, "config saved");
+		} else {
+			reply("Error", "No save handler.");
+		}
 	};
 
 	return [node];
