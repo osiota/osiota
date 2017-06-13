@@ -28,21 +28,29 @@ exports.init = function(node, app_config, main, host_info) {
 			app_config.auto_install_missing_apps) {
 		main.removeAllListeners("app_loading_error");
 		var try_to_install = {};
-		main.on("app_loading_error", function(e, node, app, l_app_config, host_info, auto_install, callback) {
+		var cb_app_loading_error = function(e, node, app, l_app_config,
+				host_info, auto_install, callback) {
 			if (try_to_install.hasOwnProperty("app"))
 				return;
 			try_to_install[app] = true;
-			if (e.hasOwnProperty("code") && e.code === "ER_APP_NOT_FOUND") {
+			if (e.hasOwnProperty("code") &&
+					e.code === "ER_APP_NOT_FOUND") {
 				install_app(app, app_config, function(err) {
 					if (err) throw err;
 					main.startup(node, app, l_app_config,
-						host_info, auto_install, callback);
+						host_info, auto_install,
+						callback);
 				});
 			} else {
 				console.error("error starting app:",
 						e.stack || e);
 			}
-		});
+		};
+		main.on("app_loading_error", cb_app_loading_error);
+		return [node, function() {
+			main.removeListener("app_loading_error",
+					cb_app_loading_error);
+		}];
 	}
 
 	return [node];
