@@ -4,12 +4,12 @@
   "main": "main.js",
   "bin": "main_cli.js",
   "dependencies": {
-    "console-stamp": "^0.2.5",
     "binary-search": "^1.2.0",
-    "yargs": "^4.7.1",
-    "ws": "^1.0.1",
+    "console-stamp": "^0.2.5",
+    "jsonschema": "^1.1.0",
     "underscore": "^1.8.3",
-    "jsonschema": "^1.1.0"
+    "ws": "^1.0.1",
+    "yargs": "^4.7.1"
   },
   "devDependencies": {
     "webpack": "^1.12.13"
