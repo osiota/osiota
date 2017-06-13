@@ -74,9 +74,9 @@ exports.init = function(node, app_config, main, host_info) {
 		//	+ "Command: " + command + " " + args);
 	});
 	var _this = this;
-	process.on('exit', function () {
+	/*process.on('exit', function () {
 		_this._unload();
-	});
+	});*/
 	return [map, function() {
 		childProcess.kill();
 	}];
