@@ -5,6 +5,8 @@ var Application = require("./application.js").application;
 
 var require_vm = require("./helper_require_vm.js");
 
+var merge = require("./helper_merge_data.js").merge;
+
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
@@ -535,6 +537,16 @@ main.prototype.config_cleaning = function(config) {
 			}
 		}
 	}
+
+	return config;
+};
+
+main.prototype.config_update = function(new_config, config) {
+	if (typeof config === "undefined") {
+		config = this._config;
+	}
+
+	config = merge(config, new_config);
 
 	return config;
 };
