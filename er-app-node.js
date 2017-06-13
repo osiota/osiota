@@ -1,6 +1,7 @@
 
-exports.init = function(app_node, app_config, main, host_info) {
+exports.init = function(node, app_config, main, host_info) {
 	if (typeof app_config.metadata === "object") {
-		return app_node.announce(app_config.metadata);
+		node.announce(app_config.metadata);
+		return node;
 	}
 };

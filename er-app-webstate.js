@@ -12,5 +12,7 @@ exports.init = function(node, app_config, main, host_info) {
 	node.rpc_send_state = function(reply, state) {
 		this.publish(undefined, state);
 	};
+
+	return [node];
 };
 

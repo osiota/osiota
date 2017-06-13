@@ -1,19 +1,31 @@
 exports.init = function(node, app_config, main, host_info) {
-	var basename = app_config.basename;
-	var delay = app_config.delay;
-	var value = app_config.value;
+	// default data:
+	var delay = 1000;
+	var value = 5;
 
-	if (typeof delay === "undefined")
-		delay = 1000;
-	if (typeof value === "undefined")
-		value = 5;
+	var metadata = {
+		"type": "staticin.data"
+	};
 
-	setInterval(function(node, basename, value) {
+	// arguments:
+	if (typeof app_config.delay === "number")
+		delay = app_config.delay;
+	if (typeof app_config.value === "number")
+		value = app_config.value;
+	if (typeof app_config.metadata === "object") {
+		metadata = app_config.metadata;
+	}
+
+	node.announce(metadata);
+
+	var tid = setInterval(function() {
 		var v = value;
-		if (typeof value === "function") {
-			v = value();
+		if (typeof v === "function") {
+			v = v();
 		}
-		node(basename).publish(undefined, v);
-	}, delay, node, basename, value);
+		node.publish(undefined, v);
+	}, delay);
 
+	return [node, tid];
 };
+

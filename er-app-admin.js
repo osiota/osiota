@@ -32,6 +32,8 @@ exports.init = function(node, app_config, main, host_info) {
 					main._config.config + "'");
 		});
 	};
+
+	return [node];
 };
 
 var read_schema_file = function(file, cb) {

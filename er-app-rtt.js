@@ -1,22 +1,38 @@
 
 exports.init = function(node, app_config, main, host_info) {
-	var interval = app_config.interval;
+	// add ping function:
+	main.router.rpc_ping = function(reply) {
+		reply(null, "okay");
+	};
+
+	// check arguments:
+	var interval = 1;
+	if (typeof app_config.interval === "number") {
+		interval = app_config.interval;
+	}
+	if (typeof app_config.remote !== "string" || app_config.remote === "") {
+		return;
+	}
+	//var remote = "upstream";
 	var remote = app_config.remote;
 
-	//main.router.rpc_ping = function(reply) {
-	//	reply(null, "okay");
-	//};
+	node.announce({
+		"type": "rtt.data"
+	});
 
-	if (typeof interval === "number" && interval) {
-		setInterval(function() {
-			var t_start = new Date()*1;
-			ws.rpc("ping", function(err) {
+	var tid = setInterval(function() {
+		var t_start = new Date();
+		if (!remotes.hasOwnProperty(remote)) {
+			node.publish(undefined, null);
+		} else {
+			remotes[remote].rpc("ping", function(err) {
 				if (err) throw err;
-				var t = new Date()*1 - t_start;
+				var t = new Date() - t_start;
 				node.publish(t_start/1000, t);
 			});
+		}
+	}, 1000 * interval);
 
-		}, 1000 * interval);
-	}
+	return [tid, node];
 };
 

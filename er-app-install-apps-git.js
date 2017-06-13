@@ -55,5 +55,7 @@ exports.init = function(node, app_config, main, host_info) {
 			}
 		});
 	}
+
+	return [node];
 };
 
