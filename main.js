@@ -287,95 +287,97 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 		app_identifier = appname + "_" + app_increment++;
 	}
 
-	var a = null;
+	var a = new Application(appname);
 	try {
 		if (typeof app_config !== "object") {
 			app_config = {};
 		}
 
 		if (typeof app === "string") {
-			a = new Application(appname);
 			a._bind_module( this.require(appname, app_config, host_info, auto_install) );
 		} else if (typeof app === "object") {
-			if (app.hasOwnProperty("_state") &&
-					app._state === "INIT") {
-				a = app;
-			} else {
-				a = new Application(appname);
-				a._bind_module( app );
-			}
+			a = app;
 		} else {
 			throw new Error("variable app has unknown type.");
 		}
-
-		// bind:
-		a._bind(app_identifier, this, host_info);
-
-		if (typeof node !== "object" || node === null) {
-			node = this.node("/app");
-		}
-
-		var node_destination = null;
-		if (typeof app_config.node === "string") {
-			node_destination = node.node(app_config.node);
-		} else if (typeof a.default_node_name === "string") {
-			node_destination = node.node(a.default_node_name);
-		} else {
-			node_destination = node.node(app_identifier.
-				replace(/^er-app-/, "").replace(/\//g, "-"));
-		}
-		var node_source = node;
-		if (typeof app_config.source === "string") {
-			node_source = node.node(app_config.source);
-		}
-
-		a._source = node_source;
-		a._node = node_destination;
-
-		this.app_register(a);
-
-		// init:
-		a._init(app_config);
-
-		if (typeof callback === "function") {
-			callback(a);
-		}
-
-		if (Array.isArray(app_config.app)) {
-			app_config.app.forEach(function(struct) {
-				_this.startup_struct(node_destination, struct);
-			});
-		}
-
-		return a;
 	} catch(e) {
 		// save error:
-		if (a === null) {
-			a = {};
-		}
-		if (!this.apps[app_identifier]) {
-			this.apps[app_identifier] = a;
-		}
-		this.apps[app_identifier]._error = e;
+		a._error = e;
+		if (a._config)
+			a._config = app_config;
 
 		// trigger global callback:
 		if (this.emit("app_loading_error", e, node, app, app_config,
 					host_info, auto_install, function(an) {
 			if (typeof an === "object") {
-				a = an;
 				if (typeof callback === "function") {
-					callback(a);
+					callback(an);
 				}
 			}
 		})) {
-			return a;
+			// assume that an other app as been loaded.
+			return null;
 		}
 
 		// show error:
 		console.error("error starting app:", e.stack || e);
 
-		return null;
 	}
+
+	// bind:
+	a._bind(app_identifier, this, host_info);
+
+	if (typeof node !== "object" || node === null) {
+		node = this.node("/app");
+	}
+
+	var node_destination = null;
+	if (typeof app_config.node === "string") {
+		node_destination = node.node(app_config.node);
+	} else if (typeof a.default_node_name === "string") {
+		node_destination = node.node(a.default_node_name);
+	} else {
+		node_destination = node.node(app_identifier.
+			replace(/^er-app-/, "").replace(/\//g, "-"));
+	}
+	var node_source = node;
+	if (typeof app_config.source === "string") {
+		node_source = node.node(app_config.source);
+	}
+
+	a._source = node_source;
+	a._node = node_destination;
+
+	this.app_register(a);
+
+	// init:
+	try {
+		if (!a._error) {
+			a._init(app_config);
+
+			if (typeof callback === "function") {
+				callback(a);
+			}
+		}
+	} catch(e) {
+		// save error:
+		a._error = e;
+
+		// trigger global callback:
+		this.emit("app_init_error", e, node, app, app_config,
+					host_info, auto_install);
+		// show error:
+		console.error("error starting app:", e.stack || e);
+	}
+
+	// load child apps:
+	if (Array.isArray(app_config.app)) {
+		app_config.app.forEach(function(struct) {
+			_this.startup_struct(node_destination, struct);
+		});
+	}
+
+	return a;
 };
 
 main.prototype.startup_struct = function(node, struct, host_info, auto_install, callback) {
@@ -407,6 +409,9 @@ main.prototype.app_register = function(a) {
 	if (appname !== "er-app-node" || !node._app) {
 		node._app = a;
 	}
+
+	this.emit("app_added", a, a._id);
+
 };
 
 main.prototype.app_unregister = function(a) {
@@ -556,7 +561,8 @@ main.prototype.close = function() {
 	this._close = true;
 
 	for (var a in this.apps) {
-		this.apps[a]._unload();
+		if (this.apps[a]._unload)
+			this.apps[a]._unload();
 	}
 
 	for (var r in this.remotes) {
