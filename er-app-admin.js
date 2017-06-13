@@ -109,6 +109,11 @@ var create_schema = function(name, sub_schema, cb_add_schema) {
 	var short_name = name.replace(/^er-app-/, "");
 
 	sub_schema.title = "Settings";
+	if (typeof sub_schema.properties === "object") {
+		sub_schema.properties.app = {
+			"$ref":"#/properties/app"
+		};
+	}
 
 	var schema_a = {
 		"type": "object",
