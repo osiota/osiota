@@ -14,6 +14,11 @@ function main(router_name) {
 	this._config = {};
 	this._system_start = new Date();
 
+	if (process.on) {
+		process.on("unload", this.close.bind(this));
+		process.title = "[er] "+(router_name || "energy-router");
+	}
+
 	this.router = new Router(router_name);
 	require('./router_io_function.js').init(this.router);
 	require('./router_io_mean.js').init(this.router);
@@ -535,6 +540,9 @@ main.prototype.config_cleaning = function(config) {
 };
 
 main.prototype.close = function() {
+	if (this._close) return;
+	this._close = true;
+
 	for (var a in this.apps) {
 		this.apps[a]._unload();
 	}
@@ -567,12 +575,33 @@ main.prototype.reload = function(callback) {
 
 /* on signal: end the process */
 if (process.on) { /* if NodeJS */
-	process.on('SIGINT', function() { process.exit(0); });
-	process.on('SIGTERM', function() { process.exit(0); });
-	//process.on('exit');
+	process.on("preexit", function() {
+		if (process.exitTimeoutId) return;
+
+		process.exitTimeoutId = setTimeout(process.exit, 5000);
+		process.exitTimeoutId.unref();
+		console.log('process will exit in 5 seconds');
+
+		process.on("exit", function(code) {
+			console.log("Goodbye!");
+		});
+
+		process.emit("unload");
+	});
+
+	process.on('SIGTERM', function() {
+		process.exitCode = 128+15;
+		process.emit("preexit");
+	});
+	process.on('SIGINT', function() {
+		process.exitCode = 128+2;
+		process.emit("preexit");
+	});
 
 	process.on('uncaughtException', function(e) {
+		process.exitCode = 1;
 		console.error('Uncaught exception:', e.stack || e);
+		//process.emit("preexit");
 	});
 }
 
