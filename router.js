@@ -12,6 +12,8 @@ RegExp.quote = function(str) {
 	    return (str+'').replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&");
 };
 
+var unload_object = require("./helper_unload_object.js").unload_object;
+
 var RemoteCall = require('./router_remotecall.js').remotecall;
 
 /**
@@ -121,7 +123,6 @@ exports.node.prototype.virtualnode = function() {
  * @param {boolean} update - If true, this is just an update of the meta data.
  */
 exports.node.prototype.announce = function(metadata, update) {
-	var _this = this;
 	if (typeof metadata !== "object" || metadata === null) {
 		metadata = {};
 	}
@@ -130,24 +131,28 @@ exports.node.prototype.announce = function(metadata, update) {
 
 	this.metadata = metadata;
 
+	// give others a chance to alter metadata before annoucing it.
 	this.router.emit("announce", this);
 
-	this.announce_climb(this, "announce", update);
-	this.ready_listener.forEach(function(f) {
-		f.call(_this, "announce", false, update);
-	});
+	this.announce_local("announce", update);
 };
 /** Unannounce a node */
 exports.node.prototype.unannounce = function() {
-	var _this = this;
 	this.metadata = null;
 	this.value = null;
 	this.time = null;
 
-	this.announce_climb(this, "unannounce");
-	this.ready_listener.forEach(function(f) {
-		f.call(_this, "unannounce", false, update);
+	this.announce_local("unannounce");
+};
+
+/* Announce node (local) */
+exports.node.prototype.announce_local = function(method, update) {
+	var _this = this;
+	this.ready_listener.forEach(function(object) {
+		_this.ready_call(object, method, false, update);
 	});
+
+	this.announce_climb(this, method, update);
 };
 
 /* Announce node (climber) */
@@ -552,14 +557,21 @@ exports.node.prototype.unsubscribe_announcement = function(object) {
  * Subscribe ready listener
  * @param {function} object - The function to be called an ready
  */
-exports.node.prototype.ready = function(object) {
+exports.node.prototype.ready = function(filter_method, object) {
+	if (typeof filter_method === "function") {
+		object = filter_method;
+		filter_method = null;
+	}
 	// Save the time when this entry was added
 	object.time_added = new Date();
+
+	// Add the filter option
+	object.filter_method = filter_method;
 
 	this.ready_listener.push(object);
 
 	if (this.metadata !== null)
-		object.call(this, "announce", true);
+		this.ready_call(object, "announce", true);
 
 	object.remove = this.ready_remove.bind(this, object);
 
@@ -574,12 +586,31 @@ exports.node.prototype.ready_remove = function(object) {
 	for(var j=0; j<this.ready_listener.length; j++) {
 		if (this.ready_listener[j] === object) {
 			this.ready_listener.splice(j, 1);
+			this.ready_call(object, "remove", true);
 			return true;
 		}
 	}
 	throw new Error("unsubscription of ready failed: " + this.name);
 };
 
+/*
+ * Internal function:
+ * Call a ready listener
+ */
+exports.node.prototype.ready_call = function(object, method, initial) {
+	var o = null;
+	if (typeof object.filter_method !== "string" ||
+			object.filter_method === method) {
+		o = object.call(this, method, initial);
+	}
+	if (method === "announce") {
+		object._object = o;
+	} else {
+		if (object._object) {
+			unload_object(object._object);
+		}
+	}
+};
 
 /* Get a copy of the listeners */
 exports.node.prototype.get_listener = function(rentry) {

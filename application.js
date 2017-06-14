@@ -8,6 +8,8 @@
  * INIT -- (*) --> RUNNING
  */
 
+var unload_object = require("./helper_unload_object.js").unload_object;
+
 exports.application = function(app) {
 	this._state = "INIT";
 
@@ -55,7 +57,7 @@ exports.application.prototype._unload = function() {
 	if (typeof this.unload === "function") {
 		this.unload(this._object);
 	} else {
-		this._unload_object(this._object);
+		unload_object(this._object);
 		this._object = null;
 	}
 
@@ -85,37 +87,5 @@ exports.application.prototype._reinit_delay = function(delay, app_config) {
 		if (_this._state === "REINIT")
 			_this._reinit(app_config);
 	}, delay);
-};
-
-exports.application.prototype._unload_object = function(object) {
-	var _this = this;
-	if (typeof object === "function") {
-		if (typeof object.remove === "function") {
-			object.remove();
-		} else {
-			object();
-		}
-	} else if (typeof object === "object") {
-		if (Array.isArray(object)) {
-			object.forEach(function(o) {
-				_this._unload_object(o);
-			});
-		// nodejs timers:
-		} else if (typeof object.close === "function") {
-			object.close();
-		// subscribe:
-		} else if (typeof object.remove === "function") {
-			object.remove();
-		// node:
-		} else if (typeof object.unannounce === "function") {
-			object.unannounce();
-		// other app:
-		} else if (object !== this &&
-				typeof object._unload === "function") {
-			object._unload();
-		}
-	} else if (typeof object === "number") {
-		clearTimeout(object);
-	}
 };
 
