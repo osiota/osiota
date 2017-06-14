@@ -8,6 +8,8 @@ exports.init = function(node, app_config, main, host_info) {
 			return;
 		if (typeof a._config !== "object")
 			return;
+		if (a._config.__is_persistent !== true)
+			return;
 
 		var cn = a._node.node("config");
 		var schema = get_schema(main.app_dirs, a._app);
