@@ -149,7 +149,7 @@ exports.node.prototype.unannounce = function() {
 exports.node.prototype.announce_local = function(method, update) {
 	var _this = this;
 	this.ready_listener.forEach(function(object) {
-		_this.ready_call(object, method, false, update);
+		_this.ready_listener_call(object, method, false, update);
 	});
 
 	this.announce_climb(this, method, update);
@@ -161,8 +161,9 @@ exports.node.prototype.announce_climb = function(node, method, update) {
 		node = this;
 	}
 	var _this = this;
-	this.announcement_listener.forEach(function(f) {
-		f.call(_this, node, method, false, update);
+	this.announcement_listener.forEach(function(object) {
+		_this.announcement_listener_call(object, node, method,
+				false, update);
 	});
 
 	// climp to parent:
@@ -513,23 +514,34 @@ exports.node.prototype.subscription_notify = function(do_not_add_to_history) {
 
 /**
  * Subscribe to announcements
+ * @param {function} filter_method - Only listen to a specific method
  * @param {function} object - The function to be called an new announcements
  */
-exports.node.prototype.subscribe_announcement = function(object) {
+exports.node.prototype.subscribe_announcement = function(filter_method, object){
+	if (typeof filter_method === "function") {
+		object = filter_method;
+		filter_method = null;
+	}
+
 	// Save the time when this entry was added
 	object.time_added = new Date();
 
+	// Add the filter option
+	object.filter_method = filter_method;
+
+	// Add to listener array
 	this.announcement_listener.push(object);
 
 	if (this.metadata !== null)
-		object.call(this, this, "announce", true);
+		this.announcement_listener_call(object, this, "announce", true);
 
 	// get data of childs:
 	var allchildren = this.router.get_nodes(this.name);
 	for(var childname in allchildren) {
 		var nc = allchildren[childname];
 		if (nc.metadata !== null) {
-			object.call(this, nc, "announce", true);
+			this.announcement_listener_call(object, nc,
+					"announce", true);
 		}
 	}
 
@@ -545,16 +557,58 @@ exports.node.prototype.subscribe_announcement = function(object) {
 exports.node.prototype.unsubscribe_announcement = function(object) {
 	for(var j=0; j<this.announcement_listener.length; j++) {
 		if (this.announcement_listener[j] === object) {
+			// remove listener:
 			this.announcement_listener.splice(j, 1);
+
+			// call listener with method remove:
+			this.announcement_listener_call(object, this,
+					"remove", true);
+
+			// call childen with method remove:
+			var allchildren = this.router.get_nodes(this.name);
+			for(var childname in allchildren) {
+				var nc = allchildren[childname];
+				if (nc.metadata !== null) {
+					this.announcement_listener_call(object,
+							nc, "remove", true);
+				}
+			}
+
 			return true;
 		}
 	}
 	throw new Error("unsubscription of announcements failed: " + this.name);
 };
 
+/*
+ * Internal function:
+ * Call a announcement listener
+ */
+exports.node.prototype.announcement_listener_call = function(object, node,
+			method, initial, update) {
+	var o = null;
+	if (typeof object.filter_method !== "string" ||
+			object.filter_method === method) {
+		o = object.call(this, node, method, initial, update);
+	}
+	if (method === "announce") {
+		if (typeof object._object != "object") {
+			object._object = {};
+		}
+		object._object[node.name] = o;
+	} else {
+		if (typeof object._object == "object" &&
+				object._object[node.name]) {
+			unload_object(object._object[node.name]);
+			delete object._object[node.name];
+		}
+	}
+};
+
 
 /**
  * Subscribe ready listener
+ * @param {function} filter_method - Only listen to a specific method
  * @param {function} object - The function to be called an ready
  */
 exports.node.prototype.ready = function(filter_method, object) {
@@ -568,10 +622,11 @@ exports.node.prototype.ready = function(filter_method, object) {
 	// Add the filter option
 	object.filter_method = filter_method;
 
+	// Add to listener array
 	this.ready_listener.push(object);
 
 	if (this.metadata !== null)
-		this.ready_call(object, "announce", true);
+		this.ready_listener_call(object, "announce", true);
 
 	object.remove = this.ready_remove.bind(this, object);
 
@@ -586,7 +641,7 @@ exports.node.prototype.ready_remove = function(object) {
 	for(var j=0; j<this.ready_listener.length; j++) {
 		if (this.ready_listener[j] === object) {
 			this.ready_listener.splice(j, 1);
-			this.ready_call(object, "remove", true);
+			this.ready_listener_call(object, "remove", true);
 			return true;
 		}
 	}
@@ -597,17 +652,19 @@ exports.node.prototype.ready_remove = function(object) {
  * Internal function:
  * Call a ready listener
  */
-exports.node.prototype.ready_call = function(object, method, initial) {
+exports.node.prototype.ready_listener_call = function(object, method,
+			initial, update) {
 	var o = null;
 	if (typeof object.filter_method !== "string" ||
 			object.filter_method === method) {
-		o = object.call(this, method, initial);
+		o = object.call(this, method, initial, update);
 	}
 	if (method === "announce") {
 		object._object = o;
 	} else {
 		if (object._object) {
 			unload_object(object._object);
+			object._object = null;
 		}
 	}
 };
