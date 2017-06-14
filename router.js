@@ -49,6 +49,7 @@ exports.node = function(r, name, parentnode) {
 
 	this.subscription_listener = [];
 	this.announcement_listener = [];
+	this.ready_listener = [];
 	this.listener = [];
 
 	this.parentnode = parentnode;
@@ -120,6 +121,7 @@ exports.node.prototype.virtualnode = function() {
  * @param {boolean} update - If true, this is just an update of the meta data.
  */
 exports.node.prototype.announce = function(metadata, update) {
+	var _this = this;
 	if (typeof metadata !== "object" || metadata === null) {
 		metadata = {};
 	}
@@ -131,14 +133,21 @@ exports.node.prototype.announce = function(metadata, update) {
 	this.router.emit("announce", this);
 
 	this.announce_climb(this, "announce", update);
+	this.ready_listener.forEach(function(f) {
+		f.call(_this, "announce", false, update);
+	});
 };
 /** Unannounce a node */
 exports.node.prototype.unannounce = function() {
+	var _this = this;
 	this.metadata = null;
 	this.value = null;
 	this.time = null;
 
 	this.announce_climb(this, "unannounce");
+	this.ready_listener.forEach(function(f) {
+		f.call(_this, "unannounce", false, update);
+	});
 };
 
 /* Announce node (climber) */
@@ -506,7 +515,7 @@ exports.node.prototype.subscribe_announcement = function(object) {
 	object.time_added = new Date();
 
 	this.announcement_listener.push(object);
-	
+
 	if (this.metadata !== null)
 		object.call(this, this, "announce", true);
 
@@ -518,6 +527,8 @@ exports.node.prototype.subscribe_announcement = function(object) {
 			object.call(this, nc, "announce", true);
 		}
 	}
+
+	object.remove = this.unsubscribe_announcement.bind(this, object);
 
 	return object;
 };
@@ -535,6 +546,40 @@ exports.node.prototype.unsubscribe_announcement = function(object) {
 	}
 	throw new Error("unsubscription of announcements failed: " + this.name);
 };
+
+
+/**
+ * Subscribe ready listener
+ * @param {function} object - The function to be called an ready
+ */
+exports.node.prototype.ready = function(object) {
+	// Save the time when this entry was added
+	object.time_added = new Date();
+
+	this.ready_listener.push(object);
+
+	if (this.metadata !== null)
+		object.call(this, "announce", true);
+
+	object.remove = this.ready_remove.bind(this, object);
+
+	return object;
+};
+
+/**
+ * Unsubscribe ready listener
+ * @param {function} object - The function to be unsubscribed
+ */
+exports.node.prototype.ready_remove = function(object) {
+	for(var j=0; j<this.ready_listener.length; j++) {
+		if (this.ready_listener[j] === object) {
+			this.ready_listener.splice(j, 1);
+			return true;
+		}
+	}
+	throw new Error("unsubscription of ready failed: " + this.name);
+};
+
 
 /* Get a copy of the listeners */
 exports.node.prototype.get_listener = function(rentry) {
