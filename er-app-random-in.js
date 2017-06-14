@@ -5,6 +5,9 @@ exports.init = function(node, app_config, main, host_info) {
 	var cmax = 100;
 	var exp = 5;
 	var round = null;
+	var metadata = {
+		"type": "random.data"
+	};
 
 	if (typeof app_config.delay === "number")
 		delay = app_config.delay;
@@ -16,6 +19,10 @@ exports.init = function(node, app_config, main, host_info) {
 		exp = app_config.exp;
 	if (typeof app_config.round === "number")
 		round = app_config.round;
+	if (typeof app_config.metadata === "object")
+		metadata = app_config.metadata;
+
+	node.announce(metadata);
 
 	var last_value = 0.5;
 	var tid = setInterval(function() {
