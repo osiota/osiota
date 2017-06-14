@@ -559,24 +559,30 @@ main.prototype.config_update = function(new_config, config) {
 };
 
 main.prototype.close = function() {
+	var _this = this;
 	if (this._close) return;
 	this._close = true;
+	console.log("closing energy-router");
 
-	for (var a in this.apps) {
-		if (this.apps[a]._unload)
-			this.apps[a]._unload();
-	}
+	setImmediate(function() {
+		for (var a in _this.apps) {
+			console.log("unloading app", a);
+			if (_this.apps[a]._unload)
+				_this.apps[a]._unload();
+		}
 
-	for (var r in this.remotes) {
-		console.log("closing remote", r);
-		this.remotes[r].close();
-	}
+		for (var r in _this.remotes) {
+			console.log("closing remote", r);
+			_this.remotes[r].close();
+			delete _this.remotes[r];
+		}
 
-	if (this.wss) {
-		console.log("closing websocket server");
-		this.wss.close();
-		this.wss = undefined;
-	}
+		if (_this.wss) {
+			console.log("closing websocket server");
+			_this.wss.close();
+			_this.wss = undefined;
+		}
+	});
 };
 
 main.prototype.reload = function(callback) {
