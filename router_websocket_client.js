@@ -15,6 +15,7 @@ var pwsc = function(wpath) {
 	this.wpath = wpath;
 
 	this.closed = true;
+	this._destroy = false;
 
 	this.on('need_reconnect', function() {
 		this.ws = undefined;
@@ -22,6 +23,9 @@ var pwsc = function(wpath) {
 		if (!this.closed) {
 			this.closed = true;
 			this.emit("close");
+		}
+		if (this._destroy) {
+			return;
 		}
 
 		var pthis = this;
@@ -33,8 +37,8 @@ var pwsc = function(wpath) {
 util.inherits(pwsc, EventEmitter);
 
 pwsc.prototype.init = function() {
+	var pthis = this;
 	try {
-		var pthis = this;
 		this.ws = new WebSocket(this.wpath);
 		this.ws.reconnect = false;
 		// Browser WebSocket is not an EventEmitter. So define on and emit:
@@ -110,16 +114,21 @@ pwsc.prototype.sendjson = function(data) {
 	}
 };
 pwsc.prototype.close = function() {
+	this._destroy = true;
 	if (!this.closed &&
 			typeof this.ws !== "undefined") {
 		this.ws.close();
 	}
 };
 pwsc.prototype.reconnect = function(wpath) {
+	this._destroy = false;
 	if (typeof wpath === "string") {
 		this.wpath = wpath;
 	}
-	this.close();
+	if (!this.closed &&
+			typeof this.ws !== "undefined") {
+		this.ws.close();
+	}
 };
 
 
