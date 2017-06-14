@@ -240,6 +240,11 @@ main.prototype.create_websocket_client = function(url, nodes, config) {
 
 	// data from UPSTREAM
 	if (typeof config.subscribe === "string") {
+		/*
+		 * NOTE: 'remote_basename' (see above) is added to
+		 * 'config.subscribe'
+		 */
+		console.log("subscribe:", ws.remote_basename +config.subscribe);
 		ws.subscribe_announcement(config.subscribe);
 	}
 
