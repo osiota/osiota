@@ -12,7 +12,12 @@ exports.init = function(node, app_config, main, host_info) {
 			return;
 
 		var cn = a._node.node("config");
-		var schema = get_schema(main.app_dirs, a._app);
+		var schema;
+		if (typeof a.get_schema === "function") {
+			schema = a.get_schema(get_schema);
+		} else {
+			schema = get_schema(main.app_dirs, a._app);
+		}
 		cn.announce({
 			type: "config.basic",
 			schema: schema,
