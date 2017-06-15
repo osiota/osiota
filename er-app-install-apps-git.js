@@ -1,3 +1,4 @@
+const fs = require("fs");
 var execFile = require('child_process').execFile;
 
 var install_app = function(app, app_config, callback) {
@@ -9,14 +10,21 @@ var install_app = function(app, app_config, callback) {
 		install_dir = app_config.install_dir.replace(/\/$/, "") + "/";
 	}
 	execFile("git", ["clone", "git@gitlab.ibr.cs.tu-bs.de:eneff-campus-2020/er-app-" + app + ".git", install_dir + "er-app-" + app], function(err) {
-		console.log("run npm install:", app);
-		if (err) {
-			callback(err);
-			return;
-		}
-		execFile("npm", ["install"], {
-			"cwd": install_dir + "er-app-" + app
-		}, callback);
+		fs.access(install_dir + "er-app-"+app + "/package.json",
+				fs.constants.R_OK, function(err) {
+			// no package json file:
+			if (err)
+				return;
+
+			console.log("run npm install:", app);
+			if (err) {
+				callback(err);
+				return;
+			}
+			execFile("npm", ["install"], {
+				"cwd": install_dir + "er-app-" + app
+			}, callback);
+		});
 	});
 };
 
