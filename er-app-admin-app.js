@@ -14,7 +14,7 @@ exports.init = function(node, app_config, main, host_info) {
 		var cn = a._node.node("config");
 		var schema;
 		if (typeof a.get_schema === "function") {
-			schema = a.get_schema(get_schema);
+			schema = a.get_schema(get_schema.bind(null, main.app_dirs));
 		} else {
 			schema = get_schema(main.app_dirs, a._app);
 		}
@@ -46,7 +46,7 @@ exports.init = function(node, app_config, main, host_info) {
 
 		nodes.push(cn);
 	}
-		
+
 	for (var app in main.apps) {
 		var a = main.apps[app];
 		handle_app(a);
