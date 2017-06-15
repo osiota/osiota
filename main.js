@@ -47,7 +47,7 @@ function main(router_name) {
 			map[s] = { vn: vn, a: a };
 		});
 		var callback = function(s) {
-			if (this.map.hasOwnProperty(s)) {
+			if (map.hasOwnProperty(s)) {
 				return map[s].vn;
 			}
 			if (map_extra_elements) {
