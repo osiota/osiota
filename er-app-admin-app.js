@@ -58,15 +58,23 @@ exports.init = function(node, app_config, main, host_info) {
 	}];
 };
 
+var schema_cache = {};
 var get_schema = function(app_dirs, app) {
+	if (typeof app !== "string")
+		throw new Error("admin-app: app needs to be string");
 	app = "er-app-" + app.replace(/^er-app-/, "");
+
+	if (schema_cache.hasOwnProperty(app)) {
+		return schema_cache[app];
+	}
+
 	var schema = null;
 	app_dirs.forEach(function(app_dir) {
 		if (schema) return;
 		if (app_dir == "") {
 			app_dir = "./node_modules/"
 		}
-	
+
 		try {
 			schema = read_schema_file_simple(app_dir + app +
 					"-schema.json");
@@ -83,10 +91,12 @@ var get_schema = function(app_dirs, app) {
 			return;
 		} catch(e) {}
 	});
-	if (schema)
-		return schema;
+	if (!schema) {
+		schema = create_default_schema();
+	}
 
-	return create_default_schema();
+	schema_cache[app] = schema;
+	return schema;
 };
 
 var read_schema_file_simple = function(file) {
