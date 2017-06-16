@@ -37,7 +37,6 @@
 exports.init = function(node, app_config, main, autoinstall) {
 
 	var r = main.router;
-	require('./module_history.js').init(r, 'ram');
 	require('./router_device_virtual.js').init(r);
 	r.eventdetection = require('./router_io_eventdetection.js').init.bind(r, r);
 
