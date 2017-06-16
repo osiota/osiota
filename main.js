@@ -1,6 +1,6 @@
 var Router = require("./router").router;
 var Node = require("./router").node;
-var Policy_checker = require("./module_policycheck.js");
+var Policy_checker = require("./module_policycheck.js").Policy_checker;
 var Application = require("./application.js").application;
 
 var require_vm = require("./helper_require_vm.js");
@@ -110,11 +110,13 @@ main.prototype.config = function(config) {
 	this.setup_history(config.save_history);
 
 	// Load policy checker module
-	this.router.policy_checker = new Policy_checker.Policy_checker(this.router);
-	if (typeof config.policies !== 'undefined'){
+	this.router.policy_checker = new Policy_checker(this.router);
+	if (typeof config.policies === 'object' &&
+			Array.isArray(config.policies)){
 		var policies = config.policies;
 		for (var i = 0; i < policies.length; i++) {
-			this.router.policy_checker.add_policy("user_level",policies[i]);
+			this.router.policy_checker.add_policy("user_level",
+					policies[i]);
 		}
 	}
 

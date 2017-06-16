@@ -970,18 +970,24 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 
 			if(this.hasOwnProperty('policy_checker')) {
 				var policy_checker = this.policy_checker;
-				//checks if the remote is allowed to perform this method on this node
-				var policy = policy_checker.check(n, module.wpath, method, 'from_remote');
-				//react respectively to the policy-action if a policy was found
-				if (policy != null) {
-					if (policy.action == 'preprocess_value') {
-						if (policy.action_extra.hasOwnProperty('group')) { // aggregating data of group of nodes
-							throw new Error("Blocked by Policy-Management");
-						} else { // aggregating data of requested node
-							d.args = [ policy ];
-							method = 'subscribe_for_aggregated_data';
-						}
+				// checks if the remote is allowed
+				// to perform this method on this node
+				var policy = policy_checker.check(n,
+					module.wpath, method, 'from_remote');
+
+				// react respectively to the policy-action
+				// if a policy was found
+				if (policy != null &&
+					policy.action == 'preprocess_value') {
+
+					// aggregating data of group of nodes
+					if (policy.action_extra.hasOwnProperty('group')) {
+						throw new Error("Blocked by Policy-Management");
 					}
+
+					// aggregating data of requested node
+					d.args = [ policy ];
+					method ='subscribe_for_aggregated_data';
 				}
 			}
 

@@ -180,19 +180,27 @@ exports.init = function(router, ws, module_name) {
 	}, function (ref) {
 		return this.unsubscribe(ref);
 	});
-	ws.rpc_node_subscribe_for_aggregated_data =prpcfunction(ws.cmds, "subscribe", function(policy) {
+	ws.rpc_node_subscribe_for_aggregated_data =prpcfunction(ws.cmds,
+			"subscribe", function(policy) {
 		var policy_checker = router.policy_checker;
 		var callback;
 		if (policy.action_extra.type == "count") {
-			callback = policy_checker.create_callback_by_count(this, policy, function(time, value, node){
-				ws.node_rpc(node, "data", time, value, false, false);
+			callback = policy_checker.aggregate.
+					create_callback_by_count(this, policy,
+					function(time, value, node) {
+				ws.node_rpc(node, "data", time, value, false,
+						false);
 			})
-		}else if (policy.action_extra.type == "time") {
-			callback = policy_checker.create_callback_by_time(this, policy, function(time, value, node){
-				ws.node_rpc(node, "data", time, value, false, false);
+		} else if (policy.action_extra.type == "time") {
+			callback = policy_checker.aggregate.
+				create_callback_by_time(this, policy,
+					function(time, value, node) {
+				ws.node_rpc(node, "data", time, value, false,
+						false);
 			})
 		} else {
-			throw new Error("subscribe_for_aggregated_data: Unnknown callback type");
+			throw new Error("subscribe_for_aggregated_data: " +
+					"Unknown callback type");
 		}
 		return this.subscribe(callback);
 	}, function(ref) {
@@ -294,10 +302,16 @@ exports.init = function(router, ws, module_name) {
 		var object = router._rpc_create_object.apply(router, args);
 
 		if (router.hasOwnProperty('policy_checker')) {
-			//checks if the remote is allowed to perform this method on this node
+			// checks if the remote is allowed to perform this
+			// method on this node
 			try {
-				var reaction = router.policy_checker.check(router.node(node), ws.wpath, method, 'to_remote');
-				if (reaction != null && reaction.reaction_id == 'hide_value_and_metadata'){
+				// todo: muss nodename_transform nicht vorher
+				// ausgeführt werden?
+				var reaction = router.policy_checker.check(
+						router.node(node), ws.wpath,
+						method, 'to_remote');
+				if (reaction != null && reaction.reaction_id
+						== 'hide_value_and_metadata'){
 					if (object.args.length > 1) {
 						object.args.splice(1, 1);
 					}
@@ -308,7 +322,8 @@ exports.init = function(router, ws, module_name) {
 			}
 		}
 
-		node = router.nodename_transform(node, ws.remote_basename, ws.basename);
+		node = router.nodename_transform(node, ws.remote_basename,
+				ws.basename);
 		object.scope = "node";
 		object.node = node;
 		ws.respond(object);
