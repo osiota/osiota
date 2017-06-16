@@ -7,18 +7,20 @@
 			"title": "Command to execute"
 		},
 		"args": {
-			"type": "string",
-			"title": "Command line arguments"
-		},
-		"map_app": {
+			"title": "Command line arguments",
 			"type": "array",
 			"format": "table",
-			"title": "Application to map on",
-			"description": "for default application leave field blank",
 			"items": {
 				"type": "string",
 				"title": "Argument"
 			}
+
+		},
+		"map_app": {
+			"type": "string",
+			"title": "Application to map on",
+			"description": "for default application leave field blank",
+			"default": ""
 		},
 		"map_unknown": {
 			"type": "boolean",
