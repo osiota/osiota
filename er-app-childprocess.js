@@ -22,9 +22,13 @@ exports.init = function(node, app_config, main, host_info) {
 	var command = app_config.command;
 	var args = app_config.args;
 
-	var map = node.map(app_config.map,
-			app_config.map_app || subapp,
-			true);
+	var map_app = subapp;
+	if (typeof app_config.map_app === "string" &&
+			app_config.map_app !== "") {
+		map_app = app_config.map_app;
+	}
+
+	var map = node.map(app_config.map, map_app, true);
 
 	// initialize the child process:
 	var spawn = require('child_process').spawn;
@@ -56,15 +60,17 @@ exports.init = function(node, app_config, main, host_info) {
 					// connect:
 					var result = lines[i].match(/^connect\s+([^\[]+)\s*$/);
 					if (result) {
-						let name = result[1];
+						var name = result[1];
 						// TODO: remove:
 						name.replace(/_s$/, "");
 
 						var n = map.node(name);
 						if (n) {
-							n.rpc_set = function(reply, value) {
-								childProcess.stdin.write(name + " [" + new Date()/1000 + "]:\t" + value + "\n");
-							};
+							(function(name) {
+								n.rpc_set = function(reply, value) {
+									childProcess.stdin.write(name + " [" + new Date()/1000 + "]:\t" + value + "\n");
+								}
+							})(name);
 						}
 					}
 				}

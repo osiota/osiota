@@ -1,0 +1,39 @@
+{
+	"type": "object",
+	"title": "Settings",
+	"properties": {
+		"command": {
+			"type": "string",
+			"title": "Command to execute"
+		},
+		"args": {
+			"type": "string",
+			"title": "Command line arguments"
+		},
+		"map_app": {
+			"type": "string",
+			"title": "Application to map on"	
+		},
+		"map": {
+			"type": "array",
+			"format": "table",
+			"title": "Node mapping",
+			"items": {
+				"type": "object",
+				"title": "Mapping",
+				"properties": {
+					"map": {
+						"type": "string",
+						"title": "Map key"
+					},
+					"node": {
+						"type": "string",
+						"title": "Node"
+					}
+				},
+				"required": ["node", "address"]
+			}
+		}
+	},
+	"additionalProperties": false
+}
