@@ -61,6 +61,9 @@ function main(router_name) {
 				}
 				app_config.map = s;
 				config.push(app_config);
+				if (config.__listener) {
+					config.__listener();
+				}
 
 				var vn = node.virtualnode();
 				var a = vn.app(app, app_config);

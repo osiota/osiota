@@ -1,5 +1,17 @@
 const fs = require("fs");
 
+var add_listener = function(config, callback) {
+	if (typeof config === "object") {
+		config.__listener = callback;
+		Object.defineProperty(config, '__listener',
+				{enumerable: false});
+
+		for (var k in config) {
+			add_listener(config[k], callback);
+		}
+	}
+}
+
 exports.init = function(node, app_config, main, host_info) {
 	var nodes = [];
 
@@ -24,6 +36,11 @@ exports.init = function(node, app_config, main, host_info) {
 			extrabutton: "reinit"
 		});
 		cn.publish(undefined, a._config);
+
+		// add listener to config:
+		add_listener(a._config, function() {
+			cn.publish(undefined, a._config);
+		});
 
 		cn.rpc_publish = function(reply, time, value) {
 			a._config = main.config_update(value, a._config);
