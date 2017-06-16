@@ -24,6 +24,7 @@ exports.init = function(router, config) {
 				hdata.forEach(function(d) {
 					object.call(d, true, true);
 				});
+				// remove function is added in subscribe:
 				node.subscribe(object);
 			}, timeout);
 			if (typeof s !== "undefined") {
