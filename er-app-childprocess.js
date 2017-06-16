@@ -42,8 +42,12 @@ exports.init = function(node, app_config, main, host_info) {
 			app_config.map_app !== "") {
 		map_app = app_config.map_app;
 	}
+	var map_unknown = false;
+	if (typeof app_config.map_unknown === "boolean") {
+		map_unknown = app_config.map_unknown;
+	}
 
-	var map = node.map(app_config.map, map_app, true);
+	var map = node.map(app_config.map, map_app, map_unknown);
 
 	// initialize the child process:
 	var spawn = require('child_process').spawn;
