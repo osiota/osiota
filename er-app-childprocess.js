@@ -5,8 +5,23 @@
 
 var subapp = {};
 subapp.init = function(node, app_config, main, host_info) {
+	var type = "unknown.data";
+	if (typeof app_config.metadatatype === "string") {
+		type = app_config.metadatatype;
+	} else {
+		if (app_config.map.match(/energy/)) {
+			type = "energy.data";
+		} else if (app_config.map.match(/temperature/)) {
+			type = "temperature.data";
+		} else if (app_config.map.match(/rtt/)) {
+			type = "rtt.data";
+		} else if (app_config.map.match(/state/)) {
+			type = "unknown.state";
+		}
+	}
+
 	node.announce({
-		"type": "energy.data"
+		"type": type
 	});
 	this._source.subscribe(function() {
 		node.publish(this.time, this.value);

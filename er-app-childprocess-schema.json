@@ -11,8 +11,14 @@
 			"title": "Command line arguments"
 		},
 		"map_app": {
-			"type": "string",
-			"title": "Application to map on"	
+			"type": "array",
+			"format": "table",
+			"title": "Application to map on",
+			"description": "for default application leave field blank",
+			"items": {
+				"type": "string",
+				"title": "Argument"
+			}
 		},
 		"map": {
 			"type": "array",
@@ -29,6 +35,10 @@
 					"node": {
 						"type": "string",
 						"title": "Node"
+					},
+					"metadatatype": {
+						"type": "string",
+						"title": "Meta data type"
 					}
 				},
 				"required": ["node", "address"]
