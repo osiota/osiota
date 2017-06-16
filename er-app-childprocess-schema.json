@@ -20,6 +20,12 @@
 				"title": "Argument"
 			}
 		},
+		"map_unknown": {
+			"type": "boolean",
+			"title": "Map unknown data",
+			"description": "Shall unknown data be mapped?",
+			"default": false
+		},
 		"map": {
 			"type": "array",
 			"format": "table",
