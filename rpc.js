@@ -16,6 +16,7 @@ m.startup(null, app, argv, undefined, undefined,
 		function(a) {
 	argv._.push(function(err, result) {
 		if (err) {
+			console.log("RPC error:", err, result);
 			throw err;
 		}
 		console.log("result", result);
