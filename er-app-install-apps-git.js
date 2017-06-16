@@ -49,9 +49,12 @@ exports.init = function(node, app_config, main, host_info) {
 		var try_to_install = {};
 		var cb_app_loading_error = function(e, node, app, l_app_config,
 				host_info, auto_install, callback) {
-			if (try_to_install.hasOwnProperty(app))
+			var l_app = app.replace(/^er-app-/, "")
+					.replace(/\/.*$/, "");
+			if (try_to_install.hasOwnProperty(l_app))
 				return;
-			try_to_install[app] = true;
+			try_to_install[l_app] = true;
+
 			if (e.hasOwnProperty("code") &&
 					e.code === "ER_APP_NOT_FOUND") {
 				install_app(app, app_config,
