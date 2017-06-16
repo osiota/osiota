@@ -301,7 +301,7 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 		if (typeof app === "string") {
 			a._bind_module( this.require(appname, app_config, host_info, auto_install) );
 		} else if (typeof app === "object") {
-			a = app;
+			a._bind_module( app );
 		} else {
 			throw new Error("variable app has unknown type.");
 		}
