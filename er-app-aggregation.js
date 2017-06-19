@@ -5,10 +5,13 @@ exports.init = function(node, app_config, main, host_info) {
 
 	// init node:
 	node.group_node = 'true';
-	main.router.policy_checker.add_policy("user_level", {
-		"node": node.name,
-		"action": "forward_all"
-	});
+	if (main.router.policy_checker) {
+		// todo: replace user_level by "programmatic" or app_level
+		main.router.policy_checker.add_policy("user_level", {
+			"node": node.name,
+			"action": "forward_all"
+		});
+	}
 	node.announce({
 		"type": "energy.data"
 	});
