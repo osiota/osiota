@@ -217,7 +217,7 @@ exports.Policy_checker.prototype.find_most_relevant_policy = function (node, rem
     for (var x = 2; x >= 0; x--) {
         policies = this.policy_set[x];
         for (var y = 0; y < policies.length; y++) {
-            if (TYPE_TO_ACTION[policy_type].indexOf(policies[y].action) > -1)) {
+            if (TYPE_TO_ACTION[policy_type].indexOf(policies[y].action) > -1) {
                 policy = policies[y];
                 match = check_if_relevant(policies[y], node, remote, metadata);
                 if (match[0] == true) {
@@ -251,7 +251,7 @@ function get_type_by_method(method, data_flow) {
 
 function get_type_by_action(policy_action) {
     for (var type in TYPE_TO_ACTION) {
-        if (TYPE_TO_ACTION[type].indexOf(policy_action) > -1)) {
+        if (TYPE_TO_ACTION[type].indexOf(policy_action) > -1) {
             return type;
         }
     }

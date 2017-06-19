@@ -1,15 +1,14 @@
 
 var _ = require('underscore');
 
-exports.aggregation = function(router, policy_checker) {
-	this.groups = [];
-	this.router = router;
+exports.init = function(node, app_config, main, host_info) {
+	this.policy_checker = main.router.policy_checker;
+	this.router = main.router;
 
-	this.policy_checker = policy_checker;
+	this.groups = [];
 };
 
-
-exports.aggregation.prototype.activate_policy = function(policy) {
+exports.activate_policy = function(policy) {
 	var group = this.get_group(policy, module);
 	if (group == null) {
 		this.init_group(policy, module.wpath);
@@ -19,7 +18,7 @@ exports.aggregation.prototype.activate_policy = function(policy) {
 //--------------------------  methods for grouping nodes depending on policy-action-extras ---------------------------
 
 
-exports.aggregation.prototype.init_group = function (policy, remote_id){
+exports.init_group = function (policy, remote_id){
     var group_node = this.create_group_node(policy.action_extra.group);
 
     var group_callback;
@@ -48,7 +47,7 @@ exports.aggregation.prototype.init_group = function (policy, remote_id){
 
 };
 
-exports.aggregation.prototype.get_group = function (policy, ws){
+exports.get_group = function (policy, ws){
     for (var i = 0; i < this.groups.length; i++) {
         if(this.groups[i].node == policy.node
             && _.isEqual(this.groups[i].metadata, policy.metadata)
@@ -60,13 +59,13 @@ exports.aggregation.prototype.get_group = function (policy, ws){
 };
 
 /* not used:
-exports.aggregation.prototype.update_group = function (node, group){
+exports.update_group = function (node, group){
     group.nodes.push(node.name);
     node.subscribe(group.function);
 };
 */
 
-exports.aggregation.prototype.create_group_node = function (group_node_name, ws) {
+exports.create_group_node = function (group_node_name, ws) {
     var count = 0;
     var new_group_node_name = group_node_name;
     var router = this.router;
@@ -94,7 +93,7 @@ exports.aggregation.prototype.create_group_node = function (group_node_name, ws)
     return group_node;
 };
 
-exports.aggregation.prototype.get_nodes_for_group = function (policy, wpath, group_callback, group_entry) {
+exports.get_nodes_for_group = function (policy, wpath, group_callback, group_entry) {
     var _this = this;
     this.router.node("/").subscribe_announcement(function(node, method, initial) {
         if (!node.hasOwnProperty('group_node')) {
@@ -111,8 +110,8 @@ exports.aggregation.prototype.get_nodes_for_group = function (policy, wpath, gro
 
 
 // the aggregated value is published by the group_node after n values got received
-exports.aggregation.prototype.create_callback_by_count = function (destination_node, policy, publish_to) {
-    var aggregation = this;
+exports.create_callback_by_count = function (destination_node, policy, publish_to) {
+    var _this = this;
     var values = {};
     var memory = {};
     var interval_start;
@@ -123,7 +122,7 @@ exports.aggregation.prototype.create_callback_by_count = function (destination_n
         count++;
         if (!(count < policy.action_extra.interval)) {
             // calculates aggregated value
-            var result = aggregation.aggregate_values(policy.action_extra.method, values, memory, interval_start, node.time);
+            var result = _this.aggregate_values(policy.action_extra.method, values, memory, interval_start, node.time);
             // saving last value of every node to memory-variable so the integral can be fully calculated
 	    for (var node_name in values){
 		if (values[node_name].length > 0) {
@@ -160,17 +159,17 @@ exports.aggregation.prototype.create_callback_by_count = function (destination_n
 
 
 // the aggregated value is published by the group_node after x seconds passed
-exports.aggregation.prototype.create_callback_by_time = function (destination_node, policy, publish_to) {
+exports.create_callback_by_time = function (destination_node, policy, publish_to) {
     var values = {};
     var memory = {};
     var interval_start = new Date()/1000;
     var interval_end;
 
     // calculates and publishes aggregated value
-    setInterval(function(method, destination_node, aggregation){
+    setInterval(function(method, destination_node, _this){
         interval_end = new Date()/1000;
         // calculate
-        var result = aggregation.aggregate_values(method, values, memory, interval_start, interval_end);
+        var result = _this.aggregate_values(method, values, memory, interval_start, interval_end);
         // saving last value of every node to memory-variable so the integral can be fully calculated
         for (var node_name in values){
 		if (values[node_name].length > 0) {
@@ -202,7 +201,7 @@ exports.aggregation.prototype.create_callback_by_time = function (destination_no
 // ----------------------------- methods for calculating an aggregated value -------------------------------------------
 
 
-exports.aggregation.prototype.aggregate_values = function (method, value_group ,memory, interval_start, interval_end) {
+exports.aggregate_values = function (method, value_group ,memory, interval_start, interval_end) {
     if (method == "sum") {
         return calculate_sum(value_group);
     } else if (method == "average") {
