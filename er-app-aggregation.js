@@ -1,11 +1,13 @@
 
 var _ = require('underscore');
 
+var groups = [];
+
 exports.init = function(node, app_config, main, host_info) {
 	this.policy_checker = main.router.policy_checker;
 	this.router = main.router;
 
-	this.groups = [];
+	this.activate_policy(app_config);
 };
 
 exports.activate_policy = function(policy) {
@@ -14,6 +16,7 @@ exports.activate_policy = function(policy) {
 		this.init_group(policy, module.wpath);
 	}
 };
+
 
 //--------------------------  methods for grouping nodes depending on policy-action-extras ---------------------------
 
@@ -40,7 +43,7 @@ exports.init_group = function (policy, remote_id){
     group_entry.remote = remote_id;
     group_entry.nodes = [];
     group_entry.function = group_callback;
-    this.groups.push(group_entry);
+    groups.push(group_entry);
 
     //link data from nodes to callback
     this.get_nodes_for_group(policy, module.wpath, group_callback, group_entry);
@@ -48,11 +51,11 @@ exports.init_group = function (policy, remote_id){
 };
 
 exports.get_group = function (policy, ws){
-    for (var i = 0; i < this.groups.length; i++) {
-        if(this.groups[i].node == policy.node
-            && _.isEqual(this.groups[i].metadata, policy.metadata)
-            && this.groups[i].remote == ws.wpath){
-            return this.groups[i];
+    for (var i = 0; i < groups.length; i++) {
+        if(groups[i].node == policy.node
+            && _.isEqual(groups[i].metadata, policy.metadata)
+            && groups[i].remote == ws.wpath){
+            return groups[i];
         }
     }
     return null;
