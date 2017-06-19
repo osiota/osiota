@@ -185,7 +185,8 @@ exports.aggregate_values = function(method, value_group, memory,
 		method = "integral_avg";
 	}
 	if (typeof this["calculate_" + method] === "function") {
-		return this["calculate_" + method].apply(this, arguments);
+		return this["calculate_" + method](value_group, memory,
+				interval_start, interval_end);
 	}
 };
 
@@ -254,12 +255,13 @@ exports.calculate_integral = function(value_group, memory,
 	return result;
 };
 
-
 exports.calculate_integral_avg = function(value_group, memory,
 					interval_start, interval_end) {
 
 	var integral = this.calculate_integral(value_group, memory,
 			interval_start, interval_end);
+	if (integral === null)
+		return null;
 
 	var timespan = interval_end - interval_start;
 	return integral / timespan;
