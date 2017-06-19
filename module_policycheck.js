@@ -163,7 +163,7 @@ exports.Policy_checker.prototype.activate_policy = function (policy_level, polic
 	}
 };
 
-/*returns the relevant policy from the given policies-array dependent on the node_name, remote, metadata and policy_type
+/*returns the relevant policy from the given policies-array dependent on the node, remote, metadata and policy_type
      - node: node-object
      - remote: remote-id like "ws://localhost:8080"
      - metadata: metadata-object
@@ -225,10 +225,10 @@ function is_valid_policy(policy) {
 }
 
 /*
- checks if the policy is relevant for the respective node_name- remote- and metadata-combination
+ checks if the policy is relevant for the respective node-, remote- and metadata-combination
  and returns a matchScores-Array if it is a relevant policy. A policy is relevant when the defined values match
  following criteria:
-     - the node_name-variable either has to match the policy-node_name or be a child node of the policy-node_name
+     - the node-variable either has to match the policy-node or be a child node of the policy-node
      - the remote-variable has to match the policy-remote
      - the metadata defined in the metadata-object has to match the policies-metadata
 
@@ -240,9 +240,10 @@ function check_if_relevant(policy, node, remote, metadata) {
     var node_name = node.name;
     var relevant = true;
     var matchScores = [[], [], []];
-    if (policy.hasOwnProperty('node_name')) {
-        if (policy.node_name == node_name || is_parentnode(policy.node_name, node)) {
-            matchScores[0].push(get_parent_level(node.router.node(policy.node_name), node));
+    if (policy.hasOwnProperty('node')) {
+        if (policy.node == node_name || is_parentnode(policy.node, node)) {
+            matchScores[0].push(get_parent_level(node.router.node(policy.node),
+				    node));
         } else {
             relevant = false;
         }

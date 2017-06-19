@@ -34,7 +34,7 @@ exports.aggregation.prototype.init_group = function (policy, remote_id){
     }
     //create and add group-entry;
     var group_entry = {};
-    group_entry.node_name = policy.node_name;
+    group_entry.node = policy.node;
     group_entry.metadata = policy.metadata;
     group_entry.remote = remote_id;
     group_entry.nodes = [];
@@ -48,7 +48,7 @@ exports.aggregation.prototype.init_group = function (policy, remote_id){
 
 exports.aggregation.prototype.get_group = function (policy, ws){
     for (var i = 0; i < this.groups.length; i++) {
-        if(this.groups[i].node_name == policy.node_name
+        if(this.groups[i].node == policy.node
             && _.isEqual(this.groups[i].metadata, policy.metadata)
             && this.groups[i].remote == ws.wpath){
             return this.groups[i];
@@ -82,7 +82,7 @@ exports.aggregation.prototype.create_group_node = function (group_node_name, ws)
     group_node.group_node = 'true';
     this.add_policy("user_level",
         {
-            "node_name": new_group_node_name,
+            "node": new_group_node_name,
             "action": "forward_all"
         }
     );
