@@ -1,5 +1,5 @@
 
-var _ = require('underscore');
+var match = require("./helper_match").match;
 
 exports.init = function(node, app_config, main, host_info) {
 
@@ -41,7 +41,7 @@ exports.init = function(node, app_config, main, host_info) {
 		}
 
 		if (typeof app_config.metadata === "object" &&
-				!_.isMatch(cnode.metadata,app_config.metadata)){
+				!match(cnode.metadata, app_config.metadata)) {
 			return;
 		}
 
@@ -55,6 +55,10 @@ exports.init = function(node, app_config, main, host_info) {
 // An aggregated value is published after receiving n values
 exports.create_callback_by_count = function(config, publish_to) {
 	var _this = this;
+
+	if (typeof config.interval !== "number") {
+		config.interval = 10;
+	}
 
 	var values = {};
 	var memory = {};
@@ -115,6 +119,10 @@ exports.create_callback_by_count = function(config, publish_to) {
 exports.create_callback_by_time = function(config, publish_to) {
 	var _this = this;
 
+	if (typeof config.interval !== "number") {
+		config.interval = 10;
+	}
+
 	var values = {};
 	var memory = {};
 	var interval_start = new Date()/1000;
@@ -165,6 +173,9 @@ exports.create_callback_by_time = function(config, publish_to) {
 
 exports.aggregate_values = function(method, value_group, memory,
 			interval_start, interval_end) {
+	if (typeof method !== "string") {
+		method = "integral_avg";
+	}
 	if (typeof this["calculate_" + method] === "function") {
 		return this["calculate_" + method].apply(this, arguments);
 	}

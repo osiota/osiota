@@ -14,7 +14,7 @@
  *        secured_connections-array of the routers Policy_checker-object
  */
 
-var _ = require('underscore');
+var match = require("./helper_match").match;
 
 var v = require('./module_json_validator');
 //var Aggregation = require("./module_aggregation.js").aggregation;
@@ -297,7 +297,7 @@ function check_if_relevant(policy, node, remote, metadata) {
         }
     }
     if (policy.hasOwnProperty('metadata')) {
-        if (_.isMatch(metadata, policy.metadata)) {
+        if (match(metadata, policy.metadata)) {
             matchScores[2].push(0 - ((Object.keys(metadata).length - Object.keys(policy.metadata).length)));
         } else {
             relevant = false;
