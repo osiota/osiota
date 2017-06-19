@@ -12,9 +12,13 @@ exports.init = function(node, app_config, main, host_info) {
 			"action": "forward_all"
 		});
 	}
-	node.announce({
-		"type": "energy.data"
-	});
+	var metadata = {
+		"type": "unknown.data"
+	};
+	if (typeof app_config.metadata === "object") {
+		metadata = app_config.metadata;
+	}
+	node.announce(metadata);
 
 	// init callback and link data from callback to group_node
 	var group_callback;
@@ -43,8 +47,9 @@ exports.init = function(node, app_config, main, host_info) {
 			}
 		}
 
-		if (typeof app_config.metadata === "object" &&
-				!match(cnode.metadata, app_config.metadata)) {
+		if (typeof app_config.filter_metadata === "object" &&
+				!match(cnode.metadata,
+					app_config.filter_metadata)) {
 			return;
 		}
 
