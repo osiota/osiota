@@ -37,7 +37,8 @@ exports.init = function(node, app_config, main, host_info) {
 			return;
 		}
 
-		if (!_.isMatch(cnode.metadata, app_config.metadata)) {
+		if (typeof app_config.metadata === "object" &&
+				!_.isMatch(cnode.metadata,app_config.metadata)){
 			return;
 		}
 

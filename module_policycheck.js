@@ -109,7 +109,7 @@ exports.Policy_checker.prototype.check = function (node, remote_id, method,
 	return get_reaction(node, remote_id, method, data_flow, policy);
 };
 
-function get_reaction (node, remote_id, method, data_flow, policy) {
+function get_reaction(node, remote_id, method, data_flow, policy) {
 	var policy_action = policy.action || policy;
 	var policy_action_extra = policy.action_extra || null;
 
