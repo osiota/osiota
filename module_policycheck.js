@@ -20,47 +20,69 @@ var v = require('./module_json_validator');
 //var Aggregation = require("./module_aggregation.js").aggregation;
 
 /*
- * assigns a policy-action to a policy-type
- */
-var TYPE_TO_ACTION = {
-	read: ['hide_all', 'hide_value_and_metadata', 'hide_value', 'preprocess_value', 'forward_all'],
-	write: ['block_write', 'allow_write']
-};
-
-/*
- * assigns the method of an rpc-call to a policy-type depending on where the
- * rpc-call was going to be send to and defines what methods are needed to
- * checked in the respective szenario.
+ * This definition maps a method of an rpc-call to policy actions
  *
  * Methods to be checked when sending an RPC-Call: announce
- * Methods to be checked when receiving an RPC-Call. subscribe, data, announce
+ * Methods to be checked when receiving an RPC-Call: subscribe, data, announce
  *
- * IMPORTANT, when adding more szenarios for other methods don't forget
- * to add the method to the TYPE-TO-METHOD variable. Because otherwise
- * the Policy-Checker will think that the specific method doesn't need
- * to be evaluated in the szenario and won't do a full Policy-Check!
+ * IMPORTANT, when adding more szenarios for other methods do not forget
+ * to add the method to the REACTIONS variable. Because otherwise
+ * the policy checker will think that the specific method does not need
+ * to be evaluated in the szenario and will not do a full policy check!
  */
-var TYPE_TO_METHOD = {
-	to_remote: {
-		read: ['announce'],
-		write: []
-	},
-	from_remote:{
-		read: ['subscribe'],
-		write: ['data', 'announce']
-	}
-};
-
-
 var REACTIONS = {
 	"from_remote": {
-		"announce": ["block_write", "default"],
-		"subscribe": ["hide_all", "hide_value_and_metadata",
-				"hide_value", "default"],
-		"data": ["block_write", "default"]
+		"announce": {
+			"block_write": false,
+			"allow_write": true,
+			"default": false
+		},
+		"subscribe": {
+			"hide_all": false,
+			"hide_value_and_metadata": false,
+			"hide_value": false,
+			"preprocess_value": function(policy) {
+				return policy;
+			},
+			"forward_all": true,
+			"default": false
+		},
+		"data": {
+			"block_write": false,
+			"allow_write": true,
+			"default": false
+		}
 	},
 	"to_remote": {
-		"announce": ["hide_all", "default"]
+		"announce": {
+			"hide_all": false,
+			"hide_value_and_metadata": function(policy) {
+				//remove metadata
+				return {
+					"reaction_id": "remove_metadata",
+					"args": policy.action_extra
+				};
+			},
+			"hide_value": true,
+			"preprocess_value": function(policy) {
+				if (policy.action == 'preprocess_value') {
+					// aggregating data of group of nodes
+					if (policy.action_extra
+						.hasOwnProperty('group')) {
+
+						// TODO start app?
+
+						throw new Error(
+						"Blocked by policy "+
+						"management: because of "+
+						"preprocess_value");
+					}
+				}
+				return true;
+			},
+			"forward_all": true,
+			"default": false
+		}
 	}
 };
 
@@ -93,63 +115,54 @@ exports.Policy_checker = function(router) {
  * Example call 2:
  *  check("/TUBS/IBR", "locahlhost:8081", "announce", to remote);
  */
-exports.Policy_checker.prototype.check = function (node, remote_id, method,
+exports.Policy_checker.prototype.check = function(node, remote_id, method,
 		data_flow) {
 	// is connection observed
 	if (this.observed_connections.indexOf(remote_id) <= -1 ) {
 		return null;
 	}
-	var policy_type = get_type_by_method(method, data_flow);
-	// does method need to be evaluated for this data_flow-direction
-	if (policy_type === null) {
+
+	var reaction = get_reaction(data_flow, method);
+
+	// Does method need to be evaluated for this data_flow direction
+	if (reaction == null) {
 		return null;
 	}
-	var policy = this.find_most_relevant_policy(node, remote_id,
-			node.get_metadata(), policy_type);
-	return get_reaction(node, remote_id, method, data_flow, policy);
+
+	var policy = this.find_most_relevant_policy(node, remote_id, reaction);
+	return exec_reaction(reaction, policy, remote_id, method);
 };
 
-function get_reaction(node, remote_id, method, data_flow, policy) {
-	var policy_action = policy.action || policy;
-	var policy_action_extra = policy.action_extra || null;
+function get_reaction(data_flow, method, policy_action) {
+	if (typeof data_flow === "string" &&
+			typeof REACTIONS[data_flow] === "object" &&
+			typeof method === "string" &&
+			typeof REACTIONS[data_flow][method] === "object") {
+		return REACTIONS[data_flow][method];
+	}
+	return null;
+};
 
-	if (typeof REACTIONS[data_flow] === "object" &&
-			typeof REACTIONS[data_flow][method] === "object" &&
-			Array.isArray(REACTIONS[data_flow][method]) &&
-			typeof policy_action === "string" &&
-			REACTIONS[data_flow][method]
-				.indexOf(policy_action) > -1) {
 
+
+function map_reaction(reaction, policy_action) {
+	if (reaction !== null &&
+			typeof reaction === "object" &&
+			typeof policy_action === "string") {
+		return reaction[policy_action];
+	} else {
+		return null;
+	}
+};
+
+function exec_reaction(reaction, policy, remote_id, method) {
+	var r = map_reaction(reaction, policy.action);
+	if (typeof r === "function") {
+		r = r(policy);
+	}
+	if (r === false) {
 		throw new Error("Blocked by policy management: " +
-				method + " from remote " + remote_id);
-	}
-
-	// special actions:
-	if (data_flow == 'from_remote') {
-		if (method == 'subscribe') {
-			if (policy_action == 'preprocess_value') {
-				return policy;
-			}
-		}
-	}
-	else if (data_flow == 'to_remote'){
-		if (method == 'announce'){
-			if (policy_action == 'hide_value_and_metadata') {
-				//remove metadata
-				return {
-					reaction_id : 'remove_metadata',
-					args : policy_action_extra
-				};
-			} else if (policy_action == 'preprocess_value') {
-				// aggregating data of group of nodes
-				if (policy.action_extra
-						.hasOwnProperty('group')) {
-					throw new Error("Blocked by policy "+
-						"management: because of "+
-						"preprocess_value");
-				}
-			}
-		}
+			method + " from remote " + remote_id);
 	}
 
 	// Do not block:
@@ -192,25 +205,25 @@ exports.Policy_checker.prototype.add_policy = function(policy_level, policy) {
 
 
 /* 
- * Find the relevant policy dependent on the node, remote, metadata
- * and policy_type
+ * Find the relevant policy dependent on the node, remote and metadata
  *    - node: node-object
  *    - remote: remote-id like "ws://localhost:8080"
- *    - metadata: metadata-object
  *    - policy-type: can be "read" or "write"
  */
 exports.Policy_checker.prototype.find_most_relevant_policy = function (node,
-		remote, metadata, policy_type) {
+		remote_id, reaction) {
+
 	var mostRelevantPolicy;
 	var mostRelevantMatchscore = [[], [], []];
 	for (var x = 2; x >= 0; x--) {
 		var policies = this.policy_set[x];
 		for (var y = 0; y < policies.length; y++) {
 			var policy = policies[y];
-			if (TYPE_TO_ACTION[policy_type].indexOf(
-						policy.action) > -1) {
+
+			var r = map_reaction(reaction, policy.action);
+			if (r) {
 				var match = check_if_relevant(policy,
-						node, remote, metadata);
+						node, remote_id);
 				if (match[0] == true && check_if_more_relevant(
 						match[1],
 						mostRelevantMatchscore
@@ -233,28 +246,15 @@ exports.Policy_checker.prototype.find_most_relevant_policy = function (node,
  * Helper for finding out if a method/policy action is classified as a
  * read or write action
  */
-function get_type_by_method(method, data_flow) {
-	for (var type in TYPE_TO_METHOD[data_flow]) {
-		if (TYPE_TO_METHOD[data_flow][type].indexOf(method) > -1) {
-			return type;
-		}
+function get_type_by_method(data_flow, method) {
+	if (typeof data_flow === "string" &&
+			typeof REACTIONS[data_flow] === "object" &&
+			typeof method === "string" &&
+			typeof REACTIONS[data_flow][method] === "object") {
+		return true;
 	}
-	return null;
+	return false;
 }
-
-/*
- * Helper to get type from an policy action
- * TODO: still unused!
- */
-function get_type_by_action(policy_action) {
-	for (var type in TYPE_TO_ACTION) {
-		if (TYPE_TO_ACTION[type].indexOf(policy_action) > -1) {
-			return type;
-		}
-	}
-	return null;
-}
-
 
 // Policy-related-helper-methods
 
@@ -275,8 +275,6 @@ function is_valid_policy(policy) {
  *    - the node variable either has to match the policy-node or be a child
  *      node of the policy-node
  *    - the remote variable has to match the policy-remote
- *    - the metadata defined in the metadata-object has to match the
- *      policies-metadata
  *
  * matchScores[0]:
  * 	=0 equals 'perfect match',
@@ -292,12 +290,11 @@ function is_valid_policy(policy) {
  * 	>0 some key/value-pairs match,
  * 	empty equals not defined
  */
-function check_if_relevant(policy, node, remote, metadata) {
-	var node_name = node.name;
+function check_if_relevant(policy, node, remote_id) {
 	var relevant = true;
 	var matchScores = [[], [], []];
 	if (policy.hasOwnProperty('node')) {
-		if (policy.node == node_name) {
+		if (policy.node == node.name) {
 			var l = is_parentnode(policy.node, node);
 			if (l >= 0) {
 				matchScores[0].push(l, node);
@@ -309,17 +306,17 @@ function check_if_relevant(policy, node, remote, metadata) {
 		}
 	}
 	if (policy.hasOwnProperty('remote')) {
-		if (policy.remote == remote) {
+		if (policy.remote == remote_id) {
 			matchScores[1].push(0);
 		} else {
 			relevant = false;
 		}
 	}
 	if (policy.hasOwnProperty('metadata')) {
-		if (match(metadata, policy.metadata)) {
+		if (match(node.metadata, policy.metadata)) {
 			matchScores[2].push(
 				Object.keys(policy.metadata).length
-				- Object.keys(metadata).length
+				- Object.keys(node.metadata).length
 			);
 		} else {
 			relevant = false;
