@@ -2,24 +2,25 @@
  * Created by Saskia on 18.08.2016.
  *
  * This module introduces a security-mechanism to prevent two things:
- *      - it prevents security relevant information from leaving the routers privacy scope.
+ *      - it prevents security relevant information from leaving
+ *        the routers privacy scope.
  *      - and stops unauthorised manipulation of the routers data.
- * It does this by introducing so called 'policies' and continously checking the websocket-communication from
- * and to a remote router.
+ *
+ * It does this by introducing so called 'policies' and continously checking
+ * the websocket-communication from and to a remote router.
  *
  *      - Policies can be added by calling addPolicy().
- *      - A Websocket-Connection can be secured by adding it to the secured_connections-array of the routers
- *        Policy_checker-object
+ *      - A Websocket-Connection can be secured by adding it to the
+ *        secured_connections-array of the routers Policy_checker-object
  */
 
 var _ = require('underscore');
 
 var v = require('./module_json_validator');
-
-var Aggregation = require("./module_aggregation.js").aggregation;
+//var Aggregation = require("./module_aggregation.js").aggregation;
 
 /*
-assigns a policy-action to a policy-type
+ * assigns a policy-action to a policy-type
  */
 var TYPE_TO_ACTION = {
     read: ['hide_all', 'hide_value_and_metadata', 'hide_value', 'preprocess_value', 'forward_all'],
@@ -27,10 +28,17 @@ var TYPE_TO_ACTION = {
 };
 
 /*
-assigns the method of an rpc-call to a policy-type depending on where the rpc-call was going to be send to
-and defines what methods are needed to checked in the respective szenario.
-Methods to be checked when sending an RPC-Call: announce
-Methods to be checked when receiving an RPC-Call. subscribe, data, announce
+ * assigns the method of an rpc-call to a policy-type depending on where the
+ * rpc-call was going to be send to and defines what methods are needed to
+ * checked in the respective szenario.
+ *
+ * Methods to be checked when sending an RPC-Call: announce
+ * Methods to be checked when receiving an RPC-Call. subscribe, data, announce
+ *
+ * IMPORTANT, when adding more szenarios for other methods don't forget
+ * to add the method to the TYPE-TO-METHOD variable. Because otherwise
+ * the Policy-Checker will think that the specific method doesn't need
+ * to be evaluated in the szenario and won't do a full Policy-Check!
  */
 var TYPE_TO_METHOD = {
     to_remote: {
@@ -43,124 +51,155 @@ var TYPE_TO_METHOD = {
     }
 };
 
+
+var REACTIONS = {
+	"from_remote": {
+		"announce": ["block_write", "default"],
+		"subscribe": ["hide_all", "hide_value_and_metadata",
+				"hide_value", "default"],
+		"data": ["block_write", "default"]
+	},
+	"to_remote": {
+		"announce": ["hide_all", "default"]
+	}
+};
+
 /*
-Policy_checker contructor
+ * Policy_checker contructor
  */
 exports.Policy_checker = function(router) {
-    this.policy_set = [[], [], []];// policySet[2] = user-level, policySet[1] = application-level, policySet[0] = default-level,
-    this.observed_connections = [];
-    this.router = router;
+	this.policy_set = [[], [], []];
+	// policySet[2] = user-level
+	// policySet[1] = application-level
+	// policySet[0] = default-level,
 
-    this.aggregation = new Aggregation(router, this);
+	this.observed_connections = [];
+	this.router = router;
+
+//	this.aggregation = new Aggregation(router, this);
 };
 
 /*
-Checks if the "method" defined in the rpc-call coming from or being send to a remote, is allowed to be executed
-for the respective node!
-
-possible results:
-    - is allowed: return null
-    - is not allowed: abort further processing of the rpc-call
-    - is allowed under certain conditions: return policy
-
- Example call 1:  check("/IBR", "localhost:8080", "subscribe_announcement", "from_remote");
- Example call 2:  check("/TUBS/IBR", "locahlhost:8081", "announce", to remote);
+ * Checks if the "method" defined in the rpc-call coming from or being send
+ * to a remote, is allowed to be executed for the respective node!
+ *
+ * possible results:
+ *   - is allowed: return null
+ *   - is not allowed: abort further processing of the rpc-call
+ *   - is allowed under certain conditions: return policy
+ *
+ * Example call 1:
+ *  check("/IBR", "localhost:8080", "subscribe_announcement", "from_remote");
+ * Example call 2:
+ *  check("/TUBS/IBR", "locahlhost:8081", "announce", to remote);
  */
-exports.Policy_checker.prototype.check = function (node, remote_id, method, data_flow) {
-    if (this.observed_connections.indexOf(remote_id) > -1 ){
-        var policy_type = get_type_by_method(method, data_flow);
-        if (policy_type != null){
-            var policy = this.find_most_relevant_policy(node, remote_id, node.get_metadata(), policy_type);
-            return get_reaction(node, remote_id, method, data_flow, policy);
-        }
-        return null; //method does not need to be evaluated for this data_flow-direction
-    }
-    return null; //connection is not observed
+exports.Policy_checker.prototype.check = function (node, remote_id, method,
+		data_flow) {
+	// is connection observed
+	if (this.observed_connections.indexOf(remote_id) <= -1 ) {
+		return null;
+	}
+	var policy_type = get_type_by_method(method, data_flow);
+	// does method need to be evaluated for this data_flow-direction
+	if (policy_type === null) {
+		return null;
+	}
+	var policy = this.find_most_relevant_policy(node, remote_id,
+			node.get_metadata(), policy_type);
+	return get_reaction(node, remote_id, method, data_flow, policy);
 };
 
-/*
-IMPORTANT, when adding more szenarios for other methods don't forget to add the method
-to the TYPE-TO-METHOD variable. Because otherwise the Policy-Checker will think that the specific
-method doesn't need to be evaluated in the szenario and won't do a full Policy-Check!
- */
 function get_reaction (node, remote_id, method, data_flow, policy) {
-    var policy_action = policy.action || policy;
-    var policy_action_extra = policy.action_extra || null;
-    //policy_action_extra = {type:"add",time:10};
+	var policy_action = policy.action || policy;
+	var policy_action_extra = policy.action_extra || null;
 
-    if (data_flow == 'from_remote'){
-        if(method == 'announce'){
-            if(policy_action.match('block_write|default')){
-                throw method+" from remote "+remote_id+" was blocked by Policy-Management";
-            }
-        }
-        else if(method == 'subscribe'){
-            if (policy_action.match('hide_all|hide_value_and_metadata|hide_value|default')){
-                throw method+" from remote "+remote_id+" was blocked by Policy-Management";
-            }
-            if(policy_action.match('preprocess_value')) {
-                return policy;
-            }
-        }
-        else if(method = 'data'){
-            if(policy_action.match('block_write|default')){
-                throw method+" from remote "+remote_id+" was blocked by Policy-Management";
-            }
-        }
-    }else if(data_flow == 'to_remote'){
-        if(method == 'announce'){
-            if (policy_action.match('hide_all|default')){
-                throw "announce of '"+node.name+"' to remote "+remote_id+" was blocked by Policy-Management";
-            }else if(policy_action == 'hide_value_and_metadata'){
-                //remove metadata
-                return {reaction_id : 'remove_metadata',
-                        args : policy_action_extra};
-            } else if (policy_action == 'preprocess_value') {
-                if (policy.action_extra.hasOwnProperty('group')) { // aggregating data of group of nodes
-                    throw new Error("Blocked by Policy-Management");
-                }
-            }
-        }
-    }
-    return null; // continue like nothing happened.
+	if (typeof REACTIONS[data_flow] === "object" &&
+			typeof REACTIONS[data_flow][method] === "object" &&
+			Array.isArray(REACTIONS[data_flow][method]) &&
+			REACTIONS[data_flow][method]
+				.indexOf(policy_action) > -1) {
+
+		throw new Error("Blocked by policy management: " +
+				method + " from remote " + remote_id);
+	}
+
+	// special actions:
+	if (data_flow == 'from_remote') {
+		if (method == 'subscribe') {
+			if (policy_action == 'preprocess_value') {
+				return policy;
+			}
+		}
+	}
+	else if (data_flow == 'to_remote'){
+		if (method == 'announce'){
+			if (policy_action == 'hide_value_and_metadata') {
+				//remove metadata
+				return {
+					reaction_id : 'remove_metadata',
+					args : policy_action_extra
+				};
+			} else if (policy_action == 'preprocess_value') {
+				// aggregating data of group of nodes
+				if (policy.action_extra
+						.hasOwnProperty('group')) {
+					throw new Error("Blocked by policy "+
+						"management: because of "+
+						"preprocess_value");
+				}
+			}
+		}
+	}
+
+	// Do not block:
+	return null;
 }
 
-exports.Policy_checker.prototype.add_observed_connection = function (connection_id) {
-    this.observed_connections.push(connection_id);
+exports.Policy_checker.prototype.add_observed_connection = function(
+		connection_id) {
+	this.observed_connections.push(connection_id);
 };
 
-exports.Policy_checker.prototype.remove_observed_connection = function (connection_id) {
-    var array = this.observed_connections;
-    var index = array.indexOf(connection_id);
-    if (index > -1) {
-        array.splice(index, 1);
-    }
+exports.Policy_checker.prototype.remove_observed_connection = function(
+		connection_id) {
+	var array = this.observed_connections;
+	var index = array.indexOf(connection_id);
+	if (index > -1) {
+		array.splice(index, 1);
+	}
 };
 
-exports.Policy_checker.prototype.add_policy = function (policy_level, policy) {
-    if (is_valid_policy(policy)) {
-        if (policy_level == 'default_level') {
-            this.policy_set[0].push(policy);
-        } else if (policy_level == 'application_level') {
-            this.policy_set[1].push(policy);
-        } else if (policy_level == 'user_level') {
-            this.policy_set[2].push(policy);
-        } else {
-            console.log(policy_level + ' is an invalid policy-level! Please choose one of the following: ' +
-                'default_level, application_level or user_level');
-        }
-	this.activate_policy(policy_level, policy);
-    }else{
-        console.log("Your policy "+ policy.toString() +" has an error!!");
-    }
+exports.Policy_checker.prototype.add_policy = function(policy_level, policy) {
+	if (is_valid_policy(policy)) {
+		if (policy_level == 'default_level') {
+			this.policy_set[0].push(policy);
+		} else if (policy_level == 'application_level') {
+			this.policy_set[1].push(policy);
+		} else if (policy_level == 'user_level') {
+			this.policy_set[2].push(policy);
+		} else {
+			console.log(
+				policy_level+' is an invalid policy-level! '+
+				'Please choose one of the following: ' +
+				'default_level, application_level, user_level'
+			);
+		}
+		this.activate_policy(policy_level, policy);
+	} else {
+		console.log("Your policy "+ policy.toString() +" is not valid");
+	}
 };
 
-exports.Policy_checker.prototype.activate_policy = function (policy_level, policy) {
+exports.Policy_checker.prototype.activate_policy = function(policy_level,
+								policy) {
+	/*
 	if (policy.action == 'preprocess_value') {
-		if (policy.action_extra.hasOwnProperty('group')) { // aggregating data of group of nodes
+		// aggregating data of group of nodes
+		if (policy.action_extra.hasOwnProperty('group')) {
 			this.aggregation.activate_policy(policy);
 		}
 	}
+	*/
 };
 
 /*returns the relevant policy from the given policies-array dependent on the node, remote, metadata and policy_type
@@ -178,7 +217,7 @@ exports.Policy_checker.prototype.find_most_relevant_policy = function (node, rem
     for (var x = 2; x >= 0; x--) {
         policies = this.policy_set[x];
         for (var y = 0; y < policies.length; y++) {
-            if (_.contains(TYPE_TO_ACTION[policy_type], policies[y].action)) {
+            if (TYPE_TO_ACTION[policy_type].indexOf(policies[y].action) > -1)) {
                 policy = policies[y];
                 match = check_if_relevant(policies[y], node, remote, metadata);
                 if (match[0] == true) {
@@ -197,10 +236,12 @@ exports.Policy_checker.prototype.find_most_relevant_policy = function (node, rem
 };
 
 
-//--------Functions for finding out if a method/policy-action is classified as a read or write - action----------
-
+/*
+ * Helper for finding out if a method/policy action is classified as a
+ * read or write action
+ */
 function get_type_by_method(method, data_flow) {
-    for (var type in TYPE_TO_METHOD[data_flow]){
+    for (var type in TYPE_TO_METHOD[data_flow]) {
         if (TYPE_TO_METHOD[data_flow][type].indexOf(method) > -1) {
             return type;
         }
@@ -210,7 +251,7 @@ function get_type_by_method(method, data_flow) {
 
 function get_type_by_action(policy_action) {
     for (var type in TYPE_TO_ACTION) {
-        if (_.contains(TYPE_TO_ACTION[type], policy_action)) {
+        if (TYPE_TO_ACTION[type].indexOf(policy_action) > -1)) {
             return type;
         }
     }
