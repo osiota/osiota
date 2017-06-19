@@ -35,9 +35,12 @@ exports.init = function(node, app_config, main, host_info) {
 		if (cnode === node)
 			return;
 
-		if (!app_config.recursive &&
-				cnode.parent_node !== source) {
-			return;
+		if (typeof app_config.depth === "number" &&
+				app_config.depth > 0) {
+			var l = is_parentnode(source, cnode);
+			if (l > app_config.depth) {
+				return;
+			}
 		}
 
 		if (typeof app_config.metadata === "object" &&
@@ -288,3 +291,14 @@ exports.calculate_max = function(value_group) {
 	}
 	return result;
 };
+
+function is_parentnode(parent, node) {
+	if(parent == node.name)
+		return 0;
+	if (node.parentnode !== null) {
+		var r = is_parentnode(parent, node.parentnode);
+		if (r >= 0)
+			return r+1;
+	}
+	return -1;
+}
