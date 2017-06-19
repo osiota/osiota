@@ -6,7 +6,6 @@
   "dependencies": {
     "binary-search": "^1.2.0",
     "console-stamp": "^0.2.5",
-    "jsonschema": "^1.1.0",
     "ws": "^1.0.1",
     "yargs": "^4.7.1"
   },

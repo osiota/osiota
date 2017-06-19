@@ -29,10 +29,12 @@ exports.init = function(router, basename, port) {
 
 	var WebSocketServer = WebSocket.Server;
 	var wss = new WebSocketServer({port: port});
+	wss.wpath = ':'+port.toString();
 
 	wss.on('connection', function(ws) {
 		ws.closed = false;
 		ws.basename = basename;
+		ws.wpath = wss.wpath;
 
 		ws.on('message', function(message) {
 			//console.log('received: %s', message);

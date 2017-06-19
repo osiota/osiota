@@ -1,5 +1,5 @@
 /*
- * Created by Saskia on 18.08.2016.
+ * module policy check
  *
  * This module introduces a security-mechanism to prevent two things:
  *      - it prevents security relevant information from leaving
@@ -9,15 +9,12 @@
  * It does this by introducing so called 'policies' and continously checking
  * the websocket-communication from and to a remote router.
  *
- *      - Policies can be added by calling addPolicy().
+ *      - Policies can be added by calling add_policy().
  *      - A Websocket-Connection can be secured by adding it to the
  *        secured_connections-array of the routers Policy_checker-object
  */
 
 var match = require("./helper_match").match;
-
-var v = require('./module_json_validator');
-//var Aggregation = require("./module_aggregation.js").aggregation;
 
 /*
  * This definition maps a method of an rpc-call to policy actions
@@ -184,22 +181,22 @@ exports.Policy_checker.prototype.remove_observed_connection = function(
 };
 
 exports.Policy_checker.prototype.add_policy = function(policy_level, policy) {
-	if (is_valid_policy(policy)) {
-		if (policy_level == 'default_level') {
-			this.policy_set[0].push(policy);
-		} else if (policy_level == 'application_level') {
-			this.policy_set[1].push(policy);
-		} else if (policy_level == 'user_level') {
-			this.policy_set[2].push(policy);
-		} else {
-			console.log(
-				policy_level+' is an invalid policy-level! '+
-				'Please choose one of the following: ' +
-				'default_level, application_level, user_level'
-			);
-		}
-	} else {
+	if (typeof policy !== "object" ||
+			typeof policy.action !== "string") {
 		console.log("Your policy "+ policy.toString() +" is not valid");
+		return;
+	}
+	if (policy_level == 'default_level') {
+		this.policy_set[0].push(policy);
+	} else if (policy_level == 'application_level') {
+		this.policy_set[1].push(policy);
+	} else if (policy_level == 'user_level') {
+		this.policy_set[2].push(policy);
+	} else {
+		console.log(policy_level+' is an invalid policy-level! '+
+			'Please choose one of the following: ' +
+			'default_level, application_level, user_level'
+		);
 	}
 };
 
@@ -258,13 +255,6 @@ function get_type_by_method(data_flow, method) {
 
 // Policy-related-helper-methods
 
-/* 
- * Check if policy is valid
- */
-function is_valid_policy(policy) {
-	return v.validate(policy, 'policy_schema');
-}
-
 /*
  * Check if a policy is relevant for a node
  *
@@ -291,38 +281,33 @@ function is_valid_policy(policy) {
  * 	empty equals not defined
  */
 function check_if_relevant(policy, node, remote_id) {
-	var relevant = true;
 	var matchScores = [[], [], []];
-	if (policy.hasOwnProperty('node')) {
-		if (policy.node == node.name) {
-			var l = is_parentnode(policy.node, node);
-			if (l >= 0) {
-				matchScores[0].push(l, node);
-			} else {
-				relevant = false;
-			}
-		} else {
-			relevant = false;
+	if (policy.hasOwnProperty('node') &&
+			typeof policy.node === "string") {
+		var l = is_parentnode(policy.node, node);
+		if (l < 0) {
+			return [false, matchScores];
 		}
+		matchScores[0].push(l, node);
 	}
-	if (policy.hasOwnProperty('remote')) {
-		if (policy.remote == remote_id) {
-			matchScores[1].push(0);
-		} else {
-			relevant = false;
+	if (policy.hasOwnProperty('remote') &&
+			typeof policy.remote === "string") {
+		if (policy.remote != remote_id) {
+			return [false, matchScores];
 		}
+		matchScores[1].push(0);
 	}
-	if (policy.hasOwnProperty('metadata')) {
-		if (match(node.metadata, policy.metadata)) {
-			matchScores[2].push(
-				Object.keys(policy.metadata).length
-				- Object.keys(node.metadata).length
-			);
-		} else {
-			relevant = false;
+	if (policy.hasOwnProperty('metadata') &&
+			typeof policy.metadata === "object") {
+		if (!match(node.metadata, policy.metadata)) {
+			return [false, matchScores];
 		}
+		matchScores[2].push(
+			Object.keys(policy.metadata).length
+			- Object.keys(node.metadata).length
+		);
 	}
-	return [relevant, matchScores];
+	return [true, matchScores];
 }
 
 /*
