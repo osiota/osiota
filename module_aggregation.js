@@ -1,4 +1,6 @@
 
+var _ = require('underscore');
+
 exports.aggregation = function(router, policy_checker) {
 	this.groups = [];
 	this.router = router;
@@ -98,7 +100,7 @@ exports.aggregation.prototype.get_nodes_for_group = function (policy, wpath, gro
         if (!node.hasOwnProperty('group_node')) {
             group_entry.nodes.push(node);
 
-	    // warum wird hier noch eine policy gesucht?
+	    // TODO: warum wird hier noch eine policy gesucht?
             var this_policy = _this.policy_checker.find_most_relevant_policy(node, wpath, node.get_metadata(), "read");
             if(_.isEqual(policy, this_policy)){
                 node.subscribe(group_callback);
