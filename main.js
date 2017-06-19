@@ -110,14 +110,13 @@ main.prototype.config = function(config) {
 	this.setup_history(config.save_history);
 
 	// Load policy checker module
-	this.router.policy_checker = new Policy_checker(this.router);
+	this.router.policy_checker = new Policy_checker();
 	if (typeof config.policies === 'object' &&
 			Array.isArray(config.policies)){
-		var policies = config.policies;
-		for (var i = 0; i < policies.length; i++) {
-			this.router.policy_checker.add_policy("user_level",
-					policies[i]);
-		}
+		config.policies.forEach(function(policy) {
+			_this.router.policy_checker.add_policy("user_level",
+					policy);
+		});
 	}
 
 	// TODO: Load console output
@@ -151,16 +150,13 @@ main.prototype.sub_config = function(config) {
 
 	if (Array.isArray(config.remote)) {
 		config.remote.forEach(function(c) {
-			if (typeof c.name === "string" &&
-					typeof c.url === "string") {
-				_this.remotes[c.name] =
-					_this.create_websocket_client(c.url, c.node, c);
-			} else {
+			if (typeof c.name !== "string" ||
+					typeof c.url !== "string") {
 				console.warn("Waring: Remote config options missing.", c);
+				return;
 			}
-			if (c.secure === "true"){
-				_this.router.policy_checker.add_observed_connection(c.url);
-			}
+			_this.remotes[c.name] =
+				_this.create_websocket_client(c.url, c.node, c);
 		});
 	}
 
@@ -252,6 +248,10 @@ main.prototype.create_websocket_client = function(url, nodes, config) {
 		 */
 		console.log("subscribe:", ws.remote_basename +config.subscribe);
 		ws.subscribe_announcement(config.subscribe);
+	}
+
+	if (c.secure === true || c.secure === "true") {
+		this.router.policy_checker.add_observed_connection(ws.wpath);
 	}
 
 	return ws;

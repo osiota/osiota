@@ -86,16 +86,13 @@ var REACTIONS = {
 /*
  * Policy_checker contructor
  */
-exports.Policy_checker = function(router) {
+exports.Policy_checker = function() {
 	this.policy_set = [[], [], []];
 	// policySet[2] = user-level
 	// policySet[1] = application-level
 	// policySet[0] = default-level,
 
 	this.observed_connections = [];
-	this.router = router;
-
-//	this.aggregation = new Aggregation(router, this);
 };
 
 /*
