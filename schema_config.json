@@ -90,6 +90,59 @@
 					"keep_oneof_values": true
 				}
 			}
+		},
+		"policies": {
+			"type": "object",
+			"properties": {
+				"node": {
+					"type": "string",
+					"minLength": 1
+				},
+				"remote": {
+					"type": "string"
+				},
+				"metadata": {
+					"type": "object",
+					"patternProperties": {
+						"^(.*)$": {
+							"disallow": ["object","array"]
+						}
+					}
+				},
+				"action": {
+					"type": "string",
+					"oneOf": [{
+						"title": "Hide resource",
+						"values": ["hide_all"]
+					},{
+						"title": "Hide value and metadata",
+						"values": ["hide_value_and_metadata"]
+					},{
+						"title": "Hide value",
+						"values": ["hide_value"]
+					},{
+						"title": "Preprocess value",
+						"values": ["preprocess_value"]
+					},{
+						"title": "Forward all",
+						"values": ["forward_all"]
+					},{
+						"title": "Block write",
+						"values": ["block_write"]
+					},{
+						"title": "Allow write",
+						"values": ["allow_write"]
+					}],
+					"default": "forward_all"
+				}
+			},
+			"additionalProperties": false,
+			"required" : ["action"],
+			"anyOf" : [
+				{"required" : ["node"]},
+				{"required" : ["remote"]},
+				{"required" : ["metadata"]}
+			]
 		}
 	}
 }
