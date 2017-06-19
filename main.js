@@ -250,7 +250,7 @@ main.prototype.create_websocket_client = function(url, nodes, config) {
 		ws.subscribe_announcement(config.subscribe);
 	}
 
-	if (c.secure === true || c.secure === "true") {
+	if (config.secure === true || config.secure === "true") {
 		this.router.policy_checker.add_observed_connection(ws.wpath);
 	}
 
