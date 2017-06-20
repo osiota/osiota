@@ -33,5 +33,5 @@ exports.init = function(node, app_config, main, host_info) {
 
 		var content = this.time + "\t" + this.value + "\n";
 		module_appendFile(filename, content);
-	};
+	});
 };
