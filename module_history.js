@@ -15,7 +15,8 @@ exports.init = function(router, config) {
 			}
 		});
 
-		node.subscribe_h = function(object, timeout, config) {
+		node.subscribe_h = function(callback, timeout, config) {
+			var object = callback.bind(this);
 			if (typeof config !== "object")
 				config = {};
 			config.totime = this.time;
@@ -25,7 +26,9 @@ exports.init = function(router, config) {
 					object.call(d, true, true);
 				});
 				// remove function is added in subscribe:
-				node.subscribe(object);
+				var s2 = node.subscribe(object);
+				object.remove = s2.remove;
+
 			}, timeout);
 			if (typeof s !== "undefined") {
 				object.remove = s.remove;

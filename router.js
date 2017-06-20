@@ -471,8 +471,9 @@ exports.node.prototype.unregister = function(rentry) {
  * @param {node~subscribeCallback} object - The function to be called on new data
  * @this node
  */
-exports.node.prototype.subscribe = function(object) {
+exports.node.prototype.subscribe = function(callback) {
 	// Save the time when this entry was added
+	var object = callback.bind(this);
 	object.time_added = new Date();
 
 	this.subscription_listener.push(object);
@@ -525,10 +526,13 @@ exports.node.prototype.subscription_notify = function(do_not_add_to_history) {
  * @param {function} filter_method - Only listen to a specific method
  * @param {function} object - The function to be called an new announcements
  */
-exports.node.prototype.subscribe_announcement = function(filter_method, object){
+exports.node.prototype.subscribe_announcement = function(filter_method, callback){
+	var object;
 	if (typeof filter_method === "function") {
-		object = filter_method;
+		object = filter_method.bind(this);;
 		filter_method = null;
+	} else {
+		object = callback.bind(this);
 	}
 
 	// Save the time when this entry was added
@@ -619,10 +623,13 @@ exports.node.prototype.announcement_listener_call = function(object, node,
  * @param {function} filter_method - Only listen to a specific method
  * @param {function} object - The function to be called an ready
  */
-exports.node.prototype.ready = function(filter_method, object) {
+exports.node.prototype.ready = function(filter_method, callback) {
+	var object;
 	if (typeof filter_method === "function") {
-		object = filter_method;
+		object = filter_method.bind(this);
 		filter_method = null;
+	} else {
+		object = callback.bind(this);
 	}
 	// Save the time when this entry was added
 	object.time_added = new Date();
