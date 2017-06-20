@@ -18,12 +18,6 @@ require('./module_history_class_memory.js');
 require('./module_history_class_remote.js');
 require('./module_history.js').init(r, history_config);
 
-require('./router_io_function.js').init(r);
-require('./router_io_mean.js').init(r);
-require('./router_io_bias.js').init(r);
-require('./router_io_multiply.js').init(r);
-require('./router_io_sum.js').init(r);
-
 //require('./router_console_out.js').init(r, "/");
 
 //require('./router_random_in.js').init(r, "/random", 20, 0, 100);

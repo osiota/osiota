@@ -10,22 +10,26 @@ if (Storage) {
 
 	Storage.prototype.forEachKey = function(callback) {
 		for (var i = 0; i < this.length; i++) {
-			callback(localStorage.key(i));
+			callback(this.key(i));
 		}
 	};
 }
-exports.init = function(router, basename, storage_name) {
+exports.init = function(node, app_config, main, host_info) {
+	var router = main.router;
+
 	if (!window || !window.localStorage) return;
 
-	if (typeof storage_name !== "string") {
-		storage_name = router.name;
+	var storage_name = main.router.name;
+	if (typeof app_config.storage_name !== "string") {
+		storage_name = app_config.storage_name;
 	}
 
+	var nodes = [];
+
 	var lS = window.localStorage;
-	var regex = new RegExp("^"+ RegExp.quote(storage_name) + "#(/.*)$", '');
 	lS.forEachKey(function(key) {
 		try {
-			var nodename = router.nodename_transform(key, basename,
+			var nodename = router.nodename_transform(key, node.name,
 					storage_name + '#');
 			var n = router.node(nodename);
 			var c = lS.getObject(key);
@@ -33,22 +37,27 @@ exports.init = function(router, basename, storage_name) {
 			if (typeof c.metadata === "object")
 				n.announce(c.metadata);
 
+			nodes.push(n);
+
 			n.publish(c.time, c.value);
 		} catch(e) {}
 	});
 
-	router.node(basename).subscribe_announcement(function(node) {
-		node.subscribe(function() {
-			if (node.value !== null) {
-				var key = router.nodename_transform(node.name,
-						storage_name + '#', basename);
-				lS.setObject(key, {
-					"time": node.time,
-					"value": node.value,
-					"metadata": node.metadata
-				});
+	var s = node.subscribe_announcement(function(n) {
+		return n.subscribe(function() {
+			if (n.value === null) {
+				return;
 			}
+			var key = router.nodename_transform(n.name,
+					storage_name + '#', node.name);
+			lS.setObject(key, {
+				"time": n.time,
+				"value": n.value,
+				"metadata": n.metadata
+			});
 		});
 	});
+
+	return [s, nodes];
 };
 
