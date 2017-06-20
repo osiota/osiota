@@ -153,9 +153,11 @@ exports.init = function(router, ws, module_name) {
 		if (ws.closed)
 			return false;
 		// this == node
-		return this.subscribe_announcement(function(node, method, update) {
+		return this.subscribe_announcement(function(node, method,
+					initial, update) {
 			// Do not send remote nodes back to the same system:
-			if (typeof node.connection !== "undefined" && node.connection === ws) {
+			if (typeof node.connection !== "undefined" &&
+					node.connection === ws) {
 				return;
 			}
 			ws.node_rpc(node, method, node.metadata, !!update);

@@ -120,7 +120,7 @@ exports.node.prototype.virtualnode = function() {
 /**
  * Announce a node with meta data
  * @param {object} metadata - Meta data describing the node
- * @param {boolean} update - If true, this is just an update of the meta data.
+ * @param {boolean} update - (For internal use only!)
  */
 exports.node.prototype.announce = function(metadata, update) {
 	if (typeof metadata !== "object" || metadata === null) {
@@ -129,12 +129,18 @@ exports.node.prototype.announce = function(metadata, update) {
 	if (this.metadata === null)
 		console.info("new node:", this.name);
 
+	if (typeof update === "undefined") {
+		update = (this.metadata !== null);
+	}
+
 	this.metadata = metadata;
 
 	// give others a chance to alter metadata before annoucing it.
 	this.router.emit("announce", this);
 
 	this.announce_local("announce", update);
+
+	return this;
 };
 /** Unannounce a node */
 exports.node.prototype.unannounce = function() {
@@ -143,6 +149,8 @@ exports.node.prototype.unannounce = function() {
 	this.time = null;
 
 	this.announce_local("unannounce");
+
+	return this;
 };
 
 /* Announce node (local) */

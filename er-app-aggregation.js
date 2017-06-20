@@ -35,10 +35,12 @@ exports.init = function(node, app_config, main, host_info) {
 	// link data from nodes to callback
 	var source = this._source;
 	var s = source.subscribe_announcement("announce",
-			function(cnode, method, initial) {
+			function(cnode, method, initial, update) {
 		if (cnode === node)
 			return;
 
+		if (update)
+			return;
 		if (typeof app_config.depth === "number" &&
 				app_config.depth > 0) {
 			var l = is_parentnode(source, cnode);
