@@ -22,12 +22,6 @@ function main(router_name) {
 	}
 
 	this.router = new Router(router_name);
-	require('./router_io_function.js').init(this.router);
-	require('./router_io_mean.js').init(this.router);
-	require('./router_io_bias.js').init(this.router);
-	require('./router_io_multiply.js').init(this.router);
-	require('./router_io_sum.js').init(this.router);
-	require('./router_io_accumulate.js').init(this.router);
 
 	var _this = this;
 	Node.prototype.app = function(app, app_config) {
