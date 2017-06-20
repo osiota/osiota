@@ -11,7 +11,8 @@ main.config({
 			"name": "er-app-test-10"
 		},
 		{
-			"name": "analysis"
+			"name": "analysis",
+			"config": {}
 		}
 	]
 });

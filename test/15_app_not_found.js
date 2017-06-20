@@ -24,7 +24,10 @@ main.on("app_loading_error", function(e, node, app, l_app_config, host_info, aut
 	}
 });
 
-var a = main.startup(null, "er-app-test-not-found", {});
+var a = main.startup(null, "er-app-test-not-found", {}, undefined, undefined, function(a) {
+	console.log("app (inner)", a._app);
+});
 
-console.log("app", a._app);
+if (a)
+	console.log("app", a._app);
 

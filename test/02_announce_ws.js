@@ -62,6 +62,8 @@ setTimeout(function() {
 	var nodes = gn(m2.router);
 	if (nodes.length === 0) {
 		console.log("okay");
+		m.close();
+		m2.close();
 	}
 
 }, 4000);
