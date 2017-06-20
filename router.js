@@ -52,7 +52,6 @@ exports.node = function(r, name, parentnode) {
 	this.subscription_listener = [];
 	this.announcement_listener = [];
 	this.ready_listener = [];
-	this.listener = [];
 
 	this.parentnode = parentnode;
 
@@ -70,12 +69,12 @@ exports.node = function(r, name, parentnode) {
 		}
 
 		if (is_subscriped) {
-			if (this.listener.length == 0 && this.subscription_listener.length == 0) {
+			if (this.subscription_listener.length == 0) {
 				this.rpc("unsubscribe");
 				is_subscriped = false;
 			}
 		} else {
-			if (this.listener.length > 0 || this.subscription_listener.length > 0) {
+			if (this.subscription_listener.length > 0) {
 				this.rpc("subscribe");
 				is_subscriped = true;
 			}
@@ -296,13 +295,6 @@ exports.node.prototype.route = function(node, relative_name, do_not_add_to_histo
 		relative_name = "";
 	}
 
-	// route the data according to the routing entries:
-	if (this.hasOwnProperty("listener")) {
-		for(var i=0; i<this.listener.length; i++) {
-			node.route_one(this.listener[i], relative_name, do_not_add_to_history);
-		}
-	}
-
 	if (this.parentnode !== null) {
 		this.parentnode.route(node, this.nodename + relative_name, do_not_add_to_history);
 	}
@@ -333,88 +325,6 @@ exports.node.prototype.publish_subscribe_cb = function() {
 	};
 };
 
-/* Route data by a single routing entry */
-exports.node.prototype.route_one = function(rentry, relative_name, do_not_add_to_history) {
-	if (typeof relative_name === "undefined") {
-		relative_name = "";
-	}
-	if (typeof do_not_add_to_history === "undefined") {
-		do_not_add_to_history = false;
-	}
-
-	if (typeof rentry.type === "string") {
-		if (rentry.type == "function" && typeof rentry.dest === "string") {
-			var dest_f = this.router.get_static_dest(rentry.dest);
-			try {
-				dest_f.call(rentry, this, relative_name, do_not_add_to_history);
-
-			} catch (e) {
-				console.warn("Exception (Router, call dest \""+rentry.dest+"\"):\n", e.stack || e);
-			}
-		} else if (rentry.type == "node" && typeof rentry.dnode === "string") {
-			this.router.publish(rentry.dnode + relative_name, this.time, this.value, false, do_not_add_to_history);
-		} else {
-			console.warn("Route [" + this.name + "]: Unknown destination type: ", rentry.type);
-		}
-	}
-};
-
-/* Add a routing entry */
-exports.node.prototype.add_rentry = function(rentry, push_data) {
-	if (typeof rentry !== "object") {
-		console.warn("Router. Error: Type of rentry is not object. Type is: " + typeof rentry);
-		return;
-	}
-	if (typeof push_data !== "boolean") {
-		push_data = true;
-	}
-	if (!this.hasOwnProperty("listener")) {
-		this.listener = [];
-	}
-
-	// Save the time when this entry was added
-	rentry.time_added = new Date();
-
-	// add routing entry
-	this.listener.push(rentry);
-	this.emit("registered", rentry);
-
-	// push data to new entry:
-	if (push_data) {
-		this.route_one(rentry);
-
-		// get data of childs:
-		var allchildren = this.router.get_nodes(this.name);
-		for(var childname in allchildren) {
-			var nc = allchildren[childname];
-			nc.route_one(rentry, childname);
-		}
-	}
-
-	return rentry;
-};
-
-/* Register a callback or a link name for a route */
-exports.node.prototype.register = function(dest, id, obj, push_data) {
-	console.info("registering " + this.name);
-
-	var rentry = {};
-
-	var sdest = this.router.get_static_dest(dest);
-	if (typeof sdest === "undefined") {
-		console.warn("Router. Error: Register function not found on ", dest);
-		return;
-	}
-
-	rentry.dest = dest;
-	rentry.id = id;
-	rentry.obj = obj;
-	rentry.type = "function";
-
-	return this.add_rentry(rentry, push_data);
-};
-
-
 /* Register a link name for a route */
 exports.node.prototype.connect = function(dnode, metadata) {
 	var _this = this;
@@ -443,28 +353,6 @@ exports.node.prototype.connect = function(dnode, metadata) {
 		s.remove();
 		dnode.unannounce();
 	};
-};
-
-/* Delete a routing entry */
-exports.node.prototype.unregister = function(rentry) {
-	console.info("unregistering " + this.name);
-	if (this.hasOwnProperty("listener")) {
-		for(var j=0; j<this.listener.length; j++) {
-			if (this.listener[j] === rentry) {
-				var r = this.listener.splice(j, 1);
-
-				this.emit("unregistered", r[0]);
-				return;
-			} else if (this.listener[j].type === "node" &&
-					this.listener[j].dnode === rentry.dnode) {
-				var r = this.listener.splice(j, 1);
-
-				this.emit("unregistered", r[0]);
-				return;
-			}
-		}
-	}
-	console.warn("\tfailed.");
 };
 
 /**
@@ -685,20 +573,6 @@ exports.node.prototype.ready_listener_call = function(object, method,
 	}
 };
 
-/* Get a copy of the listeners */
-exports.node.prototype.get_listener = function(rentry) {
-	var npr = {};
-	npr.type = rentry.type;
-	if (rentry.type == "function" && typeof rentry.dest === "string") {
-		npr.dest = rentry.dest;
-		if (rentry.hasOwnProperty("id"))
-			npr.id = rentry.id;
-	} else if (rentry.type == "node" && typeof rentry.dnode === "string") {
-		npr.dnode = rentry.dnode;
-	}
-	return npr;
-};
-
 /* Remote procedure calls */
 exports.node.prototype.rpc_data = function(reply, time, value, only_if_differ, do_not_add_to_history) {
 	this.publish(time, value, only_if_differ, do_not_add_to_history);
@@ -776,16 +650,6 @@ exports.node.prototype.toJSON = function() {
 	n.value = this.value;
 	n.time = this.time;
 
-	/*
-	n.listener = [];
-	var _this = this;
-	if (this.hasOwnProperty("listener")) {
-		n.listener = this.listener.map(function(rentry) {
-			return _this.get_listener(rentry);
-		});
-	}
-	*/
-
 	// stringify ??
 	return n;
 };
@@ -801,7 +665,6 @@ exports.node.prototype.toJSON = function() {
  */
 exports.router = function(name) {
 	this.nodes = {};
-	this.dests = {};
 
 	this.name = "energy-router";
 	if (typeof name === "string")
@@ -810,12 +673,6 @@ exports.router = function(name) {
 	RemoteCall.call(this);
 };
 util.inherits(exports.router, RemoteCall);
-
-/* Register a callback or a link name for a route */
-exports.router.prototype.register = function(name, dest, id, obj, push_data) {
-	var n = this.node(name);
-	return n.register(dest, id, obj, push_data);
-};
 
 /* Register a link name for a route */
 exports.router.prototype.connect = function(name, dnode) {
@@ -829,12 +686,6 @@ exports.router.prototype.connectArray = function(nodes) {
 		this.connect(from, nodes[from]);
 	}
 
-};
-
-/* Delete a routing entry */
-exports.router.prototype.unregister = function(name, rentry) {
-	var n = this.node(name);
-	return n.unregister(rentry);
 };
 
 /* Route data */
@@ -875,14 +726,7 @@ exports.router.prototype.get_nodes = function(basename, children_of_children) {
 exports.router.prototype.toJSON = function() {
 	var r = {};
 	r.nodes = this.nodes.toJSON();
-	//r.dests = this.get_dests();
 	return r;
-};
-
-
-/* Get names and data of destinations */
-exports.router.prototype.get_dests = function() {
-	return Object.keys(this.dests);
 };
 
 
@@ -918,28 +762,6 @@ exports.router.prototype.node = function(name) {
 	return this.nodes[name];
 };
 
-/* set function for destination name */
-exports.router.prototype.register_static_dest = function(name, func, force_name) {
-	if (typeof force_name === "undefined")
-		force_name = false;
-	append = "";
-	while (this.dests.hasOwnProperty(name + append)) {
-		if (append == "")
-			append = 2;
-		else
-			append++;
-	}
-
-	this.dests[name + append] = func;
-	return name + append;
-};
-/* get function for destination name */
-exports.router.prototype.get_static_dest = function(name) {
-	if (this.dests.hasOwnProperty(name)) {
-		return this.dests[name];
-	}
-	return undefined;
-};
 /* Remote procedure calls */
 exports.router.prototype.rpc_ping = function(reply) {
 	reply(null, "ping");
@@ -947,12 +769,9 @@ exports.router.prototype.rpc_ping = function(reply) {
 exports.router.prototype.rpc_list = function(reply) {
 	reply(null, this.nodes);
 };
-exports.router.prototype.rpc_dests = function(reply) {
-	reply(null, this.get_dests());
-};
 
 /* process a single command message */
-exports.router.prototype.process_single_message = function(basename, d, cb_name, obj, respond, module) {
+exports.router.prototype.process_single_message = function(basename, d, obj, respond, module) {
 	var rpc_ref = d.ref;
 	var reply = function(error, data) {
 		if (typeof rpc_ref !== "undefined") {
@@ -1042,8 +861,8 @@ exports.router.prototype.process_single_message = function(basename, d, cb_name,
 };
 
 /* process command messages (ie from websocket) */
-/* TODO: delete arguments: cb_name, obj */
-exports.router.prototype.process_message = function(basename, data, cb_name, obj, respond, module) {
+/* TODO: delete arguments: obj */
+exports.router.prototype.process_message = function(basename, data, obj, respond, module) {
 	var r = this;
 	if (typeof respond !== "function")
 		respond = function() {};
@@ -1053,7 +872,7 @@ exports.router.prototype.process_message = function(basename, data, cb_name, obj
 	}
 
 	data.forEach(function(d) {
-		r.process_single_message(basename, d, cb_name, obj, respond, module);
+		r.process_single_message(basename, d, obj, respond, module);
 
 	});
 };

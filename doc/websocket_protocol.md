@@ -176,33 +176,6 @@ Array with entries
   * `time`: Unix timestamp of the entry.
   * `value`: Data entry.
 
-## Old node commands, Version 1.5
-
-### connect(destination_node)
-
-Connect this node to a destination node (`destination_node`).
-
-Response: `r_entry`<br>
-Identifier of the new routing entry.
-
-### register(dest, id, obj)
-
-Register a module to this node.
-  * `dest`: Name of the module.
-  * `id`: Param for the module.
-  * `obj`: Additional param of custom data.
-
-Response: `r_entry`<br>
-Identifier of the new routing entry.
-
-### unregister(r_entry)
-
-Unregister a connection or module. `r_entry` is the identifier for the routing entry (see connect and register).
-
-Response: `"okay"`
-
-
-
 ## RPC helper methods
 
 There are two helper methods bound to the WebSocket objects:

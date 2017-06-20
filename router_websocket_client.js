@@ -41,7 +41,8 @@ pwsc.prototype.init = function() {
 	try {
 		this.ws = new WebSocket(this.wpath);
 		this.ws.reconnect = false;
-		// Browser WebSocket is not an EventEmitter. So define on and emit:
+		// Browser WebSocket is not an EventEmitter. So define
+		// on and emit:
 		if (!this.ws.on) {
 			this.ws.on = function(type, callback) {
 				this["on" + type] = callback;
@@ -59,7 +60,8 @@ pwsc.prototype.init = function() {
 		this.ws.on('message', function(message) {
 			//console.log('received:', message);
 			try {
-				// Browser WebSocket sends an event with message in field data:
+				// Browser WebSocket sends an event
+				// with message in field data:
 				if (typeof message === "object" && message.data)
 					message = message.data;
 
@@ -89,11 +91,15 @@ pwsc.prototype.init = function() {
 		console.log("bWSc: Exception while creating socket:",
 				e.stack || e);
 		this.ws = undefined;
-		if (e.name == "SecurityError" && e.message == "The operation is insecure.") {
+		if (e.name == "SecurityError" && e.message ==
+				"The operation is insecure.") {
 			if (typeof alert == "function") {
-				alert("Can not downgrade SSL connection. Use WebSocket over SSL: wss://");
+				alert("Can not downgrade SSL connection. "+
+					"Use WebSocket over SSL: wss://");
 			} else {
-				console.warn("Can not downgrade SSL connection. Use WebSocket over SSL: wss://");
+				console.warn("Can not downgrade SSL "+
+					"connection. Use WebSocket "+
+					"over SSL: wss://");
 			}
 		} else {
 			setTimeout(function() { pthis.init(); }, 3000);
@@ -137,30 +143,13 @@ pwsc.prototype.reconnect = function(wpath) {
 exports.init = function(router, basename, ws_url, init_callback) {
 	var ws = new pwsc(ws_url);
 	ws.basename = basename;
-	ws.module_name = router.register_static_dest("wsc", function(node, relative_name, do_not_add_to_history) {
-		if (typeof this.missed_data === "undefined") {
-			this.missed_data = {};
-			this.missed_data["n"+relative_name] = true;
-		}
-		// this = rentry
-		if (ws.closed) {
-			if (!do_not_add_to_history) {
-				this.missed_data["n"+relative_name] = true;
-			}
-		} else {
-			if (typeof this.missed_data["n"+relative_name] === "undefined" || this.missed_data["n"+relative_name]) {
-				this.missed_data["n"+relative_name] = false;
-				ws.node_rpc(this.id + relative_name, "missed_data", node.time);
-			}
-			ws.node_rpc(this.id + relative_name, "data", node.time, node.value, false, do_not_add_to_history);
-		}
-	});
 
 	ws.on("message", function(data) {
-		router.process_message(basename, data, ws.module_name, ws, function(data) { ws.respond(data); }, ws);
+		router.process_message(basename, data,
+				ws, ws.respond.bind(ws), ws);
 	});
 
-	require('./router_websocket_generic.js').init(router, ws, ws.module_name);
+	require('./router_websocket_generic.js').init(router, ws);
 	
 	ws.on("open", function() {
 		this.rpc("hello", router.name, function(error, name) {

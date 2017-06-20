@@ -117,7 +117,7 @@ var prpcfunction_remove = function(cmd_stack_obj, method) {
 };
 
 
-exports.init = function(router, ws, module_name) {
+exports.init = function(router, ws) {
 	/* config */
 	ws.remote = "energy-router";
 
@@ -126,29 +126,9 @@ exports.init = function(router, ws, module_name) {
 		ws.sendjson(data);
 	});
 
-	/* backward compatibility: local bind and unbind */
-	ws.local_bind = function(node, target_name) {
-		ws.node_local(node, "bind", target_name);
-	};
-	ws.local_unbind = function(node, ref) {
-		ws.node_local(node, "unbind");
-	};
-
 	ws.cmds = new cmd_stack();
 
 	/* RPC functions */
-	ws.rpc_node_bind = prpcfunction(ws.cmds, "bind", function(target_name) {
-		// this == node
-		var node = this;
-		if (typeof target_name !== "string")
-			target_name = node.name;
-
-		return node.register(module_name, target_name, ws);
-	}, function(ref) {
-		// this == node
-		this.unregister(ref);
-	});
-	ws.rpc_node_unbind = prpcfunction_remove(ws.cmds, "bind");
 	ws.rpc_node_subscribe_announcement = prpcfunction(ws.cmds, "subscribe_announcement", function() {
 		if (ws.closed)
 			return false;
@@ -369,14 +349,7 @@ exports.init = function(router, ws, module_name) {
 		return e.end();
 	};
 
-	/* local bind functions */
-	ws.bind = function(node, target_name) {
-		ws.node_prpc(node, "bind", target_name);
-	};
-	ws.unbind = function(node) {
-		ws.node_prpc_remove(node, "bind");
-	};
-
+	/* local functions */
 	ws.subscribe_announcement = function(node) {
 		ws.node_prpc(node, "subscribe_announcement");
 	};
