@@ -9,7 +9,7 @@ require('./module_history.js').init(r, 'ram');
 
 require('./router_mysql.js').init(r, "/mysql", mysql_config);
 require('./router_console_out.js').init(r, "/console");
-require('./router_websockets.js').init(r, "", 8080);
+require('./router_websocket_server.js').init(r, "", 8080);
 require('./router_console_in.js').init(r, "");
 //require('./router_random_in.js').init(r, "/ethercat/Engel/Energie_P1", 20, 0, 100);
 require('./router_childprocess.js').init(r, "/ethercat", "../energy-router-ethercat/main", ["../energy-router-ethercat/config.csv"]);

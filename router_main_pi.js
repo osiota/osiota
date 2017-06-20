@@ -6,7 +6,7 @@ var r = new Router("IfN, Teeküche (Raspberry Pi)");
 //require('./router_jsonconnect.js').init(r, "http://localhost/energy/get_sensors.php");
 
 require('./router_console_out.js').init(r, "/console");
-require('./router_websockets.js').init(r, "", 8080);
+require('./router_websocket_server.js').init(r, "", 8080);
 require('./router_console_in.js').init(r, "");
 //require('./router_random_in.js').init(r, "/ethercat/Engel/Energie_P1", 20, 0, 100);
 

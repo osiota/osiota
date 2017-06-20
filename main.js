@@ -207,7 +207,7 @@ main.prototype.setup_history = function(save_history) {
 }
 
 main.prototype.create_websocket_server = function(server_port) {
-	var wss = require('./router_websockets').init(this.router, "", server_port);
+	var wss = require('./router_websocket_server').init(this.router, "", server_port);
 	//this.router.policy_checker.add_observed_connection(wss.wpath);
 	return wss;
 };
