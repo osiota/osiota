@@ -4,11 +4,30 @@
 
 var fs = require('fs');
 
-exports.play_device = function(node, c) {
+exports.init = function(node, app_config, main, host_info) {
 	// config:
-	var filename = c.filename || "external.csv";
-	var interval = c.interval || 1;
-	var repeats = c.repeats || null;
+	var filename = "external.csv";
+	if (typeof app_config.filename === "string") {
+		filename = app_config.filename;
+	}
+	var interval = 1;
+	if (typeof app_config.interval === "string") {
+		interval = app_config.interval;
+	}
+	var repeats = null;
+	if (typeof app_config.repeats === "number") {
+		repeats = app_config.repeats;
+	}
+	var metadata = {
+		"type": "energy.data"
+	};
+	if (typeof app_config.metadata === "object") {
+		metadata = app_config.metadata;
+	}
+
+	node.announce(metadata);
+
+	var tid = null;
 
 	// read file=> data
 	fs.readFile(filename, function(err, data) {
@@ -27,7 +46,7 @@ exports.play_device = function(node, c) {
 		}
 
 		var energy_i = 0;
-		var si = setInterval(function() {
+		tid = setInterval(function() {
 			energy_i++;
 			// at end of data?
 			if (energy_i >= energy.length) {
@@ -36,7 +55,8 @@ exports.play_device = function(node, c) {
 				if (repeats !== null) {
 					repeats--;
 					if (repeats <= 0) {
-						clearInterval(si);
+						clearInterval(tid);
+						tid = null;
 						return;
 					}
 				}
@@ -48,14 +68,12 @@ exports.play_device = function(node, c) {
 			node.publish(time, value);
 		}, 1000 * interval);
 	});
-}
 
-exports.init = function(router, config) {
-	router.play_device = exports.play_device;
-	for (var n in config) {
-		var node = router.node(n);
-		router.play_device(node, config[n]);
-	}
+	return [node, function(unload) {
+		if (tid) {
+			unload(tid);
+			tid = null
+		}
+	}];
 };
-
 

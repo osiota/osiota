@@ -1,9 +1,8 @@
 
 exports.unload_object = function(object) {
-	var _this = this;
 	if (typeof object === "function") {
 		if (typeof object.remove === "function") {
-			object.remove();
+			object.remove(exports.unload_object);
 		} else {
 			object();
 		}
@@ -21,9 +20,8 @@ exports.unload_object = function(object) {
 		// node:
 		} else if (typeof object.unannounce === "function") {
 			object.unannounce();
-		// other app:
-		} else if (object !== this &&
-				typeof object._unload === "function") {
+		// app:
+		} else if (typeof object._unload === "function") {
 			object._unload();
 		}
 	} else if (typeof object === "number") {

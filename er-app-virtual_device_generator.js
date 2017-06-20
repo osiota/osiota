@@ -37,7 +37,7 @@
 exports.init = function(node, app_config, main, autoinstall) {
 
 	var r = main.router;
-	require('./router_device_virtual.js').init(r);
+	var app_play = require('./er-app-device-play.js').init;
 	r.eventdetection = require('./router_io_eventdetection.js').init.bind(r, r);
 
 	for (var device in app_config) {
@@ -53,7 +53,7 @@ exports.init = function(node, app_config, main, autoinstall) {
 				require('./router_random_in.js').init(r, energy_node,
 					(app_config[device].interval*1000 || 1000));
 			} else {
-				r.play_device(energy_node ,{
+				app_play(energy_node, {
 					"filename": app_config[device].filepath,
 					"interval": (app_config[device].interval || 1),
 				});
