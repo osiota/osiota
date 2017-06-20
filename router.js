@@ -416,32 +416,33 @@ exports.node.prototype.register = function(dest, id, obj, push_data) {
 
 
 /* Register a link name for a route */
-exports.node.prototype.connect = function(dnode) {
+exports.node.prototype.connect = function(dnode, metadata) {
+	var _this = this;
 	if (Array.isArray(dnode)) {
-		var re = null;
-		for (var tid=0; tid<dnode.length; tid++) {
-			re = this.connect(dnode[tid]);
-		}
-		return re;
+		return dnode.map(function(dn) {
+			return _this.connect(dn);
+		});
 	}
-	if (typeof dnode !== "string")
-		return;
-
-	console.info("connecting " + this.name + " to " + dnode);
-
-	rentry = {};
-
-	// Set ref:
-	if (typeof dnode !== "string") {
-		console.warn("Router. Error: Type of node is not string. Type is: " + typeof dnode);
-		return;
+	if (typeof dnode === "string") {
+		dnode = this.node(dnode);
 	}
-	// node.connections.push(dnode);
+	if (typeof dnode !== "object" && dnode !== null) {
+		throw new Error("dnode is not a node");
+	}
 
-	rentry.dnode = dnode;
-	rentry.type = "node";
+	console.info("connecting " + this.name + " to " + dnode.name);
 
-	return this.add_rentry(rentry);
+	if (typeof metadata !== "object") {
+		metadata = this.metadata;
+	}
+
+	dnode.announce(metadata);
+	var s = this.subscribe(dnode.publish_subscribe_cb());
+
+	return function() {
+		s.remove();
+		dnode.unannounce();
+	};
 };
 
 /* Delete a routing entry */
