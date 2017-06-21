@@ -100,8 +100,7 @@
 				"type": "object",
 				"properties": {
 					"node": {
-						"type": "string",
-						"minLength": 1
+						"type": "string"
 					},
 					"remote": {
 						"type": "string"
@@ -112,29 +111,40 @@
 							"^(.*)$": {
 								"disallow": ["object","array"]
 							}
+						},
+						"additionalProperties": true,
+						"options": {
+							"disable_properties": false,
+							"disable_edit_json": false
 						}
 					},
 					"action": {
-						"type": "string",
 						"oneOf": [{
+							"type": "string",
 							"title": "Hide resource",
 							"values": ["hide_all"]
 						},{
+							"type": "string",
 							"title": "Hide value and metadata",
 							"values": ["hide_value_and_metadata"]
 						},{
+							"type": "string",
 							"title": "Hide value",
 							"values": ["hide_value"]
 						},{
+							"type": "string",
 							"title": "Preprocess value",
 							"values": ["preprocess_value"]
 						},{
+							"type": "string",
 							"title": "Forward all",
 							"values": ["forward_all"]
 						},{
+							"type": "string",
 							"title": "Block write",
 							"values": ["block_write"]
 						},{
+							"type": "string",
 							"title": "Allow write",
 							"values": ["allow_write"]
 						}],
