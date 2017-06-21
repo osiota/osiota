@@ -3,12 +3,24 @@
 
 var mysql = require('mysql');
 
-exports.init = function(router, basename, mysql_config) {
-	mysql_config.connectionLimit = 100; //important
-	mysql_config.debug = false;
+exports.init = function(node, app_config, main, host_info) {
+	var _this = this;
+
+	app_config.connectionLimit = 100; //important
+	app_config.debug = false;
+	/* other options:
+	 *
+	 * host
+	 * user
+	 * password
+	 * database
+	 * debug
+	 */
+
+	var subscribes = [];
 
 	// Create Mysql Pool Connection:
-	exports.pool = mysql.createPool(mysql_config);
+	var pool = mysql.createPool(app_config);
 
 	// Send a query to keep Connection alive (every 30 seconds)
 	setInterval(function() {
@@ -65,7 +77,7 @@ exports.init = function(router, basename, mysql_config) {
 	exports.query('SELECT m.id, CONCAT(s.Name, "/", m.Name) AS node FROM Measurement AS m LEFT JOIN Station AS s ON m.Station_id = s.id;', [], function(rows, fields) {
 		rows.forEach(function(row) {
 			var entry_id = row.id;
-			router.node(basename + "/" + row.node).subscribe(function() {
+			var s = main._source.node(row.node).subscribe(function() {
 				// this = node
 				var node = this;
 
@@ -74,6 +86,22 @@ exports.init = function(router, basename, mysql_config) {
 					//exports.query('INSERT INTO Data(Measurement_id, Time, Value) VALUES(' + id + ', ' + time + ', ' + value + ')');
 				}
 			});
+			subscribes.push(s);
 		});
 	});
+
+
+	return [
+		subscribes,
+		function() {
+			setImmediate(function() {
+				pool.end(function(err) {
+					if (err) throw err;
+
+					// all connections in the pool
+					// cluster have ended
+				});
+			});
+		};
+	];
 };
