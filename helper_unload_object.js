@@ -2,9 +2,9 @@
 exports.unload_object = function(object) {
 	if (typeof object === "function") {
 		if (typeof object.remove === "function") {
-			object.remove(exports.unload_object);
+			object.remove();
 		} else {
-			object();
+			object(exports.unload_object);
 		}
 	} else if (typeof object === "object") {
 		if (Array.isArray(object)) {

@@ -336,18 +336,19 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 		node = this.node("/app");
 	}
 
-	var node_destination = null;
-	if (typeof app_config.node === "string") {
-		node_destination = node.node(app_config.node);
-	} else if (typeof a.default_node_name === "string") {
-		node_destination = node.node(a.default_node_name);
-	} else {
-		node_destination = node.node(app_identifier.
-			replace(/^er-app-/, "").replace(/\//g, "-"));
-	}
 	var node_source = node;
 	if (typeof app_config.source === "string") {
 		node_source = node.node(app_config.source);
+	}
+
+	var node_destination = null;
+	if (typeof app_config.node === "string") {
+		node_destination = node_source.node(app_config.node);
+	} else if (typeof a.default_node_name === "string") {
+		node_destination = node_source.node(a.default_node_name);
+	} else {
+		node_destination = node_source.node(app_identifier.
+			replace(/^er-app-/, "").replace(/\//g, "-"));
 	}
 
 	a._source = node_source;
