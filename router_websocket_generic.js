@@ -4,6 +4,8 @@
  * Simon Walz, IfN, 2016
  */
 
+var unload_object = require("./helper_unload_object.js").unload_object;
+
 var EventEmitter = require('events').EventEmitter;
 
 
@@ -54,6 +56,7 @@ cmd_stack.prototype.get = function(key) {
 			return e;
 		};
 		e.init_single = function(cb_start, cb_end) {
+			e.emit("end");
 			e.once("start", function() {
 				cb_start.call(this, true);
 			});
@@ -96,34 +99,45 @@ var mnkey = function(nodename, method) {
 	return method+"_"+nodename;
 }
 
-/* Persistent RPC functions */
-var prpcfunction = function(cmd_stack_obj, method, cb_start, cb_end) {
+/* unload on close functions */
+var single_function = function(cmd_stack_obj, method, cb_start, cb_end) {
 	return function(reply) {
-		// this == node
-		var node = this;
-
+		// args:
 		var args = Array.prototype.slice.call(arguments);
 		//var reply =
 		args.shift();
 
+		// this == node
+		var node = this;
 		var e = cmd_stack_obj.get(mnkey(node.name, method));
-		e.init_single(function(start) {
-			this.ref = cb_start.apply(node, args);
-		}, function(close) {
-			if (this.ref) {
-				cb_end.call(node, this.ref);
-				this.ref = null;
+
+		// call start function:
+		var ref = cb_start.apply(node, args);
+
+		// define unload function
+		if (typeof e.unload === "function")
+			e.unload();
+		e.unload = function() {
+			if (ref) {
+				e.removeAllListeners("close");
+				unload_object(ref);
+				ref = null;
+				e.unload = null;
 			}
-		});
+		};
+		e.once("close", e.unload);
+
 		reply(null, "okay");
 	};
 };
-var prpcfunction_remove = function(cmd_stack_obj, method) {
+var single_function_remove = function(cmd_stack_obj, method) {
 	return function(reply) {
 		// this == node
 		var node = this;
 		var e = cmd_stack_obj.get(mnkey(node.name, method));
-		if (e.end()) {
+
+		if (e.unload) {
+			e.unload();
 			reply(null, "okay");
 		} else {
 			reply("un"+method + ": not assigned: " + this.name);
@@ -162,10 +176,11 @@ exports.init = function(router, ws) {
 		return this.unsubscribe_announcement(ref);
 	});
 	ws.rpc_node_unsubscribe_announcement = prpcfunction_remove(ws.cmds, "subscribe_announcement");
-	ws.rpc_node_subscribe = prpcfunction(ws.cmds, "subscribe", function() {
+	ws.rpc_node_subscribe = single_function(ws.cmds, "subscribe", function() {
 		// this == node
 		if (ws.closed)
 			return false;
+
 		return this.subscribe(function(do_not_add_to_history, initial) {
 			var node = this;
 			if (initial === true) {
@@ -175,10 +190,8 @@ exports.init = function(router, ws) {
 			}
 			ws.node_rpc(node, "data", node.time, node.value, false, do_not_add_to_history);
 		});
-	}, function (ref) {
-		return this.unsubscribe(ref);
 	});
-	ws.rpc_node_subscribe_for_aggregated_data =prpcfunction(ws.cmds,
+	ws.rpc_node_subscribe_for_aggregated_data = single_function(ws.cmds,
 			"subscribe", function(policy) {
 		var policy_checker = router.policy_checker;
 		var callback;
@@ -201,11 +214,9 @@ exports.init = function(router, ws) {
 					"Unknown callback type");
 		}
 		return this.subscribe(callback);
-	}, function(ref) {
-		return this.unsubscribe(ref);
 	});
 
-	ws.rpc_node_unsubscribe = prpcfunction_remove(ws.cmds, "subscribe");
+	ws.rpc_node_unsubscribe = single_function_remove(ws.cmds, "subscribe");
 
 
 	ws.rpc_hello = function(reply, name) {
@@ -213,24 +224,28 @@ exports.init = function(router, ws) {
 			ws.remote = name;
 		reply(null, router.name);
 	};
-	ws.rpc_node_announce = prpcfunction(ws.cmds, "announce", function(metadata, update) {
+	ws.rpc_node_announce = single_function(ws.cmds, "announce", function(metadata, update) {
 		// this == node
-		if (typeof this.name != 'undefined') {
-			if (this.name != "/") {
-				ws.subscribe(this.name);
-			}
-		}
-		this.connection = ws;
-		this.announce(metadata, update);
+		var node = this;
 
-		this.emit("node_update", true);
-	}, function () {
-		if (this.connection === ws) {
-			this.connection = null;
-			this.unannounce();
-		}
+		var s = node.subscribe(function() {});
+
+		node.connection = ws;
+		node.announce(metadata, update);
+
+		node.emit("node_update", true);
+
+		return function() {
+			if (s) {
+				unload_object(s);
+			}
+			if (node.connection === ws) {
+				node.unannounce();
+				node.connection = null;
+			}
+		};
 	});
-	ws.rpc_node_unannounce = prpcfunction_remove(ws.cmds, "announce");
+	ws.rpc_node_unannounce = single_function_remove(ws.cmds, "announce");
 
 	ws.rpc_node_missed_data = function(reply, new_time) {
 		// this = node
