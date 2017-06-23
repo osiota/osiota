@@ -15,6 +15,7 @@ var pwsc = function(wpath) {
 	this.wpath = wpath;
 
 	this.closed = true;
+	this.freezed = false;
 	this._destroy = false;
 
 	this.on('need_reconnect', function() {
@@ -22,7 +23,8 @@ var pwsc = function(wpath) {
 
 		if (!this.closed) {
 			this.closed = true;
-			this.emit("close");
+			if (!this.freezed)
+				this.emit("close");
 		}
 		if (this._destroy) {
 			return;
@@ -163,6 +165,14 @@ exports.init = function(router, basename, ws_url, init_callback) {
 		if (typeof init_callback === "function")
 			init_callback(ws);
 	});
+
+	if (typeof window !== "undefined" &&
+			typeof window.addEventListener !== "undefined") {
+		window.addEventListener("beforeunload", function (event) {
+			ws.freezed = true;
+			ws.close();
+		});
+	}
 
 	return ws;
 };

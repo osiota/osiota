@@ -365,7 +365,9 @@ exports.init = function(router, ws) {
 	};
 
 	ws.on("open", function() {
-		ws.cmds.emit("open");
+		setImmediate(function() {
+			ws.cmds.emit("open");
+		});
 	});
 	ws.on("close", function() {
 		ws.cmds.emit("close");
