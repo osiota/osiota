@@ -53,6 +53,19 @@ cmd_stack.prototype.get = function(key) {
 			e.emit("start");
 			return e;
 		};
+		e.init_single = function(cb_start, cb_end) {
+			e.once("start", function() {
+				cb_start.call(this, true);
+			});
+			e.once("close", function() {
+				cb_end.call(this, true);
+			});
+			e.once("end", function() {
+				cb_end.call(this, false);
+			});
+			e.emit("start");
+			return e;
+		};
 		e.end = function() {
 			var cl = e.listeners("end").length;
 			e.emit("end");
@@ -94,10 +107,13 @@ var prpcfunction = function(cmd_stack_obj, method, cb_start, cb_end) {
 		args.shift();
 
 		var e = cmd_stack_obj.get(mnkey(node.name, method));
-		e.init(function(start) {
+		e.init_single(function(start) {
 			this.ref = cb_start.apply(node, args);
 		}, function(close) {
-			cb_end.call(node, this.ref);
+			if (this.ref) {
+				cb_end.call(node, this.ref);
+				this.ref = null;
+			}
 		});
 		reply(null, "okay");
 	};
