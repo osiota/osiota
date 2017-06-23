@@ -159,7 +159,7 @@ exports.init = function(router, ws) {
 	ws.cmds = new cmd_stack();
 
 	/* RPC functions */
-	ws.rpc_node_subscribe_announcement = prpcfunction(ws.cmds, "subscribe_announcement", function() {
+	ws.rpc_node_subscribe_announcement = single_function(ws.cmds, "subscribe_announcement", function() {
 		if (ws.closed)
 			return false;
 		// this == node
@@ -175,7 +175,7 @@ exports.init = function(router, ws) {
 	}, function (ref) {
 		return this.unsubscribe_announcement(ref);
 	});
-	ws.rpc_node_unsubscribe_announcement = prpcfunction_remove(ws.cmds, "subscribe_announcement");
+	ws.rpc_node_unsubscribe_announcement = single_function_remove(ws.cmds, "subscribe_announcement");
 	ws.rpc_node_subscribe = single_function(ws.cmds, "subscribe", function() {
 		// this == node
 		if (ws.closed)
