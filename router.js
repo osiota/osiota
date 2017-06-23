@@ -144,8 +144,8 @@ exports.node.prototype.announce = function(metadata, update) {
 /** Unannounce a node */
 exports.node.prototype.unannounce = function() {
 	this.metadata = null;
-	this.value = null;
-	this.time = null;
+
+	this.publish_sync(null, null, undefined, true);
 
 	this.announce_local("unannounce");
 
@@ -277,7 +277,7 @@ exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to
 	}
 
 	// TODO: Workaround: generate metadata:
-	if (this.metadata === null) {
+	if (time !== null && this.metadata === null) {
 		this.generate_metadata();
 	}
 
