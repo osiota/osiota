@@ -107,7 +107,34 @@ exports.history.prototype.get = function(interval, callback) {
 		data = data.slice(Math.max(data.length - config.maxentries, 0));
 
 		// return data:
-		callback(data, !limited);
+		var exceeded = !limited;
+		if (exceeded && config.totime === null &&
+				config.fromtime === null &&
+				config.interval === null &&
+				(
+				 config.maxentries === null ||
+				 config.maxentries <= 3000
+				)
+		) {
+			if (_this.synced === true) {
+				exceeded = false;
+			} else {
+				exceeded = function(l_data, l_exceeded) {
+					if (l_exceeded ||
+						!Array.isArray(l_data) ||
+						l_data.length <=
+						_this.history_data.length
+					) {
+						return;
+					}
+					l_data.forEach(function(d) {
+						_this.add(d.time, d.value);
+					});
+					_this.synced = true;
+				};
+			}
+		}
+		callback(data, exceeded);
 	});
 };
 

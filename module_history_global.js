@@ -57,10 +57,13 @@ var get_walk = function(modules, parameters, callback) {
 		if (!exceeded) {
 			callback(data, exceeded);
 		} else {
-			get_walk(modules, parameters, function(data_e, exceeded) {
+			get_walk(modules, parameters, function(data_e, exceeded_e) {
+				if (typeof exceeded === "function") {
+					exceeded(data_e, exceeded_e);
+				}
 				if (data_e.length == 0)
 					data_e = data;
-				callback(data_e, exceeded);
+				callback(data_e, exceeded_e);
 			});
 		}
 	});
