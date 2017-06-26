@@ -64,6 +64,9 @@ exports.application.prototype._unload = function() {
 	this._state = "UNLOADED";
 };
 exports.application.prototype._reinit = function(app_config) {
+	if (this._state !== "RUNNING" && this._state !== "REINIT")
+		return;
+
 	this._state = "REINIT";
 	if (typeof this.reinit === "function") {
 		if (typeof app_config === "object" && app_config !== null) {
@@ -80,6 +83,9 @@ exports.application.prototype._reinit = function(app_config) {
 exports.application.prototype._reinit_delay = function(delay, app_config) {
 	if (typeof delay !== "number")
 		delay = 1000;
+
+	if (this._state !== "RUNNING")
+		return;
 
 	var _this = this;
 	this._state = "REINIT";

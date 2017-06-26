@@ -102,6 +102,10 @@ exports.init = function(node, app_config, main, host_info) {
 		//console.error("Error in child_process: "+data.toString() +"\n"
 		//	+ "Command: " + command + " " + args);
 	});
+	childProcess.on("exit", function(exit_code) {
+		console.log("process exited with code", exit_code);
+		_this._reinit_delay(5000);
+	});
 	var _this = this;
 	/*process.on('exit', function () {
 		_this._unload();
