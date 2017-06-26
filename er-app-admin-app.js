@@ -1,5 +1,34 @@
 const fs = require("fs");
 
+var types = {
+	"er-filter": {
+		"type": "object",
+		"title": "Node filter options",
+		"properties": {
+			"metadata": {
+				"type": "object",
+				"title": "Meta data to filter",
+				"additionalProperties": true,
+				"options": {
+					"disable_properties": false,
+					"disable_edit_json": false
+				}
+			},
+			"nodes": {
+				"type": "array",
+				"title": "List of nodes permitted",
+				"items": {
+					"type": "string"
+				}
+			},
+			"depth": {
+				"type": "number",
+				"title": "Node depth permitted"
+			}
+		}
+	}
+};
+
 var add_listener = function(config, callback) {
 	if (typeof config === "object") {
 		config.__listener = callback;
@@ -30,6 +59,7 @@ exports.init = function(node, app_config, main, host_info) {
 		} else {
 			schema = get_schema(main.app_dirs, a._app);
 		}
+		schema = schema_default_types(schema);
 		cn.announce({
 			type: "config.basic",
 			schema: schema,
@@ -287,6 +317,31 @@ var load_schema_apps = function(app_dirs) {
 	add_default_schema(schema_apps);
 
 	return schema_apps;
+};
+
+var schema_default_types = function(schema) {
+	if (typeof schema !== "object") {
+		return schema;
+	}
+	if (Array.isArray(schema)) {
+		for (var k=0; k<schema.length; k++) {
+			schema[k] = schema_default_types(schema[k]);
+		}
+
+		return schema;
+	}
+	if (typeof schema.type === "string" &&
+			typeof types[schema.type] === "object") {
+		schema = types[schema.type];
+	}
+
+	for (var key in schema) {
+		if (schema.hasOwnProperty(key)) {
+			schema[key] = schema_default_types(schema[key]);
+		}
+	}
+
+	return schema;
 };
 
 exports.load_schema_apps = load_schema_apps;
