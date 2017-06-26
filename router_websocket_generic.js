@@ -220,8 +220,10 @@ exports.init = function(router, ws) {
 
 
 	ws.rpc_hello = function(reply, name) {
-		if (typeof name === "string")
+		if (typeof name === "string") {
 			ws.remote = name;
+			console.log("Hello", name);
+		}
 		reply(null, router.name);
 	};
 	ws.rpc_node_announce = single_function(ws.cmds, "announce", function(metadata, update) {
