@@ -380,6 +380,25 @@ exports.init = function(router, ws) {
 		return e.end();
 	};
 
+	ws.node_plocal = function(node, method) {
+		var ref = null;
+
+		var e = ws.cmds.get(mnkey(node, "local"+method));
+		return e.init(function() {
+			ws.node_local(node, method, function(answer) {
+				ref = answer;
+			});
+		}, function(closed) {
+			if (!closed)
+				ws.node_local(node, "un" + method, ref);
+		});
+	};
+	ws.node_plocal_remove = function(node, method) {
+		var e = ws.cmds.get(mnkey(node, "local"+method));
+		return e.end();
+	};
+
+
 	/* local functions */
 	ws.subscribe_announcement = function(node) {
 		ws.node_prpc(node, "subscribe_announcement");

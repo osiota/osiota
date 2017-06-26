@@ -226,12 +226,12 @@ main.prototype.create_websocket_client = function(url, nodes, config) {
 	// data to UPSTREAM
 	if (Array.isArray(nodes)) {
 		nodes.forEach(function(node) {
-			ws.node_local(node, "subscribe_announcement");
+			ws.node_plocal(node, "subscribe_announcement");
 		});
 	} else if (typeof nodes === "string") {
-		ws.node_local(nodes, "subscribe_announcement");
+		ws.node_plocal(nodes, "subscribe_announcement");
 	} else {
-		ws.node_local("/", "subscribe_announcement");
+		ws.node_plocal("/", "subscribe_announcement");
 	}
 
 	// data from UPSTREAM
