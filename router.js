@@ -619,6 +619,10 @@ exports.node.prototype.filter = function(filter_config, filter_method,
  * @param {node} node - Node to filter
  */
 exports.node.prototype.filter_node = function(filter_config, node) {
+	// default: filter nothing:
+	if (typeof filter_config === "undefined" || filter_config === null)
+		return true;
+
 	if (typeof filter_config === "object" &&
 			Array.isArray(filter_config)) {
 		for (var k in filter_config) {
