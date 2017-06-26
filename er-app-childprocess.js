@@ -63,7 +63,7 @@ exports.init = function(node, app_config, main, host_info) {
 		for (var i=0; i<lines.length; i++) {
 			if (lines[i] != "") {
 				//console.log("LOG "+lines[i]);
-				var result = lines[i].match(/^([^\[]+)\s+\[([0-9.]+)\]:\s+([-0-9.]+)$/);
+				var result = lines[i].match(/^([^\[]+)\s+\[([0-9.]+)\]:\s+(null|[-0-9.]+)$/);
 				if (result) {
 					var name = result[1];
 					var time = 1 * result[2];
