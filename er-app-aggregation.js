@@ -34,26 +34,13 @@ exports.init = function(node, app_config, main, host_info) {
 
 	// link data from nodes to callback
 	var source = this._source;
-	var s = source.subscribe_announcement("announce",
+	var s = source.filter(app_config.filter, "announce",
 			function(cnode, method, initial, update) {
 		if (cnode === node)
 			return;
 
 		if (update)
 			return;
-		if (typeof app_config.depth === "number" &&
-				app_config.depth > 0) {
-			var l = is_parentnode(source, cnode);
-			if (l > app_config.depth) {
-				return;
-			}
-		}
-
-		if (typeof app_config.filter_metadata === "object" &&
-				!match(cnode.metadata,
-					app_config.filter_metadata)) {
-			return;
-		}
 
 		return cnode.subscribe(group_callback);
 	});
@@ -300,14 +287,3 @@ exports.calculate_max = function(value_group) {
 	}
 	return result;
 };
-
-function is_parentnode(parent, node) {
-	if(parent == node.name)
-		return 0;
-	if (node.parentnode !== null) {
-		var r = is_parentnode(parent, node.parentnode);
-		if (r >= 0)
-			return r+1;
-	}
-	return -1;
-}
