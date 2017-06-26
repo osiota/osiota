@@ -210,7 +210,7 @@ exports.calculate_average = function(value_group) {
 // TODO: using other time stamps can leed to problems.
 exports.calculate_integral = function(value_group, memory,
 			interval_start, interval_end) {
-	var result = null;
+	var result = 0;
 	var values;
 	// for calculating parts of the integral
 	var value;
