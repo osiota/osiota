@@ -240,6 +240,7 @@ exports.init = function(router, ws) {
 		return function() {
 			if (s) {
 				unload_object(s);
+				s = null;
 			}
 			if (node.connection === ws) {
 				node.unannounce();
