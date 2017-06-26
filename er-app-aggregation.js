@@ -93,6 +93,9 @@ exports.create_callback_by_count = function(config, publish_to) {
 		if (this.time === null) {
 			return;
 		}
+		if (typeof this.value !== "number") {
+			return;
+		}
 		if (typeof interval_start == 'undefined'){
 			interval_start = this.time;
 		}
@@ -101,7 +104,7 @@ exports.create_callback_by_count = function(config, publish_to) {
 		}
 		values[this.name].push({
 			time: this.time,
-			value: this.value*1
+			value: this.value
 		});
 
 		count++;
@@ -157,12 +160,15 @@ exports.create_callback_by_time = function(config, publish_to) {
 		if (this.time === null) {
 			return;
 		}
+		if (typeof this.value !== "number") {
+			return;
+		}
 		if (!values.hasOwnProperty(this.name)){
 			values[this.name] = [];
 		}
 		values[this.name].push({
 			time: this.time,
-			value: this.value*1
+			value: this.value
 		});
 	};
 };
