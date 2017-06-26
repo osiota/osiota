@@ -317,9 +317,6 @@ exports.init = function(router, ws) {
 		args.shift();
 		var object = router._rpc_create_object.apply(router, args);
 
-		node = router.nodename_transform(node, ws.remote_basename,
-				ws.basename);
-
 		if (router.hasOwnProperty('policy_checker')) {
 			// checks if the remote is allowed to perform this
 			// method on this node
@@ -338,6 +335,9 @@ exports.init = function(router, ws) {
 				return false;
 			}
 		}
+
+		node = router.nodename_transform(node, ws.remote_basename,
+				ws.basename);
 
 		object.scope = "node";
 		object.node = node;
