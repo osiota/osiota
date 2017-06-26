@@ -440,7 +440,7 @@ exports.node.prototype.subscribe_announcement = function(filter_method, callback
 	var allchildren = this.router.get_nodes(this.name);
 	for(var childname in allchildren) {
 		var nc = allchildren[childname];
-		if (nc.metadata !== null) {
+		if (nc !== this && nc.metadata !== null) {
 			this.announcement_listener_call(object, nc,
 					"announce", true);
 		}
@@ -469,7 +469,7 @@ exports.node.prototype.unsubscribe_announcement = function(object) {
 			var allchildren = this.router.get_nodes(this.name);
 			for(var childname in allchildren) {
 				var nc = allchildren[childname];
-				if (nc.metadata !== null) {
+				if (nc !== this && nc.metadata !== null) {
 					this.announcement_listener_call(object,
 							nc, "remove", true);
 				}
