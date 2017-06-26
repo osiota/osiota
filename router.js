@@ -640,7 +640,8 @@ exports.node.prototype.filter_node = function(filter_config, node) {
 	// FILTER
 	// * by nodes
 	if (typeof filter_config.nodes === "object" &&
-			Array.isArray(filter_config.nodes)) {
+			Array.isArray(filter_config.nodes) &&
+			filter_config.nodes.length) {
 		// TODO: implement with WeekMap
 		if (filter_config.nodes.indexOf(node.name) <= -1) {
 			return false;
@@ -658,6 +659,7 @@ exports.node.prototype.filter_node = function(filter_config, node) {
 
 	// * by metadata
 	if (typeof filter_config.metadata === "object" &&
+			Object.keys(filter_config.metadata).length &&
 			!match(node.metadata,
 				filter_config.metadata)) {
 		return false;
