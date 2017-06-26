@@ -222,7 +222,7 @@ exports.init = function(router, ws) {
 	ws.rpc_hello = function(reply, name) {
 		if (typeof name === "string") {
 			ws.remote = name;
-			console.log("Hello", name);
+			console.log("Hello", name, "("+ws._socket.remoteAddress+")");
 		}
 		reply(null, router.name);
 	};
