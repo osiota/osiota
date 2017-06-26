@@ -90,25 +90,24 @@ exports.create_callback_by_count = function(config, publish_to) {
 	var count = 0;
 
 	return function(do_not_add_to_history, initial){
-		if (this.time != null){
-			if (typeof interval_start == 'undefined'){
-				interval_start = this.time;
-			}
-			if (!values.hasOwnProperty(this.name)){
-				values[this.name] = [];
-			}
-			if (this.time !== null) {
-				values[this.name].push({
-					time: this.time,
-					value: this.value*1
-				});
-			}
+		if (this.time === null) {
+			return;
+		}
+		if (typeof interval_start == 'undefined'){
+			interval_start = this.time;
+		}
+		if (!values.hasOwnProperty(this.name)){
+			values[this.name] = [];
+		}
+		values[this.name].push({
+			time: this.time,
+			value: this.value*1
+		});
 
-			count++;
-			if (count >= config.interval) {
-				calc_and_publish(this);
-				count = 0;
-			}
+		count++;
+		if (count >= config.interval) {
+			calc_and_publish(this);
+			count = 0;
 		}
 	};
 };
@@ -155,17 +154,16 @@ exports.create_callback_by_time = function(config, publish_to) {
 
 	return function(do_not_add_to_history, initial){
 		// collecting node values
-		if (this.time !== null){
-			if (!values.hasOwnProperty(this.name)){
-				values[this.name] = [];
-			}
-			if (this.time !== null) {
-				values[this.name].push({
-					time: this.time,
-					value: this.value*1
-				});
-			}
+		if (this.time === null) {
+			return;
 		}
+		if (!values.hasOwnProperty(this.name)){
+			values[this.name] = [];
+		}
+		values[this.name].push({
+			time: this.time,
+			value: this.value*1
+		});
 	};
 };
 
@@ -266,7 +264,7 @@ exports.calculate_min = function(value_group) {
 	for (var node in value_group) {
 		values = value_group[node];
 		for (var i = 0; i < values.length; i++) {
-			if (result == null){
+			if (result === null){
 				result = values[i].value;
 			}else{
 				result = Math.min(result, values[i].value);
@@ -282,7 +280,7 @@ exports.calculate_max = function(value_group) {
 	for (var node in value_group) {
 		values = value_group[node];
 		for (var i = 0; i < values.length; i++) {
-			if (result == null){
+			if (result === null){
 				result = values[i].value;
 			}else{
 				result = Math.max(result, values[i].value);
