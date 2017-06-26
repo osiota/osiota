@@ -11,7 +11,6 @@ exports.get_history_module = function(config) {
 
 /* history */
 exports.history = function(node, config) {
-	console.log("node", node.name);
 	this.submodules_init(node, config);
 }
 
