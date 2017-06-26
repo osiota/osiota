@@ -97,10 +97,12 @@ exports.create_callback_by_count = function(config, publish_to) {
 			if (!values.hasOwnProperty(this.name)){
 				values[this.name] = [];
 			}
-			values[this.name].push({
-				time: this.time,
-				value: this.value
-			});
+			if (this.time !== null) {
+				values[this.name].push({
+					time: this.time,
+					value: this.value*1
+				});
+			}
 
 			count++;
 			if (count >= config.interval) {
@@ -157,10 +159,12 @@ exports.create_callback_by_time = function(config, publish_to) {
 			if (!values.hasOwnProperty(this.name)){
 				values[this.name] = [];
 			}
-			values[this.name].push({
-				time: this.time,
-				value: this.value*1
-			});
+			if (this.time !== null) {
+				values[this.name].push({
+					time: this.time,
+					value: this.value*1
+				});
+			}
 		}
 	};
 };
@@ -199,7 +203,7 @@ exports.calculate_average = function(value_group) {
 		values = value_group[node];
 		for (var i = 0; i < values.length; i++) {
 			result += values[i].value;
-			value_count ++
+			value_count++;
 		}
 	}
 	return result / value_count;
@@ -220,7 +224,7 @@ exports.calculate_integral = function(value_group, memory,
 		values = value_group[node];
 		if (typeof memory[node] === "undefined") {
 			value = 0;
-			return null;
+			//return null;
 		} else {
 			value = memory[node].value
 		}
