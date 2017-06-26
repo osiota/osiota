@@ -1,0 +1,25 @@
+{
+	"type": "object",
+	"title": "Settings",
+	"properties": {
+		"type": {
+			"type": "string",
+			"values": ["time", "value"],
+			"title": "The intervall shall trigger on"
+		},
+		"interval": {
+			"type": "number",
+			"title": "Trigger after number of events"
+		},
+		"method": {
+			"type": "string",
+			"title": "Aggregation method",
+			"values": ["integral_avg", "integral", "sum", "average", "max", "min"],
+			"default": "integral_avg"
+		},
+		"filter": {
+			"type": "er-filter"
+		}
+	},
+	"additionalProperties": false
+}
