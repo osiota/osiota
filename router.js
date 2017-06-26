@@ -13,6 +13,7 @@ RegExp.quote = function(str) {
 };
 
 var unload_object = require("./helper_unload_object.js").unload_object;
+var match = require("./helper_match").match;
 
 var RemoteCall = require('./router_remotecall.js').remotecall;
 
@@ -412,7 +413,7 @@ exports.node.prototype.subscription_notify = function(do_not_add_to_history) {
 
 /**
  * Subscribe to announcements
- * @param {function} filter_method - Only listen to a specific method
+ * @param {string} filter_method - Only listen to a specific method
  * @param {function} object - The function to be called an new announcements
  */
 exports.node.prototype.subscribe_announcement = function(filter_method, callback){
@@ -509,7 +510,7 @@ exports.node.prototype.announcement_listener_call = function(object, node,
 
 /**
  * Subscribe ready listener
- * @param {function} filter_method - Only listen to a specific method
+ * @param {string} filter_method - Only listen to a specific method
  * @param {function} object - The function to be called an ready
  */
 exports.node.prototype.ready = function(filter_method, callback) {
@@ -571,6 +572,94 @@ exports.node.prototype.ready_listener_call = function(object, method,
 			object._object = null;
 		}
 	}
+};
+
+
+/**
+ * Is parent a parent node of this node?
+ * @param {node} parent - The parent node
+ */
+exports.node.prototype.is_parentnode = function(parent) {
+	if(parent == this || parent == this.name)
+		return 0;
+	if (this.parentnode !== null) {
+		var r = this.parentnode.is_parentnode(parent);
+		if (r >= 0)
+			return r+1;
+	}
+	return -1;
+}
+
+/**
+ * Filter nodes (like subscribe_announcement but with filtering)
+ * @param {object} filter_config - An object with the filter configuration
+ * @param {string} filter_method - Only listen to a specific method
+ * @param {function} object - The function to be called an new announcements
+ */
+exports.node.prototype.filter = function(filter_config, filter_method,
+							callback) {
+	if (typeof filter_method === "function") {
+		callback = filter_method;
+		filter_method = null;
+	}
+	if (typeof callback !== "function") {
+		throw new Error("filter: callback is not a function");
+	}
+	return this.subscribe_announcement(filter_method, function(node,
+				method, initial, update) {
+		if (this.filter_node(filter_config, node)) {
+			return callback.call(this, node, method);
+		}
+	});
+};
+
+/**
+ * Check filter config on an node (relative to this node)
+ * @param {object} filter_config - An object with the filter configuration
+ * @param {node} node - Node to filter
+ */
+exports.node.prototype.filter_node = function(filter_config, node) {
+	if (typeof filter_config === "object" &&
+			Array.isArray(filter_config)) {
+		for (var k in filter_config) {
+			if (filter_config.hasOwnProperty(k)) {
+				var r = this.filter_node(filter_config[k],
+						node);
+				if (r) {
+					return r;
+				}
+			}
+		}
+		return false;
+	}
+
+	// FILTER
+	// * by nodes
+	if (typeof filter_config.nodes === "object" &&
+			Array.isArray(filter_config.nodes)) {
+		// TODO: implement with WeekMap
+		if (filter_config.nodes.indexOf(node.name) <= -1) {
+			return false;
+		}
+	}
+
+	// * by depth
+	if (typeof filter_config.depth === "number" &&
+			filter_config.depth > 0) {
+		var l = node.is_parentnode(this);
+		if (l > filter_config.depth) {
+			return false;
+		}
+	}
+
+	// * by metadata
+	if (typeof filter_config.metadata === "object" &&
+			!match(node.metadata,
+				filter_config.metadata)) {
+		return false;
+	}
+
+	return true;
 };
 
 /* Remote procedure calls */
