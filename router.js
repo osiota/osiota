@@ -144,11 +144,11 @@ exports.node.prototype.announce = function(metadata, update) {
 };
 /** Unannounce a node */
 exports.node.prototype.unannounce = function() {
-	this.metadata = null;
-
 	this.publish_sync(null, null, undefined, true);
 
 	this.announce_local("unannounce");
+
+	this.metadata = null;
 
 	return this;
 };
