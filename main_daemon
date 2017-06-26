@@ -9,5 +9,11 @@ then
 	sname="er-${name}"
 fi
 
+# on system start /var/run/screen does not exist, wait till it is possible
+while ! mkdir -p /var/run/screen 2>/dev/null
+do
+	sleep 5
+done
+
 /usr/bin/screen -dmS "${sname}" ./main "${1}"
 
