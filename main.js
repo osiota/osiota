@@ -31,7 +31,7 @@ function main(router_name) {
 		var node = this;
 		var map = {};
 		if (!Array.isArray(config)) {
-			return;
+			throw new Error("map config is not defined.");
 		}
 		config.forEach(function(app_config) {
 			var s = app_config.map;
