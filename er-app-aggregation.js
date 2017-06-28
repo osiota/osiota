@@ -3,6 +3,15 @@ var match = require("./helper_match").match;
 
 exports.init = function(node, app_config, main, host_info) {
 
+	// check config:
+	var method = "integral_avg";
+	if (typeof app_config.method === "string") {
+		method = app_config.method;
+	}
+	if (typeof this["calculate_" + method] !== "function") {
+		throw new Error("aggregation: method not found: "+method);
+	}
+
 	// init node:
 	node.group_node = 'true';
 	if (main.router.policy_checker) {
