@@ -10,5 +10,5 @@ webclient/ethercat/bower_components
 
 .*.un~
 
-config.json
-config_*.json
+#config.json
+#config_*.json
