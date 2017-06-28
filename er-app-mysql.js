@@ -21,7 +21,7 @@ exports.init = function(node, app_config, main, host_info) {
 	var subscribes = [];
 
 	// Create Mysql Pool Connection
-	var pool = mysql.createPool(app_config);
+	this.pool = mysql.createPool(app_config);
 
 	// Send a query to keep Connection alive (every 30 seconds)
 	setInterval(function() {
@@ -35,7 +35,7 @@ exports.init = function(node, app_config, main, host_info) {
 
 		//var sqlq = mysql.format("INSERT INTO ??(??) VALUES ?",
 		//[table, keys, data]);
-		this.query("INSERT INTO ??(??) VALUES ?", function(err) {
+		_this.query("INSERT INTO ??(??) VALUES ?", function(err) {
 			data = getter(err);
 			if (err) return;
 			return [table, keys, data];
@@ -51,7 +51,7 @@ exports.init = function(node, app_config, main, host_info) {
 			var entry_id = row.id;
 
 			// subscribe entries
-			var s = main._source.node(row.node)
+			var s = _this._source.node(row.node)
 						.subscribe(function() {
 				// this = node
 				var node = this;
@@ -71,7 +71,7 @@ exports.init = function(node, app_config, main, host_info) {
 		subscribes,
 		function() {
 			setImmediate(function() {
-				pool.end(function(err) {
+				_this.pool.end(function(err) {
 					if (err) throw err;
 
 					// all connections in the pool
