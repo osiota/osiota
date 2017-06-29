@@ -607,8 +607,10 @@ exports.node.prototype.filter = function(filter_config, filter_method,
 	}
 	return this.subscribe_announcement(filter_method, function(node,
 				method, initial, update) {
-		if (this.filter_node(filter_config, node)) {
-			return callback.call(this, node, method);
+		var f = this.filter_node(filter_config, node);
+		if (f) {
+			return callback.call(this, node, method, initial,
+					update, f);
 		}
 	});
 };
@@ -665,7 +667,7 @@ exports.node.prototype.filter_node = function(filter_config, node) {
 		return false;
 	}
 
-	return true;
+	return filter_config;
 };
 
 /* Remote procedure calls */
