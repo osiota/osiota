@@ -91,6 +91,9 @@ exports.history.prototype.get = function (parameters, callback) {
 	if (typeof parameters.totime === "number") {
 		config.totime = parameters.totime;
 	}
+	if (config.maxentries === -1) {
+		config.maxentries = null;
+	}
 
 	// correct max entries (from and to time not included)
 	if (config.maxentries !== null) {
