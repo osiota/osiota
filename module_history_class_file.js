@@ -34,7 +34,7 @@ var vdb_read = function(vdb, config, callback) {
 	})
 	.on('data', function (data) {
 		var json = {"time":data.version, "value":data.value};
-		hdata.unshift(json);
+		hdata.push(json);
 	})
 	.on('error', function (err) {
 		console.warn('Error from getting history:',err);
@@ -49,6 +49,7 @@ var vdb_read = function(vdb, config, callback) {
 			hdata.shift();
 		if (config.totime != null)
 			hdata.pop();
+		hdata.reverse();
 		callback(hdata);
 	});
 }

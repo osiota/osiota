@@ -14,5 +14,5 @@ var history = new hcf.history(node, config);
 history.get({
 	"maxentries": -1
 }, function(hdata) {
-	console.log(JSON.stringify(hdata));
+	console.error(JSON.stringify(hdata, null, "\t"));
 });
