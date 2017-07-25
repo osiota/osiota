@@ -621,6 +621,12 @@ if (process.on) { /* if NodeJS */
 		process.emit("unload");
 	});
 
+	// if event loop is empty:
+	process.once("beforeExit", function() {
+		process.exitCode = 0;
+		process.emit("preexit");
+	});
+	// if we got a signal to terminate:
 	process.on('SIGTERM', function() {
 		process.exitCode = 128+15;
 		process.emit("preexit");
@@ -630,9 +636,11 @@ if (process.on) { /* if NodeJS */
 		process.emit("preexit");
 	});
 
+	// if an error occurred:
 	process.on('uncaughtException', function(e) {
 		process.exitCode = 1;
 		console.error('Uncaught exception:', e.stack || e);
+		// Do __not__ exit
 		//process.emit("preexit");
 	});
 }
