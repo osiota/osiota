@@ -54,7 +54,7 @@ exports.init = function(node, app_config, main, host_info) {
 		return cnode.subscribe(group_callback);
 	});
 
-	return [s, this.tid];
+	return [s, node, this.tid];
 };
 
 
