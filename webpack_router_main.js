@@ -7,8 +7,12 @@ var r = new Router("WebClient");
 var history_config = {
 	"type": "global",
 	"submodules": [{
-		"type": "memory",
-		"max_data": 3000
+		"type": "filter",
+		"interval": 0,
+		"submodules": [{
+			"type": "memory",
+			"max_data": 3000
+		}]
 	},{
 		"type": "remote"
 	}]
@@ -16,6 +20,7 @@ var history_config = {
 
 require('./module_history_class_memory.js');
 require('./module_history_class_remote.js');
+require('./module_history_class_filter.js');
 require('./module_history.js').init(r, history_config);
 
 //require('./router_console_out.js').init(r, "/");
