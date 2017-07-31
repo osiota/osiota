@@ -524,7 +524,7 @@ main.prototype.config_cleaning = function(config) {
 
 	var _this = this;
 
-	if (typeof config !== "object") {
+	if (typeof config !== "object" || config === null) {
 		return config;
 	}
 
