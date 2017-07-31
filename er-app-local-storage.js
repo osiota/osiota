@@ -43,7 +43,10 @@ exports.init = function(node, app_config, main, host_info) {
 		} catch(e) {}
 	});
 
-	var s = node.subscribe_announcement(function(n) {
+	var s = node.subscribe_announcement("announce", function(n, method,
+				initial, update) {
+		if (update) return;
+
 		return n.subscribe(function() {
 			if (n.value === null) {
 				return;
