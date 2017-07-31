@@ -35,6 +35,9 @@ function main(router_name) {
 		}
 		config.forEach(function(app_config) {
 			var s = app_config.map;
+			if (typeof app_config.node !== "string") {
+				app_config.node = s.replace(/\//, "_");
+			}
 
 			var vn = node.virtualnode();
 			var a = vn.app(app, app_config);
