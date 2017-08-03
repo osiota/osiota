@@ -24,16 +24,20 @@ exports.init = function(node, app_config, main, host_info) {
 		throw new Error("config option json filename not defined.");
 	}
 
-	node.announce({
-		"type": "unknown.data"
-	});
-
 	var cleaning_object = [];
 	
 	fs.readFile(app_config.filename, function(err, content) {
 		if (err) throw err;
 
 		var data = JSON.parse(content);
+
+		var metadata = {"type": "unknown.data"};
+		if (typeof data === "object" && data.data === "object") {
+			metadata = data.metadata;
+			data = data.data;
+		}
+
+		node.announce(metadata);
 
 		consume_data(data, 0, function(d) {
 			node.publish(d.time, d.value);

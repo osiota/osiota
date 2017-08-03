@@ -10,8 +10,16 @@ exports.init = function(node, app_config, main, host_info) {
 		config_save_last = app_config.save_last;
 	}
 
+	var object = {};
 	var data = [];
 	var last_data = null;
+
+	var source = this._source;
+
+	source.ready("announce", function() {
+		object.metadata = source.metadata;
+		object.name = source.name;
+	});
 
 	var s = this._source.subscribe(function(do_not_add_to_history, initial){
 		if (initial)
@@ -42,8 +50,9 @@ exports.init = function(node, app_config, main, host_info) {
 		if (config_save_last && last_data !== null) {
 			data.push(last_data);
 		}
+		object.data = data;
 		fs.writeFile(app_config.filename,
-				JSON.stringify(data, null, "\t"),
+				JSON.stringify(object, null, "\t"),
 				function(err) {
 			if (err) throw err;	
 			console.log("json file written.");
