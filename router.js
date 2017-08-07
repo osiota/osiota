@@ -497,10 +497,15 @@ exports.node.prototype.announcement_listener_call = function(object, node,
 		o = object.call(this, node, method, initial, update);
 	}
 	if (method === "announce") {
-		if (typeof object._object != "object") {
-			object._object = {};
+		if (o) {
+			if (typeof object._object != "object") {
+				object._object = {};
+			}
+			if (object._object[node.name]) {
+				unload_object(object._object[node.name]);
+			}
+			object._object[node.name] = o;
 		}
-		object._object[node.name] = o;
 	} else {
 		if (typeof object._object == "object" &&
 				object._object[node.name]) {
