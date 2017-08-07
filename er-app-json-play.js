@@ -32,7 +32,7 @@ exports.init = function(node, app_config, main, host_info) {
 		var data = JSON.parse(content);
 
 		var metadata = {"type": "unknown.data"};
-		if (typeof data === "object" && data.data === "object") {
+		if (typeof data === "object" && typeof data.data === "object") {
 			metadata = data.metadata;
 			data = data.data;
 		}
