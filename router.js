@@ -123,14 +123,17 @@ exports.node.prototype.virtualnode = function() {
  * @param {boolean} update - (For internal use only!)
  */
 exports.node.prototype.announce = function(metadata, update) {
+	if (typeof update === "undefined") {
+		update = false;
+	}
 	if (typeof metadata !== "object" || metadata === null) {
 		metadata = {};
 	}
-	if (this.metadata === null)
+	if (this.metadata === null) {
 		console.info("new node:", this.name);
-
-	if (typeof update === "undefined") {
-		update = (this.metadata !== null);
+	} else if (!update) {
+		console.warn("Announcing already available node:", this.name);
+		update = true;
 	}
 
 	this.metadata = metadata;
