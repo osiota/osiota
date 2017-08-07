@@ -417,8 +417,23 @@ main.prototype.app_register = function(a) {
 	var appname = a._app;
 	var node = a._node;
 
-	if (appname !== "er-app-node" || !node._app) {
-		node._app = a;
+	if (appname === "er-app-node") {
+		if (!node._app) {
+			node._app = a;
+		}
+		// else do nothing
+	} else {
+		if (node._app) {
+			if (node._app._app === "er-app-node") {
+				node._app = a;
+			} else {
+				console.warn("There is already an app bind " +
+					"to that node:", node.name,
+					"(", a._app, "vs", node._app._app, ")");
+			}
+		} else {
+			node._app = a;
+		}
 	}
 
 	this.emit("app_added", a, a._id);
