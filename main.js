@@ -138,7 +138,7 @@ main.prototype.config = function(config) {
 
 	this.sub_config(config);
 };
-main.prototype.sub_config = function(config) {
+main.prototype.sub_config = function(config, node) {
 	var _this = this;
 
 	if (typeof config.connect === "object") {
@@ -159,7 +159,7 @@ main.prototype.sub_config = function(config) {
 
 	if (Array.isArray(config.app)) {
 		config.app.forEach(function(struct) {
-			_this.startup_struct(null, struct, _this.router.name, config.auto_install);
+			_this.startup_struct(node, struct, _this.router.name, config.auto_install);
 		});
 	}
 };

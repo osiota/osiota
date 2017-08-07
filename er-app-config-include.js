@@ -1,4 +1,5 @@
 var http = require("http");
+var fs = require("fs");
 
 exports.init = function(node, app_config, main, host_info) {
 	if (typeof app_config.file !== "string") {
@@ -11,9 +12,10 @@ exports.init = function(node, app_config, main, host_info) {
 
 	var config = {};
 	try {
-		config = require(app_config.file);
+		var content = fs.readFileSync(app_config.file);
+		config = JSON.parse(content);
 		config = main.config_cleaning(config);
-		main.sub_config(config);
+		main.sub_config(config, this._source);
 	} catch (e) {
 		console.warn("Include Config, Exception", e.stack || e);
 	}
