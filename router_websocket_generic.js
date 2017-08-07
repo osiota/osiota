@@ -170,7 +170,10 @@ exports.init = function(router, ws) {
 					node.connection === ws) {
 				return;
 			}
-			ws.node_rpc(node, method, node.metadata, !!update);
+			if (method == "announce" && update) {
+				method = "announce_update";
+			}
+			ws.node_rpc(node, method, node.metadata);
 		});
 	}, function (ref) {
 		return this.unsubscribe_announcement(ref);
@@ -226,14 +229,14 @@ exports.init = function(router, ws) {
 		}
 		reply(null, router.name);
 	};
-	ws.rpc_node_announce = single_function(ws.cmds, "announce", function(metadata, update) {
+	ws.rpc_node_announce = single_function(ws.cmds, "announce", function(metadata) {
 		// this == node
 		var node = this;
 
 		var s = node.subscribe(function() {});
 
 		node.connection = ws;
-		node.announce(metadata, update);
+		node.announce(metadata);
 
 		node.emit("node_update", true);
 
@@ -250,12 +253,23 @@ exports.init = function(router, ws) {
 	});
 	ws.rpc_node_unannounce = single_function_remove(ws.cmds, "announce");
 
+	ws.rpc_node_announce_update = function(reply, metadata) {
+		// this == node
+		var node = this;
+
+		node.announce(metadata, true);
+
+		node.emit("node_update", true);
+
+		reply(null, "okay");
+	};
+
 	ws.rpc_node_missed_data = function(reply, new_time) {
 		// this = node
 		var node = this;
 
 		ws.sync_history(node, node.time, new_time);
-		reply("thanks");
+		reply(null, "thanks");
 	};
 	ws.rpc_node_where_are_you_from = function(reply) {
 		// this == node
