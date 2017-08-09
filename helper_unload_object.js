@@ -11,9 +11,12 @@ exports.unload_object = function(object) {
 			object.forEach(function(o) {
 				exports.unload_object(o);
 			});
-		// nodejs timers:
+		// nodejs timers and sockets
 		} else if (typeof object.close === "function") {
 			object.close();
+		// some objects:
+		} else if (typeof object.destroy === "function") {
+			object.destroy();
 		// subscribe:
 		} else if (typeof object.remove === "function") {
 			object.remove();
