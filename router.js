@@ -280,11 +280,6 @@ exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to
 		return false;
 	}
 
-	// TODO: Workaround: generate metadata:
-	if (time !== null && this.metadata === null) {
-		this.generate_metadata();
-	}
-
 	// set new data:
 	this.value = value;
 	this.time = time;
