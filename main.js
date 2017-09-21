@@ -450,6 +450,8 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 	var node_destination = null;
 	if (typeof app_config.node === "string") {
 		node_destination = node_source.node(app_config.node);
+	} else if (typeof app_config.pnode === "string") {
+		node_destination = node.node(app_config.pnode);
 	} else if (typeof a.default_node_name === "string") {
 		node_destination = node_source.node(a.default_node_name);
 	} else {
