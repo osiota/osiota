@@ -2,7 +2,7 @@
  * http://usbdmx.com/downloads/protocol.pdf
  */
 
-var SerialPort = require("serialport").SerialPort;
+var SerialPort = require("serialport");
 
 var showbytes = function(str) {
 	var hex = "";
@@ -14,7 +14,6 @@ var showbytes = function(str) {
 };
 
 exports.init = function(node, app_config, main, host_info) {
-	console.log(app_config);
 	if (typeof app_config !== "object") {
 		app_config = {};
 	}
@@ -39,17 +38,18 @@ exports.init = function(node, app_config, main, host_info) {
 
 	port.on('data', function(data) {
 		var str = data.toString('binary');
-		//console.log("DATA: " + showbytes(str));
+		console.log("DATA: " + showbytes(str));
 	});
 	 
 	port.on('error', function(err) {
-		  console.log(err);
+		console.error(err.stack || err);
 	});
 
 	port.init = function() {
 		port.write_bytes(String.fromCharCode(0x22));
 	};
 	port.set = function(channel, value) {
+		//console.log("SET", channel, value);
 		channel--;
 		var cmd = (channel >> 8);
 		cmd += 0x48;
@@ -59,7 +59,30 @@ exports.init = function(node, app_config, main, host_info) {
 	};
 
 	port.on('open', function() {
+		console.log("opened dmx");
 		port.init();
+
+	node.rpc_dmx = function(reply, channel, value) {
+		if (value === null)
+			value = 0;
+		if (typeof value !== "number")
+			value *= 1;
+
+		port.set(channel, value);
+
+		reply(null, "okay");
+	};
+	node.dmx = function(channel, value) {
+		if (value === null)
+			value = 0;
+		if (typeof value !== "number")
+			value *= 1;
+
+		port.set(channel, value);
+	};
+	node.announce({
+		"type": "dmx.rpc"
+	});
 
 	// set loop (see artnet)
 	for (var n in app_config.nodes) {
@@ -101,5 +124,7 @@ exports.init = function(node, app_config, main, host_info) {
 	}
 	// end set loop
 	});
+
+	return [node, port];
 };
 

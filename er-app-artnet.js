@@ -17,7 +17,35 @@ exports.init = function(node, app_config, main, host_info) {
 		};
 	}
 
+	var universe = 0;
+	if (typeof app_config.universe === "number") {
+		universe = app_config.universe;
+	}
+
 	var artnet = require('artnet')(app_config.options);
+
+	node.rpc_dmx = function(reply, channel, value) {
+		if (value === null)
+			value = 0;
+		if (typeof value !== "number")
+			value *= 1;
+
+		artnet.set(universe, channel, value);
+
+		reply(null, "ok");
+	};
+	node.dmx = function(channel, value) {
+		if (value === null)
+			value = 0;
+		if (typeof value !== "number")
+			value *= 1;
+
+		artnet.set(universe, channel, value);
+	};
+
+	node.announce({
+		"type": "artnet.rpc"
+	});
 
 	// set loop (see usbdmx)
 	for (var n in app_config.nodes) {
@@ -46,7 +74,7 @@ exports.init = function(node, app_config, main, host_info) {
 			if (typeof value !== "number")
 				value *= 1;
 
-			artnet.set(channel, value);
+			artnet.set(universe, channel, value);
 			this.publish(undefined, value);
 
 			reply(null, "ok");
@@ -58,5 +86,7 @@ exports.init = function(node, app_config, main, host_info) {
 		}
 	}
 	// end set loop
+
+	return [node, artnet];
 };
 

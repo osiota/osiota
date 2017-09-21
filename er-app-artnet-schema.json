@@ -15,6 +15,10 @@
 				}
 			}
 		},
+		"universe": {
+			"type": "number",
+			"title": "ArtNet universe"
+		},
 		"nodes": {
 			"type": "array",
 			"format": "table",
