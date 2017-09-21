@@ -147,6 +147,9 @@ exports.node.prototype.announce = function(metadata, update) {
 };
 /** Unannounce a node */
 exports.node.prototype.unannounce = function() {
+	if (this.metadata === null)
+		return;
+
 	this.publish_sync(null, null, undefined, true);
 
 	this.announce_local("unannounce");
