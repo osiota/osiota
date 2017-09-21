@@ -114,4 +114,6 @@ exports.history.prototype.get = function (parameters, callback) {
 	});
 };
 
+exports.vdb_setup = vdb_setup;
+
 HistoryGlobal.modules.file = exports.history;
