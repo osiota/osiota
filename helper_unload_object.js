@@ -6,14 +6,16 @@ exports.unload_object = function(object) {
 		} else {
 			object(exports.unload_object);
 		}
-	} else if (typeof object === "object") {
+	} else if (typeof object === "object" && object !== null) {
 		if (Array.isArray(object)) {
 			object.forEach(function(o) {
 				exports.unload_object(o);
 			});
 		// nodejs timers and sockets
 		} else if (typeof object.close === "function") {
-			object.close();
+			try {
+				object.close();
+			} catch(e) {}
 		// some objects:
 		} else if (typeof object.destroy === "function") {
 			object.destroy();
