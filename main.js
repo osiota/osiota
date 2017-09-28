@@ -369,19 +369,12 @@ main.prototype.node = function(name) {
 };
 
 main.prototype.app_dirs = [__dirname+"/", __dirname+"/../", "./", "../", ""];
-main.prototype.require = function(app) {
-	return require_vm(app, this.app_dirs, this.apps_use_vm);
+main.prototype.require = function(app, callback) {
+	callback(require_vm(app, this.app_dirs, this.apps_use_vm));
 };
 
 main.prototype.startup = function(node, app, app_config, host_info, auto_install, callback) {
 	var _this = this;
-
-	if (typeof host_info === "undefined") {
-		host_info = this;
-	}
-	if (typeof auto_install === "undefined") {
-		auto_install = this._config.auto_install;
-	}
 
 	var appname = app;
 	if (typeof app === "undefined" || app === null) {
@@ -407,9 +400,19 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 		}
 
 		if (typeof app === "string") {
-			a._bind_module( this.require(appname, app_config, host_info, auto_install) );
-		} else if (typeof app === "object") {
-			a._bind_module( app );
+			this.require(appname, function(struct) {
+				return this.startup_module( a,
+						app_identifier, struct,
+						node, app, app_config,
+						host_info, auto_install,
+						callback);
+			});
+		} else if (typeof app === "object" && app !== null) {
+			//a._bind_module( app );
+			return this.startup_module( a,
+					app_identifier, app,
+					node, app, app_config,
+					host_info, auto_install, callback);
 		} else {
 			throw new Error("variable app has unknown type.");
 		}
@@ -437,7 +440,21 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 
 	}
 
-	// bind:
+};
+main.prototype.startup_module = function(a, app_identifier, app_module, node, app, app_config, host_info, auto_install, callback) {
+
+	if (typeof host_info === "undefined") {
+		host_info = this;
+	}
+	if (typeof auto_install === "undefined") {
+		auto_install = this._config.auto_install;
+	}
+
+
+	// bind module:
+	a._bind_module( app_module );
+
+	// bind to main:
 	a._bind(app_identifier, this, host_info);
 
 	if (typeof node !== "object" || node === null) {
