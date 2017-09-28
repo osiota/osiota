@@ -270,7 +270,8 @@ main.prototype.sub_config = function(config, node) {
 
 main.prototype.setup_history = function(save_history) {
 	// Load history module
-	var history_config = {
+	if (!this.history_config)
+	this.history_config = {
 		"type": "global",
 		"submodules": [{
 			"type": "timebase",
@@ -306,10 +307,11 @@ main.prototype.setup_history = function(save_history) {
 	require('./module_history_class_memory.js');
 	require('./module_history_class_remote.js');
 	require('./module_history_class_timebase.js');
+	require('./module_history_class_filter.js');
 	if (save_history) {
 		require('./module_history_class_file.js');
 	}
-	require('./module_history.js').init(this.router, history_config);
+	require('./module_history.js').init(this.router, this.history_config);
 }
 
 main.prototype.create_websocket_server = function(server_port) {
