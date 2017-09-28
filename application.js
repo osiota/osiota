@@ -30,6 +30,9 @@ exports.application.prototype._bind = function(id, main, extra) {
 };
 exports.application.prototype._bind_module = function(module) {
 	this._module = module;
+	if (typeof module !== "object" || module === null) {
+		throw new Error("module is not an object");
+	}
 	for (var field in module) {
 		if (module.hasOwnProperty(field)) {
 			if (!field.match(/^_/))
