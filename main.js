@@ -219,9 +219,6 @@ main.prototype.config = function(config) {
 		});
 	}
 
-	// TODO: Load console output
-	//require('./router_console_out.js').init(this.router, "/console");
-
 	if (typeof config.server !== "undefined" && config.server) {
 		this.wss = this.create_websocket_server(config.server);
 	}
@@ -357,11 +354,6 @@ main.prototype.create_websocket_client = function(url, nodes, config) {
 	}
 
 	return ws;
-};
-
-// TODO: Config:
-main.prototype.create_console_output = function() {
-	require('./router_console_out').init(this.router, "");
 };
 
 main.prototype.node = function(name) {
