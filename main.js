@@ -3,8 +3,6 @@ var Node = require("./router").node;
 var Policy_checker = require("./module_policycheck.js").Policy_checker;
 var Application = require("./application.js").application;
 
-var require_vm = require("./helper_require_vm.js");
-
 var merge = require("./helper_merge_data.js").merge;
 
 var EventEmitter = require('events').EventEmitter;
@@ -20,11 +18,6 @@ function main(router_name) {
 
 	this._config = {};
 	this._system_start = new Date();
-
-	if (process.on) {
-		process.on("unload", this.close.bind(this));
-		process.title = "[er] "+(router_name || "energy-router");
-	}
 
 	this.router = new Router(router_name);
 
@@ -202,9 +195,10 @@ main.prototype.classes = {
 	"Application": Application
 };
 
-main.prototype.config = function(config) {
+main.prototype.preparation_config = function(config) {
 	var _this = this;
 
+	// preparation:
 	this._config = config;
 	this.config_cleaning();
 
@@ -223,24 +217,13 @@ main.prototype.config = function(config) {
 					policy);
 		});
 	}
+};
 
-	if (typeof config.server !== "undefined" && config.server) {
-		this.wss = this.create_websocket_server(config.server);
+main.prototype.config = function(config) {
+	this.preparation_config(config);
+	if (typeof this.os_config === "function") {
+		this.os_config(config);
 	}
-
-	this.apps_use_vm = true;
-	if (typeof config.apps_use_vm !== "undefined") {
-		this.apps_use_vm = config.apps_use_vm;
-	}
-
-	if (typeof config.app_dir === "string") {
-		config.app_dir = [ config.app_dir ];
-	}
-	if (typeof config.app_dir === "object" &&
-			Array.isArray(config.app_dir)) {
-		Array.prototype.push.apply(_this.app_dirs, config.app_dir);
-	}
-
 	this.sub_config(config);
 };
 main.prototype.sub_config = function(config, node) {
@@ -361,9 +344,8 @@ main.prototype.node = function(name) {
 	return this.router.node(name);
 };
 
-main.prototype.app_dirs = [__dirname+"/", __dirname+"/../", "./", "../", ""];
 main.prototype.require = function(app, callback) {
-	callback(require_vm(app, this.app_dirs, this.apps_use_vm));
+	throw new Error("Require function not supported.");
 };
 
 main.prototype.startup = function(node, app, app_config, host_info, auto_install, callback) {
@@ -738,47 +720,6 @@ main.prototype.reload = function(callback) {
 			callback(m);
 	}, 1000);
 };
-
-
-/* on signal: end the process */
-if (process.on) { /* if NodeJS */
-	process.on("preexit", function() {
-		if (process.exitTimeoutId) return;
-
-		process.exitTimeoutId = setTimeout(process.exit, 5000);
-		process.exitTimeoutId.unref();
-		console.log('process will exit in 5 seconds');
-
-		process.on("exit", function(code) {
-			console.log("Goodbye!");
-		});
-
-		process.emit("unload");
-	});
-
-	// if event loop is empty:
-	process.once("beforeExit", function() {
-		process.exitCode = 0;
-		process.emit("preexit");
-	});
-	// if we got a signal to terminate:
-	process.on('SIGTERM', function() {
-		process.exitCode = 128+15;
-		process.emit("preexit");
-	});
-	process.on('SIGINT', function() {
-		process.exitCode = 128+2;
-		process.emit("preexit");
-	});
-
-	// if an error occurred:
-	process.on('uncaughtException', function(e) {
-		process.exitCode = 1;
-		console.error('Uncaught exception:', e.stack || e);
-		// Do __not__ exit
-		//process.emit("preexit");
-	});
-}
 
 module.exports = main;
 

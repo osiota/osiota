@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var os = require("os");
-var main = require("./main.js");
+var main = require("./main_nodejs.js");
 const fs = require("fs");
 
 var argv = require('yargs')
