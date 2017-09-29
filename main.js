@@ -10,6 +10,11 @@ var merge = require("./helper_merge_data.js").merge;
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
+require('./module_history_class_memory.js');
+require('./module_history_class_remote.js');
+require('./module_history_class_timebase.js');
+require('./module_history_class_filter.js');
+
 function main(router_name) {
 	EventEmitter.call(this);
 
@@ -301,10 +306,6 @@ main.prototype.setup_history = function(save_history) {
 			"type": "remote"
 		}]
 	};
-	require('./module_history_class_memory.js');
-	require('./module_history_class_remote.js');
-	require('./module_history_class_timebase.js');
-	require('./module_history_class_filter.js');
 	if (save_history) {
 		require('./module_history_class_file.js');
 	}
