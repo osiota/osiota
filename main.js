@@ -25,6 +25,24 @@ function main(router_name) {
 	Node.prototype.app = function(app, app_config) {
 		return _this.startup(this, app, app_config);
 	};
+
+	main.map_app = function(metadatatype) {
+		var subapp = {};
+		subapp.init = function(node, app_config, main, host_info) {
+			node.announce({
+				"type": metadatatype
+			});
+			this._source.subscribe(function() {
+				node.publish(this.time, this.value);
+			});
+			var _this = this;
+			node.rpc_set = function(reply, value) {
+				_this._source.rpc_set(reply, value);
+			};
+			return node;
+		};
+		return subapp;
+	};
 	Node.prototype.map = function(config, app, map_extra_elements) {
 		var node = this;
 		var map = {};
