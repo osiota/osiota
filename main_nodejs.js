@@ -16,18 +16,6 @@ util.inherits(main_nodejs, main);
 main_nodejs.prototype.os_config = function(config) {
 	var _this = this;
 
-	this.setup_history(config.save_history);
-
-	// Load policy checker module
-	this.router.policy_checker = new Policy_checker();
-	if (typeof config.policies === 'object' &&
-			Array.isArray(config.policies)){
-		config.policies.forEach(function(policy) {
-			_this.router.policy_checker.add_policy("user_level",
-					policy);
-		});
-	}
-
 	if (typeof config.server !== "undefined" && config.server) {
 		this.wss = this.create_websocket_server(config.server);
 	}
