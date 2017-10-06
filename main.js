@@ -26,7 +26,7 @@ function main(router_name) {
 		return _this.startup(this, app, app_config);
 	};
 
-	main.map_app = function(metadatatype) {
+	this.map_app = function(metadatatype) {
 		var subapp = {};
 		subapp.init = function(node, app_config, main, host_info) {
 			node.announce({
