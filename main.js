@@ -376,7 +376,7 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 
 		if (typeof app === "string") {
 			this.require(appname, function(struct) {
-				return this.startup_module( a,
+				return _this.startup_module( a,
 						app_identifier, struct,
 						node, app, app_config,
 						host_info, auto_install,
