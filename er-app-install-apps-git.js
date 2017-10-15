@@ -21,7 +21,7 @@ var install_app = function(app, app_config, callback) {
 				return;
 
 			console.log("run npm install:", app);
-			execFile("npm", ["install"], {
+			execFile("npm", ["install", "--production"], {
 				"cwd": install_dir + "er-app-" + app
 			}, callback);
 		});
