@@ -435,6 +435,7 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 
 };
 main.prototype.startup_module = function(a, app_identifier, app_module, node, app, app_config, host_info, auto_install, callback) {
+	var _this = this;
 
 	if (typeof host_info === "undefined") {
 		host_info = this;
