@@ -26,6 +26,6 @@ User=${ER_USER}
 WantedBy=multi-user.target
 EOF
 
-systemctl enable "${ER_NAME}"
+sudo systemctl enable "${ER_NAME}"
 #systemctl start "${ER_NAME}"
 
