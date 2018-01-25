@@ -15,7 +15,7 @@ var install_app = function(app, app_config, callback) {
 			return;
 		}
 		fs.access(install_dir + "er-app-"+app + "/package.json",
-				fs.constants.R_OK, function(err) {
+				(fs.constants | fs).R_OK, function(err) {
 			// no package json file:
 			if (err)
 				return;
