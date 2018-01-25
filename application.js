@@ -21,18 +21,36 @@ exports.application = function(app) {
 
 	this._node = null;
 
+	this._id = Math.random().toString(36).substring(2, 15) +
+		   Math.random().toString(36).substring(2, 15);
+
 	this._error = null;
 };
-exports.application.prototype._bind = function(id, main, extra) {
-	this._id = id;
+exports.application.prototype._bind = function(main, extra) {
 	this._extra = extra;
 	this._main = main;
 };
-exports.application.prototype._bind_module = function(module) {
+exports.application.prototype._bind_module = function(module, loader, callback){
+	var _this = this;
+
 	this._module = module;
 	if (typeof module !== "object" || module === null) {
 		throw new Error("module is not an object");
 	}
+	if (typeof module.inherit === "object" &&
+			Array.isArray(module.inherit) &&
+			module.inherit.length) {
+		var inherit = module.inherit.slice(0);
+		this._inherit(inherit, loader, function() {
+			_this._bind_module_sync(module);
+			callback();
+		});
+		return;
+	}
+	this._bind_module_sync(module);
+	callback();
+};
+exports.application.prototype._bind_module_sync = function(module) {
 	for (var field in module) {
 		if (module.hasOwnProperty(field)) {
 			if (!field.match(/^_/))
@@ -41,6 +59,29 @@ exports.application.prototype._bind_module = function(module) {
 	}
 	return this;
 };
+exports.application.prototype._inherit = function(inherit, loader, callback) {
+	var _this = this;
+
+	if (Array.isArray(!inherit) || !inherit.length ) {
+		callback();
+		return;
+	}
+	var iname = inherit.shift();
+	if (typeof iname !== "string") {
+		throw new Error("inherit: application name is not string.");
+	}
+
+	loader(iname, function(m) {
+		if (typeof _this.base !== "object") {
+			_this._base = {};
+		}
+		_this._base[iname] = m;
+		_this._bind_module(m, loader, function() {
+			_this._inherit(inherit, loader, callback);
+		});
+	});
+};
+
 exports.application.prototype._init = function(app_config) {
 	if (typeof app_config === "object" && app_config !== null) {
 		this._config = app_config;

@@ -366,7 +366,7 @@ main.prototype.require = function(app, callback) {
 	throw new Error("Require function not supported.");
 };
 
-main.prototype.startup = function(node, app, app_config, host_info, auto_install, callback) {
+main.prototype.module_get = function(app, callback) {
 	var _this = this;
 
 	var appname = app;
@@ -378,7 +378,7 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 			appname = app._app;
 	}
 	appname = "er-app-" + appname.replace(/^er-app-/, "");
-	console.info("startup:", appname);
+	console.info("loading:", appname);
 
 	var app_identifier = appname;
 	var app_increment = 2;
@@ -387,34 +387,46 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 	}
 
 	var a = new Application(appname);
+	a._id = app_identifier;
+	if (typeof app === "string") {
+		this.require(appname, function(struct) {
+			// bind module:
+			a._bind_module(
+				struct,
+				_this.module_get.bind(_this),
+				function() {
+					callback(a);
+				}
+			);
+		});
+	} else if (typeof app === "object" && app !== null) {
+		a._bind_module(
+			app,
+			_this.module_get.bind(_this),
+			function() {
+				callback(a);
+			}
+		);
+	} else {
+		throw new Error("variable app has unknown type.");
+	}
+};
+
+main.prototype.startup = function(node, app, app_config, host_info, auto_install, callback) {
+	var _this = this;
+
 	try {
 		if (typeof app_config !== "object") {
 			app_config = {};
 		}
 
-		if (typeof app === "string") {
-			this.require(appname, function(struct) {
-				return _this.startup_module( a,
-						app_identifier, struct,
-						node, app, app_config,
-						host_info, auto_install,
-						callback);
-			});
-		} else if (typeof app === "object" && app !== null) {
-			//a._bind_module( app );
-			return this.startup_module( a,
-					app_identifier, app,
+		this.module_get(app, function(a) {
+			return _this.startup_module( a,
 					node, app, app_config,
-					host_info, auto_install, callback);
-		} else {
-			throw new Error("variable app has unknown type.");
-		}
+					host_info, auto_install,
+					callback);
+		});
 	} catch(e) {
-		// save error:
-		a._error = e;
-		if (a._config)
-			a._config = app_config;
-
 		// trigger global callback:
 		if (this.emit("app_loading_error", e, node, app, app_config,
 					host_info, auto_install, function(an) {
@@ -434,7 +446,7 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 	}
 
 };
-main.prototype.startup_module = function(a, app_identifier, app_module, node, app, app_config, host_info, auto_install, callback) {
+main.prototype.startup_module = function(a, node, app, app_config, host_info, auto_install, callback) {
 	var _this = this;
 
 	if (typeof host_info === "undefined") {
@@ -444,12 +456,9 @@ main.prototype.startup_module = function(a, app_identifier, app_module, node, ap
 		auto_install = this._config.auto_install;
 	}
 
-
-	// bind module:
-	a._bind_module( app_module );
-
+	console.info("startup:", a._app);
 	// bind to main:
-	a._bind(app_identifier, this, host_info);
+	a._bind(this, host_info);
 
 	if (typeof node !== "object" || node === null) {
 		node = this.node("/app");
@@ -468,7 +477,7 @@ main.prototype.startup_module = function(a, app_identifier, app_module, node, ap
 	} else if (typeof a.default_node_name === "string") {
 		node_destination = node_source.node(a.default_node_name);
 	} else {
-		node_destination = node_source.node(app_identifier.
+		node_destination = node_source.node(a._id.
 			replace(/^er-app-/, "").replace(/\//g, "-"));
 	}
 
