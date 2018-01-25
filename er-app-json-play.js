@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-function consume_data(data, offset, cb, done, cleaning_object) {
+exports.consume_data = function(data, offset, cb, done, cleaning_object) {
 	var slots = 10000;
 	var i = offset;
 	var n = Math.min(offset+slots, data.length);
@@ -13,13 +13,15 @@ function consume_data(data, offset, cb, done, cleaning_object) {
 			process.nextTick(done);
 	} else {
 		console.log("time", data[i].time);
-		var tid = setTimeout(consume_data, 0, data, n, cb, done,
+		var tid = setTimeout(this.consume_data.bind(this),
+				0, data, n, cb, done,
 				cleaning_object);
 		cleaning_object[0] = tid;
 	}
 };
 
 exports.init = function(node, app_config, main, host_info) {
+	var _this = this;
 	if (typeof app_config.filename !== "string") {
 		throw new Error("config option json filename not defined.");
 	}
@@ -39,7 +41,7 @@ exports.init = function(node, app_config, main, host_info) {
 
 		node.announce(metadata);
 
-		consume_data(data, 0, function(d) {
+		_this.consume_data(data, 0, function(d) {
 			node.publish(d.time, d.value);
 			//node.publish_sync(d.time, d.value);
 		}, function() {
