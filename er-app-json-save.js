@@ -51,7 +51,9 @@ exports.init = function(node, app_config, main, host_info) {
 			data.push(last_data);
 		}
 		object.data = data;
-		fs.writeFile(app_config.filename,
+		var filename = app_config.filename.replace(/%n/,
+			object.name.replace(/^\//, "").replace(/\/+/g, "-"));
+		fs.writeFile(filename,
 				JSON.stringify(object, null, "\t"),
 				function(err) {
 			if (err) throw err;	
