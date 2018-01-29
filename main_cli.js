@@ -111,5 +111,7 @@ m.on("config_save", function() {
 		}
 	});
 });
+m.argv = argv._;
+
 m.config(argv);
 
