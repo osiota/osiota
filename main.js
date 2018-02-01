@@ -2,6 +2,7 @@ var Router = require("./router").router;
 var Node = require("./router").node;
 var Policy_checker = require("./module_policycheck.js").Policy_checker;
 var Application = require("./application.js").application;
+var ApplicationManager =require("./application_manager.js").application_manager;
 
 var merge = require("./helper_merge_data.js").merge;
 
@@ -20,6 +21,8 @@ function main(router_name) {
 	this._system_start = new Date();
 
 	this.router = new Router(router_name);
+
+	this.application_manager = new ApplicationManager(this);
 
 	var _this = this;
 	Node.prototype.app = function(app, app_config) {

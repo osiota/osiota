@@ -4,6 +4,7 @@
   "main": "main.js",
   "bin": "main_cli.js",
   "dependencies": {
+    "ajv": "^6.1.1",
     "binary-search": "^1.2.0",
     "console-stamp": "^0.2.5",
     "ws": "^1.0.1",
