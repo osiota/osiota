@@ -318,6 +318,40 @@ exports.node.prototype.publish = function(time, value, only_if_differ, do_not_ad
 	});
 };
 
+/* Route data object (asynchronous) */
+exports.node.publish_obj = function(object) {
+	if (typeof object !== "object")
+		throw new Exception("publish_obj: argument is not an object");
+
+	return this.publish(object.time, object.value,
+			object.only_if_differ, object.do_not_add_to_history);
+};
+
+/* Route data array (asynchronous) */
+exports.node.publish_all = function(data, step, done, offset) {
+	if (typeof offset !== "number") {
+		offset = 0;
+	}
+	var slots = 10000;
+	var i = offset;
+	var n = Math.min(offset+slots, data.length);
+	for (; i < n; i++) {
+		var d = data[i];
+		this.publish_obj(d);
+	}
+	if (i >= data.length) {
+		if (typeof done === "function")
+			process.nextTick(done);
+	} else {
+		console.log("time", data[i].time);
+		var tid = setTimeout(this.consume_data.bind(this),
+				0, data, n, cb, done,
+				cleaning_object);
+		if (typeof step === "function")
+			step(tid);
+	}
+};
+
 /* Route data (give a callback to subscribe) */
 exports.node.prototype.publish_subscribe_cb = function() {
 	var dnode = this;

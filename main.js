@@ -52,25 +52,42 @@ function main(router_name) {
 		config.forEach(function(app_config) {
 			var s = app_config.map;
 			if (typeof app_config.node !== "string") {
-				app_config.node = s.replace(/\//, "_");
+				app_config.node = s.replace(/^\//, "");
+			}
+			var local_app = app;
+			if (typeof app_config.app !== "undefined") {
+				local_app = app_config.app;
 			}
 
-			var vn = node.virtualnode();
-			var a = vn.app(app, app_config);
-			map[s] = { vn: vn, a: a };
+			if (local_app === false) {
+				return null;
+			} else if (local_app === null) {
+				var n = node.node(app_config.node);
+				map[s] = { vn: n };
+			} else {
+				var vn = node.virtualnode();
+				var a = vn.app(app, app_config);
+				map[s] = { vn: vn, a: a };
+			}
 		});
-		var callback = function(s) {
+		var callback = function(s, metadata) {
 			if (map.hasOwnProperty(s)) {
-				return map[s].vn;
+				var vn = map[s].vn;
+				if (!vn.metadata) {
+					vn.announce(metadata);
+				}
 			}
 			if (map_extra_elements) {
 				var app_config = {};
 				if (typeof map_extra_elements === "object") {
-					app_config = map_extra_elemets;
+					// copy object:
+					app_config = JSON.parse(
+						JSON.stringify(
+							map_extra_elemets));
 				}
-				app_config.node = s;
+				app_config.node = s.replace(/^\//, "");
 				if (typeof map_extra_elements === "function") {
-					app_config = map_extra_elements(app_config);
+					map_extra_elements(app_config,metadata);
 				}
 				app_config.map = s;
 				config.push(app_config);
@@ -78,10 +95,24 @@ function main(router_name) {
 					config.__listener();
 				}
 
-				var vn = node.virtualnode();
-				var a = vn.app(app, app_config);
-				map[s] = { vn: vn, a: a };
-				return vn;
+				var local_app = app;
+				if (typeof app_config.app !== "undefined") {
+					local_app = app_config.app;
+				}
+				if (local_app === false) {
+					return null;
+				} else if (local_app === null) {
+					var n = node.node(app_config.node);
+					n.announce(metadata);
+					map[s] = { vn: n };
+					return n;
+				} else {
+					var vn = node.virtualnode();
+					vn.announce(metadata);
+					var a = vn.app(app, app_config);
+					map[s] = { vn: vn, a: a };
+					return vn;
+				}
 			}
 			return null;
 		};
@@ -90,7 +121,8 @@ function main(router_name) {
 				for(var s in map) {
 					if (map.hasOwnProperty(s)) {
 						map[s].vn.unannounce();
-						map[s].a.unload();
+						if (map[s].a)
+							map[s].a.unload();
 						delete map[s];
 					}
 				}
