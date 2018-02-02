@@ -72,7 +72,7 @@ exports.application.prototype._inherit = function(inherit, loader, callback) {
 	}
 
 	loader(iname, function(m) {
-		if (typeof _this.base !== "object") {
+		if (typeof _this._base !== "object") {
 			_this._base = {};
 		}
 		_this._base[iname] = m;
@@ -90,6 +90,8 @@ exports.application.prototype._init = function(app_config) {
 		// TODO: Change Arguments:
 		this._object = this.init(this._node, this._config,
 				this._main, this._extra);
+	} else {
+		console.warn("WARNING: No init function found:", this._app);
 	}
 
 	this._state = "RUNNING";

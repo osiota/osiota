@@ -43,7 +43,6 @@ exports.application_manager.prototype.find_app = function(metadata) {
 			metadata.forEach(function(m) {
 				var valid = json_validate(schema, m);
 				if (valid && prio > app_max_prio) {
-					console.log("match", prio);
 					app_max_prio = prio;
 					app = app_schema;
 				}
