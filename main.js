@@ -58,8 +58,8 @@ function main(router_name) {
 				app_config.node = s.replace(/^\//, "");
 			}
 			var local_app = app;
-			if (typeof app_config.app !== "undefined") {
-				local_app = app_config.app;
+			if (typeof app_config.self_app !== "undefined") {
+				local_app = app_config.self_app;
 			}
 
 			if (local_app === false) {
@@ -99,8 +99,8 @@ function main(router_name) {
 				}
 
 				var local_app = app;
-				if (typeof app_config.app !== "undefined") {
-					local_app = app_config.app;
+				if (typeof app_config.self_app !== "undefined"){
+					local_app = app_config.self_app;
 				}
 				if (local_app === false) {
 					return null;
@@ -112,7 +112,7 @@ function main(router_name) {
 				} else {
 					var vn = node.virtualnode();
 					vn.announce(metadata);
-					var a = vn.app(app, app_config);
+					var a = vn.app(local_app, app_config);
 					map[s] = { vn: vn, a: a };
 					return vn;
 				}
