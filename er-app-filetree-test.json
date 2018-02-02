@@ -1,0 +1,10 @@
+{
+	"app": [{
+		"name": "filetree",
+		"config": {
+			"node": "/TUBS",
+			"map_config": [],
+			"dir": "../er-app-tubs-extradata/TUBS"
+		}
+	}]
+}
