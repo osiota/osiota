@@ -1,0 +1,20 @@
+{
+	"type": "object",
+	"title": "Settings",
+	"options": { "hidden": true },
+	"app_metadata": {
+		"properties": {
+			"app_type": {
+				"type": "string",
+				"enum": ["parser"]
+			},
+			"file_ext": {
+				"type": "string",
+				"enum": ["jpeg", "jpg", "png", "gif", "mjpeg", "mjpg"]
+			}
+		}
+	},
+	"properties": {
+	},
+	"additionalProperties": false
+}

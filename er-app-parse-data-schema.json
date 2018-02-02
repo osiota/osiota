@@ -1,0 +1,21 @@
+{
+	"type": "object",
+	"title": "Settings",
+	"options": { "hidden": true },
+	"app_metadata": {
+		"properties": {
+			"app_type": {
+				"type": "string",
+				"enum": ["parser"]
+			},
+			"file_ext": {
+				"type": "string",
+				"pattern": "\\.data$"
+			}
+		},
+		"prio": 10
+	},
+	"properties": {
+	},
+	"additionalProperties": false
+}
