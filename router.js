@@ -320,7 +320,7 @@ exports.node.prototype.publish = function(time, value, only_if_differ, do_not_ad
 };
 
 /* Route data object (asynchronous) */
-exports.node.publish_obj = function(object) {
+exports.node.prototype.publish_obj = function(object) {
 	if (typeof object !== "object")
 		throw new Exception("publish_obj: argument is not an object");
 
@@ -329,7 +329,7 @@ exports.node.publish_obj = function(object) {
 };
 
 /* Route data array (asynchronous) */
-exports.node.publish_all = function(data, step, done, offset) {
+exports.node.prototype.publish_all = function(data, step, done, offset) {
 	if (typeof offset !== "number") {
 		offset = 0;
 	}
