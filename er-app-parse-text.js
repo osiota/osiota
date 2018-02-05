@@ -17,6 +17,8 @@ exports.parser = function(node, callback) {
 exports.init = function(node, app_config, main) {
 	var _this = this;
 
+	var cleaning_object = [];
+
 	var r =this._source.ready("announce", function(method, initial, update){
 		if (update) return;
 
@@ -32,11 +34,15 @@ exports.init = function(node, app_config, main) {
 					metadata = app_config.metadata;
 				}
 				node.announce(metadata, true);
-				node.publish_all(data);
+				node.publish_all(data, function(tid) {
+					cleaning_object[0] = tid;
+				}, function() {
+					// TODO
+				});
 			});
 		});
 
-		return [node, s];
+		return [s, cleaning_object, node];
 	});
 	return [r];
 };

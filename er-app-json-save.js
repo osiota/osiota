@@ -1,4 +1,6 @@
 const fs = require("fs");
+const path = require("path");
+const mkdirp = require('mkdirp');
 
 exports.init = function(node, app_config, main, host_info) {
 	if (typeof app_config.filename !== "string") {
@@ -51,15 +53,21 @@ exports.init = function(node, app_config, main, host_info) {
 			data.push(last_data);
 		}
 		object.data = data;
-		var filename = app_config.filename.replace(/%n/,
-			object.name.replace(/^\//, "").replace(/\/+/g, "-"));
-		fs.writeFile(filename,
-				JSON.stringify(object, null, "\t"),
-				function(err) {
-			if (err) throw err;	
-			console.log("json file written.");
+		var f_N = object.name.replace(/^\//, "");
+		var f_n = f_N.replace(/\/+/g, "-");
+		var filename = app_config.filename
+			.replace(/%n/, f_n)
+			.replace(/%N/, f_N);
+		mkdirp(path.dirname(filename), function(err) {
+			if (err) throw err;
+			fs.writeFile(filename,
+					JSON.stringify(object, null, "\t"),
+					function(err) {
+				if (err) throw err;
+				console.log("json file written.");
 
-			unload(s);
+				unload(s);
+			});
 		});
 		data = [];
 
