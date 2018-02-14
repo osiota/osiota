@@ -11,6 +11,10 @@ exports.init = function(node, app_config, main, host_info) {
 	if (typeof app_config.save_last !== "undefined") {
 		config_save_last = app_config.save_last;
 	}
+	var config_save_no_data = false;
+	if (typeof app_config.save_last !== "undefined") {
+		config_save_no_data = app_config.save_no_data;
+	}
 
 	var object = {};
 	var data = [];
@@ -23,7 +27,9 @@ exports.init = function(node, app_config, main, host_info) {
 		object.name = source.name;
 	});
 
-	var s = this._source.subscribe(function(do_not_add_to_history, initial){
+	var s = null;
+	if (!config_save_no_data) {
+	this._source.subscribe(function(do_not_add_to_history, initial){
 		if (initial)
 			return;
 		if (do_not_add_to_history) {
@@ -44,13 +50,14 @@ exports.init = function(node, app_config, main, host_info) {
 		});
 
 	});
+	}
 
 	return [function(unload) {
 		setTimeout(function() {
 		console.log("Write json file");
 
 		if (config_save_last && last_data !== null) {
-			data.push(last_data);
+			data = [ last_data ];
 		}
 		object.data = data;
 		var f_N = object.name.replace(/^\//, "");
