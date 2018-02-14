@@ -405,7 +405,8 @@ exports.node.prototype.subscribe = function(callback) {
 	this.subscription_listener.push(object);
 	this.emit("registered", object);
 
-	object.call(this, true, true);
+	if (this.time != null)
+		object.call(this, true, true);
 
 	object.remove = this.unsubscribe.bind(this, object);
 
