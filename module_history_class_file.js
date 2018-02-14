@@ -10,13 +10,17 @@ var version = require("level-version");
 var dbdir = "./.level_db/";
 
 var vdb_setup = function(node, config) {
+	var dbdir_local = dbdir;
+	if (typeof config.dbdir === "string") {
+		dbdir_local = config.dbdir.replace(/\/$/, "") + "/";
+	}
 	try {
-		fs.mkdirSync(dbdir);
+		fs.mkdirSync(dbdir_local);
 	} catch(e) {}
 	console.log("vdb_setup", node.name);
 	var dbname = node.name+"/" + config.filename;
 	dbname = dbname.replace(/^\/+/,"").replace(/[\/@]/g, "_");
-	dbname = dbdir + dbname;
+	dbname = dbdir_local + dbname;
 
 	console.log("filename", dbname);
 	var ldb = levelUP(dbname);

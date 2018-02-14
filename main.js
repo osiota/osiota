@@ -308,6 +308,12 @@ main.prototype.sub_config = function(config, node) {
 
 main.prototype.setup_history = function(save_history) {
 	// Load history module
+	var dbdir = "./.level_db/";
+	if (save_history && typeof save_history === "object") {
+		if (typeof save_history.dbdir === "string") {
+			dbdir = save_history.dbdir;
+		}
+	}
 	if (!this.history_config)
 	this.history_config = {
 		"type": "global",
@@ -322,14 +328,17 @@ main.prototype.setup_history = function(save_history) {
 					"interval": 3600*24,
 					"submodules": [{
 						"type": "file",
+						"dbdir": dbdir,
 						"filename": "1d.vdb"
 					}]
 				},{
 					"type": "file",
+					"dbdir": dbdir,
 					"filename": "60min.vdb"
 				}]
 			},{
 				"type": "file",
+				"dbdir": dbdir,
 				"filename": "60sec.vdb"
 			}]
 		},{
@@ -337,6 +346,7 @@ main.prototype.setup_history = function(save_history) {
 			"max_data": 3000
 		},{
 			"type": "file",
+			"dbdir": dbdir,
 			"filename": "0.vdb"
 		},{
 			"type": "remote"
