@@ -46,78 +46,107 @@ function main(router_name) {
 		};
 		return subapp;
 	};
-	Node.prototype.map = function(config, app, map_extra_elements) {
+	Node.prototype.map = function(config, app, map_extra_elements,
+			map_key, map_initialise) {
 		var node = this;
 		var map = {};
 		if (!Array.isArray(config)) {
-			throw new Error("map config is not defined.");
-		}
-		config.forEach(function(app_config) {
-			var s = app_config.map;
-			if (typeof app_config.node !== "string") {
-				app_config.node = s.replace(/^\//, "");
+			if (config && typeof config.map === "object" &&
+					config.map !== null) {
+				config = config.map;
+			} else {
+				throw new Error("map config is not defined.");
 			}
+		}
+		var map_name = function(app_config) {
+			var key = "";
+			if (typeof map_key === "function") {
+				key = map_key(app_config);
+			} else {
+				key = app_config.map;
+			}
+			return key;
+		};
+		var map_element = function(key, app_config, local_metadata){
 			var local_app = app;
-			if (typeof app_config.self_app !== "undefined") {
+			if (typeof app_config.self_app !== "undefined"){
 				local_app = app_config.self_app;
 			}
-
-			if (local_app === false) {
+			if (local_app === false)
 				return null;
-			} else if (local_app === null) {
-				var n = node.node(app_config.node);
-				map[s] = { vn: n };
-			} else {
-				var vn = node.virtualnode();
-				var a = vn.app(app, app_config);
-				map[s] = { vn: vn, a: a };
-			}
-		});
-		var callback = function(s, metadata) {
-			if (map.hasOwnProperty(s)) {
-				var vn = map[s].vn;
-				if (!vn.metadata) {
-					vn.announce(metadata);
-				}
-			}
-			if (map_extra_elements) {
-				var app_config = {};
-				if (typeof map_extra_elements === "object") {
-					// copy object:
-					app_config = JSON.parse(
-						JSON.stringify(
-							map_extra_elemets));
-				}
-				app_config.node = s.replace(/^\//, "");
-				if (typeof map_extra_elements === "function") {
-					map_extra_elements(app_config,metadata);
-				}
-				app_config.map = s;
-				config.push(app_config);
-				if (config.__listener) {
-					config.__listener();
-				}
 
-				var local_app = app;
-				if (typeof app_config.self_app !== "undefined"){
-					local_app = app_config.self_app;
-				}
-				if (local_app === false) {
-					return null;
-				} else if (local_app === null) {
-					var n = node.node(app_config.node);
-					n.announce(metadata);
-					map[s] = { vn: n };
-					return n;
-				} else {
-					var vn = node.virtualnode();
-					vn.announce(metadata);
-					var a = vn.app(local_app, app_config);
-					map[s] = { vn: vn, a: a };
-					return vn;
+			var n;
+			if (local_app === null) {
+				n = node.node(app_config.node);
+			} else {
+				n = node.virtualnode();
+			}
+
+			var metadata = {};
+			if (typeof local_metadata === "object" &&
+					local_metadata !== null) {
+				metadata = local_metadata;
+			}
+			if (typeof app_config.metadata === "object" &&
+					app_config.metadata !== null) {
+				metadata = app_config.metadata;
+			}
+			if (typeof map_initialise === "function") {
+				map_initialise(n, metadata, app_config);
+			} else {
+				n.announce(metadata);
+			}
+
+			var a;
+			if (local_app !== null) {
+				a = n.app(local_app, app_config);
+			}
+
+			map[key] = { vn: n, a: a };
+			return n;
+		};
+		config.forEach(function(app_config) {
+			var key = map_name(app_config);
+			if (typeof app_config.node !== "string") {
+				app_config.node = key.replace(/^\//, "");
+			}
+			return map_element(key, app_config, null, true);
+		});
+		var callback = function(app_config, local_metadata) {
+			if (typeof app_config === "string") {
+				app_config = {
+					"map": app_config
+				};
+			}
+			var key = map_name(app_config);
+			if (map.hasOwnProperty(key)) {
+				var vn = map[key].vn;
+				return vn;
+			}
+
+			if (!map_extra_elements) {
+				return null;
+			}
+			if (typeof map_extra_elements === "object"
+					&& map_extra_elements !== null) {
+				for (var m in map_extra_elements) {
+					app_config[m] = map_extra_elements[m];
 				}
 			}
-			return null;
+			if (typeof map_extra_elements === "function") {
+				map_extra_elements(app_config, local_metadata);
+			}
+			if (typeof app_config.node !== "string") {
+				app_config.node = key.replace(/^\//, "");
+			}
+
+			config.push(app_config);
+			if (config.__listener) {
+				config.__listener();
+			}
+
+			return map_element(key, app_config, local_metadata,
+					false);
 		};
 		return {
 			unload: function() {
