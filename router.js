@@ -126,6 +126,9 @@ exports.node.prototype.announce = function(metadata, update) {
 	if (typeof update === "undefined") {
 		update = false;
 	}
+	if (Array.isArray(metadata)) {
+		metadata = helper.merge_object({}, metadata);
+	}
 	if (typeof metadata !== "object" || metadata === null) {
 		metadata = {};
 	}

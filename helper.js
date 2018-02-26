@@ -2,6 +2,12 @@
 exports.merge_object = function(object) {
 	var args = Array.prototype.slice.call(arguments, 1);
 	args.forEach(function(o) {
+		if (Array.isArray(o)) {
+			exports.merge_object
+				.bind(null, object)
+				.apply(null, o);
+			return;
+		}
 		if (typeof o !== "object" || o === null)
 			return;
 		for (var key in o) {
