@@ -9,6 +9,12 @@ then
 	sname="er-${name}"
 fi
 
+if test "x$2" = "xstop"
+then
+	/usr/bin/screen -m -S "${sname}" -X quit
+	exit
+fi
+
 # on system start /var/run/screen does not exist, wait till it is possible
 while ! mkdir -p /var/run/screen 2>/dev/null
 do
