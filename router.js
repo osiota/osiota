@@ -260,11 +260,22 @@ exports.node.prototype.get_metadata = function() {
 	return this.metadata;
 }
 
+/* create a unique time stamp */
+exports.node.unique_date = function() {
+	var d = new Date()/1000;
+	if (typeof this._unique_date !== "number" ||
+			d - this._unique_date > 0.0005) {
+		return this._unique_date = d;
+	}
+	return this._unique_date+0.00001;
+
+};
+
 /* Set new data */
 exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to_history) {
 	// if type is undefined: Use current time:
 	if (typeof time === "undefined" || time === "undefined")
-		time = new Date() / 1000;
+		time = this.unique_date();
 
 	// convert from string to number:
 	if (typeof time === "string")
@@ -280,8 +291,7 @@ exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to
 		return false;
 	}
 	// cancel if node did not change:
-	if (typeof only_if_differ !== "undefined" &&
-			only_if_differ &&
+	if (only_if_differ &&
 			this.value !== null &&
 			this.value === value) {
 		return false;
@@ -317,9 +327,15 @@ exports.node.prototype.publish_sync = function(time, value, only_if_differ, do_n
 /* Route data (asynchronous) */
 exports.node.prototype.publish = function(time, value, only_if_differ, do_not_add_to_history) {
 	var n = this;
+
+	if (typeof time === "undefined" || time === "undefined")
+		time = this.unique_date();
+
 	process.nextTick(function() {
 		n.publish_sync(time, value, only_if_differ, do_not_add_to_history);
 	});
+
+	return time;
 };
 
 /* Route data object (asynchronous) */
