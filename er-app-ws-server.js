@@ -5,10 +5,13 @@ exports.init = function(node, app_config, main, host_info) {
 				"Not starting server.");
 		return;
 	}
+	var wss = [];
 
-	var wss = main.create_websocket_server(app_config.server);
-
+	main.on("started", function() {
+		wss[0] = main.create_websocket_server(app_config.server);
 	//_this.router.policy_checker.add_observed_connection(c.url);
+
+	});
 
 	return wss;
 };

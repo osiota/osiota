@@ -305,11 +305,16 @@ main.prototype.preparation_config = function(config) {
 };
 
 main.prototype.config = function(config) {
+	var _this = this;
 	this.preparation_config(config);
 	if (typeof this.os_config === "function") {
 		this.os_config(config);
 	}
 	this.sub_config(config);
+
+	setTimeout(function() {
+		_this.check_started();
+	}, 500);
 };
 main.prototype.sub_config = function(config, node) {
 	var _this = this;
@@ -337,6 +342,45 @@ main.prototype.sub_config = function(config, node) {
 	}
 };
 
+main.prototype.check_started = function(factor) {
+	if (typeof factor === "undefined")
+		factor = 8;
+	else if (factor < 1) factor = 1;
+	else if (factor > 32) factor = 32;
+
+	var _this = this;
+	//var t_1 = new Date()*1;
+	var t = process.hrtime();
+	//setTimeout(function() {
+	setImmediate(function() {
+		//var t_2 = new Date()*1;
+		var diff = process.hrtime(t);
+		var delta = diff[0] * 1e9 + diff[1];
+
+		console.log("delta", delta, "factor", factor);
+		var tid = null;
+		if (delta >= 4e6) {
+			if (factor < 8) factor = 8;
+			tid = setTimeout(_this.check_started.bind(_this,
+				factor*2), 100*factor);
+		}
+		else if (delta >= 1e6) {
+			tid = setTimeout(_this.check_started.bind(_this,
+				factor), 100*factor);
+		} else {
+			if (factor == 1) {
+				console.log("started");
+				_this.emit("started");
+			} else {
+				tid = setTimeout(_this.check_started.bind(_this,
+					factor/2), 100*factor);
+			}
+		}
+		if (tid && _this.listenerCount("started") == 0) {
+			tid.unref();
+		}
+	}, 0);
+};
 
 main.prototype.setup_history = function(save_history) {
 	// Load history module
