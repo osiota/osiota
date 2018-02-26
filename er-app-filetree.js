@@ -29,7 +29,7 @@ exports.config_readfile = function(node, fullpath, path, mtime) {
 	if (n) {
 		fs.readFile(fullpath, function(err, content) {
 			if (err) throw err;
-			n.publish(mtime, content);
+			n.publish(mtime, content, undefined, true);
 		});
 	}
 };

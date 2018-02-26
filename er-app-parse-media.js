@@ -22,8 +22,10 @@ exports.parser = function(node, callback) {
 
 	var data = [{
 		time: node.time,
-		value: 'data:'+mimetype+';base64,'+b
+		value: 'data:'+mimetype+';base64,'+b,
+		do_not_add_to_history: true
 	}];
+
 	callback(metadata, data);
 };
 

@@ -7,7 +7,11 @@ exports.parser = function(node, callback) {
 
 	metadata.type = "unknown.data";
 
-	var data = [{time: time, value: content.toString()*1}];
+	var data = [{
+		time: time,
+		value: content.toString()*1,
+		do_not_add_to_history: true
+	}];
 
 	callback(metadata, data);
 };

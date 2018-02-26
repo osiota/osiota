@@ -11,8 +11,12 @@ exports.init = function(node, app_config, main, host_info) {
 	if (typeof app_config.save_last !== "undefined") {
 		config_save_last = app_config.save_last;
 	}
+	var config_save_only_last = false;
+	if (typeof app_config.save_only_last !== "undefined") {
+		config_save_only_last = app_config.save_only_last;
+	}
 	var config_save_no_data = false;
-	if (typeof app_config.save_last !== "undefined") {
+	if (typeof app_config.save_no_data !== "undefined") {
 		config_save_no_data = app_config.save_no_data;
 	}
 
@@ -57,7 +61,10 @@ exports.init = function(node, app_config, main, host_info) {
 		console.log("Write json file");
 
 		if (config_save_last && last_data !== null) {
-			data = [ last_data ];
+			data.push(last_data);
+		}
+		if (config_save_only_last) {
+			data = [ data[data.length-1] ];
 		}
 		object.data = data;
 		var f_N = object.name.replace(/^\//, "");

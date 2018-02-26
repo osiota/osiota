@@ -9,7 +9,11 @@ exports.parser = function(node, callback) {
 		metadata.type = "text.info";
 	}
 
-	var data = [{time: time, value: content.toString()}];
+	var data = [{
+		time: time,
+		value: content.toString(),
+		do_not_add_to_history: true
+	}];
 
 	callback(metadata, data);
 };
@@ -37,6 +41,8 @@ exports.init = function(node, app_config, main) {
 				node.publish_all(data, function(tid) {
 					cleaning_object[0] = tid;
 				}, function() {
+					console.log("data published:",
+						node.name);
 					// TODO
 				});
 			});

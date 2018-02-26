@@ -12,7 +12,11 @@ exports.parser = function(node, callback) {
 
 	var object = JSON.parse(content.toString());
 
-	var data = [{time: time, value: object}];
+	var data = [{
+		time: time,
+		value: object,
+		do_not_add_to_history: true
+	}];
 
 	if (typeof object === "object") {
 		if (typeof object.metadata === "object") {
@@ -23,13 +27,15 @@ exports.parser = function(node, callback) {
 		
 		if (object.hasOwnProperty("data")) {
 			data = object.data;
+			// do_not_add_to_history: false
 		} else if (object.hasOwnProperty("value")) {
 			if (object.hasOwnProperty("time")) {
 				time = object.time;
 			}
 			data = [{
 				time: time,
-				value: object.value
+				value: object.value,
+				do_not_add_to_history: true
 			}];
 		}
 	}

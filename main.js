@@ -5,6 +5,7 @@ var Application = require("./application.js").application;
 var ApplicationManager =require("./application_manager.js").application_manager;
 
 var merge = require("./helper_merge_data.js").merge;
+var helper = require("./helper.js");
 
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
@@ -19,6 +20,8 @@ function main(router_name) {
 
 	this._config = {};
 	this._system_start = new Date();
+
+	this.helper = helper;
 
 	this.router = new Router(router_name);
 
