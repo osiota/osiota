@@ -18,8 +18,17 @@ var pwsc = function(wpath) {
 	this.freezed = false;
 	this._destroy = false;
 
-	this.on('need_reconnect', function() {
+	this.tid = null;
+	this.on('need_reconnect', function(timeout) {
+		if (typeof timeout !== "number") {
+			timeout = 1000;
+		}
 		this.ws = undefined;
+
+		if (this.tid) {
+			clearTimeout(this.tid);
+			this.tid = null;
+		}
 
 		if (!this.closed) {
 			this.closed = true;
@@ -31,7 +40,7 @@ var pwsc = function(wpath) {
 		}
 
 		var pthis = this;
-		setTimeout(function() { pthis.init(); }, 1000);
+		setTimeout(function() { pthis.init(); }, timeout);
 	});
 
 	this.init();
@@ -104,7 +113,7 @@ pwsc.prototype.init = function() {
 					"over SSL: wss://");
 			}
 		} else {
-			setTimeout(function() { pthis.init(); }, 3000);
+			pthis.emit("need_reconnect", 3000);
 		}
 	}
 };
@@ -123,6 +132,10 @@ pwsc.prototype.sendjson = function(data) {
 };
 pwsc.prototype.close = function() {
 	this._destroy = true;
+	if (this.tid) {
+		clearTimeout(this.tid);
+		this.tid = null;
+	}
 	if (!this.closed &&
 			typeof this.ws !== "undefined") {
 		this.ws.close();
