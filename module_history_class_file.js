@@ -9,7 +9,7 @@ var version = require("level-version");
 
 var dbdir = "./.level_db/";
 
-var vdb_setup = function(node, config) {
+var vdb_setup = function(node, config, callback) {
 	var dbdir_local = dbdir;
 	if (typeof config.dbdir === "string") {
 		dbdir_local = config.dbdir.replace(/\/$/, "") + "/";
@@ -25,6 +25,12 @@ var vdb_setup = function(node, config) {
 	console.log("filename", dbname);
 	var ldb = levelUP(dbname);
 	var vdb = version(ldb);
+	ldb.on("ready", function() {
+		console.log("vdb opened:", node.name);
+		if (typeof callback === "function") {
+			callback();
+		}
+	});
 	return vdb;
 };
 
@@ -37,7 +43,7 @@ var vdb_read = function(vdb, config, callback) {
 		maxVersion: config.totime
 	})
 	.on('data', function (data) {
-		var json = {"time":data.version, "value":data.value};
+		var json = {"time":data.version,"value":parseFloat(data.value)};
 		hdata.push(json);
 	})
 	.on('error', function (err) {
@@ -60,6 +66,14 @@ var vdb_read = function(vdb, config, callback) {
 
 exports.history = function (node, config) {
 	console.log("node, file", node.name);
+
+	if (typeof node.metadata === "object" &&
+			node.metadata !== null &&
+			typeof node.metadata.history !== "undefined") {
+		if (node.metadata.history === false) {
+			throw new Error("Module disabled.");
+		}
+	}
 
 	this.vdb = vdb_setup(node, config);
 };

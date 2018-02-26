@@ -6,6 +6,10 @@ exports.init = function(router, config) {
 	var History = HG.get_history_module(config);
 
 	router.on("create_new_node", function(node) {
+	    node.ready("announce", function(method, initial, update) {
+		if (update) return;
+		if (node.history) return;
+
 		node.history = new History(node, config);
 
 		node.on("set", function(time, value, only_if_differ, do_not_add_to_history) {
@@ -63,6 +67,7 @@ exports.init = function(router, config) {
 				reply(null, data);
 			});
 		};
+	    });
 	});
 };
 

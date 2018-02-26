@@ -28,7 +28,7 @@ exports.history.prototype.submodules_init = function(node, config) {
 			var m = new HM(node, c);
 			_this.submodules.push(m);
 		} catch(e) {
-			if (e.toString() != "Error: History module not found: file") {
+			if (e.toString() != "Error: History module not found: file" && e.toString() != "Error: Module disabled.") {
 				console.warn("History Error:", e.stack || e);
 			}
 		}
