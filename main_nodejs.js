@@ -57,6 +57,8 @@ if (process.on) { /* if NodeJS */
 
 		process.on("exit", function(code) {
 			console.log("Goodbye!");
+			if (why_is_node_running)
+				why_is_node_running();
 		});
 
 		process.emit("unload");
@@ -84,6 +86,13 @@ if (process.on) { /* if NodeJS */
 		// Do __not__ exit
 		//process.emit("preexit");
 	});
+
+	var why_is_node_running = null;
+	try {
+		if (process.env.ER_DEBUG == 1)
+			why_is_node_running = require("why-is-node-running");
+	} catch(err) {}
+
 }
 
 module.exports = main_nodejs;
