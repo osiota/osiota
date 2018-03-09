@@ -12,6 +12,7 @@ RegExp.quote = function(str) {
 	    return (str+'').replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&");
 };
 
+var merge_object = require("./helper.js").merge_object;
 var unload_object = require("./helper_unload_object.js").unload_object;
 var match = require("./helper_match").match;
 
@@ -127,7 +128,7 @@ exports.node.prototype.announce = function(metadata, update) {
 		update = false;
 	}
 	if (Array.isArray(metadata)) {
-		metadata = helper.merge_object({}, metadata);
+		metadata = merge_object({}, metadata);
 	}
 	if (typeof metadata !== "object" || metadata === null) {
 		metadata = {};
@@ -261,7 +262,7 @@ exports.node.prototype.get_metadata = function() {
 }
 
 /* create a unique time stamp */
-exports.node.unique_date = function() {
+exports.node.prototype.unique_date = function() {
 	var d = new Date()/1000;
 	if (typeof this._unique_date !== "number" ||
 			d - this._unique_date > 0.0005) {
