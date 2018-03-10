@@ -1,5 +1,8 @@
 
-var map_value = function(value, limits, nlimits) {
+exports.map_value = function(value, metadata, nmetadata) {
+	var limits = metadata.values;
+	var nlimits = nmetadata.values;
+
 	if (!Array.isArray(limits) || limits.length < 2)
 		limits = [0, 255];
 	if (!Array.isArray(nlimits) || nlimits.length < 2)
@@ -33,9 +36,9 @@ exports.init = function(node, app_config, main, host_info) {
 		if (!pnode)
 			return;
 
-		var value = map_value(this.value,
-				this.metadata.values,
-				pnode.metadata.values);
+		var value = _this.map_value(this.value,
+				this.metadata,
+				pnode.metadata);
 
 		last_time = this.time;
 		pnode.rpc("set", value, this.time);
@@ -72,9 +75,9 @@ exports.init = function(node, app_config, main, host_info) {
 		var s = this.subscribe(function() {
 			if (this.time === null) return;
 			if (!last_time || this.time > last_time) {
-				var value = map_value(this.value,
-						this.metadata.values,
-						_this._source.metadata.values);
+				var value = _this.map_value(this.value,
+						this.metadata,
+						_this._source.metadata);
 				_this._source.rpc("set", value,
 						this.time);
 				last_time = this.time;
