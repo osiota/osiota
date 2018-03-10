@@ -17,6 +17,9 @@ exports.map_value = function(value, metadata, nmetadata) {
 	// check boolean
 	return value;
 };
+exports.re_map_value = function(value, metadata, nmetadata) {
+	return this.map_value(value, metadata, nmetadata);
+};
 
 exports.init = function(node, app_config, main, host_info) {
 	var _this = this;
@@ -39,6 +42,9 @@ exports.init = function(node, app_config, main, host_info) {
 		var value = _this.map_value(this.value,
 				this.metadata,
 				pnode.metadata);
+
+		if (typeof value === "undefined")
+			return;
 
 		last_time = this.time;
 		pnode.rpc("set", value, this.time);
@@ -75,7 +81,7 @@ exports.init = function(node, app_config, main, host_info) {
 		var s = this.subscribe(function() {
 			if (this.time === null) return;
 			if (!last_time || this.time > last_time) {
-				var value = _this.map_value(this.value,
+				var value = _this.re_map_value(this.value,
 						this.metadata,
 						_this._source.metadata);
 				_this._source.rpc("set", value,
