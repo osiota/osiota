@@ -110,8 +110,10 @@ exports.application.prototype._unload = function() {
 	this._state = "UNLOADED";
 };
 exports.application.prototype._reinit = function(app_config) {
+	var _this = this;
 	if (this._state !== "RUNNING" && this._state !== "REINIT")
 		return;
+	console.log("restarting app:", this._id);
 
 	this._state = "REINIT";
 	if (typeof this.reinit === "function") {
@@ -121,7 +123,9 @@ exports.application.prototype._reinit = function(app_config) {
 		this.reinit(this._node, this._config, this._main, this._extra);
 	} else {
 		this._unload();
-		this._init(app_config);
+		setImmediate(function() {
+			_this._init(app_config);
+		});
 	}
 
 	this._state = "RUNNING";
