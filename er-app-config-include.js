@@ -17,7 +17,8 @@ exports.init = function(node, app_config, main, host_info) {
 		config = main.config_cleaning(config);
 		main.sub_config(config, this._source);
 	} catch (e) {
-		console.warn("Include Config, Exception", e.stack || e);
+		if (!app_config.ignore_missing)
+			console.warn("Include Config, Exception", e.stack || e);
 	}
 
 	if (app_config.writeable && app_config.file.match(/\.json$/i)) {
