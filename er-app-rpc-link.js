@@ -14,8 +14,8 @@ exports.init = function(node, app_config, main, host_info) {
 		var _parent = this;
 		if (update) return;
 
-		return _this._source.subscribe(function(initial,
-					do_not_add_to_history){
+		return _this._source.subscribe(function(
+				do_not_add_to_history, initial){
 			_parent.rpc("set", this.value);
 
 		});
