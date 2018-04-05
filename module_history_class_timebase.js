@@ -8,7 +8,7 @@ exports.history = function (node, config) {
 		this.interval = 0;
 	}
 
-	this.sum = 0;
+	this.sum = null;
 	this.count = 0;
 	this.last_time_slot = null;
 
@@ -34,19 +34,24 @@ exports.history.prototype.add = function (time, value) {
 				null
 			);
 		}
-		if (this.count != 0) {
-			var new_value = this.sum / this.count;
+		if (this.last_time_slot !== null) {
+			var new_value = this.sum;
+			if (this.count != 0) { // else sum is null
+				new_value /= this.count;
+			}
 			var new_time = (this.last_time_slot+1)*this.interval;
 			this.submodules_add(new_time, new_value);
 		}
 
-		this.sum = 0;
+		this.sum = null;
 		this.count = 0;
 
 		this.last_time_slot = time_slot;
 	}
-	this.sum += value;
-	this.count++;
+	if (value !== null) {
+		this.sum += value;
+		this.count++;
+	}
 };
 
 exports.history.prototype.get = function (parameters, callback) {
