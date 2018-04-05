@@ -11,6 +11,10 @@ exports.init = function(node, app_config, main, host_info) {
 	if (typeof app_config.interval === "number") {
 		interval = app_config.interval;
 	}
+	var repeat = 1;
+	if (typeof app_config.repeat === "number") {
+		repeat = app_config.repeat;
+	}
 	if (typeof app_config.remote_node !== "string") {
 		return;
 	}
@@ -22,7 +26,9 @@ exports.init = function(node, app_config, main, host_info) {
 	var tid = setInterval(function() {
 		if (!remote_node.connection) {
 			node.publish(undefined, null);
-		} else {
+			return;
+		}
+		for (var i=0; i<repeat; i++) {
 			let t = process.hrtime();
 			remote_node.rpc("ping", function(err) {
 				if (err) throw err;
