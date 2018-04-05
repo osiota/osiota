@@ -20,16 +20,17 @@ exports.init = function(node, app_config, main, host_info) {
 		"type": "rtt.data"
 	});
 	var tid = setInterval(function() {
-		var t_start = new Date();
-
-		// try?
 		if (!remote_node.connection) {
 			node.publish(undefined, null);
 		} else {
+			let t = process.hrtime();
 			remote_node.rpc("ping", function(err) {
 				if (err) throw err;
-				var t = new Date() - t_start;
-				node.publish(t_start/1000, t);
+
+				var diff = process.hrtime(t);
+				var delta = diff[0] * 1e9 + diff[1];
+
+				node.publish(undefined, delta / 1e6);
 			});
 		}
 	}, 1000 * interval);
