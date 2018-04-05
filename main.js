@@ -467,10 +467,14 @@ main.prototype.create_websocket_server = function(server_port) {
 
 main.prototype.create_websocket_client = function(url, nodes, config) {
 	var ws = require('./router_websocket_client').init(this.router, "", url);
+	var remote_prefix = "";
+	if (typeof config.remote_prefix === "string") {
+		remote_prefix = config.remote_prefix;
+	}
 	if (typeof config.remote_basename === "string") {
-		ws.remote_basename = config.remote_basename;
+		ws.remote_basename = remote_prefix + config.remote_basename;
 	} else {
-		ws.remote_basename = "/" + this.router.name;
+		ws.remote_basename = remote_prefix + "/" + this.router.name;
 	}
 	if (typeof config.basename === "string") {
 		ws.basename = config.basename;
