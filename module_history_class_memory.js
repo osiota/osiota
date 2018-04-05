@@ -58,6 +58,7 @@ exports.history.prototype.get = function(interval, callback) {
 	config.interval = null;
 	config.fromtime = null; // not included
 	config.totime = null; // not included.
+	config.reverse_align = false;
 
 	var limited = false;
 
@@ -104,7 +105,14 @@ exports.history.prototype.get = function(interval, callback) {
 		if (data.length - config.maxentries >= 0) {
 			limited = true;
 		}
-		data = data.slice(Math.max(data.length - config.maxentries, 0));
+		if (!config.reverse_align) {
+			// cut at the beginning:
+			data = data.slice(
+				Math.max(data.length - config.maxentries, 0));
+		} else {
+			// cut at the end:
+			data = data.slice(0, config.maxentries);
+		}
 
 		// return data:
 		var exceeded = !limited;

@@ -39,19 +39,22 @@ var vdb_read = function(vdb, config, callback) {
 	vdb.createVersionStream("", {
 		//versionLimit: config.maxentries,
 		limit: config.maxentries,
+		reverse: config.reverse_align,
 		minVersion: config.fromtime,
 		maxVersion: config.totime
 	})
 	.on('data', function (data) {
-		var json = {"time":data.version,"value":parseFloat(data.value)};
-		hdata.push(json);
+		var value;
+		if (data.value === "")
+			value = null;
+		else
+			value = parseFloat(data.value);
+
+		hdata.push({"time": data.version, "value": value});
 	})
 	.on('error', function (err) {
 		console.warn('Error from getting history:',err);
 		callback(null);
-	})
-	.on('close', function () {
-		console.warn('Getting history stream closed.');
 	})
 	.on('end', function() {
 		// from and to time not included: Remove them:
@@ -59,7 +62,8 @@ var vdb_read = function(vdb, config, callback) {
 			hdata.shift();
 		if (config.totime != null)
 			hdata.pop();
-		hdata.reverse();
+		if (!config.reverse_align)
+			hdata.reverse();
 		callback(hdata);
 	});
 }
@@ -96,6 +100,7 @@ exports.history.prototype.get = function (parameters, callback) {
 	config.maxentries = 3000;
 	config.fromtime = null; // not included
 	config.totime = null; // not included.
+	config.reverse_align = false;
 
 	// read config from parameters object
 	if (typeof parameters !== "object") {
@@ -109,6 +114,9 @@ exports.history.prototype.get = function (parameters, callback) {
 	}
 	if (typeof parameters.totime === "number") {
 		config.totime = parameters.totime;
+	}
+	if (typeof parameters.reverse_align === "boolean") {
+		config.reverse_align = parameters.reverse_align;
 	}
 	if (config.maxentries === -1) {
 		config.maxentries = null;
