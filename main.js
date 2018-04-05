@@ -105,7 +105,11 @@ function main(router_name) {
 				a = n.app(local_app, app_config);
 			}
 
-			map[key] = { vn: n, a: a };
+			map[key] = {
+				vn: n,
+				a: a,
+				config: app_config
+			};
 			return n;
 		};
 		config.forEach(function(app_config) {
@@ -115,16 +119,21 @@ function main(router_name) {
 			}
 			return map_element(key, app_config, null, true);
 		});
-		var callback = function(app_config, local_metadata) {
+		var callback = function(app_config, local_metadata, cache) {
 			if (typeof app_config === "string") {
 				app_config = {
 					"map": app_config
 				};
 			}
-			var key = map_name(app_config);
+			var key = map_name(app_config, cache);
 			if (map.hasOwnProperty(key)) {
-				var vn = map[key].vn;
-				return vn;
+				if (typeof map[key].vn !== "undefined") {
+					var vn = map[key].vn;
+					return vn;
+				}
+				if (typeof map[key].config !== "undefined") {
+					app_config = map[key].config;
+				}
 			}
 
 			if (!map_extra_elements) {
@@ -149,7 +158,7 @@ function main(router_name) {
 			}
 
 			return map_element(key, app_config, local_metadata,
-					false);
+					false, cache);
 		};
 		return {
 			unload: function() {
@@ -159,6 +168,22 @@ function main(router_name) {
 						if (map[s].a)
 							map[s].a.unload();
 						delete map[s];
+					}
+				}
+			},
+			remove_node: function(app_config) {
+				if (typeof app_config === "string") {
+					app_config = {
+						"map": app_config
+					};
+				}
+				var key = map_name(app_config);
+				if (map.hasOwnProperty(key)) {
+					map[key].vn.unannounce();
+					delete map[key].vn;
+					if (map[key].a) {
+						map[key].a.unload();
+						delete map[key].a;
 					}
 				}
 			},
