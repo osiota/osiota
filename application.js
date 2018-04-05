@@ -101,7 +101,7 @@ exports.application.prototype._unload = function() {
 		return;
 
 	if (typeof this.unload === "function") {
-		this.unload(this._object);
+		this.unload(this._object, unload_object);
 	} else {
 		unload_object(this._object);
 		this._object = null;
