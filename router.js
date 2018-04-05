@@ -653,6 +653,37 @@ exports.node.prototype.is_parentnode = function(parent) {
 	return -1;
 }
 
+exports.node.prototype.relative_path = function(to) {
+	var components_to = to.name.split(/\//);
+	var components_from = this.name.split(/\//);
+
+	var components_new = [];
+	var found = false;
+	components_to.forEach(function(c, i) {
+		if (!found) {
+			if (components_from.length <= i) {
+				found = true;
+			} else if (components_from[i] !== c) {
+				found = true;
+				for (var j=i; j<components_from.length; j++) {
+					components_new.push("..");
+				}
+			}
+		}
+		if (found) {
+			components_new.push(c);
+		}
+	});
+	if (!found) {
+		var i = components_to.length-1;
+		for (var j=i; j<components_from.length-1; j++) {
+			components_new.push("..");
+		}
+	}
+
+	return components_new.join("/");
+};
+
 /**
  * Filter nodes (like subscribe_announcement but with filtering)
  * @param {object} filter_config - An object with the filter configuration
