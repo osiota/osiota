@@ -265,10 +265,11 @@ exports.node.prototype.get_metadata = function() {
 exports.node.prototype.unique_date = function() {
 	var d = new Date()/1000;
 	if (typeof this._unique_date !== "number" ||
-			d - this._unique_date > 0.0005) {
+			d - this._unique_date > 0.00005) {
 		return this._unique_date = d;
 	}
-	return this._unique_date+0.00001;
+	this._unique_date += 0.00001;
+	return this._unique_date;
 
 };
 
