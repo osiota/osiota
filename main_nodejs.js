@@ -48,8 +48,10 @@ main_nodejs.prototype.require = function(appname, callback) {
 
 /* on signal: end the process */
 if (process.on) { /* if NodeJS */
-	process.on("preexit", function() {
+	process.on("preexit", function(user_terminated) {
 		if (process.exitTimeoutId) return;
+
+		main.user_terminated = user_terminated;
 
 		process.exitTimeoutId = setTimeout(process.exit, 5000);
 		process.exitTimeoutId.unref();
@@ -67,16 +69,16 @@ if (process.on) { /* if NodeJS */
 	// if event loop is empty:
 	process.once("beforeExit", function() {
 		process.exitCode = 0;
-		process.emit("preexit");
+		process.emit("preexit", false);
 	});
 	// if we got a signal to terminate:
 	process.on('SIGTERM', function() {
 		process.exitCode = 128+15;
-		process.emit("preexit");
+		process.emit("preexit", true);
 	});
 	process.on('SIGINT', function() {
 		process.exitCode = 128+2;
-		process.emit("preexit");
+		process.emit("preexit", true);
 	});
 
 	// if an error occurred:
