@@ -37,6 +37,14 @@ exports.init = function(node, app_config, main) {
 				if (typeof app_config.metadata == "object") {
 					metadata = app_config.metadata;
 				}
+				// TODO: history === false
+				if (node.metadata && (
+					metadata.full_history ||
+					(metadata.history === false &&
+						data.length > 1)
+				)) {
+					node.purge_history();
+				}
 				node.announce(metadata, true);
 				node.publish_all(data, function(tid) {
 					cleaning_object[0] = tid;
