@@ -57,17 +57,36 @@ exports.init = function(node, app_config, main, host_info) {
 	}
 
 	return [function(unload) {
+		if (main.user_terminated) {
+			unload(s);
+			return;
+		}
 		setTimeout(function() {
 		console.log("Write json file");
 
+		data.sort(function (a, b) {
+			if (a.time < b.time)
+				return -1;
+			if (a.time > b.time)
+				return 1;
+			return 0;
+		});
 		if (config_save_last && last_data !== null) {
 			data.push(last_data);
 		}
+		var full_history = !config_save_no_data;
 		if (config_save_only_last) {
 			data = [ data[data.length-1] ];
+			full_history = false;
+		}
+		if (typeof object.metadata === "object" &&
+				object.metadata !== null) {
+			object.metadata.full_history = full_history;
 		}
 		object.data = data;
-		var f_N = object.name.replace(/^\//, "");
+		var f_N = "node";
+		if (typeof object.name === "string")
+			f_N = object.name.replace(/^\//, "");
 		var f_n = f_N.replace(/\/+/g, "-");
 		var filename = app_config.filename
 			.replace(/%n/, f_n)
