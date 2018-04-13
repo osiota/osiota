@@ -130,9 +130,9 @@ exports.remotecall.prototype._rpc_forwarding = function(obj, reply) {
 
 	args.unshift(obj.type);
 	args.unshift(this);
-	args.push(function(data) {
-		// TODO: forward error as well.
-		reply(null, data);
+	args.push(function(err, data) {
+		// forward data and error:
+		reply(err, data);
 	});
 	return ws.node_rpc.apply(ws, args);
 };
