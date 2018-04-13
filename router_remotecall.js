@@ -77,13 +77,14 @@ exports.remotecall.prototype._rpc_bind_get = function(ref) {
 
 /* Parse the answer of a remote call (and call the saved callback) */
 exports.remotecall.prototype.rpc_reply = function(reply, ref, error, data) {
+	var args = Array.prototype.slice.call(arguments, 2);
 	var cb = this._rpc_bind_get(ref);
 	if (!cb) {
 		if (error !== null) {
-			console.warn("RPC-Error:", error, data);
+			console.warn("RPC-Error:", args);
 		}
 	} else {
-		cb.call(this, error, data);
+		cb.apply(this, args);
 		// delete the reference:
 		this._rpc_bind_get(ref);
 	}
@@ -131,8 +132,9 @@ exports.remotecall.prototype._rpc_forwarding = function(obj, reply) {
 	args.unshift(obj.type);
 	args.unshift(this);
 	args.push(function(err, data) {
+		var args = Array.prototype.slice.call(arguments);
 		// forward data and error:
-		reply(err, data);
+		reply.apply(null, args);
 	});
 	return ws.node_rpc.apply(ws, args);
 };

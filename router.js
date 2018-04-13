@@ -965,11 +965,16 @@ exports.router.prototype.rpc_list = function(reply) {
 exports.router.prototype.process_single_message = function(basename, d, obj, respond, module) {
 	var rpc_ref = d.ref;
 	var reply = function(error, data) {
+		var args = Array.prototype.slice.call(arguments);
 		if (typeof rpc_ref !== "undefined") {
 			if (typeof error === "undefined") {
-				error = null;
+				//error = null;
+				args[0] = null;
 			}
-			respond({"scope": "respond", "type": "reply", "args": [ rpc_ref, error, data ]});
+			console.log("args", args);
+			args.unshift(rpc_ref);
+			respond({"scope": "respond", "type": "reply",
+				"args": args});
 		}
 		rpc_ref = undefined;
 	};
