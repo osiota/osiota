@@ -83,6 +83,10 @@ exports.application.prototype._inherit = function(inherit, loader, callback) {
 };
 
 exports.application.prototype._init = function(app_config) {
+	if (this._state === "RUNNING") {
+		console.log("Warning: App still running: doing reinit");
+		return this._reinit(app_config);
+	}
 	if (typeof app_config === "object" && app_config !== null) {
 		this._config = app_config;
 	}
@@ -121,14 +125,15 @@ exports.application.prototype._reinit = function(app_config) {
 			this._config = app_config;
 		}
 		this.reinit(this._node, this._config, this._main, this._extra);
+		this._state = "RUNNING";
 	} else {
 		this._unload();
 		setImmediate(function() {
 			_this._init(app_config);
+			this._state = "RUNNING";
 		});
 	}
 
-	this._state = "RUNNING";
 };
 exports.application.prototype._reinit_delay = function(delay, app_config) {
 	if (typeof delay !== "number")
