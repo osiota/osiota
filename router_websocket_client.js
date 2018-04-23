@@ -69,20 +69,7 @@ pwsc.prototype.init = function() {
 			pthis.emit('open');
 		});
 		this.ws.on('message', function(message) {
-			//console.log('received:', message);
-			try {
-				// Browser WebSocket sends an event
-				// with message in field data:
-				if (typeof message === "object" && message.data)
-					message = message.data;
-
-				var data = JSON.parse(message);
-				pthis.emit('message', data);
-			} catch(e) {
-				console.log("bWSc: Exception (on message):",
-						e.stack || e);
-				console.log("message:", message);
-			}
+			pthis.recvjson(message);
 		});
 		this.ws.on('close', function() {
 			/* try to reconnect: Use  */
@@ -117,17 +104,36 @@ pwsc.prototype.init = function() {
 		}
 	}
 };
+pwsc.prototype.sendjson_raw = function(message) {
+	//console.log("send:", message);
+	this.ws.send(message);
+};
 pwsc.prototype.sendjson = function(data) {
 	try {
 		if (!this.closed &&
 				typeof this.ws !== "undefined" &&
 				this.ws.readyState == 1) {
-			//console.log("send:", JSON.stringify(data));
-			this.ws.send(JSON.stringify(data));
+			this.sendjson_raw(JSON.stringify(data));
 		}
 	} catch (e) {
 		console.log("bWSc: Socket not connected. Exception (send):",
 				e.stack || e);
+	}
+};
+pwsc.prototype.recvjson = function(message) {
+	//console.log('received:', message);
+	try {
+		// Browser WebSocket sends an event
+		// with message in field data:
+		if (typeof message === "object" && message.data)
+			message = message.data;
+
+		var data = JSON.parse(message);
+		this.emit('message', data);
+	} catch(e) {
+		console.log("bWSc: Exception (on message):",
+				e.stack || e);
+		console.log("message:", message);
 	}
 };
 pwsc.prototype.close = function() {
@@ -148,6 +154,7 @@ pwsc.prototype.reconnect = function(wpath) {
 	}
 	if (!this.closed &&
 			typeof this.ws !== "undefined") {
+		console.log("closing websocket to:", this.remote);
 		this.ws.close();
 	}
 };
@@ -190,3 +197,4 @@ exports.init = function(router, basename, ws_url, init_callback) {
 	return ws;
 };
 
+exports.pWebSocket = pwsc;

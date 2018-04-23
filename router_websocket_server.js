@@ -15,7 +15,9 @@ exports.init = function(router, basename, port) {
 	};
 
 	var WebSocketServer = WebSocket.Server;
-	var wss = new WebSocketServer({port: port});
+	var wss = new WebSocketServer({
+		port: port
+	});
 	wss.wpath = ':'+port.toString();
 
 	wss.on('connection', function(ws) {
