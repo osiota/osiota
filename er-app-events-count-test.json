@@ -1,0 +1,19 @@
+{
+	"app": [{
+		"name": "test-subscribe-all",
+		"config": {
+			"source": "/"
+		}
+	},{
+		"name": "test-publish",
+		"config": {
+			"node": "/test",
+			"app": [{
+				"name": "events-count",
+				"config": {
+					"node": "count"
+				}
+			}]
+		}
+	}]
+}
