@@ -344,7 +344,7 @@ main.prototype.config = function(config) {
 		_this.check_started();
 	}, 500);
 };
-main.prototype.sub_config = function(config, node) {
+main.prototype.sub_config = function(config, node, callback) {
 	var _this = this;
 
 	if (typeof config.connect === "object") {
@@ -363,11 +363,27 @@ main.prototype.sub_config = function(config, node) {
 		});
 	}
 
-	if (Array.isArray(config.app)) {
+	var loaded_apps = [];
+	if (Array.isArray(config.app) && config.app.length) {
+		var count = 0;
 		config.app.forEach(function(struct) {
-			_this.startup_struct(node, struct, _this.router.name, config.auto_install);
+			_this.startup_struct(node, struct, _this.router.name,
+					config.auto_install, function(a, level){
+				loaded_apps.push(a);
+				if (level == 1 && ++count == config.app.length){
+					if (typeof callback === "function") {
+						callback(loaded_apps);
+					}
+				}
+			});
 		});
+	} else {
+		if (typeof callback === "function") {
+			callback([]);
+		}
 	}
+
+	return loaded_apps;
 };
 
 main.prototype.check_started = function(factor) {
@@ -582,10 +598,11 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 	} catch(e) {
 		// trigger global callback:
 		if (this.emit("app_loading_error", e, node, app, app_config,
-					host_info, auto_install, function(an) {
+					host_info, auto_install,
+				function(an, level) {
 			if (typeof an === "object") {
 				if (typeof callback === "function") {
-					callback(an);
+					callback(an, level);
 				}
 			}
 		})) {
@@ -634,8 +651,15 @@ main.prototype.startup_module = function(a, node, app, app_config, host_info, au
 			replace(/^er-app-/, "").replace(/\//g, "-"));
 	}
 
+	if (node_destination._app &&
+			a._app === node_destination._app._app) {
+		a = node_destination._app;
+	} else {
+		a._node = node_destination;
+		this.app_register(a);
+	}
+
 	a._source = node_source;
-	a._node = node_destination;
 
 	// init:
 	try {
@@ -643,7 +667,7 @@ main.prototype.startup_module = function(a, node, app, app_config, host_info, au
 			a._init(app_config);
 
 			if (typeof callback === "function") {
-				callback(a);
+				callback(a, 1);
 			}
 		}
 	} catch(e) {
@@ -659,12 +683,16 @@ main.prototype.startup_module = function(a, node, app, app_config, host_info, au
 		console.error("error starting app:", e.stack || e);
 	}
 
-	this.app_register(a);
-
 	// load child apps:
 	if (Array.isArray(app_config.app)) {
 		app_config.app.forEach(function(struct) {
-			_this.startup_struct(node_destination, struct);
+			_this.startup_struct(node_destination, struct,
+					host_info, auto_install,
+					function(a, level) {
+				if (typeof callback === "function") {
+					callback(a, level+1);
+				}
+			});
 		});
 	}
 
@@ -710,6 +738,7 @@ main.prototype.app_register = function(a) {
 				console.warn("There is already an app bind " +
 					"to that node:", node.name,
 					"(", a._app, "vs", node._app._app, ")");
+				node._app = a;
 			}
 		} else {
 			node._app = a;

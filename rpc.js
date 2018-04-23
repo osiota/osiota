@@ -12,8 +12,11 @@ var argv = require('yargs')
 
 var app = argv._.shift();
 
+// TODO: alternative: load a config via sub_config
 m.startup(null, app, argv, undefined, undefined,
-		function(a) {
+		function(a, level) {
+	// don't apply rpc command to sub apps:
+	if (level !== 1) return;
 	argv._.push(function(err, result) {
 		if (err) {
 			console.log("RPC error:", err, result);
