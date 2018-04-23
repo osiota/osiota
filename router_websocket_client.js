@@ -40,7 +40,7 @@ var pwsc = function(wpath) {
 		}
 
 		var pthis = this;
-		setTimeout(function() { pthis.init(); }, timeout);
+		this.tid = setTimeout(function() { pthis.init(); }, timeout);
 	});
 
 	this.init();
@@ -144,6 +144,7 @@ pwsc.prototype.close = function() {
 	}
 	if (!this.closed &&
 			typeof this.ws !== "undefined") {
+		console.log("closing websocket to:", this.remote);
 		this.ws.close();
 	}
 };
@@ -154,7 +155,6 @@ pwsc.prototype.reconnect = function(wpath) {
 	}
 	if (!this.closed &&
 			typeof this.ws !== "undefined") {
-		console.log("closing websocket to:", this.remote);
 		this.ws.close();
 	}
 };

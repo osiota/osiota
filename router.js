@@ -971,7 +971,6 @@ exports.router.prototype.process_single_message = function(basename, d, obj, res
 				//error = null;
 				args[0] = null;
 			}
-			console.log("args", args);
 			args.unshift(rpc_ref);
 			respond({"scope": "respond", "type": "reply",
 				"args": args});
