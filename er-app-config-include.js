@@ -11,11 +11,12 @@ exports.init = function(node, app_config, main, host_info) {
 	}
 
 	var config = {};
+	var cleaning_object = [];
 	try {
 		var content = fs.readFileSync(app_config.file);
 		config = JSON.parse(content);
 		config = main.config_cleaning(config);
-		main.sub_config(config, this._source);
+		cleaning_object = main.sub_config(config, this._source);
 	} catch (e) {
 		if (!app_config.ignore_missing)
 			console.warn("Include Config, Exception", e.stack || e);
@@ -38,5 +39,6 @@ exports.init = function(node, app_config, main, host_info) {
 		}];
 	}
 
-	// todo: return undo sub_config
+	// undo sub_config
+	return cleaning_object;
 };
