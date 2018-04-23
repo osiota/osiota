@@ -3,6 +3,7 @@ var Node = require("./router").node;
 var Policy_checker = require("./module_policycheck.js").Policy_checker;
 var Application = require("./application.js").application;
 var ApplicationManager =require("./application_manager.js").application_manager;
+var unload_object = require("./helper_unload_object.js").unload_object;
 
 var merge = require("./helper_merge_data.js").merge;
 var helper = require("./helper.js");
@@ -304,6 +305,8 @@ main.prototype.classes = {
 	"Node": Node,
 	"Application": Application
 };
+
+main.prototype.unload_object = unload_object;
 
 main.prototype.preparation_config = function(config) {
 	var _this = this;
