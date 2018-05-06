@@ -4,7 +4,8 @@ const fs = require("fs");
 var util = require('util');
 var HistoryGlobal = require("./module_history_global.js");
 
-var levelUP = require("levelup");
+var levelup = require("levelup");
+var leveldown = require("leveldown");
 var version = require("level-version");
 
 var dbdir = "./.level_db/";
@@ -23,7 +24,7 @@ var vdb_setup = function(node, config, callback) {
 	dbname = dbdir_local + dbname;
 
 	console.log("filename", dbname);
-	var ldb = levelUP(dbname);
+	var ldb = levelup(leveldown(dbname));
 	var vdb = version(ldb);
 	ldb.on("ready", function() {
 		console.log("vdb opened:", node.name);
