@@ -27,7 +27,7 @@ var vdb_setup = function(node, config, callback) {
 	var ldb = levelup(leveldown(dbname));
 	var vdb = version(ldb);
 	ldb.on("ready", function() {
-		console.log("vdb opened:", node.name);
+		console.log("vdb opened:", dbname);
 		if (typeof callback === "function") {
 			callback();
 		}
