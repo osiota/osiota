@@ -23,7 +23,6 @@
     "level-version": "github:simonwalz/level-version",
     "levelup": "^2.0.2",
     "leveldown": "^3.0.2",
-    "mysql": "^2.10.2",
     "readdirp": "^2.0.0"
   },
   "scripts": {
