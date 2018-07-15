@@ -20,10 +20,23 @@ exports.init = function(router, basename, port) {
 	});
 	wss.wpath = ':'+port.toString();
 
-	wss.on('connection', function(ws) {
+	wss.on('connection', function(ws, req) {
 		ws.closed = false;
 		ws.basename = basename;
 		ws.wpath = wss.wpath;
+
+		// check if connection is allowed:
+		try {
+			// throw an error if not allowed:
+			router.emit("connection", "ws", ws, req);
+		} catch (err) {
+			ws.sendjson({"type": "error", "args": [
+				err.message, (err.stack || err).toString()
+			]});
+
+			// do not add any event handlers:
+			return;
+		}
 
 		ws.on('message', function(message) {
 			//console.log('received: %s', message);

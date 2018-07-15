@@ -1,0 +1,14 @@
+{
+	"hostname": "requrl Test Server",
+	"server": 8081,
+	"app": [{
+		"name": "requrl-login",
+		"config": {
+			"allowed_paths": [
+				"/GutenTag",
+				"/HalloWelt2",
+				"/WieGehtEs"
+			]
+		}
+	}]
+}

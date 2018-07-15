@@ -222,6 +222,9 @@ exports.init = function(router, ws) {
 	ws.rpc_node_unsubscribe = single_function_remove(ws.cmds, "subscribe");
 
 
+	ws.rpc_error = function(reply, name, message) {
+		console.log("error", name);
+	};
 	ws.rpc_hello = function(reply, name) {
 		if (typeof name === "string") {
 			ws.remote = name;
