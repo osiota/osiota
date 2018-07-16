@@ -78,7 +78,8 @@ pwsc.prototype.init = function() {
 				pthis.emit("need_reconnect");
 			}
 		});
-		this.ws.on('error', function() {
+		this.ws.on('error', function(err) {
+			if (err) console.log("bWSc: Error:", err.stack || err);
 			if (!this.reconnect) {
 				this.reconnect = true;
 				pthis.emit("need_reconnect");
