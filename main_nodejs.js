@@ -88,6 +88,10 @@ if (process.on) { /* if NodeJS */
 		// Do __not__ exit
 		//process.emit("preexit");
 	});
+	process.on('unhandledRejection', function(e) {
+		console.log('unhandledRejection', e.stack || e);
+	});
+
 
 	var why_is_node_running = null;
 	try {

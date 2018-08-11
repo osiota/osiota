@@ -76,7 +76,8 @@ function main(router_name) {
 			if (typeof app_config.self_app !== "undefined"){
 				local_app = app_config.self_app;
 			}
-			if (local_app === false)
+			if (local_app === false || app_config.node === "" ||
+					app_config.node === "-")
 				return null;
 
 			var n;
