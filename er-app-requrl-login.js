@@ -8,7 +8,7 @@ exports.init = function(node, app_config, main) {
 	var handler = function(type, ws, req) {
 		if (type !== "ws") return;
 
-		if (allowed_paths.includes(req.url)) {
+		if (allowed_paths.indexOf(req.url) !== -1) {
 			return true;
 		}
 
