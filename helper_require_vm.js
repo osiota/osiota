@@ -95,11 +95,30 @@ var require_vm = function(module_name, paths, use_vm) {
 	options.require.root = dirname;
 
 	if (NodeVM && use_vm) {
-		//TODO: save in cache!
+		// TODO: save in cache!
+
+		// TODO:
+		// map node and main to allow individual functions / entries:
+		// {
+		//	"main": {
+		//		"hostname": "r",
+		//		"node": "rx",
+		//		"add_fkt: "rwx"
+		//	}
+		// }
 		return new NodeVM(options).run(fs.readFileSync(filename, 'utf8'), filename);
 	} else {
 		return require(filename);
 	}
 };
+
+/*
+// TODO: add unload function:
+var module_unload = function(module_name) {
+	var name = require.resolve(module_name);
+	delete require.cache[name];
+};
+*/
+
 
 module.exports = require_vm;
