@@ -350,6 +350,9 @@ exports.init = function(router, ws) {
 			} catch (e) {
 				console.log("Blocked", e.stack || e);
 				return false;
+
+				// TODO: The error message shall be
+				// passed to the callback.
 			}
 		}
 

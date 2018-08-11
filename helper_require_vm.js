@@ -95,6 +95,7 @@ var require_vm = function(module_name, paths, use_vm) {
 	options.require.root = dirname;
 
 	if (NodeVM && use_vm) {
+		//TODO: save in cache!
 		return new NodeVM(options).run(fs.readFileSync(filename, 'utf8'), filename);
 	} else {
 		return require(filename);
