@@ -1,10 +1,15 @@
 var main = require("./main.js");
 var util = require('util');
 
+var ApplicationManager =require("./application_manager.js").application_manager;
+
+
 var require_vm = require("./helper_require_vm.js");
 
 function main_nodejs(router_name) {
 	main.call(this);
+
+	this.application_manager = new ApplicationManager(this);
 
 	if (process.on) {
 		process.on("unload", this.close.bind(this));
@@ -32,6 +37,46 @@ main_nodejs.prototype.os_config = function(config) {
 			Array.isArray(config.app_dir)) {
 		Array.prototype.push.apply(_this.app_dirs, config.app_dir);
 	}
+};
+
+main_nodejs.prototype.check_started = function(factor) {
+	if (typeof factor === "undefined")
+		factor = 8;
+	else if (factor < 1) factor = 1;
+	else if (factor > 32) factor = 32;
+
+	var _this = this;
+	//var t_1 = new Date()*1;
+	var t = process.hrtime();
+	//setTimeout(function() {
+	setImmediate(function() {
+		//var t_2 = new Date()*1;
+		var diff = process.hrtime(t);
+		var delta = diff[0] * 1e9 + diff[1];
+
+		console.log("delta", delta, "factor", factor);
+		var tid = null;
+		if (delta >= 4e6) {
+			if (factor < 8) factor = 8;
+			tid = setTimeout(_this.check_started.bind(_this,
+				factor*2), 100*factor);
+		}
+		else if (delta >= 1e6) {
+			tid = setTimeout(_this.check_started.bind(_this,
+				factor), 100*factor);
+		} else {
+			if (factor == 1) {
+				console.log("started");
+				_this.emit("started");
+			} else {
+				tid = setTimeout(_this.check_started.bind(_this,
+					factor/2), 100*factor);
+			}
+		}
+		if (tid && _this.listenerCount("started") == 0) {
+			tid.unref();
+		}
+	}, 0);
 };
 
 main_nodejs.prototype.create_websocket_server = function(server_port) {

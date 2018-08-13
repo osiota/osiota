@@ -2,7 +2,6 @@ var Router = require("./router").router;
 var Node = require("./router").node;
 var Policy_checker = require("./module_policycheck.js").Policy_checker;
 var Application = require("./application.js").application;
-var ApplicationManager =require("./application_manager.js").application_manager;
 var unload_object = require("./helper_unload_object.js").unload_object;
 
 var merge = require("./helper_merge_data.js").merge;
@@ -25,8 +24,6 @@ function main(router_name) {
 	this.helper = helper;
 
 	this.router = new Router(router_name);
-
-	this.application_manager = new ApplicationManager(this);
 
 	var _this = this;
 	Node.prototype.app = function(app, app_config) {
@@ -388,43 +385,7 @@ main.prototype.sub_config = function(config, node, callback) {
 };
 
 main.prototype.check_started = function(factor) {
-	if (typeof factor === "undefined")
-		factor = 8;
-	else if (factor < 1) factor = 1;
-	else if (factor > 32) factor = 32;
-
-	var _this = this;
-	//var t_1 = new Date()*1;
-	var t = process.hrtime();
-	//setTimeout(function() {
-	setImmediate(function() {
-		//var t_2 = new Date()*1;
-		var diff = process.hrtime(t);
-		var delta = diff[0] * 1e9 + diff[1];
-
-		console.log("delta", delta, "factor", factor);
-		var tid = null;
-		if (delta >= 4e6) {
-			if (factor < 8) factor = 8;
-			tid = setTimeout(_this.check_started.bind(_this,
-				factor*2), 100*factor);
-		}
-		else if (delta >= 1e6) {
-			tid = setTimeout(_this.check_started.bind(_this,
-				factor), 100*factor);
-		} else {
-			if (factor == 1) {
-				console.log("started");
-				_this.emit("started");
-			} else {
-				tid = setTimeout(_this.check_started.bind(_this,
-					factor/2), 100*factor);
-			}
-		}
-		if (tid && _this.listenerCount("started") == 0) {
-			tid.unref();
-		}
-	}, 0);
+	this.emit("started");
 };
 
 main.prototype.setup_history = function(save_history) {
@@ -478,12 +439,6 @@ main.prototype.setup_history = function(save_history) {
 	}
 	require('./module_history.js').init(this.router, this.history_config);
 }
-
-main.prototype.create_websocket_server = function(server_port) {
-	var wss = require('./router_websocket_server').init(this.router, "", server_port);
-	//this.router.policy_checker.add_observed_connection(wss.wpath);
-	return wss;
-};
 
 main.prototype.create_websocket_client = function(url, nodes, config) {
 	var ws = require('./router_websocket_client').init(this.router, "", url);
