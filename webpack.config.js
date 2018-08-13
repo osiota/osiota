@@ -1,7 +1,7 @@
 
 var webpack = require('webpack');
 
-var ignore = new webpack.IgnorePlugin(/levelup|^ws$|^webpack$/);
+var ignore = new webpack.IgnorePlugin(/levelup|^ws$|^webpack$|^\.\/module_history_class_file.js$/);
 
 module.exports = {
 	entry: "./webpack_router_main.js",
@@ -18,9 +18,6 @@ module.exports = {
 		global: true
 	},
 	module: {
-		loaders: [
-			{ test: /\.css$/, loader: "style!css" }
-		]
 	},
 	plugins: [ignore]
 };

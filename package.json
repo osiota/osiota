@@ -12,7 +12,8 @@
     "yargs": "^4.7.1"
   },
   "devDependencies": {
-    "webpack": "^1.12.13",
+    "webpack": "^4.16.5",
+    "webpack-cli": "^3.1.0",
     "why-is-node-running": "^2.0.2"
   },
   "engines": {
@@ -26,6 +27,7 @@
     "readdirp": "^2.0.0"
   },
   "scripts": {
-    "start": "node main_cli.js"
+    "start": "node main_cli.js",
+    "build": "./node_modules/.bin/webpack -d --display-modules"
   }
 }
