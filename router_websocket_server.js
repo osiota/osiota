@@ -1,6 +1,10 @@
 var WebSocket = require('ws');
 
-exports.init = function(router, basename, port) {
+exports.init = function(router, basename, options) {
+
+	if (typeof options !== "object" || options === null) {
+		options = { port: options };
+	}
 
 	WebSocket.prototype.sendjson = function(data) {
 		try {
@@ -15,10 +19,11 @@ exports.init = function(router, basename, port) {
 	};
 
 	var WebSocketServer = WebSocket.Server;
-	var wss = new WebSocketServer({
-		port: port
-	});
-	wss.wpath = ':'+port.toString();
+	var wss = new WebSocketServer(options);
+	wss.wpath = ":";
+	if (typeof options.port === "number") {
+		wss.wpath = ':'+options.port.toString();
+	}
 
 	wss.on('connection', function(ws, req) {
 		ws.closed = false;
