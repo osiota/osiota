@@ -113,6 +113,8 @@ function main(router_name) {
 		};
 		config.forEach(function(app_config) {
 			var key = map_name(app_config);
+			if (typeof key !== "string")
+				return;
 			if (typeof app_config.node !== "string") {
 				app_config.node = key.replace(/^\//, "");
 			}
@@ -124,7 +126,13 @@ function main(router_name) {
 					"map": app_config
 				};
 			}
+//			if (typeof app_config !== "object" ||
+//					app_config === null)
+//				return null;
+
 			var key = map_name(app_config, cache);
+			if (typeof key !== "string")
+				return null;
 			if (map.hasOwnProperty(key)) {
 				if (typeof map[key].vn !== "undefined") {
 					var vn = map[key].vn;
