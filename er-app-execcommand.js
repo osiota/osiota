@@ -19,12 +19,13 @@ exports.init = function(node, app_config, main, host_info) {
 	});
 	
 	node.rpc_set = function(reply, value) {
-		args.push(value);
+		var l_args = JSON.parse(JSON.stringify(args));
+		l_args.push(value);
 		if (!map_stdout) {
 			node.publish(undefined, value);
 		}
 
-		execFile(command, args, function (error, stdout, stderr) {
+		execFile(command, l_args, function (error, stdout, stderr) {
 			if (error) {
 				reply("Error executing command", error);
 				return;
