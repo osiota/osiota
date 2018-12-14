@@ -549,10 +549,6 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 	var _this = this;
 
 	try {
-		if (typeof app_config !== "object") {
-			app_config = {};
-		}
-
 		this.module_get(app, function(a) {
 			return _this.startup_module( a,
 					node, app, app_config,
@@ -593,6 +589,13 @@ main.prototype.startup_module = function(a, node, app, app_config, host_info, au
 	console.info("startup:", a._app);
 	// bind to main:
 	a._bind(this, host_info);
+
+	if (typeof app_config !== "object") {
+		app_config = {};
+	}
+	if (Object.keys(app_config).length == 0) {
+		a._auto_configure(app_config);
+	}
 
 	if (typeof node !== "object" || node === null) {
 		node = this.node("/app");

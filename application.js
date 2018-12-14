@@ -82,6 +82,12 @@ exports.application.prototype._inherit = function(inherit, loader, callback) {
 	});
 };
 
+exports.application.prototype._auto_configure = function(app_config) {
+	if (typeof this.auto_configure === "function") {
+		this.auto_configure(app_config);
+	}
+};
+
 exports.application.prototype._init = function(app_config) {
 	if (this._state === "RUNNING") {
 		console.log("Warning: App still running: doing reinit");
