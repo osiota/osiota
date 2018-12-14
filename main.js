@@ -632,6 +632,7 @@ main.prototype.startup_module = function(a, node, app, app_config, host_info, au
 	try {
 		if (!a._error) {
 			a._init(app_config);
+			this.emit("app_init", a);
 
 			if (typeof callback === "function") {
 				callback(a, 1);
