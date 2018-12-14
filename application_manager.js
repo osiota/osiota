@@ -47,7 +47,6 @@ exports.application_manager.prototype.find_app = function(metadata) {
 					app = app_schema;
 				}
 			});
-				
 		}
 	});
 	if (!app) return null;
@@ -62,14 +61,70 @@ exports.application_manager.prototype.schema = function() {
 	}
 	return this._schema;
 };
-exports.application_manager.prototype.read_schema_file = function(file) {
+
+var schema_cache = {};
+exports.application_manager.prototype.get_schema = function(app_dirs, app) {
+	var _this = this;
+
+	if (typeof app !== "string")
+		throw new Error("admin-app: app needs to be string");
+	app = "er-app-" + app.replace(/^er-app-/, "");
+
+	if (schema_cache.hasOwnProperty(app)) {
+		return schema_cache[app];
+	}
+
+	var schema = null;
+	app_dirs.forEach(function(app_dir) {
+		if (schema) return;
+		if (app_dir == "") {
+			app_dir = "./node_modules/"
+		}
+
+		try {
+			schema = _this.read_schema_file_simple(app_dir + app +
+					"-schema.json");
+			return;
+		} catch(e) {}
+		try {
+			schema = _this.read_schema_file_simple(app_dir + app +
+					"/schema_config.json");
+			return;
+		} catch(e) {}
+		try {
+			schema = _this.read_schema_file_simple(app_dir + app +
+					"/schema.json");
+			return;
+		} catch(e) {}
+	});
+	if (!schema) {
+		schema = this.create_default_schema();
+	}
+
+	schema_cache[app] = schema;
+	return schema;
+};
+
+exports.application_manager.prototype.read_schema_file_simple = function(file) {
+	var data = fs.readFileSync(file);
+	var json = JSON.parse(data);
+	return json;
+};
+
+exports.application_manager.prototype.read_schema_file = function(file, app) {
+	if (schema_cache.hasOwnProperty(app)) {
+		return schema_cache[app];
+	}
+
+	var schema;
 	try {
 		var data = fs.readFileSync(file);
-		var json = JSON.parse(data);
-		return json;
+		schema = JSON.parse(data);
 	} catch(e) {
-		return this.create_default_schema();
+		schema = this.create_default_schema();
 	}
+	schema_cache[app] = schema;
+	return schema;
 };
 
 exports.application_manager.prototype.create_default_schema = function() {
@@ -90,8 +145,9 @@ exports.application_manager.prototype.load_schema_file = function(path, name, ca
 	var stats = fs.statSync(path);
 	// if is_dir
 	if (stats.isDirectory()) {
+		//TODO: rename schema_config to schema
 		callback(name, this.read_schema_file(path+"/"+
-					"schema_config.json"));
+					"schema_config.json", name));
 
 		// Search for *-schema.json as well.
 		var files = fs.readdirSync(path+"/");
@@ -101,7 +157,8 @@ exports.application_manager.prototype.load_schema_file = function(path, name, ca
 				var subname =file.replace(/-schema\.json$/i,"");
 				callback(name+"/"+subname,
 					_this.read_schema_file(path+"/" + file
-						+"/schema_config.json")
+						+"/schema_config.json",
+						name+"/"+subname)
 				);
 			}
 		});
@@ -111,7 +168,8 @@ exports.application_manager.prototype.load_schema_file = function(path, name, ca
 		if (path.match(/\.(js|coffee)$/)) {
 			callback(name, this.read_schema_file(
 				path.replace(/\.(js|coffee)$/i, '') +
-						"-schema.json"
+						"-schema.json",
+				name
 			));
 		}
 	}
@@ -234,4 +292,57 @@ exports.application_manager.prototype.load_schema_apps = function(app_dirs) {
 	this.add_default_schema(schema_apps);
 
 	return schema_apps;
+};
+
+var default_types = {
+	"er-filter": {
+		"type": "object",
+		"title": "Node filter options",
+		"properties": {
+			"metadata": {
+				"type": "object",
+				"title": "Meta data to filter",
+				"additionalProperties": true,
+				"options": {
+					"disable_properties": false,
+					"disable_edit_json": false
+				}
+			},
+			"nodes": {
+				"type": "array",
+				"title": "List of nodes permitted",
+				"items": {
+					"type": "string"
+				}
+			},
+			"depth": {
+				"type": "number",
+				"title": "Node depth permitted"
+			}
+		}
+	}
+};
+exports.application_manager.prototype.schema_default_types = function(schema) {
+	if (typeof schema !== "object") {
+		return schema;
+	}
+	if (Array.isArray(schema)) {
+		for (var k=0; k<schema.length; k++) {
+			schema[k] = this.schema_default_types(schema[k]);
+		}
+
+		return schema;
+	}
+	if (typeof schema.type === "string" &&
+			typeof default_types[schema.type] === "object") {
+		schema = default_types[schema.type];
+	}
+
+	for (var key in schema) {
+		if (schema.hasOwnProperty(key)) {
+			schema[key] = this.schema_default_types(schema[key]);
+		}
+	}
+
+	return schema;
 };
