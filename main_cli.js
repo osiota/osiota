@@ -103,8 +103,14 @@ try {
 var m = new main(argv.hostname);
 m.on("config_save", function() {
 	var _this = this;
+	var value = {
+		"server": this._config.server,
+		"remote": this._config.remote,
+		"app": this._config.app
+	};
+	console.log(value);
 	fs.writeFile("./" + _this._config.config,
-			JSON.stringify(value, null, '\t'),
+			JSON.stringify(value, null, '\t')+"\n",
 			function(err) {
 		if (err) {
 			throw err;

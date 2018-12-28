@@ -28,14 +28,13 @@ exports.init = function(node, app_config, main, host_info) {
 		if (typeof a.get_schema === "function") {
 			schema = a.get_schema(get_schema.bind(null, main.app_dirs));
 		} else {
-			schema = main.application_manager.get_schema(
-					main.app_dirs, a._app);
+			schema = main.application_manager.get_schema(a._app);
 		}
 		schema = main.application_manager.schema_default_types(schema);
 		cn.announce({
 			type: "config.basic",
 			schema: schema,
-			extrabutton: "reinit"
+			extrabutton: ["reinit", "save"]
 		});
 		cn.publish(undefined, a._config);
 
@@ -62,6 +61,13 @@ exports.init = function(node, app_config, main, host_info) {
 				reply("Error", "No save handler.");
 			}
 		};
+		cn.rpc_list_applications = function(reply) {
+			var list = main.application_manager.list_applications();
+			reply(null, list);
+		};
+		cn.rpc_app_add = function(reply, app, settings) {
+			main.app_add(app, settings, a._node, false, reply);
+		};
 
 		nodes.push(cn);
 	}
@@ -70,7 +76,7 @@ exports.init = function(node, app_config, main, host_info) {
 		var a = main.apps[app];
 		handle_app(a);
 	}
-	main.on("app_added", handle_app);
+	main.on("app_init", handle_app);
 
 	return [nodes, function() {
 		main.removeListener("app_added", handle_app);

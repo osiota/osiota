@@ -57,13 +57,13 @@ exports.application_manager.prototype.find_app = function(metadata) {
 exports.application_manager.prototype.schema = function() {
 	// WARNING: This function is SYNCHRON:
 	if (this._schema === null) {
-		this._schema = this.load_schema_apps(this._main.app_dirs);
+		this._schema = this.load_schema_apps();
 	}
 	return this._schema;
 };
 
 var schema_cache = {};
-exports.application_manager.prototype.get_schema = function(app_dirs, app) {
+exports.application_manager.prototype.get_schema = function(app) {
 	var _this = this;
 
 	if (typeof app !== "string")
@@ -75,7 +75,7 @@ exports.application_manager.prototype.get_schema = function(app_dirs, app) {
 	}
 
 	var schema = null;
-	app_dirs.forEach(function(app_dir) {
+	this._main.app_dirs.forEach(function(app_dir) {
 		if (schema) return;
 		if (app_dir == "") {
 			app_dir = "./node_modules/"
@@ -99,6 +99,28 @@ exports.application_manager.prototype.get_schema = function(app_dirs, app) {
 	});
 	if (!schema) {
 		schema = this.create_default_schema();
+	}
+	// defaults:
+	if (typeof schema.type === "undefined") {
+		schema.type = "object";
+	}
+	if (typeof schema.additionalProperties === "undefined") {
+		schema.additionalProperties = false;
+	}
+	if (typeof schema.title === "undefined") {
+		schema.title = "Settings";
+	}
+	if (typeof schema.properties === "undefined" &&
+			schema.additionalProperties === false &&
+			typeof schema.options === "undefined") {
+		schema.options = { "hidden": true };
+	}
+	if (typeof schema.properties === "object" &&
+			schema.properties !== null &&
+			schema.additionalProperties === false &&
+			typeof schema.options === "undefined" &&
+			Object.keys(schema.properties).length === 0) {
+		schema.options = { "hidden": true };
 	}
 
 	schema_cache[app] = schema;
@@ -147,7 +169,7 @@ exports.application_manager.prototype.load_schema_file = function(path, name, ca
 	if (stats.isDirectory()) {
 		//TODO: rename schema_config to schema
 		callback(name, this.read_schema_file(path+"/"+
-					"schema_config.json", name));
+					"schema_config.json", name), path);
 
 		// Search for *-schema.json as well.
 		var files = fs.readdirSync(path+"/");
@@ -158,19 +180,23 @@ exports.application_manager.prototype.load_schema_file = function(path, name, ca
 				callback(name+"/"+subname,
 					_this.read_schema_file(path+"/" + file
 						+"/schema_config.json",
-						name+"/"+subname)
+						name+"/"+subname),
+					path+"/"+file
 				);
 			}
 		});
 	}
 	// if is_file
 	else if (stats.isFile()) {
-		if (path.match(/\.(js|coffee)$/)) {
-			callback(name, this.read_schema_file(
-				path.replace(/\.(js|coffee)$/i, '') +
+		if (path.match(/\.(js|coffee)$/i)) {
+			callback(name,
+				this.read_schema_file(
+					path.replace(/\.(js|coffee)$/i, '') +
 						"-schema.json",
-				name
-			));
+					name
+				),
+				path.replace(/\.(js|coffee)$/i, '')
+			);
 		}
 	}
 	} catch(e) {}
@@ -187,8 +213,8 @@ exports.application_manager.prototype.load_schema_apps_in_dir = function(dir,
 		// filter
 		if (file.match(/^er-app-/)) {
 			_this.load_schema_file(dir+file, file,
-					function(name, sub_schema) {
-				_this.create_schema(name, sub_schema,
+					function(name, sub_schema, path) {
+				_this.create_schema(name, sub_schema, path,
 					cb_add_schema);
 			});
 		}
@@ -197,7 +223,7 @@ exports.application_manager.prototype.load_schema_apps_in_dir = function(dir,
 };
 
 exports.application_manager.prototype.create_schema = function(name,
-					sub_schema, cb_add_schema) {
+					sub_schema, path, cb_add_schema) {
 	var name = name.replace(/\.(js|coffee)$/i, "");
 	var short_name = name.replace(/^er-app-/, "");
 
@@ -232,7 +258,7 @@ exports.application_manager.prototype.create_schema = function(name,
 	};
 
 	cb_add_schema(short_name, schema_a);
-	console.log(short_name, sub_schema);
+	console.log(short_name, path, sub_schema);
 
 	return schema_a;
 };
@@ -265,22 +291,16 @@ exports.application_manager.prototype.add_default_schema = function(schema) {
 	schema.unshift(schema_a);
 }
 
-exports.application_manager.prototype.load_schema_apps = function(app_dirs) {
+exports.application_manager.prototype.load_schema_apps = function() {
 	var _this = this;
 
+	var apps = this.search_apps();
+
 	var schema_apps = [];
-	var apps = {};
-	app_dirs.forEach(function(app_dir) {
-		if (app_dir == "") {
-			app_dir = "./node_modules/"
-		}
-		_this.load_schema_apps_in_dir(app_dir, function(name, a) {
-			if (name.match(/test$/)) return;
-			if (apps.hasOwnProperty(name))
-				return;
-			apps[name] = true;
-			schema_apps.push(a);
-		});
+	Object.keys(apps).forEach(function(name) {
+		var a = apps[name].schema;
+		if (name.match(/test$/)) return;
+		schema_apps.push(a);
 	});
 
 	schema_apps.sort(function(a, b) {
@@ -293,6 +313,42 @@ exports.application_manager.prototype.load_schema_apps = function(app_dirs) {
 
 	return schema_apps;
 };
+
+exports.application_manager.prototype.list_applications = function() {
+	var apps = this.search_apps();
+
+	return Object.keys(apps);
+};
+
+var __found_apps = null;
+exports.application_manager.prototype.search_apps = function() {
+	var _this = this;
+
+	// caching:
+	if (__found_apps) return __found_apps;
+
+	var apps = {};
+	this._main.app_dirs.forEach(function(app_dir) {
+		if (app_dir == "") {
+			app_dir = "./node_modules/"
+		}
+		_this.load_schema_apps_in_dir(app_dir, function(name, path, a) {
+			//TODO
+			//if (name.match(/test$/)) return;
+			if (apps.hasOwnProperty(name))
+				return;
+			apps[name] = {
+				"path": path,
+				"schema": a
+			};
+		});
+	});
+
+	__found_apps = apps;
+
+	return apps;
+};
+
 
 var default_types = {
 	"er-filter": {

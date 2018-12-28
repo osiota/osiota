@@ -641,7 +641,7 @@ main.prototype.startup_module = function(a, node, app, app_config, host_info, au
 	} catch(e) {
 		// save error:
 		a._error = e;
-		if (a._config)
+		if (typeof a._config === "undefined")
 			a._config = app_config;
 
 		// trigger global callback:
