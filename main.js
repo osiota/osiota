@@ -64,7 +64,7 @@ function main(router_name) {
 			if (typeof map_key === "function") {
 				key = map_key(app_config);
 			} else {
-				key = app_config.map;
+				key = ""+app_config.map;
 			}
 			return key;
 		};
@@ -121,7 +121,8 @@ function main(router_name) {
 			return map_element(key, app_config, null, true);
 		});
 		var callback = function(app_config, local_metadata, cache) {
-			if (typeof app_config === "string") {
+			if (typeof app_config !== "object" ||
+					app_config === null) {
 				app_config = {
 					"map": app_config
 				};
