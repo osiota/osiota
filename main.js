@@ -2,6 +2,7 @@ var Router = require("./router").router;
 var Node = require("./router").node;
 var Policy_checker = require("./module_policycheck.js").Policy_checker;
 var Application = require("./application.js").application;
+var NodeMap = require("./node_map.js").NodeMap;
 var unload_object = require("./helper_unload_object.js").unload_object;
 
 var merge = require("./helper_merge_data.js").merge;
@@ -50,153 +51,15 @@ function main(router_name) {
 	Node.prototype.map = function(config, app, map_extra_elements,
 			map_key, map_initialise) {
 		var node = this;
-		var map = {};
-		if (!Array.isArray(config)) {
-			if (config && typeof config.map === "object" &&
-					config.map !== null) {
-				config = config.map;
-			} else {
-				throw new Error("map config is not defined.");
-			}
+		var map = new NodeMap(node, config, app, map_extra_elements);
+
+		if (typeof map_initialise === "function") {
+			map.map_initialise = map_initialise;
 		}
-		var map_name = function(app_config) {
-			var key = "";
-			if (typeof map_key === "function") {
-				key = map_key(app_config);
-			} else {
-				key = ""+app_config.map;
-			}
-			return key;
-		};
-		var map_element = function(key, app_config, local_metadata){
-			var local_app = app;
-			if (typeof app_config.self_app !== "undefined"){
-				local_app = app_config.self_app;
-			}
-			if (local_app === false || app_config.node === "" ||
-					app_config.node === "-")
-				return null;
-
-			var n;
-			if (local_app === null) {
-				n = node.node(app_config.node);
-			} else {
-				n = node.virtualnode();
-			}
-
-			var metadata = {};
-			if (typeof local_metadata === "object" &&
-					local_metadata !== null) {
-				metadata = local_metadata;
-			}
-			if (typeof app_config.metadata === "object" &&
-					app_config.metadata !== null) {
-				metadata = app_config.metadata;
-			}
-			if (typeof map_initialise === "function") {
-				map_initialise(n, metadata, app_config);
-			} else {
-				n.announce(metadata);
-			}
-
-			var a;
-			if (local_app !== null) {
-				a = n.app(local_app, app_config);
-			}
-
-			map[key] = {
-				vn: n,
-				a: a,
-				config: app_config
-			};
-			return n;
-		};
-		config.forEach(function(app_config) {
-			var key = map_name(app_config);
-			if (typeof key !== "string")
-				return;
-			if (typeof app_config.node !== "string") {
-				app_config.node = key.replace(/^\//, "");
-			}
-			return map_element(key, app_config, null, true);
-		});
-		var callback = function(app_config, local_metadata, cache) {
-			if (typeof app_config !== "object" ||
-					app_config === null) {
-				app_config = {
-					"map": app_config
-				};
-			}
-//			if (typeof app_config !== "object" ||
-//					app_config === null)
-//				return null;
-
-			var key = map_name(app_config, cache);
-			if (typeof key !== "string")
-				return null;
-			if (map.hasOwnProperty(key)) {
-				if (typeof map[key].vn !== "undefined") {
-					var vn = map[key].vn;
-					return vn;
-				}
-				if (typeof map[key].config !== "undefined") {
-					app_config = map[key].config;
-				}
-			}
-
-			if (!map_extra_elements) {
-				return null;
-			}
-			if (typeof map_extra_elements === "object"
-					&& map_extra_elements !== null) {
-				for (var m in map_extra_elements) {
-					app_config[m] = map_extra_elements[m];
-				}
-			}
-			if (typeof map_extra_elements === "function") {
-				map_extra_elements(app_config, local_metadata);
-			}
-			if (typeof app_config.node !== "string") {
-				app_config.node = key.replace(/^\//, "");
-			}
-
-			config.push(app_config);
-			if (config.__listener) {
-				config.__listener();
-			}
-
-			return map_element(key, app_config, local_metadata,
-					false, cache);
-		};
-		return {
-			unload: function() {
-				for(var s in map) {
-					if (map.hasOwnProperty(s)) {
-						map[s].vn.unannounce();
-						if (map[s].a)
-							map[s].a.unload();
-						delete map[s];
-					}
-				}
-			},
-			remove_node: function(app_config) {
-				if (typeof app_config === "string") {
-					app_config = {
-						"map": app_config
-					};
-				}
-				var key = map_name(app_config);
-				if (map.hasOwnProperty(key)) {
-					map[key].vn.unannounce();
-					delete map[key].vn;
-					if (map[key].a) {
-						map[key].a.unload();
-						delete map[key].a;
-					}
-				}
-			},
-			node: callback
-		};
+		if (typeof map_key === "function") {
+			map.map_key = map_key;
+		}
+		return map;
 	};
 	Node.prototype.property = function(name, type, callback, default_value){
 		if (typeof default_value === "undefined")
