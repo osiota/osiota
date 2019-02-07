@@ -4,8 +4,8 @@
  * @classdesc NodeMap class
  * @param {node} node - A node instance
  * @param {object} config - A config object
- * @param {string, application, boolean} app - An application to map content
- * @param {boolean, object, function} - Map extra elements?
+ * @param {(string|application|boolean)} [app] - An application to map content
+ * @param {(boolean|object|function)} [map_extra_elements] - Map extra elements?
  */
 exports.NodeMap = function(node, config, app, map_extra_elements) {
 	var _this = this;
@@ -41,8 +41,8 @@ exports.NodeMap = function(node, config, app, map_extra_elements) {
 /**
  * Map a config object to a node
  * @param {object} app_config - A config object
- * @param {object} local_metadata - Addional metadata
- * @param {*} cache - Addional object for caching
+ * @param {object} [local_metadata] - Addional metadata
+ * @param {*} [cache] - Addional object for caching
  */
 exports.NodeMap.prototype.node = function(app_config, local_metadata, cache) {
 	if (typeof app_config !== "object" ||
@@ -184,7 +184,7 @@ exports.NodeMap.prototype.map_initialise = function(n, metadata, app_config) {
 /**
  * Map a config object to a string
  * @param {object} app_config - A config object
- * @param {*} cache - Addional object for caching
+ * @param {*} [cache] - Addional object for caching
  */
 exports.NodeMap.prototype.map_key = function(app_config, cache) {
 	return ""+app_config.map;
