@@ -1,4 +1,12 @@
-
+/**
+ * Create a node map
+ * @class
+ * @classdesc NodeMap class
+ * @param {node} node - A node instance
+ * @param {object} config - A config object
+ * @param {string, application, boolean} app - An application to map content
+ * @param {boolean, object, function} - Map extra elements?
+ */
 exports.NodeMap = function(node, config, app, map_extra_elements) {
 	var _this = this;
 
@@ -30,6 +38,12 @@ exports.NodeMap = function(node, config, app, map_extra_elements) {
 	});
 };
 
+/**
+ * Map a config object to a node
+ * @param {object} app_config - A config object
+ * @param {object} local_metadata - Addional metadata
+ * @param {*} cache - Addional object for caching
+ */
 exports.NodeMap.prototype.node = function(app_config, local_metadata, cache) {
 	if (typeof app_config !== "object" ||
 			app_config === null) {
@@ -41,6 +55,7 @@ exports.NodeMap.prototype.node = function(app_config, local_metadata, cache) {
 	var key = this.map_key(app_config, cache);
 	if (typeof key !== "string")
 		return null;
+
 	if (this.map.hasOwnProperty(key)) {
 		if (typeof this.map[key].vn !== "undefined") {
 			var vn = this.map[key].vn;
@@ -76,6 +91,9 @@ exports.NodeMap.prototype.node = function(app_config, local_metadata, cache) {
 			false, cache);
 };
 
+/**
+ * Unload all nodes
+ */
 exports.NodeMap.prototype.unload = function() {
 	for(var s in this.map) {
 		if (this.map.hasOwnProperty(s)) {
@@ -86,6 +104,11 @@ exports.NodeMap.prototype.unload = function() {
 		}
 	}
 };
+
+/**
+ * Remove a single node
+ * @param {object} app_config - A config object
+ */
 exports.NodeMap.prototype.remove_node = function(app_config) {
 	if (typeof app_config === "string") {
 		app_config = {
@@ -104,6 +127,9 @@ exports.NodeMap.prototype.remove_node = function(app_config) {
 	}
 };
 
+/*
+ * INTERNAL: Map element
+ */
 exports.NodeMap.prototype.map_element = function(key, app_config,
 		local_metadata){
 	var local_app = this._app;
@@ -144,9 +170,22 @@ exports.NodeMap.prototype.map_element = function(key, app_config,
 	};
 	return n;
 };
+
+/**
+ * Initialise a new node
+ * @param {node} n - The node to initialse
+ * @param {object} metadata -  metadata gathered together
+ * @param {object} app_config - Mapped or saved config
+ */
 exports.NodeMap.prototype.map_initialise = function(n, metadata, app_config) {
 	n.announce(metadata);
 };
+
+/**
+ * Map a config object to a string
+ * @param {object} app_config - A config object
+ * @param {*} cache - Addional object for caching
+ */
 exports.NodeMap.prototype.map_key = function(app_config, cache) {
 	return ""+app_config.map;
 };
