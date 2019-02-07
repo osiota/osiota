@@ -25,7 +25,12 @@ exports.NodeMap = function(node, config, app, map_extra_elements) {
 			throw new Error("map config is not defined.");
 		}
 	}
+};
 
+/**
+ * Initialize config
+ */
+exports.NodeMap.prototype.init = function() {
 	// Map existing config items:
 	this._config.forEach(function(app_config) {
 		var key = _this.map_key(app_config);

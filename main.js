@@ -59,6 +59,8 @@ function main(router_name) {
 		if (typeof map_key === "function") {
 			map.map_key = map_key;
 		}
+		map.init();
+
 		return map;
 	};
 	Node.prototype.property = function(name, type, callback, default_value){
@@ -173,6 +175,7 @@ util.inherits(main, EventEmitter);
 main.prototype.classes = {
 	"Router": Router,
 	"Node": Node,
+	"NodeMap": NodeMap,
 	"Application": Application
 };
 
