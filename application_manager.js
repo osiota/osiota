@@ -1,6 +1,11 @@
 const fs = require("fs");
 const Ajv = require('ajv');
 
+/**
+ * Application Manager Class
+ * @class
+ * @param {main} main - Main instance
+ */
 exports.application_manager = function(main) {
 	this._schema = null;
 	this._main = main;
@@ -23,6 +28,11 @@ var json_validate = function(schema, data) {
 	return schema.__compiled(data);
 }
 
+/**
+ * Find application by metadata
+ * @param {object} metadata - Meta data
+ * @returns {string} Application name
+ */
 exports.application_manager.prototype.find_app = function(metadata) {
 	if (!Array.isArray(metadata)) {
 		metadata = [ metadata ];
@@ -53,7 +63,10 @@ exports.application_manager.prototype.find_app = function(metadata) {
 	return app.title;
 };
 
-/* SCHEMA */
+/**
+ * Load schema of all apps
+ * @returns {object} The JSON schema
+ */
 exports.application_manager.prototype.schema = function() {
 	// WARNING: This function is SYNCHRON:
 	if (this._schema === null) {
@@ -63,6 +76,11 @@ exports.application_manager.prototype.schema = function() {
 };
 
 var schema_cache = {};
+/**
+ * Get schema for app
+ * @param {string} app - Application name
+ * @returns {object} The JSON schema
+ */
 exports.application_manager.prototype.get_schema = function(app) {
 	var _this = this;
 
@@ -314,6 +332,11 @@ exports.application_manager.prototype.load_schema_apps = function() {
 	return schema_apps;
 };
 
+/**
+ * List all applications
+ *
+ * @returns {Array<string>} Array with application names.
+ */
 exports.application_manager.prototype.list_applications = function() {
 	var apps = this.search_apps();
 

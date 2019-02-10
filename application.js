@@ -10,6 +10,11 @@
 
 var unload_object = require("./helper_unload_object.js").unload_object;
 
+/**
+ * Application Class
+ * @class
+ * @param {string} app - Application name
+ */
 exports.application = function(app) {
 	this._state = "INIT";
 
@@ -26,10 +31,21 @@ exports.application = function(app) {
 
 	this._error = null;
 };
+/**
+ * bind to main class
+ * @param {main} main - main instance
+ * @param {*} extra - extra information
+ */
 exports.application.prototype._bind = function(main, extra) {
 	this._extra = extra;
 	this._main = main;
 };
+/**
+ * bind to module context
+ * @param {object} module - Module context
+ * @param {function} loader - Loader function
+ * @param {function} callback
+ */
 exports.application.prototype._bind_module = function(module, loader, callback){
 	var _this = this;
 
@@ -50,6 +66,11 @@ exports.application.prototype._bind_module = function(module, loader, callback){
 	this._bind_module_sync(module);
 	callback();
 };
+/**
+ * copy module context
+ * @param {object} module - Module context
+ * @private
+ */
 exports.application.prototype._bind_module_sync = function(module) {
 	for (var field in module) {
 		if (module.hasOwnProperty(field)) {
@@ -59,6 +80,13 @@ exports.application.prototype._bind_module_sync = function(module) {
 	}
 	return this;
 };
+/**
+ * Load inherited modules
+ * @param {string[]|string} inherit - List of module names
+ * @param {function} loader - Loader function
+ * @param {function} callback
+ * @private
+ */
 exports.application.prototype._inherit = function(inherit, loader, callback) {
 	var _this = this;
 
@@ -82,12 +110,40 @@ exports.application.prototype._inherit = function(inherit, loader, callback) {
 	});
 };
 
+/**
+ * Auto configure application
+ * @name application#auto_configure
+ * @method
+ * @param {object} app_config - Config object
+ * @abstract
+ */
+
+/**
+ * Auto configure application
+ * @param {object} app_config - Config object
+ */
 exports.application.prototype._auto_configure = function(app_config) {
 	if (typeof this.auto_configure === "function") {
 		this.auto_configure(app_config);
 	}
 };
 
+
+/**
+ * Init method
+ *
+ * @name application#init
+ * @method
+ * @param {object} app_config - Config object
+ * @param {node} node - Node object
+ * @param {main} main - Main instance
+ * @param {*} extra - Extra information
+ * @return {Array<object>} A cleaning object
+ */
+/**
+ * Call init function
+ * @param {object} app_config - Config object
+ */
 exports.application.prototype._init = function(app_config) {
 	if (this._state === "RUNNING") {
 		console.log("Warning: App still running: doing reinit");
@@ -106,6 +162,19 @@ exports.application.prototype._init = function(app_config) {
 
 	this._state = "RUNNING";
 };
+
+/**
+ * Unload method
+ *
+ * @name application#unload
+ * @method
+ * @param {Array<object>} object - The cleaning object (see init)
+ * @param {function} unload_object - Unload object helper function
+ */
+/**
+ * Call unload function
+ * @param {object} app_config - Config object
+ */
 exports.application.prototype._unload = function() {
 	if (this._state !== "RUNNING" && this._state !== "REINIT")
 		return;
@@ -119,6 +188,19 @@ exports.application.prototype._unload = function() {
 
 	this._state = "UNLOADED";
 };
+/**
+ * Reinit method
+ *
+ * @name application#reinit
+ * @param {object} app_config - Config object
+ * @param {node} node - Node object
+ * @param {main} main - Main instance
+ * @param {*} extra - Extra information
+ */
+/**
+ * Call reinit function
+ * @param {object} app_config - Config object
+ */
 exports.application.prototype._reinit = function(app_config) {
 	var _this = this;
 	if (this._state !== "RUNNING" && this._state !== "REINIT")
@@ -141,6 +223,11 @@ exports.application.prototype._reinit = function(app_config) {
 	}
 
 };
+/**
+ * Call reinit function with delay
+ * @param {number} delay - Delay in ms
+ * @param {object} app_config - Config object
+ */
 exports.application.prototype._reinit_delay = function(delay, app_config) {
 	if (typeof delay !== "number")
 		delay = 1000;

@@ -8,6 +8,8 @@ webclient/ethercat/bower_components
 .level_db/
 .persistent/
 
+documentation/
+
 .*.un~
 
 #config.json

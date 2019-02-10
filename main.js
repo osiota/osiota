@@ -2,7 +2,7 @@ var Router = require("./router").router;
 var Node = require("./router").node;
 var Policy_checker = require("./module_policycheck.js").Policy_checker;
 var Application = require("./application.js").application;
-var NodeMap = require("./node_map.js").NodeMap;
+var NodeMap = require("./node_map.js").node_map;
 var unload_object = require("./helper_unload_object.js").unload_object;
 
 var merge = require("./helper_merge_data.js").merge;
@@ -16,6 +16,10 @@ require('./module_history_class_remote.js');
 require('./module_history_class_timebase.js');
 require('./module_history_class_filter.js');
 
+/**
+ * Main Class
+ * @class
+ */
 function main(router_name) {
 	EventEmitter.call(this);
 
@@ -217,6 +221,13 @@ main.prototype.config = function(config) {
 		_this.check_started();
 	}, 500);
 };
+/**
+ * Load sub configurations
+ *
+ * @param {object} config - Configuration
+ * @param {node} node - Parent node
+ * @param {function} callback
+ */
 main.prototype.sub_config = function(config, node, callback) {
 	var _this = this;
 
@@ -260,6 +271,11 @@ main.prototype.sub_config = function(config, node, callback) {
 };
 
 main.prototype.check_started = function(factor) {
+	/**
+	 * Started event
+	 *
+	 * @event main#started
+	 */
 	this.emit("started");
 };
 
@@ -362,6 +378,12 @@ main.prototype.node = function(name) {
 	return this.router.node(name);
 };
 
+/**
+ * Require Module
+ * @param {string} app - Application name
+ * @param {function} callback
+ * @abstract
+ */
 main.prototype.require = function(app, callback) {
 	throw new Error("Require function not supported.");
 };
@@ -424,6 +446,16 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 		});
 	} catch(e) {
 		// trigger global callback:
+		/**
+		 * Application Loading Error
+		 * @param {object} error - Error object
+		 * @param {node} node - Node object
+		 * @param {app} app - Application name
+		 * @param {object} app_config - Application config
+		 * @param {*} extra - Extra information
+		 * @param {boolean} auto_install - Auto install flag
+		 * @event main#app_loading_error
+		 */
 		if (this.emit("app_loading_error", e, node, app, app_config,
 					host_info, auto_install,
 				function(an, level) {
@@ -499,6 +531,12 @@ main.prototype.startup_module = function(a, node, app, app_config, host_info, au
 	try {
 		if (!a._error) {
 			a._init(app_config);
+			/**
+			 * Application init
+			 *
+			 * @event main#app_init
+			 * @param {application} application - Application object
+			 */
 			this.emit("app_init", a);
 
 			if (typeof callback === "function") {
@@ -580,6 +618,13 @@ main.prototype.app_register = function(a) {
 		}
 	}
 
+	/**
+	 * Application added
+	 *
+	 * @event main#app_added
+	 * @param {application} application - Applicaiton name
+	 * @param {string} application_id - Id
+	 */
 	this.emit("app_added", a, a._id);
 
 };
@@ -726,6 +771,9 @@ main.prototype.config_update = function(new_config, config) {
 	return config;
 };
 
+/**
+ * close main instance
+ */
 main.prototype.close = function() {
 	var _this = this;
 	if (this._close) return;
@@ -753,6 +801,11 @@ main.prototype.close = function() {
 	});
 };
 
+/**
+ * Reload configuration
+ *
+ * @param {function} callback
+ */
 main.prototype.reload = function(callback) {
 	var config = this._config;
 	this.close();

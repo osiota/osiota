@@ -36,7 +36,12 @@ EventEmitter.prototype.once_timeout = function(event, handler, timeout) {
 	};
 };
 
-/* Class: RemoteCall */
+/**
+ * Remote call instance
+ * @class
+ * @classdesc Remote Call class
+ * @abstract
+ */
 exports.remotecall = function() {
 	this._rpc_calls = {};
 

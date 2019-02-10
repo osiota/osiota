@@ -1,0 +1,37 @@
+{
+	"opts": {
+		"destination": "documentation",
+		"readme": "README.md",
+		"tutorials": "doc",
+		"template": "node_modules/better-docs"
+	},
+    "plugins": [
+		"plugins/markdown",
+		"node_modules/better-docs/category"
+	],
+    "recurseDepth": 2,
+    "source": {
+		"include": ["./"],
+        "includePattern": ".js$",
+        "excludePattern": "(^|\\/|\\\\)_|^webpack_|node_modules"
+    },
+    "sourceType": "module",
+    "tags": {
+        "allowUnknownTags": ["category"],
+        "dictionaries": ["jsdoc","closure"]
+    },
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": false,
+		"default": {
+			"staticFiles": {
+				"include": [
+					"./doc"
+				]
+			}
+		},
+		"better-docs": {
+			"name": "Energy-Router Documentation"
+		}
+    }
+}

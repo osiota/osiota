@@ -15,11 +15,11 @@ Your app needs a name and a place to live in.
 
 
 1. The main script file (i.e. ``er-app-example/index.js``) should have a method header as following:
-```exports.init = function(node, app_config, main, host_info) { /* */ }```
-1. All the config-data handed to your app is contained in the app_config object. All the attributes carry the same name they were given in the config JSON File. (e.g the example config file given at the end of this tutorial would lead to attributes like IP, passwd and node_name. Those attributes can be accessed in the code via ```app_config.IP```.
-1. Furthermore, your init method receives a router-object, which can you used to use the publish, subscribe and announce methods. This can be done via e.g. ```main.node("/name").publish();```
+```exports.init = function(node, app_config, main) { /* */ }```
+1. All the config-data handed to your app is contained in the app_config object. All the attributes carry the same name they were given in the config JSON File. (e.g the example config file given at the end of this tutorial would lead to attributes like IP and passwd. Those attributes can be accessed in the code via ```app_config.IP```.
+1. Furthermore, your init method receives a node-object, which can you used to publish, subscribe and announce information. This can be done via e.g. ```node.announce({}); node.publish(undefined, "Hallo World");```
 
 
 ### Step 3: Activate your Application
 
-See [CONFIGURATION](configuration.md).
+See [CONFIGURATION](doc/04_configuration.md).

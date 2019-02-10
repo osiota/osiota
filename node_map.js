@@ -7,7 +7,7 @@
  * @param {(string|application|boolean)} [app] - An application to map content
  * @param {(boolean|object|function)} [map_extra_elements] - Map extra elements?
  */
-exports.NodeMap = function(node, config, app, map_extra_elements) {
+exports.node_map = function(node, config, app, map_extra_elements) {
 	var _this = this;
 
 	this._node = node;
@@ -30,7 +30,7 @@ exports.NodeMap = function(node, config, app, map_extra_elements) {
 /**
  * Initialize config
  */
-exports.NodeMap.prototype.init = function() {
+exports.node_map.prototype.init = function() {
 	// Map existing config items:
 	this._config.forEach(function(app_config) {
 		var key = _this.map_key(app_config);
@@ -49,7 +49,7 @@ exports.NodeMap.prototype.init = function() {
  * @param {object} [local_metadata] - Addional metadata
  * @param {*} [cache] - Addional object for caching
  */
-exports.NodeMap.prototype.node = function(app_config, local_metadata, cache) {
+exports.node_map.prototype.node = function(app_config, local_metadata, cache) {
 	if (typeof app_config !== "object" ||
 			app_config === null) {
 		app_config = {
@@ -99,7 +99,7 @@ exports.NodeMap.prototype.node = function(app_config, local_metadata, cache) {
 /**
  * Unload all nodes
  */
-exports.NodeMap.prototype.unload = function() {
+exports.node_map.prototype.unload = function() {
 	for(var s in this.map) {
 		if (this.map.hasOwnProperty(s)) {
 			this.map[s].vn.unannounce();
@@ -114,7 +114,7 @@ exports.NodeMap.prototype.unload = function() {
  * Remove a single node
  * @param {object} app_config - A config object
  */
-exports.NodeMap.prototype.remove_node = function(app_config) {
+exports.node_map.prototype.remove_node = function(app_config) {
 	if (typeof app_config === "string") {
 		app_config = {
 			"map": app_config
@@ -134,8 +134,9 @@ exports.NodeMap.prototype.remove_node = function(app_config) {
 
 /*
  * INTERNAL: Map element
+ * @private
  */
-exports.NodeMap.prototype.map_element = function(key, app_config,
+exports.node_map.prototype.map_element = function(key, app_config,
 		local_metadata){
 	var local_app = this._app;
 	if (typeof app_config.self_app !== "undefined"){
@@ -182,7 +183,7 @@ exports.NodeMap.prototype.map_element = function(key, app_config,
  * @param {object} metadata -  metadata gathered together
  * @param {object} app_config - Mapped or saved config
  */
-exports.NodeMap.prototype.map_initialise = function(n, metadata, app_config) {
+exports.node_map.prototype.map_initialise = function(n, metadata, app_config) {
 	n.announce(metadata);
 };
 
@@ -191,7 +192,7 @@ exports.NodeMap.prototype.map_initialise = function(n, metadata, app_config) {
  * @param {object} app_config - A config object
  * @param {*} [cache] - Addional object for caching
  */
-exports.NodeMap.prototype.map_key = function(app_config, cache) {
+exports.node_map.prototype.map_key = function(app_config, cache) {
 	return ""+app_config.map;
 };
 

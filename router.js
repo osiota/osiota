@@ -22,9 +22,12 @@ var RemoteCall = require('./router_remotecall.js').remotecall;
  * Create a node instance
  * @class
  * @classdesc Node class
+ * @mixes remotecall
  * @param {router} r - The router instance
  * @param {string} name - The name of the node
  * @param {node} parentnode - The parent node
+ * @hideconstructor
+ * @fires router#create_new_node
  */
 exports.node = function(r, name, parentnode) {
 	this.name = name;
@@ -86,6 +89,11 @@ exports.node = function(r, name, parentnode) {
 	this.on('unregistered', check_need_subscription);
 	this.on('node_update', check_need_subscription);
 
+	/**
+	 * Create new node event
+	 *
+	 * @event router#create_new_node
+	 */
 	r.emit('create_new_node', this);
 };
 util.inherits(exports.node, RemoteCall);
@@ -122,6 +130,7 @@ exports.node.prototype.virtualnode = function() {
  * Announce a node with meta data
  * @param {object} metadata - Meta data describing the node
  * @param {boolean} update - (For internal use only!)
+ * @fires router#announce
  */
 exports.node.prototype.announce = function(metadata, update) {
 	if (typeof update === "undefined") {
@@ -143,7 +152,14 @@ exports.node.prototype.announce = function(metadata, update) {
 
 	this.metadata = metadata;
 
-	// give others a chance to alter metadata before annoucing it.
+	/**
+	 * Announce node event
+	 *
+	 * Give others a chance to alter metadata before annoucing it.
+	 *
+	 * @event router#announce
+	 * @type {node}
+	 */
 	this.router.emit("announce", this);
 
 	this.announce_local("announce", update);
@@ -273,7 +289,11 @@ exports.node.prototype.unique_date = function() {
 
 };
 
-/* Set new data */
+/**
+ * Set new data
+ * @fires node#set
+ * @private
+ */
 exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to_history) {
 	// if type is undefined: Use current time:
 	if (typeof time === "undefined" || time === "undefined")
@@ -303,6 +323,15 @@ exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to
 	this.value = value;
 	this.time = time;
 
+	/**
+	 * set value event
+	 *
+	 * @event node#set
+	 * @param {number} time
+	 * @param {*} value
+	 * @param {boolean} only_if_differ
+	 * @param {boolean} do_not_add_to_history
+	 */
 	this.emit('set', time, value, only_if_differ, do_not_add_to_history);
 
 	return true;
@@ -383,7 +412,7 @@ exports.node.prototype.publish_subscribe_cb = function() {
 	};
 };
 
-/* Register a link name for a route */
+/* DEPRECATED: Register a link name for a route */
 exports.node.prototype.connect = function(dnode, metadata) {
 	var _this = this;
 	if (Array.isArray(dnode)) {
@@ -416,6 +445,7 @@ exports.node.prototype.connect = function(dnode, metadata) {
 /**
  * Subscribe to the changes of a node
  * @param {node~subscribeCallback} object - The function to be called on new data
+ * @fires node#registered
  * @this node
  */
 exports.node.prototype.subscribe = function(callback) {
@@ -424,6 +454,12 @@ exports.node.prototype.subscribe = function(callback) {
 	object.time_added = new Date();
 
 	this.subscription_listener.push(object);
+	/**
+	 * registered subscription event
+	 *
+	 * @event node#registerd
+	 * @type {function}
+	 */
 	this.emit("registered", object);
 
 	if (this.time != null)
@@ -445,11 +481,18 @@ exports.node.prototype.subscribe = function(callback) {
 /**
  * Unsubscribe to the changes of a node
  * @param {function} object - The function to be unsubscribed
+ * @fires node#unregistered
  */
 exports.node.prototype.unsubscribe = function(object) {
 	for(var j=0; j<this.subscription_listener.length; j++) {
 		if (this.subscription_listener[j] === object) {
 			var r = this.subscription_listener.splice(j, 1);
+			/**
+			 * unregistered subscription event
+			 *
+			 * @event node#unregisterd
+			 * @type {function}
+			 */
 			this.emit("unregistered", r[0]);
 			return true;
 		}
@@ -713,6 +756,7 @@ exports.node.prototype.filter = function(filter_config, filter_method,
  * Check filter config on an node (relative to this node)
  * @param {object} filter_config - An object with the filter configuration
  * @param {node} node - Node to filter
+ * @private
  */
 exports.node.prototype.filter_node = function(filter_config, node) {
 	// default: filter nothing:
@@ -865,13 +909,13 @@ exports.router = function(name) {
 };
 util.inherits(exports.router, RemoteCall);
 
-/* Register a link name for a route */
+/* DEPRECATED: Register a link name for a route */
 exports.router.prototype.connect = function(name, dnode) {
 	var n = this.node(name);
 	return n.connect(dnode);
 };
 
-/* Register multiple connections */
+/* DEPRECATED: Register multiple connections */
 exports.router.prototype.connectArray = function(nodes) {
 	for (var from in nodes) {
 		this.connect(from, nodes[from]);
@@ -1021,6 +1065,7 @@ exports.router.prototype.process_single_message = function(basename, d, obj, res
 				}
 			}
 
+			// deprecated:
 			if (method === "data") {
 				n.connection = obj;
 			}
