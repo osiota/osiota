@@ -50,6 +50,23 @@ util.inherits(pwsc, EventEmitter);
 pwsc.prototype.init = function() {
 	var pthis = this;
 	try {
+		if (typeof document !== "undefined" &&
+				typeof document.hidden !== "undefined" &&
+				typeof document.addEventListener
+						!== "undefined" &&
+				document.hidden) {
+			console.log("document.hidden");
+
+			document.addEventListener("visibilitychange",
+					function cb() {
+				document.removeEventListener(
+						"visibilitychange", cb);
+				console.log("document.show");
+				pthis.init();
+			}, false);
+
+			return;
+		}
 		this.ws = new WebSocket(this.wpath);
 		this.ws.reconnect = false;
 		// Browser WebSocket is not an EventEmitter. So define
