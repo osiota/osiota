@@ -8,6 +8,7 @@ exports.init = function(node, app_config, main) {
 	var handler = function(type, ws, req) {
 		if (type !== "ws") return;
 
+		//TODO: timing attack possible?
 		if (allowed_paths.indexOf(req.url) !== -1) {
 			return true;
 		}
