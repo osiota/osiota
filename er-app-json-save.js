@@ -3,42 +3,44 @@ const path = require("path");
 const mkdirp = require('mkdirp');
 
 exports.init = function(node, app_config, main, host_info) {
+	var _this = this;
+
 	if (typeof app_config.filename !== "string") {
 		throw new Error("config option json filename not defined.");
 	}
 
-	var config_save_last = false;
+	this.config_filename = app_config.filename;
+
+	this.config_save_last = false;
 	if (typeof app_config.save_last !== "undefined") {
-		config_save_last = app_config.save_last;
+		this.config_save_last = app_config.save_last;
 	}
-	var config_save_only_last = false;
+	this.config_save_only_last = false;
 	if (typeof app_config.save_only_last !== "undefined") {
-		config_save_only_last = app_config.save_only_last;
+		this.config_save_only_last = app_config.save_only_last;
 	}
-	var config_save_no_data = false;
+	this.config_save_no_data = false;
 	if (typeof app_config.save_no_data !== "undefined") {
-		config_save_no_data = app_config.save_no_data;
+		this.config_save_no_data = app_config.save_no_data;
 	}
 
-	var object = {};
-	var data = [];
-	var last_data = null;
+	this.object = {};
+	this.data = [];
+	this.last_data = null;
 
-	var source = this._source;
-
-	source.ready("announce", function() {
-		object.metadata = source.metadata;
-		object.name = source.name;
+	this._source.ready("announce", function() {
+		_this.object.metadata = _this._source.metadata;
+		_this.object.name = _this._source.name;
 	});
 
 	var s = null;
-	if (!config_save_no_data) {
+	if (!this.config_save_no_data) {
 	this._source.subscribe(function(do_not_add_to_history, initial){
 		if (initial)
 			return;
 		if (do_not_add_to_history) {
 			if (this.time !== null) {
-				last_data = {
+				_this.last_data = {
 					"time": this.time,
 					"value": this.value
 				};
@@ -46,9 +48,9 @@ exports.init = function(node, app_config, main, host_info) {
 			}
 			return;
 		}
-		last_data = null;
+		_this.last_data = null;
 
-		data.push({
+		_this.data.push({
 			"time": this.time,
 			"value": this.value
 		});
@@ -56,54 +58,72 @@ exports.init = function(node, app_config, main, host_info) {
 	});
 	}
 
-	return [function(unload) {
-		if (main.user_terminated) {
-			unload(s);
-			return;
-		}
-		setTimeout(function() {
-		console.log("Write json file");
+	return [s];
+};
+exports.unload = function(co, unload_object) {
+	var _this = this;
 
-		data.sort(function (a, b) {
+	if (this._main.user_terminated) {
+		unload_object(co);
+		return;
+	}
+	// wait 100ms till all other apps are finished:
+	setTimeout(function() {
+		console.log("Write file");
+
+		// sort and add data:
+		_this.data.sort(function (a, b) {
 			if (a.time < b.time)
 				return -1;
 			if (a.time > b.time)
 				return 1;
 			return 0;
 		});
-		if (config_save_last && last_data !== null) {
-			data.push(last_data);
+		if (_this.config_save_last && last_data !== null) {
+			_this.data.push(_this.last_data);
 		}
-		var full_history = !config_save_no_data;
-		if (config_save_only_last) {
-			data = [ data[data.length-1] ];
+		var full_history = !_this.config_save_no_data;
+		if (_this.config_save_only_last) {
+			_this.data = [ _this.data[_this.data.length-1] ];
 			full_history = false;
 		}
-		if (typeof object.metadata === "object" &&
-				object.metadata !== null) {
-			object.metadata.full_history = full_history;
+
+		// fill object:
+		if (typeof _this.object.metadata === "object" &&
+				_this.object.metadata !== null) {
+			_this.object.metadata.full_history = full_history;
 		}
-		object.data = data;
+		_this.object.data = _this.data;
+
+		// create filename:
 		var f_N = "node";
-		if (typeof object.name === "string")
-			f_N = object.name.replace(/^\//, "");
+		if (typeof _this.object.name === "string")
+			f_N = _this.object.name.replace(/^\//, "");
 		var f_n = f_N.replace(/\/+/g, "-");
-		var filename = app_config.filename
+		var filename = _this.config_filename
 			.replace(/%n/, f_n)
 			.replace(/%N/, f_N);
+
+
+		// create parent directory and file:
 		mkdirp(path.dirname(filename), function(err) {
 			if (err) throw err;
-			fs.writeFile(filename,
-					JSON.stringify(object, null, "\t"),
+			fs.writeFile(filename, _this.format_file(_this.object),
 					function(err) {
 				if (err) throw err;
-				console.log("json file written.");
+				console.log("output file written.");
 
-				unload(s);
+				// clear data:
+				_this.data = [];
+				_this.object = {};
+
+				// clear other objects:
+				unload_object(co);
 			});
 		});
-		data = [];
+	}, 100);
+};
 
-		}, 100);
-	}];
+exports.format_file = function(object) {
+	return JSON.stringify(object, null, "\t");
 };
