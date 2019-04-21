@@ -11,13 +11,16 @@ var patch_callback = function(object, function_name, callback) {
 
 const EventEmitter = require('events');
 var wsc = require('./router_websocket_client');
+var router = require('./router').router;
 
 var PacketEvent = new EventEmitter();
 
+// Listen: sendjson_raw || respond
 patch_callback(wsc.pWebSocket.prototype, "sendjson_raw", function(message) {
 	PacketEvent.emit("client.send", message.length);
 	//datarate_send += message.length;
 });
+// Listen: recvjson || router.process_single_message
 patch_callback(wsc.pWebSocket.prototype, "recvjson", function(message) {
 	PacketEvent.emit("client.recv", message.length);
 	//datarate_recv += message.length;
@@ -44,12 +47,14 @@ exports.init = function(node, app_config, main) {
 	// count packets:
 	var datarate_send = 0;
 	var datarate_recv = 0;
-	PacketEvent.on("client.send", function(message_length) {
+	var onsend = function(message_length) {
 		datarate_send += message_length;
-	});
-	PacketEvent.on("client.recv", function(message_length) {
+	};
+	PacketEvent.on("client.send", onsend);
+	var onrecv = function(message_length) {
 		datarate_recv += message_length;
-	});
+	};
+	PacketEvent.on("client.recv", onrecv);
 
 	let t = process.hrtime();
 	var tid = setInterval(function() {
@@ -65,5 +70,8 @@ exports.init = function(node, app_config, main) {
 		t = process.hrtime();
 	}, interval_stat*1000);
 
-	return [tid, node, node2];
+	return [tid, node, node2, function() {
+		PacketEvent.removeListener("client.send", onsend);
+		PacketEvent.removeListener("client.recv", onrecv);
+	}];
 }
