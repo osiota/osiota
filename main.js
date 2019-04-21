@@ -353,7 +353,7 @@ main.prototype.create_websocket_client = function(url, nodes, config) {
 		});
 	} else if (typeof nodes === "string") {
 		ws.node_plocal(nodes, "subscribe_announcement");
-	} else {
+	} else if (nodes !== false) {
 		ws.node_plocal("/", "subscribe_announcement");
 	}
 
