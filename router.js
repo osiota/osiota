@@ -918,20 +918,6 @@ exports.router = function(name) {
 };
 util.inherits(exports.router, RemoteCall);
 
-/* DEPRECATED: Register a link name for a route */
-exports.router.prototype.connect = function(name, dnode) {
-	var n = this.node(name);
-	return n.connect(dnode);
-};
-
-/* DEPRECATED: Register multiple connections */
-exports.router.prototype.connectArray = function(nodes) {
-	for (var from in nodes) {
-		this.connect(from, nodes[from]);
-	}
-
-};
-
 /* Route data */
 exports.router.prototype.publish = function(name, time, value, only_if_differ, do_not_add_to_history) {
 	var n = this.node(name);
