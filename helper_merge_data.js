@@ -17,6 +17,7 @@ exports.hash = function(obj) {
 
 
 exports.merge = function(obj_a, obj_b) {
+	if (obj_a === obj_b) return obj_b;
 	if (typeof obj_a === "object" &&
 			typeof obj_b === "object") {
 		if (Array.isArray(obj_a) || Array.isArray(obj_b)) {
