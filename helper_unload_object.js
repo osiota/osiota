@@ -24,6 +24,8 @@ exports.unload_object = function(object) {
 		// some objects:
 		} else if (typeof object.cancel === "function") {
 			object.cancel();
+		} else if (typeof object.end === "function") {
+			object.end();
 		// subscribe:
 		} else if (typeof object.remove === "function") {
 			object.remove();
