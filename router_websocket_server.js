@@ -48,7 +48,7 @@ exports.init = function(router, basename, options) {
 			try {
 				var data = JSON.parse(message);
 				router.process_message(basename, data,
-						ws, ws.respond.bind(ws), ws);
+						ws.respond.bind(ws), ws);
 			} catch (e) {
 				console.log("WebSocket, on message, Exception:",
 						e, e.stack.split("\n"));

@@ -817,14 +817,26 @@ exports.node.prototype.rpc_connect = function(reply, dnode) {
 	var rentry = this.connect(dnode);
 	reply(null, rentry);
 };
-exports.node.prototype.rpc_register = function(reply, dest, id, obj) {
-	var rentry = this.register(dest, id, obj);
-	reply(null, rentry);
+
+/**
+ * Register a RPC command on the node
+ * @param {string} method - Method to be called
+ * @param {function} callack - Function to register
+ */
+exports.node.prototype.on_rpc = function(method, callback) {
+	var _this = this;
+
+	if (typeof method !== "string")
+		throw new Error("on_rpc: method is not a string");
+	if (typeof callback !== "function")
+		throw new Error("on_rpc: callback is not a function");
+	this["rpc_" + method] = callback;
+
+	return function() {
+		_this["rpc_" + method] = undefined;
+	}
 };
-exports.node.prototype.rpc_unregister = function(reply, rentry) {
-	this.unregister(rentry);
-	reply(null, "okay");
-};
+
 /**
  * Execute a RPC command on the node
  * @param {string} method - Method to be called
@@ -841,17 +853,14 @@ exports.node.prototype.rpc = function(method) {
 		var callback = null;
 		if (typeof args[args.length-1] === "function") {
 			callback = args.pop();
-		}
-
-		var reply = function(error, data) {
-			if (!callback) {
+			reply = callback.bind(_this);
+		} else {
+			reply = function(error, data) {
 				if (error !== null) {
 					console.error("RPC(local)-Error: ", error, data);
 				}
-			} else {
-				callback.call(_this, error, data);
 			}
-		};
+		}
 
 		try {
 			if (this._rpc_process(method, args, reply)) {
@@ -1006,7 +1015,7 @@ exports.router.prototype.rpc_list = function(reply) {
 };
 
 /* process a single command message */
-exports.router.prototype.process_single_message = function(basename, d, obj, respond, module) {
+exports.router.prototype.process_single_message = function(basename, d, respond, module) {
 	var rpc_ref = d.ref;
 	var reply = function(error, data) {
 		var args = Array.prototype.slice.call(arguments);
@@ -1065,10 +1074,6 @@ exports.router.prototype.process_single_message = function(basename, d, obj, res
 				}
 			}
 
-			// deprecated:
-			if (method === "data") {
-				n.connection = obj;
-			}
 			if (typeof module === "object" && n._rpc_process("node_" + method, d.args, reply, module)) {
 				return;
 			} else if (n._rpc_process(method, d.args, reply)) {
@@ -1101,8 +1106,7 @@ exports.router.prototype.process_single_message = function(basename, d, obj, res
 };
 
 /* process command messages (ie from websocket) */
-/* TODO: delete arguments: obj */
-exports.router.prototype.process_message = function(basename, data, obj, respond, module) {
+exports.router.prototype.process_message = function(basename, data, respond, module) {
 	var r = this;
 	if (typeof respond !== "function")
 		respond = function() {};
@@ -1112,7 +1116,7 @@ exports.router.prototype.process_message = function(basename, data, obj, respond
 	}
 
 	data.forEach(function(d) {
-		r.process_single_message(basename, d, obj, respond, module);
+		r.process_single_message(basename, d, respond, module);
 
 	});
 };

@@ -186,11 +186,11 @@ exports.init = function(router, basename, ws_url, init_callback) {
 
 	ws.on("message", function(data) {
 		router.process_message(basename, data,
-				ws, ws.respond.bind(ws), ws);
+				ws.respond.bind(ws), ws);
 	});
 
 	require('./router_websocket_generic.js').init(router, ws);
-	
+
 	ws.on("open", function() {
 		this.rpc("hello", router.name, function(error, name) {
 			if (error) throw error;
