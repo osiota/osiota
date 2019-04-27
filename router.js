@@ -336,21 +336,10 @@ exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to
 
 	return true;
 };
-/* Route data */
-exports.node.prototype.route = function(node, relative_name, do_not_add_to_history) {
-	if (typeof relative_name === "undefined") {
-		relative_name = "";
-	}
-
-	if (this.parentnode !== null) {
-		this.parentnode.route(node, this.nodename + relative_name, do_not_add_to_history);
-	}
-};
 
 /* Route data (synchronous) */
 exports.node.prototype.publish_sync = function(time, value, only_if_differ, do_not_add_to_history, initial) {
 	if (this.set(time, value, only_if_differ, do_not_add_to_history, initial)) {
-		this.route(this, "", do_not_add_to_history);
 		this.subscription_notify(do_not_add_to_history, initial);
 	}
 };
