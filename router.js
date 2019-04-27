@@ -348,22 +348,22 @@ exports.node.prototype.route = function(node, relative_name, do_not_add_to_histo
 };
 
 /* Route data (synchronous) */
-exports.node.prototype.publish_sync = function(time, value, only_if_differ, do_not_add_to_history) {
-	if (this.set(time, value, only_if_differ, do_not_add_to_history)) {
+exports.node.prototype.publish_sync = function(time, value, only_if_differ, do_not_add_to_history, initial) {
+	if (this.set(time, value, only_if_differ, do_not_add_to_history, initial)) {
 		this.route(this, "", do_not_add_to_history);
-		this.subscription_notify(do_not_add_to_history);
+		this.subscription_notify(do_not_add_to_history, initial);
 	}
 };
 
 /* Route data (asynchronous) */
-exports.node.prototype.publish = function(time, value, only_if_differ, do_not_add_to_history) {
+exports.node.prototype.publish = function(time, value, only_if_differ, do_not_add_to_history, initial) {
 	var n = this;
 
 	if (typeof time === "undefined" || time === "undefined")
 		time = this.unique_date();
 
 	process.nextTick(function() {
-		n.publish_sync(time, value, only_if_differ, do_not_add_to_history);
+		n.publish_sync(time, value, only_if_differ, do_not_add_to_history, initial);
 	});
 
 	return time;
@@ -501,14 +501,14 @@ exports.node.prototype.unsubscribe = function(object) {
 };
 
 /* Notify the subscriptions */
-exports.node.prototype.subscription_notify = function(do_not_add_to_history) {
+exports.node.prototype.subscription_notify = function(do_not_add_to_history, initial) {
 	if (typeof do_not_add_to_history === "undefined") {
 		do_not_add_to_history = false;
 	}
 
 	var _this = this;
 	this.subscription_listener.forEach(function(f) {
-		f.call(_this, do_not_add_to_history, false);
+		f.call(_this, do_not_add_to_history, initial);
 	});
 };
 
@@ -809,8 +809,8 @@ exports.node.prototype.filter_node = function(filter_config, node) {
 };
 
 /* Remote procedure calls */
-exports.node.prototype.rpc_data = function(reply, time, value, only_if_differ, do_not_add_to_history) {
-	this.publish(time, value, only_if_differ, do_not_add_to_history);
+exports.node.prototype.rpc_data = function(reply, time, value, only_if_differ, do_not_add_to_history, initial) {
+	this.publish(time, value, only_if_differ, do_not_add_to_history, initial);
 	reply(null, "okay");
 };
 exports.node.prototype.rpc_connect = function(reply, dnode) {

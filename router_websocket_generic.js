@@ -191,7 +191,7 @@ exports.init = function(router, ws) {
 					ws.node_rpc(node, "missed_data", node.time);
 				}
 			}
-			ws.node_rpc(node, "data", node.time, node.value, false, do_not_add_to_history);
+			ws.node_rpc(node, "data", node.time, node.value, false, do_not_add_to_history, initial);
 		});
 	});
 	ws.rpc_node_subscribe_for_aggregated_data = single_function(ws.cmds,
