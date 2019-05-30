@@ -1,9 +1,15 @@
 
+exports.map_event = function(e) {
+	return e;
+};
+
+exports.meta_type = "link.rpc";
+
 exports.init = function(node, app_config, main, host_info) {
 	var _this = this;
-	
+
 	node.announce({
-		"type": "link.rpc"
+		"type": this.meta_type
 	});
 
 	if (!node.parentnode) {
@@ -16,10 +22,12 @@ exports.init = function(node, app_config, main, host_info) {
 
 		return _this._source.subscribe(function(
 				do_not_add_to_history, initial){
-			_parent.rpc("set", this.value);
+			_parent.rpc("set",
+				_this.map_event(this.value),
+				this.time);
 
 		});
 	});
 
-	return [s, node];
+	return [sr, node];
 };
