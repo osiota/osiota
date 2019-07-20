@@ -282,7 +282,7 @@ exports.node.prototype.unique_date = function() {
 	var d = new Date()/1000;
 	if (typeof this._unique_date !== "number" ||
 			d - this._unique_date > 0.00005 ||
-			d < this._unique_date) {
+			d < this._unique_date-1) {
 		return this._unique_date = d;
 	}
 	this._unique_date += 0.00001;
@@ -296,10 +296,6 @@ exports.node.prototype.unique_date = function() {
  * @private
  */
 exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to_history) {
-	// if type is undefined: Use current time:
-	if (typeof time === "undefined" || time === "undefined")
-		time = this.unique_date();
-
 	// convert from string to number:
 	if (typeof time === "string")
 		time = time*1;
@@ -340,20 +336,26 @@ exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to
 
 /* Route data (synchronous) */
 exports.node.prototype.publish_sync = function(time, value, only_if_differ, do_not_add_to_history, initial) {
+	if (typeof time === "undefined")
+		time = this.unique_date();
+
 	if (this.set(time, value, only_if_differ, do_not_add_to_history, initial)) {
 		this.subscription_notify(do_not_add_to_history, initial);
 	}
+	return time;
 };
 
 /* Route data (asynchronous) */
 exports.node.prototype.publish = function(time, value, only_if_differ, do_not_add_to_history, initial) {
-	var n = this;
+	var _this = this;
 
-	if (typeof time === "undefined" || time === "undefined")
+	if (typeof time === "undefined")
 		time = this.unique_date();
 
 	process.nextTick(function() {
-		n.publish_sync(time, value, only_if_differ, do_not_add_to_history, initial);
+		if (_this.set(time, value, only_if_differ, do_not_add_to_history, initial)) {
+			_this.subscription_notify(do_not_add_to_history, initial);
+		}
 	});
 
 	return time;

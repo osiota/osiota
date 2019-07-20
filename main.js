@@ -217,9 +217,7 @@ main.prototype.config = function(config) {
 	}
 	this.sub_config(config);
 
-	setTimeout(function() {
-		_this.check_started();
-	}, 500);
+	this.check_started();
 };
 /**
  * Load sub configurations
@@ -276,7 +274,12 @@ main.prototype.check_started = function(factor) {
 	 *
 	 * @event main#started
 	 */
-	this.emit("started");
+	var tid = setTimeout(function() {
+		this.emit("started");
+	}, 500);
+	if (tid && this.listenerCount("started") == 0) {
+		tid.unref();
+	}
 };
 
 main.prototype.setup_history = function(save_history) {

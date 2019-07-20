@@ -14,14 +14,14 @@ exports.init = function(node, app_config, main, host_info) {
 		delay = app_config.load_delay;
 	}
 
+	var co = [];
+	if (typeof this.init_preload === "function") {
+		co[0] = this.init_preload(node, app_config, main, host_info);
+	}
+
 	var tid = setTimeout(function() {
-		var obj = _this.init_delayed(node, app_config, main, host_info);
-		_this.object_delayed = obj;
+		co[1] = _this.init_delayed(node, app_config, main, host_info);
 	}, delay * 1000);
 
-	return tid;
-};
-exports.unload = function(object, unload_object) {
-	unload_object(object);
-	unload_object(this.object_delayed);
+	return [tid, co];
 };

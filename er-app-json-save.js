@@ -83,7 +83,7 @@ exports.unload = function(co, unload_object) {
 			_this.data.push(_this.last_data);
 		}
 		var full_history = !_this.config_save_no_data;
-		if (_this.config_save_only_last) {
+		if (_this.config_save_only_last && _this.data.length) {
 			_this.data = [ _this.data[_this.data.length-1] ];
 			full_history = false;
 		}
@@ -104,11 +104,16 @@ exports.unload = function(co, unload_object) {
 			.replace(/%n/, f_n)
 			.replace(/%N/, f_N);
 
+		var write_options = {};
+		if (_this._config.append) {
+			write_options.flag = "a";
+		}
 
 		// create parent directory and file:
 		mkdirp(path.dirname(filename), function(err) {
 			if (err) throw err;
 			fs.writeFile(filename, _this.format_file(_this.object),
+					write_options,
 					function(err) {
 				if (err) throw err;
 				console.log("output file written.");
