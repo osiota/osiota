@@ -269,13 +269,14 @@ main.prototype.sub_config = function(config, node, callback) {
 };
 
 main.prototype.check_started = function(factor) {
+	var _this = this;
 	/**
 	 * Started event
 	 *
 	 * @event main#started
 	 */
 	var tid = setTimeout(function() {
-		this.emit("started");
+		_this.emit("started");
 	}, 500);
 	if (tid && this.listenerCount("started") == 0) {
 		tid.unref();
