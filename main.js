@@ -278,7 +278,8 @@ main.prototype.check_started = function(factor) {
 	var tid = setTimeout(function() {
 		_this.emit("started");
 	}, 500);
-	if (tid && this.listenerCount("started") == 0) {
+	if (tid && typeof tid.unref === "function" &&
+			this.listenerCount("started") == 0) {
 		tid.unref();
 	}
 };
