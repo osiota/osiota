@@ -60,7 +60,7 @@ exports.init = function(node, app_config, main, host_info) {
 	};
 
 	node.announce({
-		"type": "forward.rpc",
+		"type": "connect.rpc",
 		"rpc": {
 			"set": {
 				"desc": "Enable",
@@ -87,7 +87,7 @@ exports.init = function(node, app_config, main, host_info) {
 				_this._source.rpc("set", value,
 						this.time, function(e) {
 					if (e) {
-						console.warn("Forward, rpc:",
+						console.warn("Connect, rpc:",
 						"\nsource", pnode.name,
 						"\nnode:", _this._source.name,
 						"\nstack:", e.stack || e);

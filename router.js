@@ -864,8 +864,9 @@ exports.node.prototype.rpc = function(method) {
 			}
 			throw new Error("method not found:" + method);
 		} catch (e) {
-			console.warn("Router, process local rpc:\n",
-				e.stack || e);
+			console.warn("Router, process local rpc:",
+				"\nnode:", this.name,
+				"\nstack:", e.stack || e);
 			reply("Exception:", (e.stack || e).toString());
 		}
 	} else {
