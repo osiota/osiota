@@ -11,6 +11,13 @@ var add_listener = function(config, callback) {
 		}
 	}
 }
+var publish_config = function(node, config) {
+	// clone object:
+	config = JSON.parse(JSON.stringify(config));
+	// remove app object:
+	config.app = undefined;
+	node.publish(undefined, config);
+};
 
 exports.init = function(node, app_config, main, host_info) {
 	var nodes = [];
@@ -26,7 +33,7 @@ exports.init = function(node, app_config, main, host_info) {
 		var cn = a._node.node("config");
 		var schema;
 		if (typeof a.get_schema === "function") {
-			schema = a.get_schema(get_schema.bind(null, main.app_dirs));
+			schema = a.get_schema(main.application_manager.get_schema.bind(main.application_manager));
 		} else {
 			schema = main.application_manager.get_schema(a._app);
 		}
@@ -36,18 +43,18 @@ exports.init = function(node, app_config, main, host_info) {
 			schema: schema,
 			extrabutton: ["reinit", "save"]
 		});
-		cn.publish(undefined, a._config);
+		publish_config(cn, a._config);
 
 		// add listener to config:
 		add_listener(a._config, function() {
-			cn.publish(undefined, a._config);
+			publish_config(cn, a._config);
 		});
 
 		cn.rpc_publish = function(reply, time, value) {
+			// copy app object:
+			value.app = a._config.app;
 			a._config = main.config_update(value, a._config);
-			this.publish(undefined,
-				value
-			);
+			publish_config(cn, value);
 			reply(null, "ok");
 		};
 		cn.rpc_reinit = function(reply) {
