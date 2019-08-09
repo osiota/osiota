@@ -13,7 +13,7 @@ exports.init = function(node, app_config, main, host_info) {
 	}
 
 	node.announce(metadata);
-	
+
 	var state = 0;
 	var s = this._source.subscribe(function() {
 		state = this.value;

@@ -246,11 +246,13 @@ exports.calculate_integral = function(value_group, memory,
 		interval = Math.max(upper_limit-lower_limit,0);
 		result += interval * value;
 		for (var i = 0; i < values.length-1; i++) {
-			value = values[i].value;
-			upper_limit = values[i+1].time;
-			lower_limit = values[i].time;
-			interval = Math.max(upper_limit-lower_limit,0);
-			result += interval * value;
+			if (values[i].time > interval_start) {
+				value = values[i].value;
+				upper_limit = values[i+1].time;
+				lower_limit = values[i].time;
+				interval = Math.max(upper_limit-lower_limit,0);
+				result += interval * value;
+			}
 		}
 		value = values[values.length-1].value;
 		upper_limit = interval_end;
