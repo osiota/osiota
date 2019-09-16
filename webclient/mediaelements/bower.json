@@ -1,8 +1,0 @@
-{
-	"name": "MediaElements",
-	"dependencies": {
-		"nouislider": "~7.0.10",
-		"handlebars": "~3.0.0",
-		"font-awesome": "~4.3.0"
-	}
-}

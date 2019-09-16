@@ -1,8 +1,0 @@
-#!/usr/bin/perl -w
-
-my $element = shift @ARGV; #10011-4
-my $state = shift @ARGV; # 1 | 0
-
-my ($system, $unit) = split(/-/, $element, 2);
-
-system("sudo /home/pi/rcswitch-pi/send \"".$system."\" \"".$unit."\" \"".${state}."\"");
