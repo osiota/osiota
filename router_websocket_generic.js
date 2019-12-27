@@ -443,6 +443,7 @@ exports.init = function(router, ws) {
 		});
 	});
 	ws.on("close", function() {
+		console.log("WebSocket closing", router.name, "to",  ws.remote);
 		ws.cmds.emit("close");
 	});
 
