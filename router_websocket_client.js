@@ -89,8 +89,10 @@ pwsc.prototype.init = function() {
 		this.ws.on('message', function(message) {
 			pthis.recvjson(message);
 		});
-		this.ws.on('close', function() {
-			console.log("BasicWebSocket closing", this.remote);
+		this.ws.on('close', function(code, message) {
+			console.log("BasicWebSocket closing", this.remote,
+				"code", code, "message", message,
+				"reconnect", this.reconnect);
 			/* try to reconnect: Use  */
 			if (!this.reconnect) {
 				this.reconnect = true;
@@ -99,6 +101,8 @@ pwsc.prototype.init = function() {
 		});
 		this.ws.on('error', function(err) {
 			if (err) console.log("bWSc: Error:", err.stack || err);
+			else console.log("bWSc: Error.");
+
 			if (!this.reconnect) {
 				this.reconnect = true;
 				pthis.emit("need_reconnect");

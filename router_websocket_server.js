@@ -55,10 +55,14 @@ exports.init = function(router, basename, options) {
 				console.log("\tMessage: ", message);
 			}
 		});
-		ws.on('error', function() {
+		ws.on('error', function(err) {
+			console.log("WebSocket Connection error",
+				err.stack || err);
 		});
 		/* unregister on close: */
-		ws.on('close', function() {
+		ws.on('close', function(code, message) {
+			console.log("WebSocket Connection closed",
+				"code", code, "message", message);
 			if (!ws.closed) {
 				ws.closed = true;
 			}

@@ -442,8 +442,9 @@ exports.init = function(router, ws) {
 			ws.cmds.emit("open");
 		});
 	});
-	ws.on("close", function() {
-		console.log("WebSocket closing", router.name, "to",  ws.remote);
+	ws.on("close", function(code, message) {
+		console.log("WebSocket closing", router.name, "to",  ws.remote,
+			"code", code, "message", message);
 		ws.cmds.emit("close");
 	});
 
