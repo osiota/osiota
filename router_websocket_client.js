@@ -67,6 +67,7 @@ pwsc.prototype.init = function() {
 
 			return;
 		}
+		console.log("BasicWebSocket connecting", this.wpath);
 		this.ws = new WebSocket(this.wpath);
 		this.ws.reconnect = false;
 		// Browser WebSocket is not an EventEmitter. So define
@@ -89,6 +90,7 @@ pwsc.prototype.init = function() {
 			pthis.recvjson(message);
 		});
 		this.ws.on('close', function() {
+			console.log("BasicWebSocket closing", this.remote);
 			/* try to reconnect: Use  */
 			if (!this.reconnect) {
 				this.reconnect = true;
