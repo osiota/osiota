@@ -44,8 +44,11 @@ exports.init = function(router, basename, options) {
 		}
 
 		ws.keepalive = function(ping_interval) {
-			ws._keepalive = setInterval(function ping() {
+			ws._keepalive = setInterval(function() {
 				if (ws.is_alive === false) {
+					console.error("WebSocketServer Error: "+
+						"Got no keepalive in interval."+
+						" Terminating connection.");
 					ws.end_keepalive();
 					return ws.terminate();
 				}

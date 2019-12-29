@@ -83,14 +83,18 @@ pwsc.prototype.init = function() {
 			};
 		}
 		this.ws.keepalive = function(ping_interval) {
-			this._keepalive = setInterval(function ping() {
-				if (this.is_alive === false) {
-					this.end_keepalive();
-					return this.terminate();
+			var _ws = this;
+			this._keepalive = setInterval(function() {
+				if (_ws.is_alive === false) {
+					_ws.end_keepalive();
+					console.error("WebSocket Error: Got "+
+						"no keepalive in interval. "+
+						"Terminating connection.");
+					return _ws.terminate();
 				}
 
-				this.is_alive = false;
-				this.ping();
+				_ws.is_alive = false;
+				_ws.ping();
 			}, ping_interval);
 		};
 		this.ws.end_keepalive = function() {
