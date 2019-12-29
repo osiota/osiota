@@ -43,6 +43,26 @@ exports.init = function(router, basename, options) {
 			return;
 		}
 
+		ws.keepalive = function(ping_interval) {
+			ws._keepalive = setInterval(function ping() {
+				if (ws.is_alive === false) {
+					ws.end_keepalive();
+					return ws.terminate();
+				}
+
+				ws.is_alive = false;
+				ws.ping();
+			}, ping_interval);
+		};
+		ws.end_keepalive = function() {
+			clearInterval(ws._keepalive);
+			ws._keepalive = null;
+		};
+		ws.on("pong", function(data) {
+			ws.is_alive = true;
+		});
+		ws.keepalive(55*1000);
+
 		ws.on('message', function(message) {
 			//console.log('received: %s', message);
 			try {
@@ -63,6 +83,7 @@ exports.init = function(router, basename, options) {
 		ws.on('close', function(code, message) {
 			console.log("WebSocket Connection closed",
 				"code", code, "message", message);
+			ws.end_keepalive();
 			if (!ws.closed) {
 				ws.closed = true;
 			}

@@ -82,9 +82,28 @@ pwsc.prototype.init = function() {
 				this["on" + type].call(this);
 			};
 		}
+		this.ws.keepalive = function(ping_interval) {
+			this._keepalive = setInterval(function ping() {
+				if (this.is_alive === false) {
+					this.end_keepalive();
+					return this.terminate();
+				}
+
+				this.is_alive = false;
+				this.ping();
+			}, ping_interval);
+		};
+		this.ws.end_keepalive = function() {
+			clearInterval(this._keepalive);
+			this._keepalive = null;
+		};
+		this.ws.on("pong", function(data) {
+			this.is_alive = true;
+		});
 		this.ws.on('open', function() {
 			pthis.closed = false;
 			pthis.emit('open');
+			this.keepalive(55*1000);
 		});
 		this.ws.on('message', function(message) {
 			pthis.recvjson(message);
@@ -93,6 +112,7 @@ pwsc.prototype.init = function() {
 			console.log("BasicWebSocket closing", this.remote,
 				"code", code, "message", message,
 				"reconnect", this.reconnect);
+			this.end_keepalive();
 			/* try to reconnect: Use  */
 			if (!this.reconnect) {
 				this.reconnect = true;
@@ -100,9 +120,8 @@ pwsc.prototype.init = function() {
 			}
 		});
 		this.ws.on('error', function(err) {
-			if (err) console.log("bWSc: Error:", err.stack || err);
-			else console.log("bWSc: Error.");
-
+			console.log("bWSc: Error:", err.stack || err);
+			this.end_keepalive();
 			if (!this.reconnect) {
 				this.reconnect = true;
 				pthis.emit("need_reconnect");
