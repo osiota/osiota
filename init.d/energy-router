@@ -88,6 +88,9 @@ stop() {
 			echo "Done."
 			echo "$(date '+%Y-%m-%d %X'): STOP" >>$LOG
 		fi
+		while kill -0 -- -${pgrp} 2>/dev/null; do
+			sleep 1
+		done
 		/bin/rm $PID
 	else
 		echo "No pid file. Already stopped?"
