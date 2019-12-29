@@ -84,8 +84,6 @@ exports.init = function(router, basename, options) {
 		});
 		/* unregister on close: */
 		ws.on('close', function(code, message) {
-			console.log("WebSocket Connection closed",
-				"code", code, "message", message);
 			ws.end_keepalive();
 			if (!ws.closed) {
 				ws.closed = true;
