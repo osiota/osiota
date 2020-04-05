@@ -1,26 +1,12 @@
 #!/bin/sh
 
-cd "$(dirname "$0")"
+SCRIPTPATH="$(readlink -f 2>/dev/null || perl -MCwd -e 'print Cwd::abs_path shift' $0)"
 
 erconfig="config.json"
-clog="er-output.log"
 if test "x$1" != "x"
 then
 	erconfig="$1.json"
-	name="${1##*/}"
-	clog="er-output-${name}.log"
-else
-	if test -f ./router_main_init.js
-	then
-		./router_main_init.js 2>&1 | tee "${clog}"
-		exit 0
-	fi
 fi
 
-(
-	/usr/bin/env nodejs ./main_cli.js --config "${erconfig}" 2>&1
-	if test "x$?" = "x127" || test "x$?" = "x126"
-	then
-		/usr/bin/env node ./main_cli.js --config "${erconfig}" 2>&1
-	fi
-) | tee "${clog}"
+"${SCRIPTPATH}/main_cli.js" --config "${erconfig}"
+

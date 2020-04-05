@@ -27,7 +27,7 @@ var obj_set = function(obj, key, value) {
 
 
 exports.init = function(node, app_config, main) {
-	if (!Array.isArray(main.argv)) {
+	if (!main.argv || !Array.isArray(main.argv._)) {
 		throw new Error("main.argv not set.");
 	}
 	if (!Array.isArray(app_config.args)) {
@@ -35,8 +35,8 @@ exports.init = function(node, app_config, main) {
 	}
 	var set_all = true;
 	app_config.args.forEach(function(key, i) {
-		if (typeof main.argv[i] !== "undefined") {
-			var value = main.argv[i];
+		if (typeof main.argv._[i] !== "undefined") {
+			var value = main.argv._[i];
 			console.log("argv setting:", key, value);
 			obj_set(main._config, key, value);
 		} else {

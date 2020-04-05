@@ -9,6 +9,16 @@ var install_app = function(app, app_config, callback) {
 	execFile("npm", ["install", url], callback);
 };
 
+exports.cli = function(argv, main) {
+	argv._.forEach(function(a) {
+		install_app(a, argv, function(err) {
+			if (err) {
+				console.error("Error installing app (git)",err);
+			}
+		});
+	});
+};
+
 exports.init = function(node, app_config, main, host_info) {
 	node.announce({
 		"type": "installapps.admin"

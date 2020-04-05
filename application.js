@@ -243,3 +243,9 @@ exports.application.prototype._reinit_delay = function(delay, app_config) {
 	}, delay);
 };
 
+exports.application.prototype._cli = function(args, show_help) {
+	if (typeof this.cli === "function") {
+		this.cli(args, show_help, this._main, this._extra);
+	}
+};
+

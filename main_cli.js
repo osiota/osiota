@@ -1,123 +1,119 @@
 #!/usr/bin/env node
 
-var os = require("os");
-var main = require("./main_nodejs.js");
-const fs = require("fs");
+var daemon = require('./helper_daemon.js');
+var argv = require('minimist')(process.argv.slice(2));
 
-var argv = require('yargs')
-	.usage('Usage: $0 [-args]', {
-		hostname: {
-			alias: "h",
-			describe: "set hostname",
-			default: os.hostname(),
-			type: "string"
-		},
-		app: {
-			alias: "a",
-			describe: "start an app",
-			type: "string"
-		},
-		"auto_install": {
-			describe: "automatically install new apps",
-			type: "boolean",
-			default: false
-		},
-		server: {
-			alias: "s",
-			describe: "create websocket server",
-			type: "number"
-		},
-		remote: {
-			alias: "r",
-			describe: "connect to a websocket server (url + data resource)",
-			type: "string"
-		}
-	})
-	.example('$0 -h pc1 -s 8080 --app.0.name er-app-cluster')
-	.help().version().config()
-	.argv;
+var config_file = argv.config || "config.json";
+var log_file = config_file.replace(/\.json$/i, "") + ".log";
+var pid_file = config_file.replace(/\.json$/i, "") + ".pid";
 
-var keys = {
-	"remote": ["name", "url", "nodes"],
-	"app": ["name", "config"]
-};
+if (argv.help || argv.h) {
+	console.info('Usage: osiota [args]\n' +
+		'\n' +
+		'Options:\n' +
+		'  --config, -c  Path to the config file\n' +
+		'                (default: "config.json")\n' +
+		'  --status, -s  Get status of the daemon\n' +
+		'  --daemon, -d  Daemonize the process\n' +
+		'  --stop, -k    Stop a process\n' +
+		'  --load, -l    Load an app\n' +
+		'  --version     Show version\n' +
+		'  --help        Show help text\n' +
+		'\n' +
+		'Example:\n' +
+		'  osiota --config myconfig.json --daemon\n');
 
-for (var key in keys) {
-	var key_args = keys[key];
+} else if (argv.version || argv.v) {
+	console.info(require("./package.json").version);
 
-	// string to array:
-	if (typeof argv[key] !== "object") {
-		if (argv[key]) {
-			argv[key] = [ argv[key] ];
-		} else {
-			argv[key] = [];
-		}
+} else if (argv.stop || argv.k) {
+	var pid = daemon.process_status(pid_file);
+	if (!pid) {
+		return console.error("Error: no PID file");
 	}
-
-	if (!Array.isArray(argv[key])) {
-		// convert object to array
-		if (Object.keys(argv[key]).join("").match(/^\d+$/)) {
-			var a = [];
-			for (var cid in argv[key]) {
-				a.push(argv[key][cid]);
-			}
-			argv[key] = a;
-		}
-
-	} else {
-		// split arguments (,)
-		var a = [];
-		for (var cid in argv[key]) {
-			if (typeof argv[key][cid] === "string") {
-				var elements = argv[key][cid].split(/,/);
-				var arg_no = 0;
-				var object = {};
-				for(var eid in elements) {
-					if (arg_no >= key_args.length) {
-						if (!Array.isArray(key_args[arg_no])) {
-							key_args[arg_no] = [ key_args[arg_no] ];
-						}
-						key_args[arg_no].push(elements[eid]);
-					} else {
-						var arg_name = key_args[arg_no++];
-						object[arg_name] = elements[eid];
-					}
-				}
-				a.push(object);
-			} else {
-				a.push(argv[key][cid]);
-			}
-		}
-		argv[key] = a;
-	}
-}
-
-// create console
-try {
-	// TODO: configure logging via options
-	require('console-stamp')(console, 'HH:MM:ss');
-} catch(err) {
-
-}
-
-var m = new main(argv.hostname);
-m.on("config_save", function() {
-	var _this = this;
-	var value = {
-		"server": this._config.server,
-		"remote": this._config.remote,
-		"app": this._config.app
-	};
-	console.log(value);
-	fs.writeFile("./" + _this._config.config,
-			JSON.stringify(value, null, '\t')+"\n",
-			function(err) {
-		if (err) {
-			throw err;
-		}
+	daemon.process_stop(pid, function() {
+		daemon.pidfile_delete(pid_file);
 	});
-});
-m.argv = argv._;
 
-m.config(argv);
+} else if (argv.status || argv.s) {
+	return console.log("Status:",
+		daemon.process_status(pid_file) ? "running" : "stopped");
 
+} else if ((argv.daemon || argv.d) && !process.env.__daemon) {
+	if (daemon.process_status(pid_file)) {
+		return console.error(
+			"Error: An other process is still running.");
+	}
+	daemon.daemon_start(log_file);
+
+} else { // start
+	if (daemon.process_status(pid_file)) {
+		return console.error(
+			"Error: An other process is still running.");
+	}
+	if (process.env.__daemon)
+		daemon.pidfile_create(pid_file);
+	if (!argv.load && !argv.l) {
+		config_file = null;
+	}
+
+	var fs = require('fs');
+	var os = require('os');
+	var main = require('./main_nodejs.js');
+
+	// optional better console output:
+	try {
+		require('console-stamp')(console, 'yyyy-mm-dd HH:MM:ss');
+	} catch(err) {}
+
+	var config = {};
+	try {
+		if (config_file) {
+			config = JSON.parse(
+				fs.readFileSync(config_file)
+			);
+		}
+
+	} catch (err) {
+		// Show JSON parsing errors:
+		if (err.code !== "ENOENT") {
+			return console.error(err);
+		}
+	}
+
+	var m = new main(config.hostname || os.hostname());
+	m.on("config_save", function() {
+		var _this = this;
+		fs.writeFile(config_file,
+				JSON.stringify(config, null, '\t')+"\n",
+				function(err) {
+			if (err) {
+				throw err;
+			}
+		});
+	});
+
+	// do config reload on signal
+	process.on('SIGUSR2', function() {
+		console.log("reloading config ...");
+		m.close();
+		setTimeout(function() {
+			config = JSON.parse(
+				fs.readFileSync(config_file)
+			);
+			m.config(config);
+		}, 5000);
+	});
+
+	m.argv = argv;
+	m.config(config);
+
+	// call cli function of an app:
+	if (argv.load || argv.l) {
+		m.startup(null, argv.load || argv.l, undefined, undefined,
+				undefined, function(a, level) {
+			if (level !== 1) return;
+			a._cli(argv, argv["help-app"]);
+		});
+	}
+}

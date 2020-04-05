@@ -1,25 +1,12 @@
 #!/bin/sh
 
-cd "$(dirname "$0")"
+SCRIPTPATH="$(readlink -f 2>/dev/null || perl -MCwd -e 'print Cwd::abs_path shift' $0)"
 
-sname="er"
+erconfig="config.json"
 if test "x$1" != "x"
 then
-	name="${1##*/}"
-	sname="er-${name}"
+	erconfig="$1.json"
 fi
 
-if test "x$2" = "xstop"
-then
-	/usr/bin/screen -m -S "${sname}" -X quit
-	exit
-fi
-
-# on system start /var/run/screen does not exist, wait till it is possible
-while ! mkdir -p /var/run/screen 2>/dev/null
-do
-	sleep 5
-done
-
-/usr/bin/screen -dmS "${sname}" ./main "${1}"
+"${SCRIPTPATH}/main_cli.js" --config "${erconfig}" --daemon
 
