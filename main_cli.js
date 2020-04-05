@@ -53,7 +53,7 @@ if (argv.help || argv.h) {
 	}
 	if (process.env.__daemon)
 		daemon.pidfile_create(pid_file);
-	if (!argv.load && !argv.l) {
+	if (argv.load || argv.l) {
 		config_file = null;
 	}
 
