@@ -30,8 +30,7 @@ if [ "${SCRIPTNAME##energy-router-}" != "$SCRIPTNAME" ] ; then
 
 fi
 
-
-COMMAND="${BASE}main ${ERCONFIG}"
+ERCONFIG="${ERCONFIG}.json"
 
 status() {
 	echo
@@ -51,7 +50,7 @@ status() {
 		echo "No Pid file"
 	fi
 }
- 
+
 start() {
 	if [ -f $PID ]
 	then
@@ -64,7 +63,7 @@ start() {
 	echo "==== Start"
 	cd "$BASE"
 	touch $PID
-	if nohup sudo -u $USR $COMMAND >/dev/null 2>&1 &
+	if nohup sudo -u $USR main_cli.js --config "${ERCONFIG}" >/dev/null 2>&1 &
 	then
 		echo $! >$PID
 		echo "Done."

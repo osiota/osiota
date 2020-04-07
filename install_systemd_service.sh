@@ -5,7 +5,7 @@ ER_CONFIG="config"
 ER_NAME="energy-router"
 ER_USER="${USER}"
 
-if test \! -f "main"
+if test \! -f "router.js"
 then
 	echo "Run this script in the energy-router repo"
 	exit 2
@@ -24,7 +24,7 @@ After=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=${ER_PATH}/main "${ER_CONFIG}"
+ExecStart=${ER_PATH}/main_cli.js --config "${ER_CONFIG}.json"
 Restart=on-failure
 User=${ER_USER}
 
