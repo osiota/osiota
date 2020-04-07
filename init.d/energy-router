@@ -32,11 +32,11 @@ fi
 
 
 COMMAND="${BASE}main ${ERCONFIG}"
- 
+
 status() {
 	echo
 	echo "==== Status"
-	 
+
 	if [ -f $PID ]
 		then
 		echo
@@ -74,11 +74,11 @@ start() {
 		/bin/rm $PID
 	fi
 }
- 
- 
+
+
 stop() {
 	echo "==== Stop"
- 
+
 	if [ -f $PID ]
 	then
 		pidc="$(cat $PID)"
@@ -96,7 +96,7 @@ stop() {
 		echo "No pid file. Already stopped?"
 	fi
 }
- 
+
 case "$1" in
 	'start')
 		start
@@ -118,5 +118,5 @@ case "$1" in
 		exit 1
 		;;
 esac
- 
+
 exit 0
