@@ -3,30 +3,75 @@
 var daemon = require('./helper_daemon.js');
 var argv = require('minimist')(process.argv.slice(2));
 
+// Flags:
+argv.help    = argv.help    || argv.h;
+argv.daemon  = argv.daemon  || argv.d;
+argv.stop    = argv.stop    || argv.k;
+argv.status  = argv.status  || argv.s;
+argv.version = argv.version || argv.V;
+argv.verbose = argv.verbose || argv.v;
+
+if (argv.daemon && typeof argv.verbose === "undefined") {
+	argv.verbose = true;
+}
+
 var config_file = argv.config || "config.json";
 var log_file = config_file.replace(/\.json$/i, "") + ".log";
 var pid_file = config_file.replace(/\.json$/i, "") + ".pid";
+if (argv.app) config_file = null;
 
-if (argv.help || argv.h) {
-	console.info('Usage: osiota [args]\n' +
-		'\n' +
-		'Options:\n' +
-		'  --config, -c  Path to the config file\n' +
+// helper:
+var config_read = function() {
+	var config = {};
+	try {
+		if (config_file) {
+			config = JSON.parse(
+				fs.readFileSync(config_file)
+			);
+		}
+	} catch (err) {
+		// Show JSON parsing errors:
+		if (err.code !== "ENOENT") {
+			return console.error(err);
+		}
+	}
+	return config;
+};
+var config_write = function() {
+	fs.writeFile(config_file || argv.config,
+			JSON.stringify(config, null, '\t')+"\n",
+			function(err) {
+		if (err) {
+			throw err;
+		}
+	});
+};
+
+if (argv.help && !argv.app) {
+	console.info('Usage: osiota [args]\n');
+	console.group();
+	console.info('Options:\n' +
+		'  --config [file]  Path to the config file\n' +
 		'                (default: "config.json")\n' +
 		'  --status, -s  Get status of the daemon\n' +
 		'  --daemon, -d  Daemonize the process\n' +
 		'  --stop, -k    Stop a process\n' +
-		'  --load, -l    Load an app\n' +
-		'  --version     Show version\n' +
-		'  --help        Show help text\n' +
+		'\n' +
+		'  --help, -h    Show help text\n' +
+		'  --version, -V Show version\n' +
+		'  --verbose, -v Show more or less messages\n' +
+		'\n' +
+		'  --app [app]   Run an app\n' +
+		'  --app [app] --help  Show help text for app\n' +
 		'\n' +
 		'Example:\n' +
 		'  osiota --config myconfig.json --daemon\n');
+	console.groupEnd();
 
-} else if (argv.version || argv.v) {
+} else if (argv.version) {
 	console.info(require("./package.json").version);
 
-} else if (argv.stop || argv.k) {
+} else if (argv.stop) {
 	var pid = daemon.process_status(pid_file);
 	if (!pid) {
 		return console.error("Error: no PID file");
@@ -35,11 +80,11 @@ if (argv.help || argv.h) {
 		daemon.pidfile_delete(pid_file);
 	});
 
-} else if (argv.status || argv.s) {
+} else if (argv.status) {
 	return console.log("Status:",
 		daemon.process_status(pid_file) ? "running" : "stopped");
 
-} else if ((argv.daemon || argv.d) && !process.env.__daemon) {
+} else if (argv.daemon && !process.env.__daemon) {
 	if (daemon.process_status(pid_file)) {
 		return console.error(
 			"Error: An other process is still running.");
@@ -53,44 +98,38 @@ if (argv.help || argv.h) {
 	}
 	if (process.env.__daemon)
 		daemon.pidfile_create(pid_file);
-	if (argv.load || argv.l) {
-		config_file = null;
-	}
 
 	var fs = require('fs');
 	var os = require('os');
 	var main = require('./main_nodejs.js');
 
 	// optional better console output:
-	try {
-		require('console-stamp')(console, 'yyyy-mm-dd HH:MM:ss');
-	} catch(err) {}
-
-	var config = {};
-	try {
-		if (config_file) {
-			config = JSON.parse(
-				fs.readFileSync(config_file)
-			);
-		}
-
-	} catch (err) {
-		// Show JSON parsing errors:
-		if (err.code !== "ENOENT") {
-			return console.error(err);
-		}
+	if (!argv.help) {
+		try {
+			require('console-stamp')(console, {
+				pattern: 'yyyy-mm-dd HH:MM:ss',
+				extend: {
+					debug: 5,
+				},
+				include: ['debug', 'log', 'info', 'warn', 'error'],
+				level: 'debug',
+			});
+		} catch(err) {}
 	}
 
+	if (!argv.verbose) {
+		// error
+		// warn
+		// info
+		console.log = function() {};
+		console.debug = function() {};
+	}
+
+	var config = config_read();
 	var m = new main(config.hostname || os.hostname());
 	m.on("config_save", function() {
 		var _this = this;
-		fs.writeFile(config_file,
-				JSON.stringify(config, null, '\t')+"\n",
-				function(err) {
-			if (err) {
-				throw err;
-			}
-		});
+		config_write(m._config);
 	});
 
 	// do config reload on signal
@@ -98,9 +137,7 @@ if (argv.help || argv.h) {
 		console.log("reloading config ...");
 		m.close();
 		setTimeout(function() {
-			config = JSON.parse(
-				fs.readFileSync(config_file)
-			);
+			config = config_read();
 			m.config(config);
 		}, 5000);
 	});
@@ -109,11 +146,15 @@ if (argv.help || argv.h) {
 	m.config(config);
 
 	// call cli function of an app:
-	if (argv.load || argv.l) {
-		m.startup(null, argv.load || argv.l, undefined, undefined,
+	if (argv.app) {
+		if (argv.help) {
+			console.info('Usage: osiota [args]\n');
+			console.info("Application Options:");
+		}
+		m.startup(null, argv.app, undefined, undefined,
 				undefined, function(a, level) {
 			if (level !== 1) return;
-			a._cli(argv, argv["help-app"]);
+			a._cli(argv, argv.help);
 		});
 	}
 }
