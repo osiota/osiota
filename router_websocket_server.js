@@ -90,6 +90,7 @@ exports.init = function(router, basename, options) {
 			}
 		});
 
+		// TODO login: move to: post login
 		require('./router_websocket_generic.js').init(router, ws);
 	});
 

@@ -156,8 +156,8 @@ exports.application.prototype._init = function(app_config) {
 		// TODO: Change Arguments:
 		this._object = this.init(this._node, this._config,
 				this._main, this._extra);
-	} else {
-		console.warn("WARNING: No init function found:", this._app);
+	} else if (typeof this.cli !== "function") {
+		console.warn("WARNING: No init and no cli function found:", this._app);
 	}
 
 	this._state = "RUNNING";

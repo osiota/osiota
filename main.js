@@ -405,7 +405,7 @@ main.prototype.module_get = function(app, callback) {
 			appname = app._app;
 	}
 	appname = "er-app-" + appname.replace(/^er-app-/, "");
-	console.info("loading:", appname);
+	console.log("loading:", appname);
 
 	var app_identifier = appname;
 	var app_increment = 2;
@@ -490,11 +490,12 @@ main.prototype.startup_module = function(a, node, app, app_config, host_info, au
 		auto_install = this._config.auto_install;
 	}
 
-	console.info("startup:", a._app);
+	console.log("startup:", a._app);
 	// bind to main:
 	a._bind(this, host_info);
 
 	if (typeof app_config !== "object") {
+		// Warning: app_config is not an object
 		app_config = {};
 	}
 	if (Object.keys(app_config).length == 0) {
@@ -783,23 +784,23 @@ main.prototype.close = function() {
 	var _this = this;
 	if (this._close) return;
 	this._close = true;
-	console.log("closing energy-router");
+	console.log("energy-router: closing");
 
 	setImmediate(function() {
 		for (var a in _this.apps) {
-			console.log("unloading app", a);
+			console.log("unloading:", a);
 			if (_this.apps[a]._unload)
 				_this.apps[a]._unload();
 		}
 
 		for (var r in _this.remotes) {
-			console.log("closing remote", r);
+			console.log("closing: remote", r);
 			_this.remotes[r].close();
 			delete _this.remotes[r];
 		}
 
 		if (_this.wss) {
-			console.log("closing websocket server");
+			console.log("closing: websocket server");
 			_this.wss.close();
 			_this.wss = undefined;
 		}

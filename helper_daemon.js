@@ -47,6 +47,8 @@ exports.process_stop = function(pid, next, count = 0) {
  * @param {string} log_file - Path of the log file to redirect console output
  */
 exports.daemon_start = function(log_file) {
+	// TODO: Move old log-files:
+	//fs.renameSync(log_file, log_file.replace(/\.log/, ".1.log");
 	var log_fid = fs.openSync(log_file, 'w');
 
 	// process args:

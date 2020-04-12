@@ -25,7 +25,7 @@ util.inherits(main_web, main);
 main_web.prototype.app_to_path = function(appname) {
 	appname = appname.replace(/^er-app-/, "");
 	if (appname.match(/\//)) {
-		appname += "_web.js";
+		appname += "-web.js";
 	} else {
 		appname += "/web.js";
 	}

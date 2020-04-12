@@ -6,6 +6,8 @@ var argv = require('minimist')(process.argv.slice(2));
 // Flags:
 argv.help    = argv.help    || argv.h;
 argv.daemon  = argv.daemon  || argv.d;
+argv.restart = argv.restart;
+argv.reload  = argv.reload  || argv.r;
 argv.stop    = argv.stop    || argv.k;
 argv.status  = argv.status  || argv.s;
 argv.version = argv.version || argv.V;
@@ -13,6 +15,10 @@ argv.verbose = argv.verbose || argv.v;
 
 if (argv.daemon && typeof argv.verbose === "undefined") {
 	argv.verbose = true;
+}
+if (argv.restart && process.env.__daemon) {
+	argv.restart = false;
+	argv.daemon = true;
 }
 
 var config_file = argv.config || "config.json";
@@ -52,16 +58,18 @@ if (argv.help && !argv.app) {
 	console.group();
 	console.info('Options:\n' +
 		'  --config [file]  Path to the config file\n' +
-		'                (default: "config.json")\n' +
-		'  --status, -s  Get status of the daemon\n' +
-		'  --daemon, -d  Daemonize the process\n' +
-		'  --stop, -k    Stop a process\n' +
+		'                 (default: "config.json")\n' +
+		'  --status, -s   Get status of the daemon\n' +
+		'  --daemon, -d   Daemonize the process\n' +
+		'  --restart      Restart process\n' +
+		'  --reload, -r   Reload the configuration of a daemon\n' +
+		'  --stop, -k     Stop a process\n' +
 		'\n' +
-		'  --help, -h    Show help text\n' +
-		'  --version, -V Show version\n' +
-		'  --verbose, -v Show more or less messages\n' +
+		'  --help, -h     Show help text\n' +
+		'  --version, -V  Show version\n' +
+		'  --verbose, -v  Show more or less messages\n' +
 		'\n' +
-		'  --app [app]   Run an app\n' +
+		'  --app [app]    Run an app\n' +
 		'  --app [app] --help  Show help text for app\n' +
 		'\n' +
 		'Example:\n' +
@@ -74,11 +82,30 @@ if (argv.help && !argv.app) {
 } else if (argv.stop) {
 	var pid = daemon.process_status(pid_file);
 	if (!pid) {
-		return console.error("Error: no PID file");
+		return console.error("Error: no running process found");
 	}
 	daemon.process_stop(pid, function() {
 		daemon.pidfile_delete(pid_file);
 	});
+
+} else if (argv.restart) {
+	var pid = daemon.process_status(pid_file);
+	if (!pid) {
+		console.warn("Warning: no running process found");
+		daemon.daemon_start(log_file);
+		return;
+	}
+	daemon.process_stop(pid, function() {
+		daemon.pidfile_delete(pid_file);
+		daemon.daemon_start(log_file);
+	});
+
+} else if (argv.reload) {
+	var pid = daemon.process_status(pid_file);
+	if (!pid) {
+		return console.error("Error: no running process found");
+	}
+	process.kill(pid, 'SIGUSR2');
 
 } else if (argv.status) {
 	return console.log("Status:",

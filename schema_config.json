@@ -2,7 +2,6 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"description": "schema for an energy router config file",
 	"type": "object",
-	"required": [ "hostname", "connect", "server", "remote", "app" ],
 	"title": "energy-router configuration",
 	"properties": {
 		"hostname": {
@@ -28,25 +27,6 @@
 			"default": false,
 			"options": {
 				"keep_oneof_values": false
-			}
-		},
-		"connect": {
-			"type": "array",
-			"format": "table",
-			"title": "Forwarding rules",
-			"description": "To forward data from a node to an other node, you can add forwarding rules:",
-			"items": {
-				"type": "object",
-				"title": "Connection",
-				"properties": {
-					"source": {
-						"type": "string"
-					},
-					"target": {
-						"type": "string"
-					}
-				},
-				"required": ["source", "target"]
 			}
 		},
 		"remote": {

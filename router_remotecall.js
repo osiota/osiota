@@ -108,6 +108,7 @@ exports.remotecall.prototype._rpc_process = function(method, args, reply, object
 	}
 	if (typeof object['rpc_' + method] == "function") {
 		args.unshift(reply);
+		// TODO: Has return value, Is Promise?
 		object['rpc_' + method].apply(this, args);
 		return true;
 	}

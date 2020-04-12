@@ -54,7 +54,7 @@ main_nodejs.prototype.check_started = function(factor) {
 		var diff = process.hrtime(t);
 		var delta = diff[0] * 1e9 + diff[1];
 
-		console.log("delta", delta, "factor", factor);
+		console.debug("delta", delta, "factor", factor);
 		var tid = null;
 		if (delta >= 4e6) {
 			if (factor < 8) factor = 8;
@@ -100,7 +100,7 @@ if (process.on) { /* if NodeJS */
 
 		process.exitTimeoutId = setTimeout(process.exit, 5000);
 		process.exitTimeoutId.unref();
-		console.log('process will exit in 5 seconds');
+		console.log('energy-router: will exit in 5 seconds');
 
 		process.on("exit", function(code) {
 			console.log("Goodbye!");

@@ -191,6 +191,7 @@ exports.init = function(router, ws) {
 					ws.node_rpc(node, "missed_data", node.time);
 				}
 			}
+			//todo: use annoymous persistent callback:
 			ws.node_rpc(node, "data", node.time, node.value, false, do_not_add_to_history, initial);
 		});
 	});
@@ -226,6 +227,8 @@ exports.init = function(router, ws) {
 		console.log("error", name);
 	};
 	ws.rpc_hello = function(reply, name) {
+		// TODO login: check login, asynchron
+
 		if (typeof name === "string") {
 			ws.remote = name;
 			console.log("Hello", name, "("+ws._socket.remoteAddress+")");
@@ -438,6 +441,7 @@ exports.init = function(router, ws) {
 	};
 
 	ws.on("open", function() {
+		// move to hello reply
 		setImmediate(function() {
 			ws.cmds.emit("open");
 		});

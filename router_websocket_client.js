@@ -227,6 +227,8 @@ exports.init = function(router, basename, ws_url, init_callback) {
 			if (typeof name === "string")
 				ws.remote = name;
 			console.log("Connected to", ws.remote);
+
+			// TODO login: -> emit open
 		});
 
 		if (typeof init_callback === "function")
