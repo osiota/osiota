@@ -94,7 +94,15 @@ pwsc.prototype.init = function() {
 				}
 
 				_ws.is_alive = false;
-				_ws.ping();
+				if (_ws.ping) {
+					_ws.ping();
+				} else {
+					_ws.rpc("ping", function(err) {
+						if (!err) {
+							_ws.is_alive = true;
+						}
+					});
+				}
 			}, ping_interval);
 		};
 		this.ws.end_keepalive = function() {
