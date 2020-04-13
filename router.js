@@ -155,7 +155,7 @@ exports.node.prototype.announce = function(metadata, update) {
 		metadata = {};
 	}
 	if (this.metadata === null) {
-		console.info("new node:", this.name);
+		console.log("new node:", this.name);
 		update = false;
 	} else if (!update) {
 		console.warn("Announcing already available node:", this.name);
