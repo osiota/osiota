@@ -4,6 +4,7 @@ var webpack = require('webpack');
 var ignore = new webpack.IgnorePlugin(/levelup|^ws$|^webpack$|^\.\/module_history_class_file.js$/);
 
 module.exports = {
+	//TODO: entry: "./main_web.js",
 	entry: "./webpack_router_main.js",
 	target: "web",
 	output: {
