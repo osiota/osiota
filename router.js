@@ -54,6 +54,11 @@ exports.node = function(r, name, parentnode) {
 	 */
 	this.metadata = null;
 
+	/**
+	 * Connected config
+	 */
+	this._config = null;
+
 	this.subscription_listener = [];
 	this.announcement_listener = [];
 	this.ready_listener = [];
@@ -127,6 +132,13 @@ exports.node.prototype.virtualnode = function() {
 };
 
 /**
+ * Connect config to a node. Will be announced with to node
+ */
+exports.node.prototype.connect_config = function(config) {
+	this._config = config;
+};
+
+/**
  * Announce a node with meta data
  * @param {object} metadata - Meta data describing the node
  * @param {boolean} update - (For internal use only!)
@@ -148,6 +160,13 @@ exports.node.prototype.announce = function(metadata, update) {
 	} else if (!update) {
 		console.warn("Announcing already available node:", this.name);
 		update = true;
+	}
+
+	if (this._config) {
+		// clone config
+		metadata.config = JSON.parse(JSON.stringify(this._config));
+		// remove sub config:
+		metadata.config.app = undefined;
 	}
 
 	this.metadata = metadata;

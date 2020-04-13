@@ -152,6 +152,7 @@ exports.application.prototype._init = function(app_config) {
 	if (typeof app_config === "object" && app_config !== null) {
 		this._config = app_config;
 	}
+	this._node.connect_config(app_config);
 	if (typeof this.init === "function") {
 		// TODO: Change Arguments:
 		this._object = this.init(this._node, this._config,
@@ -178,6 +179,8 @@ exports.application.prototype._init = function(app_config) {
 exports.application.prototype._unload = function() {
 	if (this._state !== "RUNNING" && this._state !== "REINIT")
 		return;
+
+	this._node.connect_config(null);
 
 	if (typeof this.unload === "function") {
 		this.unload(this._object, unload_object);
@@ -212,11 +215,13 @@ exports.application.prototype._reinit = function(app_config) {
 		if (typeof app_config === "object" && app_config !== null) {
 			this._config = app_config;
 		}
+		this._node.connect_config(app_config);
 		this.reinit(this._node, this._config, this._main, this._extra);
 		this._state = "RUNNING";
 	} else {
 		this._unload();
 		setImmediate(function() {
+			_this._node.connect_config(app_config);
 			_this._init(app_config);
 			this._state = "RUNNING";
 		});
