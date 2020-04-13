@@ -239,18 +239,12 @@ exports.init = function(router, ws) {
 		// this == node
 		var node = this;
 
-		var s = node.subscribe(function() {});
-
 		node.connection = ws;
 		node.announce(metadata);
 
 		node.emit("node_update", true);
 
 		return function() {
-			if (s) {
-				unload_object(s);
-				s = null;
-			}
 			if (node.connection === ws) {
 				node.unannounce();
 				node.connection = null;
