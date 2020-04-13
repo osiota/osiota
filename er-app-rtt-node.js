@@ -1,4 +1,10 @@
 
+/* Test cases:
+ *  * Throughput (kbps)
+ *  * Latency (ms)
+ *  * Packets Dropped (%)
+ */
+
 exports.init = function(node, app_config, main, host_info) {
 
 	// add ping function:
