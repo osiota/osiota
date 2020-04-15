@@ -170,19 +170,6 @@ function main(router_name) {
 
 		return [n, s];
 	};
-	Node.prototype.rpc_config = function(reply, config, save) {
-		// update config object:
-		this._config = main.config_update(config, this._config);
-
-		// restart app:
-		if (this._app)
-			this._app._reinit(this._config);
-
-		if (save) {
-			main.emit("config_save");
-		}
-		reply("okay");
-	};
 
 	this.remotes = {};
 	this.apps = {};

@@ -170,6 +170,7 @@ exports.node.prototype.announce = function(metadata, update) {
 	}
 
 	this.metadata = metadata;
+	this._announced = new Date()*1;
 
 	/**
 	 * Announce node event
@@ -195,6 +196,7 @@ exports.node.prototype.unannounce = function() {
 	this.announce_local("unannounce");
 
 	this.metadata = null;
+	this._announced = null;
 
 	return this;
 };
@@ -1075,6 +1077,8 @@ exports.router.prototype.process_single_message = function(basename, d, respond,
 			if (typeof module === "object" && n._rpc_process("node_" + method, d.args, reply, module)) {
 				return;
 			} else if (n._rpc_process(method, d.args, reply)) {
+				return;
+			} else if (n._app && n._rpc_process("node_" + method, d.args, reply, n._app)) {
 				return;
 			} else if (n._rpc_process("node_" + method, d.args, reply, this)) {
 				return;

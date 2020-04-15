@@ -9,6 +9,7 @@
  */
 
 var unload_object = require("./helper_unload_object.js").unload_object;
+var merge = require("./helper_merge_data.js").merge;
 
 /**
  * Application Class
@@ -157,6 +158,10 @@ exports.application.prototype._init = function(app_config) {
 		// TODO: Change Arguments:
 		this._object = this.init(this._node, this._config,
 				this._main, this._extra);
+		if (!this._node._announced) {
+			var a = this._node.announce({});
+			this._object = [a, this._object];
+		}
 	} else if (typeof this.cli !== "function") {
 		console.warn("WARNING: No init and no cli function found:", this._app);
 	}
@@ -216,7 +221,11 @@ exports.application.prototype._reinit = function(app_config) {
 			this._config = app_config;
 		}
 		this._node.connect_config(app_config);
+		this._node._announced = null;
 		this.reinit(this._node, this._config, this._main, this._extra);
+		if (!this._node._announced) {
+			this._node.announce({}, true);
+		}
 		this._state = "RUNNING";
 	} else {
 		this._unload();
@@ -252,5 +261,20 @@ exports.application.prototype._cli = function(args, show_help) {
 	if (typeof this.cli === "function") {
 		this.cli(args, show_help, this._main, this._extra);
 	}
+};
+
+exports.application.prototype.rpc_node_config = function(reply, config, save) {
+	// update config object:
+	this._config = merge(this._config, config);
+
+	// restart app:
+	if (this._app) {
+		this._app._reinit(this._config);
+	}
+
+	if (save) {
+		this._main.emit("config_save");
+	}
+	reply(null, "okay");
 };
 
