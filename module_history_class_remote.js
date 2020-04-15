@@ -14,7 +14,8 @@ exports.history.prototype.add = function(time, value) {
 };
 /* history: get old data */
 exports.history.prototype.get = function(config, callback) {
-	if (this.node.hasOwnProperty("connection")) {
+	if (this.node.hasOwnProperty("connection") &&
+			!config.local) {
 		this.node.rpc("history", config, function(err, data) {
 			if (err) {
 				console.warn("history: can not get remote history.", err);

@@ -268,8 +268,29 @@ exports.init = function(router, ws) {
 		// this = node
 		var node = this;
 
-		ws.sync_history(node, node.time, new_time);
-		reply(null, "thanks");
+		if (!node.hasOwnProperty("history")) {
+			reply(null, "thanks");
+			return;
+		}
+
+		if (node.time) {
+			ws.sync_history(node, node.time, new_time);
+			reply(null, "thanks");
+		} else {
+			// get last timestamp from history database:
+			var last_timeslot = node.history.get({
+				maxentries: 1,
+				interval: null,
+				local: true
+			}, function(data) {
+				if (data.length === 0) {
+					ws.sync_history(node, null, new_time);
+				} else {
+					ws.sync_history(node, data[0].time, new_time);
+				}
+				reply(null, "thanks");
+			});
+		}
 	};
 	ws.rpc_node_where_are_you_from = function(reply) {
 		// this == node
