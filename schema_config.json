@@ -2,16 +2,16 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"description": "schema for an energy router config file",
 	"type": "object",
-	"title": "energy-router configuration",
+	"title": "osiota configuration",
 	"properties": {
 		"hostname": {
 			"title": "Hostname",
 			"type": "string",
-			"description": "Name of the energy-router"
+			"description": "Name of the osiota instance"
 		},
 		"server": {
 			"title": "Server",
-			"description": "Open a WebSocket server port, to allow other instances to connect to this energy-router.",
+			"description": "Open a WebSocket server port, to allow other instances to connect to this instance.",
 			"oneOf": [
 				{
 					"type": "null",
@@ -32,7 +32,7 @@
 		"remote": {
 			"type": "array",
 			"title": "Remotes",
-			"description": "To get or forward data from or to an other energy-router instance, you can add remotes.",
+			"description": "To get or forward data from or to an other osiota instance, you can add remotes.",
 			"format": "table",
 			"items": {
 				"type": "object",

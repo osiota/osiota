@@ -8,10 +8,10 @@ module.exports = {
 	entry: "./webpack_router_main.js",
 	target: "web",
 	output: {
-		library: 'energy-router',
+		library: 'osiota',
 		libraryTarget: 'umd',
 		path: __dirname,
-		filename: "webpack-energy-router.js"
+		filename: "webpack-osiota.js"
 	},
 	node: {
 		console: false,

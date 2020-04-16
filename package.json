@@ -1,6 +1,6 @@
 {
-  "name": "energy-router",
-  "version": "1.6.0",
+  "name": "osiota",
+  "version": "1.12.0",
   "main": "main.js",
   "bin": "main_cli.js",
   "dependencies": {

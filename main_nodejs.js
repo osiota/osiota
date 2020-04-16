@@ -13,7 +13,7 @@ function main_nodejs(router_name) {
 
 	if (process.on) {
 		process.on("unload", this.close.bind(this));
-		process.title = "[er] "+(router_name || "energy-router");
+		process.title = "[osiota] "+(router_name || "osiota");
 	}
 };
 util.inherits(main_nodejs, main);
@@ -100,7 +100,7 @@ if (process.on) { /* if NodeJS */
 
 		process.exitTimeoutId = setTimeout(process.exit, 5000);
 		process.exitTimeoutId.unref();
-		console.log('energy-router: will exit in 5 seconds');
+		console.log('osiota: will exit in 5 seconds');
 
 		process.on("exit", function(code) {
 			console.log("Goodbye!");

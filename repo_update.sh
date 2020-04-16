@@ -10,7 +10,7 @@ then
 	exit 2
 fi
 
-echo "energy-router"
+echo "osiota"
 git "$COMMAND"
 
 cd ..

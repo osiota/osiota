@@ -924,7 +924,7 @@ exports.node.prototype.toJSON = function() {
 exports.router = function(name) {
 	this.nodes = {};
 
-	this.name = "energy-router";
+	this.name = "osiota";
 	if (typeof name === "string")
 		this.name = name;
 

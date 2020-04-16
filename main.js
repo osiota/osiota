@@ -784,7 +784,7 @@ main.prototype.close = function() {
 	var _this = this;
 	if (this._close) return;
 	this._close = true;
-	console.log("energy-router: closing");
+	console.log("osiota: closing");
 
 	setImmediate(function() {
 		for (var a in _this.apps) {

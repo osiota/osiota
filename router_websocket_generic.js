@@ -149,7 +149,7 @@ var single_function_remove = function(cmd_stack_obj, method) {
 
 exports.init = function(router, ws) {
 	/* config */
-	ws.remote = "energy-router";
+	ws.remote = "[unknown]";
 
 	/* Send buffer: Use cue */
 	ws.respond = router.cue(function(data) {
