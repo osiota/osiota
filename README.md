@@ -100,3 +100,5 @@ Its primary Author is [Simon Walz](https://simonwalz.de/) ([Github](https://gith
 ## License
 
 This software is released under the MIT license.
+
+Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its terms.
