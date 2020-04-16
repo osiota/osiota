@@ -2,7 +2,7 @@
 
 *osiota* is a software platform capable of running *distributed IoT applications* written in JavaScript to enable any kind of IoT tasks.
 
-Its fields of operational include:
+Its fields of operation include:
 
   * Smart Home
   * Building Automation
