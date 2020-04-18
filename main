@@ -1,12 +1,13 @@
 #!/bin/sh
 
-SCRIPTPATH="$(readlink -f 2>/dev/null || perl -MCwd -e 'print Cwd::abs_path shift' $0)"
+SCRIPTPATH="$(readlink -f "$0" 2>/dev/null || perl -MCwd -e 'print Cwd::abs_path shift' "$0")"
+SCRIPTDIR="$(dirname "${SCRIPTPATH}")"
 
-erconfig="config.json"
+erconfig="osiota.json"
 if test "x$1" != "x"
 then
 	erconfig="$1.json"
 fi
 
-"${SCRIPTPATH}/osiota.js" --config "${erconfig}"
+"${SCRIPTDIR}/osiota.js" --config "${erconfig}"
 
