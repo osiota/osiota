@@ -87,6 +87,9 @@ main_nodejs.prototype.create_websocket_server = function(server_port) {
 
 main_nodejs.prototype.app_dirs = [__dirname+"/", __dirname+"/../", "./",
 	"../", ""];
+main_nodejs.prototype.add_app_dir = function(app_dir) {
+	this.app_dirs.push(app_dir);
+};
 main_nodejs.prototype.require = function(appname, callback) {
 	callback(require_vm(appname, this.app_dirs, this.apps_use_vm));
 };

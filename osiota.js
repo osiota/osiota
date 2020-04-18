@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+var path = require('path');
 var daemon = require('./helper_daemon.js');
 var helper_config_file = require('./helper_config_file.js');
 var argv = require('minimist')(process.argv.slice(2));
@@ -127,11 +128,13 @@ if (argv.help && !argv.app) {
 		console.debug = function() {};
 	}
 
-	var config = helper_config_file.read();
+	var config = helper_config_file.read(argv.config);
 	var m = new main(config.hostname || os.hostname());
 	m.on("config_save", function() {
 		var _this = this;
-		helper_config_file.write(m._config);
+		helper_config_file.write(
+			argv.config || "config.json",
+			m._config);
 	});
 
 	// do config reload on signal
@@ -139,12 +142,13 @@ if (argv.help && !argv.app) {
 		console.log("reloading config ...");
 		m.close();
 		setTimeout(function() {
-			config = config_file.read();
+			config = helper_config_file.read(argv.config);
 			m.config(config);
 		}, 5000);
 	});
 
 	m.argv = argv;
+	m.add_app_dir(path.dirname(argv.config || "osiota.json"));
 	m.config(config);
 
 	// call cli function of an app:
