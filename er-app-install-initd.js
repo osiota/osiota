@@ -19,7 +19,7 @@ exports.install_notice = function(service_name, service_filename) {
 
 exports.create_service_file = function(service_name, service_config,
 		service_user, service_workingdir) {
-	var command = path.join(__dirname, "main_cli.js");
+	var command = path.join(__dirname, "osiota.js");
 	var service_file = `#!/bin/bash
 
 ### BEGIN INIT INFO

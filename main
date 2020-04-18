@@ -8,5 +8,5 @@ then
 	erconfig="$1.json"
 fi
 
-"${SCRIPTPATH}/main_cli.js" --config "${erconfig}"
+"${SCRIPTPATH}/osiota.js" --config "${erconfig}"
 
