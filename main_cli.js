@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var daemon = require('./helper_daemon.js');
+var helper_config_file = require('./helper_config_file.js');
 var argv = require('minimist')(process.argv.slice(2));
 
 // Flags:
@@ -26,32 +27,6 @@ var log_file = config_file.replace(/\.json$/i, "") + ".log";
 var pid_file = config_file.replace(/\.json$/i, "") + ".pid";
 if (argv.app) config_file = null;
 
-// helper:
-var config_read = function() {
-	var config = {};
-	try {
-		if (config_file) {
-			config = JSON.parse(
-				fs.readFileSync(config_file)
-			);
-		}
-	} catch (err) {
-		// Show JSON parsing errors:
-		if (err.code !== "ENOENT") {
-			return console.error(err);
-		}
-	}
-	return config;
-};
-var config_write = function() {
-	fs.writeFile(config_file || argv.config,
-			JSON.stringify(config, null, '\t')+"\n",
-			function(err) {
-		if (err) {
-			throw err;
-		}
-	});
-};
 
 if (argv.help && !argv.app) {
 	console.info('Usage: osiota [args]\n');
@@ -131,7 +106,7 @@ if (argv.help && !argv.app) {
 	var main = require('./main_nodejs.js');
 
 	// optional better console output:
-	if (!argv.help) {
+	if (!argv.help && !argv.app) {
 		try {
 			require('console-stamp')(console, {
 				pattern: 'yyyy-mm-dd HH:MM:ss',
@@ -152,11 +127,11 @@ if (argv.help && !argv.app) {
 		console.debug = function() {};
 	}
 
-	var config = config_read();
+	var config = helper_config_file.read();
 	var m = new main(config.hostname || os.hostname());
 	m.on("config_save", function() {
 		var _this = this;
-		config_write(m._config);
+		helper_config_file.write(m._config);
 	});
 
 	// do config reload on signal
@@ -164,7 +139,7 @@ if (argv.help && !argv.app) {
 		console.log("reloading config ...");
 		m.close();
 		setTimeout(function() {
-			config = config_read();
+			config = config_file.read();
 			m.config(config);
 		}, 5000);
 	});
@@ -175,7 +150,8 @@ if (argv.help && !argv.app) {
 	// call cli function of an app:
 	if (argv.app) {
 		if (argv.help) {
-			console.info('Usage: osiota [args]\n');
+			console.info('Usage: osiota --app %s [args]\n',
+					argv.app);
 			console.info("Application Options:");
 		}
 		m.startup(null, argv.app, undefined, undefined,
