@@ -23,14 +23,14 @@ function main_web(router_name) {
 util.inherits(main_web, main);
 
 main_web.prototype.app_to_path = function(appname) {
-	appname = appname.replace(/^er-app-/, "");
+	appname = appname.replace(/^(er|osiota)-app-/, "");
 	if (appname.match(/\//)) {
 		appname += "-web.js";
 	} else {
 		appname += "/web.js";
 	}
 
-	return "node_modules/er-app-" + appname;
+	return "node_modules/osiota-app-" + appname;
 }
 
 main_web.prototype.require = function(appname, callback) {

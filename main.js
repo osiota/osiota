@@ -404,7 +404,7 @@ main.prototype.module_get = function(app, callback) {
 		if (typeof app._app === "string")
 			appname = app._app;
 	}
-	appname = "er-app-" + appname.replace(/^er-app-/, "");
+	appname = appname.replace(/^(er|osiota)-app-/, "");
 	console.log("loading:", appname);
 
 	var app_identifier = appname;
@@ -520,7 +520,7 @@ main.prototype.startup_module = function(a, node, app, app_config, host_info, au
 		node_destination = node_source.node(a.default_node_name);
 	} else {
 		node_destination = node_source.node(a._id.
-			replace(/^er-app-/, "").replace(/\//g, "-"));
+			replace(/^(er|osiota)-app-/, "").replace(/\//g, "-"));
 	}
 
 	if (node_destination._app &&
@@ -604,14 +604,14 @@ main.prototype.app_register = function(a) {
 	var appname = a._app;
 	var node = a._node;
 
-	if (appname === "er-app-node") {
+	if (appname === "node") {
 		if (!node._app) {
 			node._app = a;
 		}
 		// else do nothing
 	} else {
 		if (node._app) {
-			if (node._app._app === "er-app-node") {
+			if (node._app._app === "node") {
 				node._app = a;
 			} else {
 				console.warn("There is already an app bind " +

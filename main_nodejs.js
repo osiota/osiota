@@ -91,6 +91,8 @@ main_nodejs.prototype.add_app_dir = function(app_dir) {
 	this.app_dirs.push(app_dir);
 };
 main_nodejs.prototype.require = function(appname, callback) {
+	appname = "er-app-" + appname;
+	//appname = "osiota-app-" + appname;
 	callback(require_vm(appname, this.app_dirs, this.apps_use_vm));
 };
 

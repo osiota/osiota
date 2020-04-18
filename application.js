@@ -19,7 +19,7 @@ var merge = require("./helper_merge_data.js").merge;
 exports.application = function(app) {
 	this._state = "INIT";
 
-	this._app = "er-app-unknown";
+	this._app = "[unknown]";
 	if (typeof app === "string")
 		this._app = app;
 

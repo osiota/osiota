@@ -86,7 +86,7 @@ exports.application_manager.prototype.get_schema = function(app) {
 
 	if (typeof app !== "string")
 		throw new Error("admin-app: app needs to be string");
-	app = "er-app-" + app.replace(/^er-app-/, "");
+	app = app.replace(/^(er|osiota)-app-/, "");
 
 	if (schema_cache.hasOwnProperty(app)) {
 		return schema_cache[app];
@@ -99,18 +99,20 @@ exports.application_manager.prototype.get_schema = function(app) {
 			app_dir = "./node_modules/"
 		}
 
+		var app_path = app_dir + "er-app-" + app;
+		//var app_path = app_dir + "osiota-app-" + app;
 		try {
-			schema = _this.read_schema_file_simple(app_dir + app +
+			schema = _this.read_schema_file_simple(app_path +
 					"-schema.json");
 			return;
 		} catch(e) {}
 		try {
-			schema = _this.read_schema_file_simple(app_dir + app +
+			schema = _this.read_schema_file_simple(app_path +
 					"/schema_config.json");
 			return;
 		} catch(e) {}
 		try {
-			schema = _this.read_schema_file_simple(app_dir + app +
+			schema = _this.read_schema_file_simple(app_path +
 					"/schema.json");
 			return;
 		} catch(e) {}
@@ -229,7 +231,7 @@ exports.application_manager.prototype.load_schema_apps_in_dir = function(dir,
 	// for files in dir
 	files.forEach(function(file) {
 		// filter
-		if (file.match(/^er-app-/)) {
+		if (file.match(/^(er|osiota)-app-/)) {
 			_this.load_schema_file(dir+file, file,
 					function(name, sub_schema, path) {
 				_this.create_schema(name, sub_schema, path,
@@ -243,7 +245,7 @@ exports.application_manager.prototype.load_schema_apps_in_dir = function(dir,
 exports.application_manager.prototype.create_schema = function(name,
 					sub_schema, path, cb_add_schema) {
 	var name = name.replace(/\.(js|coffee)$/i, "");
-	var short_name = name.replace(/^er-app-/, "");
+	var short_name = name.replace(/^(er|osiota)-app-/, "");
 
 	sub_schema.title = "Settings";
 	if (typeof sub_schema.properties === "object") {
