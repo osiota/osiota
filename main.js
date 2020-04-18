@@ -646,17 +646,17 @@ main.prototype.app_unregister = function(a) {
 };
 
 main.prototype.app_add_helper = function(config, app, settings) {
-        if (!Array.isArray(config.app)) {
-                config.app = [];
-        }
-        var struct = {
-                "name": app,
-                "config": settings
-        }
+	if (!Array.isArray(config.app)) {
+		config.app = [];
+	}
+	var struct = {
+		"name": app,
+		"config": settings
+	}
 	this.config_cleaning(struct);
 
-        config.app.push(struct);
-        return struct;
+	config.app.push(struct);
+	return struct;
 };
 
 main.prototype.app_add = function(app, settings, node, config, callback) {
