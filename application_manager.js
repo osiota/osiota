@@ -91,32 +91,22 @@ exports.application_manager.prototype.get_schema = function(app) {
 	if (schema_cache.hasOwnProperty(app)) {
 		return schema_cache[app];
 	}
-
 	var schema = null;
-	this._main.app_dirs.forEach(function(app_dir) {
-		if (schema) return;
-		if (app_dir == "") {
-			app_dir = "./node_modules/"
-		}
+	try {
+		this._main.require([
+			"osiota-app-" + app + "-schema.json",
+			"er-app-" + app + "-schema.json",
+			"osiota-app-" + app + "/schema.json",
+			"er-app-" + app + "/schema.json",
+			"osiota-app-" + app + "/schema-config.json",
+			"er-app-" + app + "/schema-config.json"
+		], function(contents) {
+			schema = contents;
+		});
+	} catch(err) {
+		console.warn("Error loading schema:", err);
+	}
 
-		var app_path = app_dir + "er-app-" + app;
-		//var app_path = app_dir + "osiota-app-" + app;
-		try {
-			schema = _this.read_schema_file_simple(app_path +
-					"-schema.json");
-			return;
-		} catch(e) {}
-		try {
-			schema = _this.read_schema_file_simple(app_path +
-					"/schema_config.json");
-			return;
-		} catch(e) {}
-		try {
-			schema = _this.read_schema_file_simple(app_path +
-					"/schema.json");
-			return;
-		} catch(e) {}
-	});
 	if (!schema) {
 		schema = this.create_default_schema();
 	}

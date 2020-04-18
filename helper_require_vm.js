@@ -50,6 +50,9 @@ var readPackage = function(requestPath) {
 };
 
 var require_vm = function(module_name, paths, use_vm) {
+	if (!Array.isArray(module_name)) {
+		module_name = [module_name];
+	}
 	if (typeof use_vm === "undefined") use_vm = true;
 	var options = {
 		sandbox: {},
@@ -65,13 +68,17 @@ var require_vm = function(module_name, paths, use_vm) {
 	// find module:
 	var filename = false;
 	paths.some(function(p) {
-		filename = resolveFilename(p + module_name);
+		module_name.some(function(m) {
+			filename = resolveFilename(p + m);
+			return filename;
+		});
 		return filename;
 	});
 	if (!filename) {
-		var err = new Error("Cannot find module '" + module_name + "'");
+		var err = new Error('Cannot find module "' +
+				module_name.join('", "') + '"');
 		//err.code = 'MODULE_NOT_FOUND';
-		err.code = 'ER_APP_NOT_FOUND';
+		err.code = 'OSIOTA_APP_NOT_FOUND';
 		throw err;
 	}
 
@@ -89,7 +96,7 @@ var require_vm = function(module_name, paths, use_vm) {
 	if (dirname.match(/node_modules/)) {
 		dirname = dirname.replace(/([\/\\]node_modules).*$/, "$1");
 	}
-	
+
 	// set root
 	//console.log("root", dirname);
 	options.require.root = dirname;

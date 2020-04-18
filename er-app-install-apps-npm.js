@@ -44,7 +44,7 @@ exports.init = function(node, app_config, main, host_info) {
 				return;
 			try_to_install[app] = true;
 			if (e.hasOwnProperty("code") &&
-					e.code === "ER_APP_NOT_FOUND") {
+					e.code === "OSIOTA_APP_NOT_FOUND") {
 				install_app(app, app_config, function(err) {
 					if (err) throw err;
 					main.startup(node, app, l_app_config,
