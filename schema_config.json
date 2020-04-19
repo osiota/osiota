@@ -1,6 +1,6 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
-	"description": "schema for an energy router config file",
+	"description": "schema for an osiota config file",
 	"type": "object",
 	"title": "osiota configuration",
 	"properties": {
