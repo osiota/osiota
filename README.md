@@ -70,10 +70,10 @@ Examples (TODO):
 
 ## Further Guides
 
-  * [Installation](doc/03_installation.md) and [configuration](doc/04_configuration.md) guide
+  * [Installation](doc/installation.md) and [configuration](doc/configuration.md) guide
   * [How to build your own application](doc/build_your_own_apps.md)
   * [Building networks](doc/building_networks.md)
-  * [Composition of osiota](doc/02_composition.md)
+  * [Composition of osiota](doc/composition.md)
   * API definitions
   * [Command Line Interface](doc/command_line_options.md)
 
