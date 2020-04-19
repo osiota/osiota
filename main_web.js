@@ -22,12 +22,12 @@ function main_web(router_name) {
 };
 util.inherits(main_web, main);
 
-main_web.prototype.app_to_path = function(appname) {
+main_web.prototype.app_to_path = function(appname, filename) {
 	appname = appname.replace(/^(er|osiota)-app-/, "");
 	if (appname.match(/\//)) {
-		appname += "-web.js";
+		appname += "-" + filename;
 	} else {
-		appname += "/web.js";
+		appname += "/" + filename;
 	}
 
 	return "node_modules/osiota-app-" + appname;
@@ -35,11 +35,19 @@ main_web.prototype.app_to_path = function(appname) {
 
 main_web.prototype.require = function(appname, callback) {
 	// map app to path:
-	var path = this.app_to_path(appname);
+	var path = this.app_to_path(appname, "web.js");
 	this.require_web(path, function(err, object) {
 		//if (err)
 		callback(object);
 	});
+};
+main_web.prototype.load_schema = function(appname, callback) {
+	callback({});
+	/*var path = this.app_to_path(appname, "web-schema.json");
+	this.require_web(path, function(err, object) {
+		//if (err)
+		callback(object);
+	});*/
 };
 
 main_web.prototype.require_web = function() {

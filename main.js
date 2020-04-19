@@ -385,12 +385,22 @@ main.prototype.node = function(name) {
 
 /**
  * Require Module
- * @param {string} app - Application name
+ * @param {string} appname - Application name
  * @param {function} callback
  * @abstract
  */
-main.prototype.require = function(app, callback) {
+main.prototype.require = function(appname, callback) {
 	throw new Error("Require function not supported.");
+};
+
+/**
+ * Load schema file
+ * @param {string} appname - Application name
+ * @param {function} callback
+ * @abstract
+ */
+main.prototype.load_schema = function(appname, callback) {
+	throw new Error("Load schema function not supported.");
 };
 
 main.prototype.module_get = function(app, callback) {
@@ -417,14 +427,16 @@ main.prototype.module_get = function(app, callback) {
 	a._id = app_identifier;
 	if (typeof app === "string") {
 		this.require(appname, function(struct) {
-			// bind module:
-			a._bind_module(
-				struct,
-				_this.module_get.bind(_this),
-				function() {
-					callback(a);
-				}
-			);
+			_this.load_schema(appname, function(schema) {
+				// bind module:
+				a._bind_module(
+					struct,
+					_this.module_get.bind(_this),
+					function() {
+						callback(a);
+					}
+				);
+			});
 		});
 	} else if (typeof app === "object" && app !== null) {
 		a._bind_module(

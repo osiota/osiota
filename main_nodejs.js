@@ -96,6 +96,41 @@ main_nodejs.prototype.require = function(appname, callback) {
 		"er-app-" + appname
 	], this.app_dirs, this.apps_use_vm));
 };
+var schema_cache = {};
+main_nodejs.prototype.load_schema = function(appname, callback) {
+	var _this = this;
+	if (typeof appname !== "string")
+		throw new Error("admin-app: app needs to be string");
+	appname = appname.replace(/^(er|osiota)-app-/, "");
+
+	if (schema_cache.hasOwnProperty(appname)) {
+		return callback(schema_cache[appname]);
+	}
+	// default schema:
+	var schema = {
+		"type": "object",
+		"title": "Settings",
+		"additionalProperties": true
+	};
+	try {
+		this.require([
+			"osiota-app-" + appname + "-schema.json",
+			"er-app-" + appname + "-schema.json",
+			"osiota-app-" + appname + "/schema.json",
+			"er-app-" + appname + "/schema.json",
+			"osiota-app-" + appname + "/schema-config.json",
+			"er-app-" + appname + "/schema-config.json"
+		], function(contents) {
+			schema = contents;
+		});
+	} catch(err) {
+		if (err.code !== "OSIOTA_APP_NOT_FOUND")
+			console.error("Error loading schema:", err.stack||err);
+	}
+
+	schema_cache[appname] = schema;
+	return callback(schema);
+};
 
 /* on signal: end the process */
 if (process.on) { /* if NodeJS */
