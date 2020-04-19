@@ -36,7 +36,7 @@ By connecting multiple running processes of *osiota*, connected items and applic
 osiota
 
   * provides simple APIs
-  * can be used to ensure data security and data protection<!--TODO-->
+  * can be used to ensure data security, data protection and latency requirements<!--TODO-->
   * uses one programming language for all devices and software layers: JavaScript
 
 <!--TODO performance-->
@@ -70,13 +70,16 @@ Examples (TODO):
 
 ## Further Guides
 
-  * Installation and configuration guide
-  * Build you own application
+  * [Installation](doc/03_installation.md) and [configuration](doc/04_configuration.md) guide
+  * [How to build your own application](doc/build_your_own_apps.md)
+  * [Building networks](doc/building_networks.md)
+  * [Composition of osiota](doc/02_composition.md)
   * API definitions
+  * [Command Line Interface](doc/command_line_options.md)
 
 ## Demonstrators
 
-  * Chat / Drag / ... Application
+  * Chat / File-Drag&Drop / Game / ... Applications
   * [ags Lebkuchenhaus (Gingerbread house)](https://www.ags.tu-bs.de/?id=lebkuchenhaus) – offline
   * Smart Home Virtual Environment
   * Video-Box
