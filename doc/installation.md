@@ -49,5 +49,4 @@ npm install
 ### Manual startup of osiota for debugging purposes:
 
 Execute `./osiota.js --config path_to_config.json` to start the configuration in `path_to_config.json`. Debugging output is displayed in the console.
-
-See [command line options](command_line_options.md).
+See more [command line options](command_line_options.md).
