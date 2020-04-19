@@ -1,10 +1,10 @@
-# energy-router: WebSocket protocol
+# osiota: WebSocket protocol
 
 Version: 1.6.0
 
-To be able to connect to the energy router, a WebSocket based JSON RPC interface has been developed.
+To be able to connect to an osiota process, a WebSocket based JSON RPC interface has been developed.
 
-Clients for NodeJS, JavaScript (for all common web browsers) and MATLAB were implemented.
+Clients for Node.js and JavaScript (for all common web browsers) were implemented.
 
 ## Basic communication: WebSocket
 
@@ -184,7 +184,7 @@ There are two helper methods bound to the WebSocket objects:
 
 To execute a remote method in global scope:
 ```javascript
-ws.rpc("hello", "i_am_an_energy_router", "my-auth-thoken", function(remote_name) {
+ws.rpc("hello", "i_am_an_osiota_process", "my-auth-thoken", function(remote_name) {
 	console.log("remote name:", data);
 });
 ```
