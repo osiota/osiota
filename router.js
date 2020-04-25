@@ -558,10 +558,10 @@ exports.node.prototype.subscription_notify = function(do_not_add_to_history, ini
  * @param {string} filter_method - Only listen to a specific method [`announce`, `unannounce`, `remove`] (optional)
  * @param {function} object - The function to be called an new announcements
  * @example
- * var s = node.subscribe_announcement(function(node, method, initial, update) {
+ * var s = node.subscribe_announcement(function(snode, method, initial, update) {
  *	// ...
  * });
- * var s = node.subscribe_announcement("announce", function(node, method, initial, update) {
+ * var s = node.subscribe_announcement("announce", function(snode, method, initial, update) {
  *	// ...
  * });
  */
@@ -605,7 +605,7 @@ exports.node.prototype.subscribe_announcement = function(filter_method, callback
  * Unsubscribe announcements
  * @param {function} object - The function to be unsubscribed
  * @example
- * var s = node.subscribe_announcement(function(node, method, initial, update) {
+ * var s = node.subscribe_announcement(function(snode, method, initial, update) {
  *	// ...
  * });
  * node.unsubscribe_announcement(s);
@@ -804,7 +804,7 @@ exports.node.prototype.relative_path = function(to) {
  *	metadata: {
  *		"type": "my.app"
  *	}
- * }], function(node, method, initial, update) {
+ * }], function(snode, method, initial, update) {
  *	// ...
  * });
  * node.unsubscribe_announcement(s);
