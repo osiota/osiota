@@ -367,10 +367,10 @@ Subscribe to announcements
 
 **Example**  
 ```js
-var s = node.subscribe_announcement(function(node, method, initial, update) {
+var s = node.subscribe_announcement(function(snode, method, initial, update) {
 	// ...
 });
-var s = node.subscribe_announcement("announce", function(node, method, initial, update) {
+var s = node.subscribe_announcement("announce", function(snode, method, initial, update) {
 	// ...
 });
 ```
@@ -387,7 +387,7 @@ Unsubscribe announcements
 
 **Example**  
 ```js
-var s = node.subscribe_announcement(function(node, method, initial, update) {
+var s = node.subscribe_announcement(function(snode, method, initial, update) {
 	// ...
 });
 node.unsubscribe_announcement(s);
@@ -457,7 +457,7 @@ var s = node.filter([{
 	metadata: {
 		"type": "my.app"
 	}
-}], function(node, method, initial, update) {
+}], function(snode, method, initial, update) {
 	// ...
 });
 node.unsubscribe_announcement(s);
