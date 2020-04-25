@@ -37,9 +37,10 @@ EventEmitter.prototype.once_timeout = function(event, handler, timeout) {
 };
 
 /**
- * Remote call instance
+ * Remote Call class
  * @class
  * @classdesc Remote Call class
+ * @name remotecall
  * @abstract
  */
 exports.remotecall = function() {

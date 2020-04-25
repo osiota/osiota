@@ -12,8 +12,7 @@
     "ws": "^5.2.1"
   },
   "devDependencies": {
-    "better-docs": "^1.1.4",
-    "jsdoc": "^3.5.5",
+    "jsdoc-to-markdown": "^5.0.3",
     "webpack": "^4.16.5",
     "webpack-cli": "^3.1.0",
     "why-is-node-running": "^2.0.3"
@@ -31,6 +30,8 @@
   "scripts": {
     "start": "node osiota.js",
     "build": "./node_modules/.bin/webpack -d --display-modules",
-    "docs": "./node_modules/.bin/jsdoc -c .jsdoc.json"
-  }
+    "docs": "jsdoc2md --template .jsdoc2md.hbs main.js router.js router_remotecall.js node_map.js application.js application_manager.js >API.md"
+  },
+  "author": "Simon Walz and others",
+  "license": "MIT"
 }

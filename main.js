@@ -17,8 +17,14 @@ require('./module_history_class_timebase.js');
 require('./module_history_class_filter.js');
 
 /**
- * Main Class
+ * Main Process Instance
  * @class
+ * @classdesc Remote Process Instance
+ * @name main
+ * @param {string} router_name - Name of the instance
+ * @example
+ * // create a new instance:
+ * var m = new main("my osiota");
  */
 function main(router_name) {
 	EventEmitter.call(this);
@@ -209,6 +215,12 @@ main.prototype.preparation_config = function(config) {
 	}
 };
 
+/**
+ * Load a configuration
+ *
+ * @param {object} config - Configuration
+ * @fires main#started
+ */
 main.prototype.config = function(config) {
 	var _this = this;
 	this.preparation_config(config);

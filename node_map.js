@@ -1,7 +1,8 @@
 /**
- * Create a node map
+ * Create a node-map
  * @class
- * @classdesc NodeMap class
+ * @classdesc Node-Map class
+ * @name node_map
  * @param {node} node - A node instance
  * @param {object} config - A config object
  * @param {(string|application|boolean)} [app] - An application to map content

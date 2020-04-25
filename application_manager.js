@@ -2,8 +2,10 @@ const fs = require("fs");
 const Ajv = require('ajv');
 
 /**
- * Application Manager Class
+ * Application Manager class
  * @class
+ * @classdesc Application Manager class
+ * @name application_manager
  * @param {main} main - Main instance
  */
 exports.application_manager = function(main) {

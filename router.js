@@ -22,6 +22,7 @@ var RemoteCall = require('./router_remotecall.js').remotecall;
  * Create a node instance
  * @class
  * @classdesc Node class
+ * @name node
  * @mixes remotecall
  * @param {router} r - The router instance
  * @param {string} name - The name of the node
@@ -39,23 +40,28 @@ exports.node = function(r, name, parentnode) {
 
 	/**
 	 * Value of the node
+	 * @name node#value
 	 * @type {*}
 	 */
 	this.value = null;
 	/**
 	 * Timestamp of the last change
+	 * @name node#time
 	 * @type {timestamp}
 	 */
 	this.time = null;
 
 	/**
 	 * Meta data describing the data in the node
+	 * @name node#metadata
 	 * @type {object}
 	 */
 	this.metadata = null;
 
 	/**
 	 * Connected config
+	 * @name node#_config
+	 * @type {object}
 	 */
 	this._config = null;
 
@@ -366,7 +372,20 @@ exports.node.prototype.publish_sync = function(time, value, only_if_differ, do_n
 	return time;
 };
 
-/* Route data (asynchronous) */
+/**
+ * Asynchronously publish new data in a node. If `undefined` is passed for the timestamp the current time is used. Please do not create timestamps on your own.
+ *
+ * Publishing `null` means that we did not get any value (in a longer time).
+ *
+ * @param {timestamp} time - The timestamp
+ * @param {*} value - The value
+ * @param {Boolean} only_if_differ - Publish only if value differ from previous value
+ * @param {Boolean} do_not_add_to_history - Do not add the value to the history
+ * @fires node#registered
+ * @this node
+ * @example
+ * node.publish(undefined, 10);
+ */
 exports.node.prototype.publish = function(time, value, only_if_differ, do_not_add_to_history, initial) {
 	var _this = this;
 
@@ -457,9 +476,13 @@ exports.node.prototype.connect = function(dnode, metadata) {
 
 /**
  * Subscribe to the changes of a node
- * @param {node~subscribeCallback} object - The function to be called on new data
+ * @param {node~subscribeCallback} callback - The function to be called on new data
  * @fires node#registered
  * @this node
+ * @example
+ * var s = node.subscribe(function(do_not_add_to_history, initial) {
+ *	// ...
+ * });
  */
 exports.node.prototype.subscribe = function(callback) {
 	// Save the time when this entry was added
@@ -495,6 +518,11 @@ exports.node.prototype.subscribe = function(callback) {
  * Unsubscribe to the changes of a node
  * @param {function} object - The function to be unsubscribed
  * @fires node#unregistered
+ * @example
+ * var s = node.subscribe(function(do_not_add_to_history, initial) {
+ *	// ...
+ * });
+ * node.unsubscribe(s);
  */
 exports.node.prototype.unsubscribe = function(object) {
 	for(var j=0; j<this.subscription_listener.length; j++) {
@@ -527,8 +555,15 @@ exports.node.prototype.subscription_notify = function(do_not_add_to_history, ini
 
 /**
  * Subscribe to announcements
- * @param {string} filter_method - Only listen to a specific method
+ * @param {string} filter_method - Only listen to a specific method [`announce`, `unannounce`, `remove`] (optional)
  * @param {function} object - The function to be called an new announcements
+ * @example
+ * var s = node.subscribe_announcement(function(node, method, initial, update) {
+ *	// ...
+ * });
+ * var s = node.subscribe_announcement("announce", function(node, method, initial, update) {
+ *	// ...
+ * });
  */
 exports.node.prototype.subscribe_announcement = function(filter_method, callback){
 	var object;
@@ -569,6 +604,11 @@ exports.node.prototype.subscribe_announcement = function(filter_method, callback
 /**
  * Unsubscribe announcements
  * @param {function} object - The function to be unsubscribed
+ * @example
+ * var s = node.subscribe_announcement(function(node, method, initial, update) {
+ *	// ...
+ * });
+ * node.unsubscribe_announcement(s);
  */
 exports.node.prototype.unsubscribe_announcement = function(object) {
 	for(var j=0; j<this.announcement_listener.length; j++) {
@@ -629,8 +669,15 @@ exports.node.prototype.announcement_listener_call = function(object, node,
 
 /**
  * Subscribe ready listener
- * @param {string} filter_method - Only listen to a specific method
+ * @param {string} filter_method - Only listen to a specific method [`announce`, `unannounce`, `remove`] (optional)
  * @param {function} object - The function to be called an ready
+ * @example
+ * var s = node.ready(function(method, initial, update) {
+ *	// ...
+ * });
+ * var s = node.ready("announce", function(method, initial, update) {
+ *	// ...
+ * });
  */
 exports.node.prototype.ready = function(filter_method, callback) {
 	var object;
@@ -660,6 +707,10 @@ exports.node.prototype.ready = function(filter_method, callback) {
 /**
  * Unsubscribe ready listener
  * @param {function} object - The function to be unsubscribed
+ * var s = node.ready(function(method, initial, update) {
+ *	// ...
+ * });
+ * node.ready_remove(s);
  */
 exports.node.prototype.ready_remove = function(object) {
 	for(var j=0; j<this.ready_listener.length; j++) {
@@ -745,6 +796,18 @@ exports.node.prototype.relative_path = function(to) {
  * @param {object} filter_config - An object with the filter configuration
  * @param {string} filter_method - Only listen to a specific method
  * @param {function} object - The function to be called an new announcements
+ * @example
+ * var s = node.filter([{
+ *	nodes: ["/hello", "/world"],
+ *	depth: 2
+ * },{ // OR
+ *	metadata: {
+ *		"type": "my.app"
+ *	}
+ * }], function(node, method, initial, update) {
+ *	// ...
+ * });
+ * node.unsubscribe_announcement(s);
  */
 exports.node.prototype.filter = function(filter_config, filter_method,
 							callback) {
@@ -835,6 +898,10 @@ exports.node.prototype.rpc_connect = function(reply, dnode) {
  * Register a RPC command on the node
  * @param {string} method - Method to be called
  * @param {function} callack - Function to register
+ * @example
+ * node.on_rpc("ping", function(reply, text) {
+ *	reply(null, "pong " + text);
+ * });
  */
 exports.node.prototype.on_rpc = function(method, callback) {
 	var _this = this;
@@ -855,6 +922,14 @@ exports.node.prototype.on_rpc = function(method, callback) {
  * @param {string} method - Method to be called
  * @param {...*} args - Extra arguments
  * @param {function} [callback] - Callback to get the result
+ * @example
+ * node.rpc("ping", function(err, data) {
+ *	if (err) {
+ *		return consle.error(err);
+ *	}
+ *	// ..
+ *	console.log(data);
+ * });
  */
 exports.node.prototype.rpc = function(method) {
 	var _this = this;
@@ -919,6 +994,7 @@ exports.node.prototype.toJSON = function() {
  * Creates a Router instance
  * @class
  * @classdesc Router class
+ * @name router
  * @param {string} [name] - The name of the router
  */
 exports.router = function(name) {

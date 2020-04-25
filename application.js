@@ -12,9 +12,17 @@ var unload_object = require("./helper_unload_object.js").unload_object;
 var merge = require("./helper_merge_data.js").merge;
 
 /**
- * Application Class
+ * Osiota can run applications. This is the base class every application
+ * automatically inherits methods and attributes from. An application is
+ * started when the `init()` function is called by osiota. It can `inherit`
+ * methods and attributes from other applications.
+ *
  * @class
+ * @classdesc Application class
+ * @name application
  * @param {string} app - Application name
+ * @tutorial doc/build_your_own_apps.md
+ * @hideconstructor
  */
 exports.application = function(app) {
 	this._state = "INIT";
@@ -33,19 +41,29 @@ exports.application = function(app) {
 	this._error = null;
 };
 /**
- * bind to main class
+ * [internal use] Bind to main class
  * @param {main} main - main instance
  * @param {*} extra - extra information
+ * @private
  */
 exports.application.prototype._bind = function(main, extra) {
 	this._extra = extra;
 	this._main = main;
 };
 /**
- * bind to module context
+ * List the application names this application shall inherit attributes and methods from. You can use every application name. The application needs to be installed.
+ *
+ * @name application#inherit
+ * @type {string|string[]}
+ * @example
+ * exports.inherit = [ "parse-text" ];
+ */
+/**
+ * [internal use] Bind to module context
  * @param {object} module - Module context
  * @param {function} loader - Loader function
  * @param {function} callback
+ * @private
  */
 exports.application.prototype._bind_module = function(module, loader, callback){
 	var _this = this;
@@ -68,7 +86,7 @@ exports.application.prototype._bind_module = function(module, loader, callback){
 	callback();
 };
 /**
- * copy module context
+ * Copy module context
  * @param {object} module - Module context
  * @private
  */
@@ -112,16 +130,19 @@ exports.application.prototype._inherit = function(inherit, loader, callback) {
 };
 
 /**
- * Auto configure application
+ * This method is called before the init function when no configuration
+ * was provided.
+ *
  * @name application#auto_configure
  * @method
- * @param {object} app_config - Config object
+ * @param {object} app_config - (The empty) config object
  * @abstract
  */
 
 /**
  * Auto configure application
  * @param {object} app_config - Config object
+ * @private
  */
 exports.application.prototype._auto_configure = function(app_config) {
 	if (typeof this.auto_configure === "function") {
@@ -139,11 +160,20 @@ exports.application.prototype._auto_configure = function(app_config) {
  * @param {node} node - Node object
  * @param {main} main - Main instance
  * @param {*} extra - Extra information
- * @return {Array<object>} A cleaning object
+ * @return {object} A cleaning object
+ * @abstract
+ * @example
+ * exports.init = function(node, app_config, main, extra) {
+ *     node.announce({ type: "my.app" });
+ *     node.publish(undefined, 123);
+ *
+ *     return node;
+ * };
  */
 /**
- * Call init function
+ * [internal use] Call init function
  * @param {object} app_config - Config object
+ * @private
  */
 exports.application.prototype._init = function(app_config) {
 	if (this._state === "RUNNING") {
@@ -176,10 +206,12 @@ exports.application.prototype._init = function(app_config) {
  * @method
  * @param {Array<object>} object - The cleaning object (see init)
  * @param {function} unload_object - Unload object helper function
+ * @abstract
  */
 /**
- * Call unload function
+ * [internal use] Call unload function
  * @param {object} app_config - Config object
+ * @private
  */
 exports.application.prototype._unload = function() {
 	if (this._state !== "RUNNING" && this._state !== "REINIT")
@@ -200,14 +232,17 @@ exports.application.prototype._unload = function() {
  * Reinit method
  *
  * @name application#reinit
+ * @method
  * @param {object} app_config - Config object
  * @param {node} node - Node object
  * @param {main} main - Main instance
  * @param {*} extra - Extra information
+ * @abstract
  */
 /**
- * Call reinit function
+ * [internal use] Call reinit function
  * @param {object} app_config - Config object
+ * @private
  */
 exports.application.prototype._reinit = function(app_config) {
 	var _this = this;
@@ -238,9 +273,10 @@ exports.application.prototype._reinit = function(app_config) {
 
 };
 /**
- * Call reinit function with delay
+ * [internal use] Call reinit function with delay
  * @param {number} delay - Delay in ms
  * @param {object} app_config - Config object
+ * @private
  */
 exports.application.prototype._reinit_delay = function(delay, app_config) {
 	if (typeof delay !== "number")
@@ -257,12 +293,50 @@ exports.application.prototype._reinit_delay = function(delay, app_config) {
 	}, delay);
 };
 
+/**
+ * This method is called from the command line interface (cli) when
+ * `osiota --app myapp` is executed.
+ *
+ * @name application#cli
+ * @method
+ * @param {object} args - Command line arguments
+ * @param {boolean} show_help - Show help message
+ * @param {main} main - Main instance
+ * @param {*} extra - Extra information
+ * @abstract
+ * @example
+ * exports.cli = function(args, show_help, main, extra) {
+ *	if (show_help) {
+ *		console.group();
+ *		console.info(
+ *			'  --config [file]  Path to the config file\n' +
+ *			'                 (default: "config.json")\n' +
+ *			'  --name [name]  Name and filename of the service\n' +
+ *		console.groupEnd();
+ *		return;
+ *	}
+ *	// ...
+ * };
+ */
+/**
+ * [internal use] Call cli function
+ * @param {object} args - Command line arguments
+ * @param {boolean} show_help - Show help message
+ * @private
+ */
 exports.application.prototype._cli = function(args, show_help) {
 	if (typeof this.cli === "function") {
-		this.cli(args, show_help, this._main, this._extra);
+		return this.cli(args, show_help, this._main, this._extra);
 	}
 };
 
+/**
+ * [internal use] Reinit and save new app configuration
+ * @param {function} reply - RPC reply function
+ * @param {object} config - New config object
+ * @param {boolean} save - Flag to save the configuration
+ * @private
+ */
 exports.application.prototype.rpc_node_config = function(reply, config, save) {
 	// update config object:
 	this._config = merge(this._config, config);
@@ -277,4 +351,3 @@ exports.application.prototype.rpc_node_config = function(reply, config, save) {
 	}
 	reply(null, "okay");
 };
-
