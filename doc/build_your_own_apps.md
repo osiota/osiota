@@ -20,7 +20,34 @@ Your app needs a name and a place to live in.
 1. All the config-data handed to your app is contained in the ``app_config`` object. All the attributes carry the same name they were given in the config JSON File. (e.g the example config file given at the end of this tutorial would lead to attributes like IP and passwd. Those attributes can be accessed in the code via ```app_config.ip```.
 1. Furthermore, your init method receives a node-object, which can you used to publish, subscribe and announce information. This can be done via e.g. ```node.announce({}); node.publish(undefined, "Hallo World");```
 
+```js
+exports.inhert = [];
+
+exports.init = function(node, app_config, main, extra) {
+	node.announce({
+		"type": "my.app"
+	});
+	node.publish(undefined, 10);
+
+	// return an object with items to be "cleaned":
+	return [node];
+};
+
+exports.cli = function(args, show_help, main, extra) {
+	if (show_help) {
+		console.group();
+		console.info(
+			'  --config [file]  Path to the config file\n' +
+			'                 (default: "config.json")\n' +
+			'  --name [name]  Name and filename of the service\n' +
+		console.groupEnd();
+		return;
+	}
+};
+```
+
+See: [application API](API.md#application) and [node API](API.md#node)
 
 ### Step 3: Activate your Application
 
-See [CONFIGURATION](doc/04_configuration.md).
+See [configuration guide](doc/configuration.md).
