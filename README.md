@@ -47,8 +47,7 @@ An *IoT application* can run across multiple hosts. Therefore it can consist of 
 
 *osiota* can start JavaScript files or repositories starting with the string `osiota-app-`. It uses
 
-  * the [osiota Application API](doc/api-application.md) as well as
-  * the [osiota Node API](doc/api-node.md)
+  * the [osiota API](doc/API.md)
 
 for communication with the other parts of the IoT application.
 
@@ -74,7 +73,7 @@ Examples (TODO):
   * [How to build your own application](doc/build_your_own_apps.md)
   * [Building networks](doc/building_networks.md)
   * [Composition of osiota](doc/composition.md)
-  * API definitions
+  * [osiota API](doc/API.md)
   * [Command Line Interface](doc/command_line_options.md)
 
 ## Demonstrators
