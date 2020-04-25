@@ -74,7 +74,7 @@ Examples (TODO):
   * [How to build your own application](doc/build_your_own_apps.md)
   * [Building networks](doc/building_networks.md)
   * [Composition of osiota](doc/composition.md)
-  * [osiota API](doc/API.md)
+  * [API documentation](doc/API.md)
   * [Command Line Interface](doc/command_line_options.md)
 
 ## Demonstrators
