@@ -31,7 +31,7 @@ npm install
 
 
 2. On older Linux systems use a init.d script:
-    * Run `sudo /path/to/osiota.js --app install-init.d --config path_to_config.json`
+    * Run `/path/to/osiota.js --app install-init.d --config path_to_config.json`
     * and follow the instructions
     * Debugging output is written to the file `full_path_to_config.log`
 
