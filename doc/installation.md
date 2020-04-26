@@ -8,7 +8,7 @@ This tutorial shows how to install and start osiota on a new device.
     + on Linux, Windows, MacOS,
     + on Servers, PCs, Raspberry Pis, and many more.
   + Make sure that [Node.js](http://nodejs.org/) is  installed correctly.
-  + Remember that not all applications can be can on every platform.
+  + Remember that not all applications can run on every platform.
 
 ### Installation
 
