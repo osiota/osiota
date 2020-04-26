@@ -21,7 +21,7 @@ Your app needs a name and a place to live in.
 1. Furthermore, your init method receives a node-object, which can you used to publish, subscribe and announce information. This can be done via e.g. ```node.announce({}); node.publish(undefined, "Hallo World");```
 
 ```js
-exports.inhert = [];
+exports.inherit = [];
 
 exports.init = function(node, app_config, main, extra) {
 	node.announce({
@@ -50,4 +50,4 @@ See: [application API](API.md#application) and [node API](API.md#node)
 
 ### Step 3: Activate your Application
 
-See [configuration guide](doc/configuration.md).
+See [configuration guide](configuration.md).
