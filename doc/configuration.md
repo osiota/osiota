@@ -1,5 +1,5 @@
 # Configuration
-An osiota instance is configured by a config file in JSON format. The default name for this file is `osiota.json` (can be set to other names as well, see [INSTALLATION](doc/03_installation.md))
+An osiota instance is configured by a config file in JSON format. The default name for this file is `osiota.json` (can be set to other names as well, see [INSTALLATION](installation.md))
 
 ## Example
 
@@ -42,7 +42,7 @@ Set a hostname. Forwarded to remote hosts as name. Upstream instances use this n
 
 ### remote (object)
 
-Connect to a remote ER instance (via WebSockets). To get or forward data from or to another osiota instance, you can add remotes.
+Connect to a remote osiota instance (via WebSockets). To get or forward data from or to another osiota instance, you can add remotes.
 
 ### app (object[])
 
