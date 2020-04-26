@@ -42,11 +42,11 @@ Set a hostname. Forwarded to remote hosts as name. Upstream instances use this n
 
 ### remote (object)
 
-Connect to a remote ER instance (via WebSockets). To get or forward data from or to another energy-router instance, you can add remotes.
+Connect to a remote ER instance (via WebSockets). To get or forward data from or to another osiota instance, you can add remotes.
 
-### app (object)
+### app (object[])
 
-Applications extend the functionality of the energy-router software. Define and configure applications to start.
+Applications extend the functionality of osiota. Define and configure applications to start.
 
 
 ### auto_install (boolean)
