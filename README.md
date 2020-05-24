@@ -1,6 +1,6 @@
 # Operating System for Internet of Things Applications (osiota)
 
-*osiota* is a software platform capable of running *distributed IoT applications* written in JavaScript to enable any kind of IoT tasks.
+*Osiota* is a software platform capable of running *distributed IoT applications* written in JavaScript to enable any kind of IoT tasks.
 
 Its fields of operation include:
 
@@ -27,7 +27,7 @@ The Internet of Things (IoT) consists of **things** as well as **applications**.
 But where should these IoT applications live? In the Internet of Things, of course, and not (only) in the cloud.
 Therefore an operating system (not as for PCs) is needed to run these distributed IoT applications and connect them with the **things**.
 
-*osiota* is our solution. It is a software platform capable of running software modules. Multiple of these modules can form a distributed IoT application. *osiota* can be run on any device that is able to run Node.js or JavaScript code, as far as we know.
+*Osiota* is our solution. It is a software platform capable of running software modules. Multiple of these modules can form a distributed IoT application. *Osiota* can be run on any device that is able to run Node.js or JavaScript code, as far as we know.
 
 By connecting multiple running processes of *osiota*, connected items and applications can be shared between hosts. As smartphones, tablets and personal computer are important devices to communicate with the users, *osiota* can be executed on these devices as well and provide IoT applications with graphical user interfaces (GUI). A cloud service can be included too, but this service is just seen as another device.
 
@@ -45,7 +45,7 @@ osiota
 
 An *IoT application* can run across multiple hosts. Therefore it can consist of multiple software parts running on different hosts, together forming the IoT application.
 
-*osiota* can start JavaScript files or repositories starting with the string `osiota-app-`. It uses
+*Osiota* can start JavaScript files or repositories starting with the string `osiota-app-`. It uses
 
   * the [osiota Application API](doc/API.md#application) as well as
   * the [osiota Node API](doc/API.md#node)
@@ -95,7 +95,7 @@ Examples (TODO):
 
 ## Thanks to
 
-*osiota* has been mainly developed at the [Institut für Nachrichtentechnik](https://www.tu-braunschweig.de/ifn/) of the [Technische Universität Braunschweig](https://www.tu-braunschweig.de/) in cooperation with the [Institut für Betriebssysteme und Rechnerverbund](https://www.ibr.cs.tu-bs.de/).
+*Osiota* has been mainly developed at the [Institut für Nachrichtentechnik](https://www.tu-braunschweig.de/ifn/) of the [Technische Universität Braunschweig](https://www.tu-braunschweig.de/) in cooperation with the [Institut für Betriebssysteme und Rechnerverbund](https://www.ibr.cs.tu-bs.de/).
 
 
 Its primary Author is [Simon Walz](https://simonwalz.de/) ([Github](https://github.com/simonwalz/)).
