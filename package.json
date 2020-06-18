@@ -1,6 +1,6 @@
 {
   "name": "osiota",
-  "version": "1.12.0",
+  "version": "1.12.1",
   "main": "main.js",
   "bin": "osiota.js",
   "dependencies": {
@@ -27,7 +27,7 @@
     "leveldown": "^3.0.2",
     "readdirp": "^2.0.0"
   },
-  "homepage": "https://osiota.net/",
+  "homepage": "https://osiota.net",
   "repository": {
     "type": "git",
     "url": "https://github.com/osiota/osiota.git"
