@@ -27,6 +27,11 @@
     "leveldown": "^3.0.2",
     "readdirp": "^2.0.0"
   },
+  "homepage": "https://osiota.net/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/osiota/osiota.git"
+  },
   "scripts": {
     "start": "node osiota.js",
     "build": "./node_modules/.bin/webpack -d --display-modules",
