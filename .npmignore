@@ -3,3 +3,6 @@
 /.jsdoc2md.hbs
 /.vimrc
 /.editorconfig
+.*.un~
+.level_db/
+.persistent/
