@@ -89,8 +89,8 @@ Examples (TODO):
 
   1. [Simon Walz and Yannic Schröder, “A privacy-preserving system architecture for applications raising the energy efficiency,” in 2016 IEEE 6th International Conference on Consumer Electronics - Berlin (ICCE-Berlin), 2016, pp. 62–66.](dx.doi.org/10.1109/ICCE-Berlin.2016.7684718)
   2. [Simon Walz, “Energie sparen mit Hilfe des Internet der Dinge (IoT),” Fachzeitschrift für Fernsehen, Film und Elektron. Medien, vol. 8–9, pp. 366–370, 2016.](https://www.fkt-online.de/archiv/artikel/2016/fkt-8-2016/15144-energie-sparen-mit-hilfe-des-internet-der-dinge-iot/)
-  3. [Simon Walz, “Eine Softwareplattform zur Realisierung von verteilten Smart-Energy-Anwendungen im IoT,” in VDE-Kongress 2016 - Internet der Dinge, 2016, pp. 1–5. ICCE und VDE Veröffentlichungen](https://www.vde-verlag.de/proceedings-de/454308071.html)
-<!--  4. [Simon Walz, “Ein System zur Gerätevernetzung für das Energiemanagement”, Dissertation von der Fakultät für Elektrotechnik, Informationstechnik, Physik der Technischen Universität Braunschweig, 2019]()-->
+  3. [Simon Walz, “Eine Softwareplattform zur Realisierung von verteilten Smart-Energy-Anwendungen im IoT,” in VDE-Kongress 2016 - Internet der Dinge, 2016, pp. 1–5. ICCE und VDE Veröffentlichungen.](https://www.vde-verlag.de/proceedings-de/454308071.html)
+  4. [Simon Walz, “Ein System zur Gerätevernetzung für das Energiemanagement”, Dissertation von der Fakultät für Elektrotechnik, Informationstechnik, Physik der Technischen Universität Braunschweig, Düren, Shaker Verlag, 2020, ISBN: 978-3-8440-7360-7.](https://doi.org/10.24355/dbbs.084-202007011128-0)
 
 
 ## Thanks to
