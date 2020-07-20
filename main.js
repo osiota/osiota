@@ -196,6 +196,7 @@ main.prototype.preparation_config = function(config) {
 	var _this = this;
 
 	// preparation:
+	this._close = false;
 	this._config = config;
 	this.config_cleaning();
 
@@ -830,8 +831,10 @@ main.prototype.close = function() {
 	setImmediate(function() {
 		for (var a in _this.apps) {
 			console.log("unloading:", a);
-			if (_this.apps[a]._unload)
+			if (_this.apps[a]._unload) {
 				_this.apps[a]._unload();
+				delete _this.apps[a];
+			}
 		}
 
 		for (var r in _this.remotes) {
