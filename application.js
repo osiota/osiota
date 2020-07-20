@@ -32,6 +32,7 @@ exports.application = function(app) {
 		this._app = app;
 
 	this._config = {};
+	this._schema = null;
 
 	this._node = null;
 
@@ -68,7 +69,6 @@ exports.application.prototype._bind = function(main, extra) {
 exports.application.prototype._bind_module = function(module, loader, callback){
 	var _this = this;
 
-	this._module = module;
 	if (typeof module !== "object" || module === null) {
 		throw new Error("module is not an object");
 	}
@@ -99,6 +99,21 @@ exports.application.prototype._bind_module_sync = function(module) {
 	}
 	return this;
 };
+/**
+ * [internal use] Bind schema information
+ * @param {object} schema - Configuration schema
+ * @param {function} loader - Schema loader function
+ * @param {function} callback
+ * @private
+ */
+exports.application.prototype._bind_schema = function(schema, loader, callback){
+	this._schema = schema;
+
+	if (typeof this.get_schema === "function") {
+		return this.get_schema(schema, loader, callback);
+	}
+	callback();
+}
 /**
  * Load inherited modules
  * @param {string[]|string} inherit - List of module names
@@ -180,6 +195,7 @@ exports.application.prototype._init = function(app_config) {
 		console.log("Warning: App still running: doing reinit");
 		return this._reinit(app_config);
 	}
+	this._node.connect_schema(this._schema);
 	if (typeof app_config === "object" && app_config !== null) {
 		this._config = app_config;
 	}
@@ -217,6 +233,7 @@ exports.application.prototype._unload = function() {
 	if (this._state !== "RUNNING" && this._state !== "REINIT")
 		return;
 
+	this._node.connect_schema(null);
 	this._node.connect_config(null);
 
 	if (typeof this.unload === "function") {

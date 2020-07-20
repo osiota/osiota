@@ -7,6 +7,7 @@ var unload_object = require("./helper_unload_object.js").unload_object;
 
 var merge = require("./helper_merge_data.js").merge;
 var helper = require("./helper.js");
+var async_calls = require("./helper_async_calls.js").async_calls;
 
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
@@ -438,18 +439,28 @@ main.prototype.module_get = function(app, callback) {
 	var a = new Application(appname);
 	a._id = app_identifier;
 	if (typeof app === "string") {
-		this.require(appname, function(struct) {
-			_this.load_schema(appname, function(schema) {
+		async_calls([
+				this.require.bind(this, appname),
+				this.load_schema.bind(this, appname)
+			],
+			function(results) {
+				var struct = results[0];
+				var schema = results[1];
+
 				// bind module:
 				a._bind_module(
 					struct,
 					_this.module_get.bind(_this),
 					function() {
-						callback(a);
+						a._bind_schema(
+							schema,
+							_this.load_schema,
+							callback.bind(null, a)
+						);
 					}
 				);
-			});
-		});
+			}
+		);
 	} else if (typeof app === "object" && app !== null) {
 		a._bind_module(
 			app,

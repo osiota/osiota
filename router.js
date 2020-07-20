@@ -145,6 +145,13 @@ exports.node.prototype.connect_config = function(config) {
 };
 
 /**
+ * Connect configuration schema to a node. Will be announced with to node
+ */
+exports.node.prototype.connect_schema = function(schema) {
+	this._schema = schema;
+};
+
+/**
  * Announce a node with meta data
  * @param {object} metadata - Meta data describing the node
  * @param {boolean} update - (For internal use only!)
@@ -168,6 +175,9 @@ exports.node.prototype.announce = function(metadata, update) {
 		update = true;
 	}
 
+	if (this._schema) {
+		metadata.schema = JSON.parse(JSON.stringify(this._schema));
+	}
 	if (this._config) {
 		// clone config
 		metadata.config = JSON.parse(JSON.stringify(this._config));
