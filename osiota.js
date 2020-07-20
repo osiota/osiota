@@ -107,7 +107,7 @@ if (argv.help && !argv.app) {
 	var main = require('./main_nodejs.js');
 
 	// optional better console output:
-	if (!argv.help && !argv.app) {
+	if (!argv.help && !argv.app && !argv.systemd) {
 		try {
 			require('console-stamp')(console, {
 				pattern: 'yyyy-mm-dd HH:MM:ss',
@@ -120,7 +120,7 @@ if (argv.help && !argv.app) {
 		} catch(err) {}
 	}
 
-	if (!argv.verbose) {
+	if (!argv.verbose && !argv.systemd) {
 		// error
 		// warn
 		// info
