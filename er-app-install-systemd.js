@@ -83,7 +83,7 @@ After=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=${command} --config "${service_config}"
+ExecStart=${command} --config "${service_config}" --systemd
 WorkingDirectory=${service_workingdir}
 Restart=on-failure
 User=${service_user}
