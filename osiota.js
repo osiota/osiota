@@ -149,10 +149,12 @@ if (argv.help && !argv.app) {
 
 	m.argv = argv;
 	m.add_app_dir(path.dirname(argv.config || "osiota.json"));
-	m.config(config);
 
-	// call cli function of an app:
-	if (argv.app) {
+	if (!argv.app) {
+		// Load configuration:
+		m.config(config);
+	} else {
+		// call cli function of an app:
 		if (argv.help) {
 			console.info('Usage: osiota --app %s [args]\n',
 					argv.app);
