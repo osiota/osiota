@@ -165,6 +165,9 @@ exports.node_map.prototype.map_element = function(key, app_config,
 			app_config.metadata !== null) {
 		metadata = app_config.metadata;
 	}
+	connect_schema(n, this._node);
+	n.connect_config(app_config);
+
 	this.map_initialise(n, metadata, app_config);
 
 	var a;
@@ -199,3 +202,30 @@ exports.node_map.prototype.map_key = function(app_config, cache) {
 	return ""+app_config.map;
 };
 
+var connect_schema = function(n, node) {
+	if (typeof node._schema !== "object" || node._schema === null)
+		return;
+	var schema = node._schema;
+
+	var map = null;
+	if (typeof schema.properties === "object" &&
+			schema.properties !== null &&
+			typeof schema.properties.map === "object" &&
+			schema.properties.map !== null) {
+		map = schema.properties.map;
+	}
+	// Bad hack:
+	if (typeof schema.definitions === "object" &&
+			schema.definitions !== null &&
+			typeof schema.definitions.map === "object" &&
+			schema.definitions.map !== null) {
+		map = schema.definitions.map;
+	}
+	if (!map) return;
+	if (map.type === "array" &&
+		typeof map.items === "object" &&
+		map.items !== null
+	) {
+		n.connect_schema(map.items);
+	}
+}
