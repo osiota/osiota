@@ -158,11 +158,11 @@ if (process.on) { /* if NodeJS */
 		process.emit("preexit", false);
 	});
 	// if we got a signal to terminate:
-	process.on('SIGTERM', function() {
+	process.once('SIGTERM', function() {
 		process.exitCode = 128+15;
 		process.emit("preexit", true);
 	});
-	process.on('SIGINT', function() {
+	process.once('SIGINT', function() {
 		process.exitCode = 128+2;
 		process.emit("preexit", true);
 	});
