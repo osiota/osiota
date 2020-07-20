@@ -1,5 +1,9 @@
 var execFile = require('child_process').execFile;
 
+exports.default_metadata = {
+	"type": "state.state"
+};
+
 exports.init = function(node, app_config, main, host_info) {
 	var command = "echo";
 	if (typeof app_config.command === "string") {
@@ -14,10 +18,8 @@ exports.init = function(node, app_config, main, host_info) {
 	if (typeof app_config.map_stdout === "boolean") {
 		map_stdout = app_config.map_stdout;
 	}
-	node.announce({
-		"type": "state.state"
-	});
-	
+	node.announce([this.default_metadata, app_config.metadata]);
+
 	node.rpc_set = function(reply, value) {
 		var l_args = JSON.parse(JSON.stringify(args));
 		l_args.push(value);
