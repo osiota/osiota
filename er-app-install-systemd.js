@@ -67,7 +67,7 @@ exports.install_notice = function(service_name, service_filename) {
 	console.info('\n' +
 		'Please execute:\n' +
 		'# sudo cp "'+service_filename+'" "/etc/systemd/system/'+service_name+'.service"\n'+
-		'# sudo systemctl reload '+service_name+'\n' +
+		'# sudo systemctl daemon-reload\n' +
 		'# sudo systemctl enable '+service_name+'\n' +
 		'# sudo systemctl start '+service_name+'\n' +
 		'');
