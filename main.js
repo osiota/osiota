@@ -443,7 +443,10 @@ main.prototype.module_get = function(app, callback) {
 				this.require.bind(this, appname),
 				this.load_schema.bind(this, appname)
 			],
-			function(results) {
+			function(err, results) {
+				if (err) {
+					return callback(err);
+				}
 				var struct = results[0];
 				var schema = results[1];
 
@@ -451,11 +454,15 @@ main.prototype.module_get = function(app, callback) {
 				a._bind_module(
 					struct,
 					_this.module_get.bind(_this),
-					function() {
+					function(err) {
+						if (err)
+							return callback(err);
 						a._bind_schema(
 							schema,
 							_this.load_schema,
-							callback.bind(null, a)
+							function(err) {
+								callback(err, a);
+							}
 						);
 					}
 				);
@@ -466,7 +473,7 @@ main.prototype.module_get = function(app, callback) {
 			app,
 			_this.module_get.bind(_this),
 			function() {
-				callback(a);
+				callback(null, a);
 			}
 		);
 	} else {
@@ -477,14 +484,14 @@ main.prototype.module_get = function(app, callback) {
 main.prototype.startup = function(node, app, app_config, host_info, auto_install, callback) {
 	var _this = this;
 
-	try {
-		this.module_get(app, function(a) {
+	this.module_get(app, function(e, a) {
+		if (!e) {
 			return _this.startup_module( a,
 					node, app, app_config,
 					host_info, auto_install,
 					callback);
-		});
-	} catch(e) {
+		}
+
 		// trigger global callback:
 		/**
 		 * Application Loading Error
@@ -496,7 +503,7 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 		 * @param {boolean} auto_install - Auto install flag
 		 * @event main#app_loading_error
 		 */
-		if (this.emit("app_loading_error", e, node, app, app_config,
+		if (_this.emit("app_loading_error", e, node, app, app_config,
 					host_info, auto_install,
 				function(an, level) {
 			if (typeof an === "object") {
@@ -511,10 +518,9 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 
 		// show error:
 		console.error("error starting app:", e.stack || e);
-
-	}
-
+	});
 };
+
 main.prototype.startup_module = function(a, node, app, app_config, host_info, auto_install, callback) {
 	var _this = this;
 

@@ -91,10 +91,19 @@ main_nodejs.prototype.add_app_dir = function(app_dir) {
 	this.app_dirs.push(app_dir);
 };
 main_nodejs.prototype.require = function(appname, callback) {
-	callback(require_vm([
+	this.require_options([
 		"osiota-app-" + appname,
 		"er-app-" + appname
-	], this.app_dirs, this.apps_use_vm));
+	], callback);
+};
+main_nodejs.prototype.require_options = function(options, callback) {
+	try {
+		var contents = require_vm(options, this.app_dirs,
+			this.apps_use_vm);
+		callback(null, contents);
+	} catch (err) {
+		callback(err);
+	}
 };
 var schema_cache = {};
 main_nodejs.prototype.load_schema = function(appname, callback) {
@@ -104,32 +113,33 @@ main_nodejs.prototype.load_schema = function(appname, callback) {
 	appname = appname.replace(/^(er|osiota)-app-/, "");
 
 	if (schema_cache.hasOwnProperty(appname)) {
-		return callback(schema_cache[appname]);
+		return callback(null, schema_cache[appname]);
 	}
-	// default schema:
-	var schema = {
-		"type": "object",
-		"title": "Settings",
-		"additionalProperties": true
-	};
-	try {
-		this.require([
-			"osiota-app-" + appname + "-schema.json",
-			"er-app-" + appname + "-schema.json",
-			"osiota-app-" + appname + "/schema.json",
-			"er-app-" + appname + "/schema.json",
-			"osiota-app-" + appname + "/schema-config.json",
-			"er-app-" + appname + "/schema-config.json"
-		], function(contents) {
-			schema = contents;
-		});
-	} catch(err) {
-		if (err.code !== "OSIOTA_APP_NOT_FOUND")
-			console.error("Error loading schema:", err.stack||err);
-	}
+	this.require_options([
+		"osiota-app-" + appname + "-schema.json",
+		"er-app-" + appname + "-schema.json",
+		"osiota-app-" + appname + "/schema.json",
+		"er-app-" + appname + "/schema.json",
+		"osiota-app-" + appname + "/schema-config.json",
+		"er-app-" + appname + "/schema-config.json"
+	], function(err, contents) {
+		if (err) {
+			if (err.code === "OSIOTA_APP_NOT_FOUND") {
+				// default schema:
+				var schema = {
+					"type": "object",
+					"title": "Settings",
+					"additionalProperties": true
+				};
+				schema_cache[appname] = schema;
+				return callback(null, schema);
+			}
+			return callback(err);
+		}
+		schema_cache[appname] = contents;
+		return callback(null, contents);
+	});
 
-	schema_cache[appname] = schema;
-	return callback(schema);
 };
 
 /* on signal: end the process */

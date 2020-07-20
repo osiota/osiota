@@ -36,13 +36,10 @@ main_web.prototype.app_to_path = function(appname, filename) {
 main_web.prototype.require = function(appname, callback) {
 	// map app to path:
 	var path = this.app_to_path(appname, "web.js");
-	this.require_web(path, function(err, object) {
-		//if (err)
-		callback(object);
-	});
+	this.require_web(path, callback);
 };
 main_web.prototype.load_schema = function(appname, callback) {
-	callback({});
+	callback(null, {});
 	/*var path = this.app_to_path(appname, "web-schema.json");
 	this.require_web(path, function(err, object) {
 		//if (err)

@@ -76,14 +76,16 @@ exports.application.prototype._bind_module = function(module, loader, callback){
 			Array.isArray(module.inherit) &&
 			module.inherit.length) {
 		var inherit = module.inherit.slice(0);
-		this._inherit(inherit, loader, function() {
+		this._inherit(inherit, loader, function(err) {
+			if (err) return callback(err);
+
 			_this._bind_module_sync(module);
-			callback();
+			callback(null);
 		});
 		return;
 	}
 	this._bind_module_sync(module);
-	callback();
+	callback(null);
 };
 /**
  * Copy module context
@@ -112,7 +114,7 @@ exports.application.prototype._bind_schema = function(schema, loader, callback){
 	if (typeof this.get_schema === "function") {
 		return this.get_schema(schema, loader, callback);
 	}
-	callback();
+	callback(null);
 }
 /**
  * Load inherited modules
@@ -125,7 +127,7 @@ exports.application.prototype._inherit = function(inherit, loader, callback) {
 	var _this = this;
 
 	if (Array.isArray(!inherit) || !inherit.length ) {
-		callback();
+		callback(null);
 		return;
 	}
 	var iname = inherit.shift();
@@ -133,12 +135,15 @@ exports.application.prototype._inherit = function(inherit, loader, callback) {
 		throw new Error("inherit: application name is not string.");
 	}
 
-	loader(iname, function(m) {
+	loader(iname, function(err, m) {
+		if (err) return callback(err);
+
 		if (typeof _this._base !== "object") {
 			_this._base = {};
 		}
 		_this._base[iname] = m;
-		_this._bind_module(m, loader, function() {
+		_this._bind_module(m, loader, function(err) {
+			if (err) return callback(err);
 			_this._inherit(inherit, loader, callback);
 		});
 	});
