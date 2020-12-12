@@ -12,20 +12,23 @@ exports.node_map = function(node, config, app, map_extra_elements) {
 	var _this = this;
 
 	this._node = node;
-	this._config = config;
 	this._app = app;
 	this.map_extra_elements = map_extra_elements;
 
 	this.map = {};
 
 	if (!Array.isArray(config)) {
-		if (config && typeof config.map === "object" &&
-				config.map !== null) {
+		if (typeof config === "object" && config !== null) {
+			if (typeof config.map !== "object" ||
+					config.map === null) {
+				config.map = [];
+			}
 			config = config.map;
 		} else {
 			throw new Error("map config is not defined.");
 		}
 	}
+	this._config = config;
 };
 
 /**
