@@ -8,7 +8,7 @@ This tutorial shows how to install and start osiota on a new device.
     + on Linux, Windows, MacOS,
     + on Servers, PCs, Raspberry Pis, and many more.
   + Make sure that [Node.js](http://nodejs.org/) is  installed correctly.
-  + Remember that not all applications can run on every platform.
+  + Remember that some osiota applications have stronger requirements.
 
 ### Installation
 
@@ -24,6 +24,8 @@ npm install
 ```
 
 ### Configure automatic startup
+
+Choose one of the following options:
 
 1. Recommended: On Linux systems use a systemd script:
     * Run `/path/to/osiota.js --app install-systemd --config path_to_config.json`
