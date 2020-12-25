@@ -103,7 +103,7 @@ Connect to a remote osiota instance (via WebSockets). To get or forward data fro
 
 #### Modbus binding
 
-See [app: modbus](https://github.com/osiota/osiota-app-modbus/)
+See [app: modbus](https://github.com/osiota/osiota-app-modbus/#configuration-modbus)
 
 `config.app[] =`
 
