@@ -70,7 +70,7 @@ Examples (TODO):
 
 ## Further Guides
 
-  * [Installation](doc/installation.md) and [configuration](doc/configuration.md) guide
+  * [Installation, startup](doc/installation.md) and [configuration](doc/configuration.md) guide
   * [How to build your own application](doc/build_your_own_apps.md)
   * [Building networks](doc/building_networks.md)
   * [Composition of osiota](doc/composition.md)

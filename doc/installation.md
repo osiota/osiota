@@ -23,6 +23,10 @@ cd my-system
 npm install
 ```
 
+### Configuration
+
+To run osiota you need to specify a JSON-formatted configuration file. See [configuration](configuration.md).
+
 ### Configure automatic startup
 
 Choose one of the following options:
