@@ -43,7 +43,7 @@ exports.node_map.prototype.init = function() {
 		if (typeof app_config.node !== "string") {
 			app_config.node = key.replace(/^\//, "");
 		}
-		return _this.map_element(key, app_config, null, true);
+		_this.map_element(key, app_config, null, true);
 	});
 };
 
