@@ -9,8 +9,6 @@
  * @param {(boolean|object|function)} [map_extra_elements] - Map extra elements?
  */
 exports.node_map = function(node, config, app, map_extra_elements) {
-	var _this = this;
-
 	this._node = node;
 	this._app = app;
 	this.map_extra_elements = map_extra_elements;
