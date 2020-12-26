@@ -371,5 +371,8 @@ exports.application.prototype.rpc_node_config = function(reply, config, save) {
 	if (save) {
 		this._main.emit("config_save");
 	}
+	if (this._app._node !== this) {
+		return reply("node_moved", this._app._node.name);
+	}
 	reply(null, "okay");
 };
