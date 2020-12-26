@@ -923,7 +923,9 @@ exports.node.prototype.on_rpc = function(method, callback) {
 	this["rpc_" + method] = callback;
 
 	return function() {
-		_this["rpc_" + method] = undefined;
+		if (_this["rpc_" + method] === callback) {
+			_this["rpc_" + method] = undefined;
+		}
 	}
 };
 
