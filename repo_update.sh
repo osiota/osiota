@@ -30,5 +30,10 @@ do
 		cd "${i}"
 		git -c core.excludesfile="${GG}" $COMMAND
 		cd - >/dev/null
+	elif test -d "$i"
+	then
+		echo
+		echo "${i}"
+		echo "Not a git repository"
 	fi
 done
