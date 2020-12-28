@@ -23,7 +23,7 @@ git -c core.excludesfile="${GG}" $COMMAND
 
 for i in er-app-*/ osiota-app-*/ system-*/ ../er-app-*/ ../osiota-app-*/ ../system-*/;
 do
-	if test -d "$i"
+	if test -d "$i.git"
 	then
 		echo
 		echo "${i}"
