@@ -164,7 +164,7 @@ exports.node_map.prototype.map_element = function(key, app_config,
 	}
 	if (typeof app_config.metadata === "object" &&
 			app_config.metadata !== null) {
-		metadata = app_config.metadata;
+		metadata = [metadata, app_config.metadata];
 	}
 	connect_schema(n, this._node);
 	n.connect_config(app_config);
