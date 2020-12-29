@@ -18,9 +18,7 @@ if (parseInt(process.versions.node.split(".")[0]) >= 6) {
 
 // from: https://github.com/nodejs/node/blob/master/lib/module.js
 var resolveFilename = function(request, parent, isMain) {
-	var resolvedModule = Module._resolveLookupPaths(request, parent);
-	var id = resolvedModule[0];
-	var paths = resolvedModule[1];
+	var paths = Module._resolveLookupPaths(request, parent, true);
 
 	var filename = Module._findPath(request, paths, isMain);
 	return filename;
