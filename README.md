@@ -35,7 +35,7 @@ By connecting multiple running processes of *osiota*, connected items and applic
 
 osiota
 
-  * provides simple APIs
+  * provides simple and universal APIs
   * can be used to ensure data security, data protection and latency requirements<!--TODO-->
   * uses one programming language for all devices and software layers: JavaScript
 
@@ -64,7 +64,7 @@ for communication with the other parts of the IoT application.
 
 ### Applications for osiota
 
-See on [NPM with search term osiota](https://www.npmjs.com/search?q=osiota). Official osiota apps are situated in the [GitHub group osiota](https://github.com/osiota/]).
+See on [NPM with search term osiota](https://www.npmjs.com/search?q=osiota). Official osiota apps are situated in the [GitHub group osiota](https://github.com/osiota/).
 
 Examples (TODO):
 
