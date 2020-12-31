@@ -9,15 +9,19 @@ exports.cli = function(argv, show_help) {
 		console.group();
 		console.info(
 			'  --config [file]  Path to the config file\n' +
-			'                 (default: "config.json")\n' +
+			'              (default: "config.json")\n' +
 			'  --name [name]  Name and filename of the service\n' +
-			'  --user [user]  User to execute the service\n');
+			'              (default: "osiota" or "osiota-HOST")\n' +
+			'  --user [user]  User to execute the service\n' +
+                        '              (default: current user)\n' +
+			'  --dry-run  Run but don\'t create any files.');
 		console.groupEnd();
 		return;
 	}
 
 	// Get full path to config file:
-	var service_config = path.resolve(argv.config);
+	var config_file = argv.config || "osiota.json";
+	var service_config = path.resolve(config_file);
 	console.info("Config file:", service_config);
 
 	if (!service_config) {
@@ -58,9 +62,14 @@ exports.cli = function(argv, show_help) {
 
 	var service_filename = service_config.replace(/.json/i, '') +
 			this.local_service_name;
-	fs.writeFileSync(service_filename, service_file);
-	console.log(service_file);
-	this.install_notice(service_name, service_filename);
+	if (!argv["dry-run"]) {
+		fs.writeFileSync(service_filename, service_file);
+		console.log(service_file);
+	} else {
+		console.warn("service-file:", service_file);
+	}
+	this.install_notice(service_name, service_filename, service_name,
+			service_config);
 };
 
 exports.install_notice = function(service_name, service_filename) {
