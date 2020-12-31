@@ -23,7 +23,7 @@ if (argv.restart && process.env.__daemon) {
 	argv.daemon = true;
 }
 
-var config_file = argv.config || "config.json";
+var config_file = argv.config || "osiota.json";
 var log_file = config_file.replace(/\.json$/i, "") + ".log";
 var pid_file = config_file.replace(/\.json$/i, "") + ".pid";
 if (argv.app) config_file = null;
@@ -34,7 +34,7 @@ if (argv.help && !argv.app) {
 	console.group();
 	console.info('Options:\n' +
 		'  --config [file]  Path to the config file\n' +
-		'                 (default: "config.json")\n' +
+		'                 (default: "osiota.json")\n' +
 		'  --status, -s   Get status of the daemon\n' +
 		'  --daemon, -d   Daemonize the process\n' +
 		'  --restart      Restart process\n' +
@@ -133,7 +133,7 @@ if (argv.help && !argv.app) {
 	m.on("config_save", function() {
 		var _this = this;
 		helper_config_file.write(
-			argv.config || "config.json",
+			argv.config || "osiota.json",
 			m._config);
 	});
 
