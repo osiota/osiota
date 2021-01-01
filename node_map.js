@@ -22,6 +22,13 @@ exports.node_map = function(node, config, app, map_extra_elements) {
 				config.map = [];
 			}
 			config = config.map;
+			this._config = config.map;
+			if (typeof config.map_app !== "undefined") {
+				this._app = config.map_app;
+			}
+			if (typeof config.map_extra !== "undefined") {
+				this.map_extra_elements = config.map_extra;
+			}
 		} else {
 			throw new Error("map config is not defined.");
 		}
@@ -43,7 +50,7 @@ exports.node_map.prototype.init = function() {
 		if (typeof app_config.node !== "string") {
 			app_config.node = key.replace(/^\//, "");
 		}
-		_this.map_element(key, app_config, null, true);
+		_this.map_element(key, app_config, null);
 	});
 };
 
@@ -96,8 +103,7 @@ exports.node_map.prototype.node = function(app_config, local_metadata, cache) {
 		this._config.__listener();
 	}
 
-	return this.map_element(key, app_config, local_metadata,
-			false, cache);
+	return this.map_element(key, app_config, local_metadata, cache);
 };
 
 /**
@@ -141,7 +147,7 @@ exports.node_map.prototype.remove_node = function(app_config) {
  * @private
  */
 exports.node_map.prototype.map_element = function(key, app_config,
-		local_metadata){
+		local_metadata, cache){
 	var local_app = this._app;
 	if (typeof app_config.self_app !== "undefined"){
 		local_app = app_config.self_app;
