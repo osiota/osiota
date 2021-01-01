@@ -9,7 +9,7 @@ exports.cli = function(argv, show_help) {
 		console.group();
 		console.info(
 			'  --config [file]  Path to the config file\n' +
-			'              (default: "config.json")\n' +
+			'              (default: "osiota.json")\n' +
 			'  --name [name]  Name and filename of the service\n' +
 			'              (default: "osiota" or "osiota-HOST")\n' +
 			'  --user [user]  User to execute the service\n' +

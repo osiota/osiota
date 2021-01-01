@@ -332,7 +332,7 @@ exports.application.prototype._reinit_delay = function(delay, app_config) {
  *		console.group();
  *		console.info(
  *			'  --config [file]  Path to the config file\n' +
- *			'                 (default: "config.json")\n' +
+ *			'                 (default: "osiota.json")\n' +
  *			'  --name [name]  Name and filename of the service\n' +
  *		console.groupEnd();
  *		return;

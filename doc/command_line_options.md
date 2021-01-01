@@ -12,7 +12,7 @@ Usage: `osiota [args]`
   <tbody>
   <tr>
     <td><code>--config [file]</code></td>
-    <td>Path to the config file (default: "config.json")</td>
+    <td>Path to the config file (default: "osiota.json")</td>
   </tr>
   <tr>
     <td><code>--status</code>, <code>-s</code></td>

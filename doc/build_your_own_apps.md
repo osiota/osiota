@@ -38,7 +38,7 @@ exports.cli = function(args, show_help, main, extra) {
 		console.group();
 		console.info(
 			'  --config [file]  Path to the config file\n' +
-			'                 (default: "config.json")\n' +
+			'                 (default: "osiota.json")\n' +
 			'  --name [name]  Name and filename of the service\n' +
 		console.groupEnd();
 		return;
