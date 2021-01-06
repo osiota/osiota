@@ -57,7 +57,7 @@ exports.node_map.prototype.init = function() {
 /**
  * Map a config object to a node
  * @param {object} app_config - A config object
- * @param {object} [local_metadata] - Addional metadata
+ * @param {object} [local_metadata] - Addional meta data
  * @param {*} [cache] - Addional object for caching
  */
 exports.node_map.prototype.node = function(app_config, local_metadata, cache) {
@@ -193,7 +193,7 @@ exports.node_map.prototype.map_element = function(key, app_config,
 /**
  * Initialise a new node
  * @param {node} n - The node to initialse
- * @param {object} metadata -  metadata gathered together
+ * @param {object} metadata - Meta data gathered together
  * @param {object} app_config - Mapped or saved config
  */
 exports.node_map.prototype.map_initialise = function(n, metadata, app_config) {
