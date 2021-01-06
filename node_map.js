@@ -95,7 +95,7 @@ exports.node_map.prototype.node = function(app_config, local_metadata, cache) {
 		this.map_extra_elements(app_config, local_metadata);
 	}
 	if (typeof app_config.node !== "string") {
-		app_config.node = key.replace(/^\//, "");
+		app_config.node = this.map_nodename(key, app_config, local_metadata);
 	}
 
 	this._config.push(app_config);
@@ -202,12 +202,22 @@ exports.node_map.prototype.map_initialise = function(n, metadata, app_config) {
 
 /**
  * Map a config object to a string
- * @param {object} app_config - A config object
+ * @param {object} app_config - Mapped or saved config
  * @param {*} [cache] - Addional object for caching
  */
 exports.node_map.prototype.map_key = function(app_config, cache) {
 	return ""+app_config.map;
 };
+
+/**
+ * Map nodename
+ * @param {string} key - String key for mapping
+ * @param {object} app_config - Mapped or saved config
+ * @param {object} [local_metadata] - Addional meta data
+ */
+exports.node_map.prototype.map_nodename = function(key, app_config, local_metadata) {
+	return key.replace(/^\//, "");
+}
 
 var connect_schema = function(n, node) {
 	if (typeof node._schema !== "object" || node._schema === null)
