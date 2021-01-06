@@ -100,7 +100,7 @@ exports.history.prototype.get = function(interval, callback) {
 			if (index < 0) index = ~index;
 
 			// from zero to end index (not included):
-			data = data.slice(0,index-1);
+			data = data.slice(0,index);
 		}
 		if (data.length - config.maxentries >= 0) {
 			limited = true;
