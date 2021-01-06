@@ -34,6 +34,16 @@ n.get_history({
 }, hc("maxentries:", false, [5,6,7,8,9]));
 
 n.get_history({
+	maxentries: 5,
+	reverse_align: false
+}, hc("maxentries:", false, [5,6,7,8,9]));
+
+n.get_history({
+	maxentries: 5,
+	reverse_align: true
+}, hc("maxentries:", false, [0,1,2,3,4]));
+
+n.get_history({
 	maxentries: 10
 }, hc("maxentries:", false, [0,1,2,3,4,5,6,7,8,9]));
 

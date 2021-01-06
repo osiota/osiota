@@ -52,7 +52,7 @@ exports.history.prototype.add = function(time, value) {
 	}
 };
 /* history: get old data */
-exports.history.prototype.get = function(interval, callback) {
+exports.history.prototype.get = function(parameters, callback) {
 	var config = {};
 	config.maxentries = 3000;
 	config.interval = null;
@@ -62,15 +62,24 @@ exports.history.prototype.get = function(interval, callback) {
 
 	var limited = false;
 
-	// read config from interval object
-	if (typeof interval !== "object") {
-		interval = {};
+	// read config from parameters object
+	if (typeof parameters !== "object") {
+		parameters = {};
 	}
-	for (var configname in config) {
-		if (interval.hasOwnProperty(configname) &&
-				typeof interval[configname] === "number") {
-			config[configname] = interval[configname];
-		}
+	if (typeof parameters.maxentries === "number") {
+		config.maxentries = parameters.maxentries;
+	}
+	if (typeof parameters.fromtime === "number") {
+		config.fromtime = parameters.fromtime;
+	}
+	if (typeof parameters.totime === "number") {
+		config.totime = parameters.totime;
+	}
+	if (typeof parameters.reverse_align === "boolean") {
+		config.reverse_align = parameters.reverse_align;
+	}
+	if (config.maxentries === -1) {
+		config.maxentries = null;
 	}
 
 	var _this = this;
@@ -118,7 +127,10 @@ exports.history.prototype.get = function(interval, callback) {
 		var exceeded = !limited;
 		if (exceeded && config.totime === null &&
 				config.fromtime === null &&
-				config.interval === null &&
+				(
+				 config.interval === null ||
+				 config.interval === 0
+				) &&
 				(
 				 config.maxentries === null ||
 				 config.maxentries <= 3000
