@@ -88,6 +88,9 @@ exports.history.prototype.add = function (time, value) {
 	if (time === null) {
 		return;
 	}
+	if (value === null) {
+		value = "";
+	}
 
 	this.vdb.put("", value, {version: time}, function(err, version) {
 		if(err)
