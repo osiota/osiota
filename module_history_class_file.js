@@ -1,14 +1,37 @@
 
 const fs = require("fs");
+const bytewise_hex = require("bytewise/hex");
 
-var util = require('util');
-var HistoryGlobal = require("./module_history_global.js");
+const util = require('util');
+const HistoryGlobal = require("./module_history_global.js");
 
-var levelup = require("levelup");
-var leveldown = require("leveldown");
-var version = require("level-version");
+const levelup = require("levelup");
+const leveldown = require("leveldown");
 
 var dbdir = "./.level_db/";
+
+function makeKey(version) {
+	if (typeof version !== "number") return undefined;
+	var buffer = Buffer.allocUnsafe(8);
+	buffer.writeDoubleBE(version, 0);
+	var bytes = [0x41];
+	for (var i = 0, end = buffer.length; i < end; ++i) {
+		bytes.push(~buffer.readUInt8(i));
+	}
+	var b = Buffer.from(bytes);
+	return "\xff" + b.toString("hex");
+}
+
+function unmakeKey(key) {
+	var chunk = Buffer.from(key.toString().substring(3), "hex");
+	var bytes = [];
+	for (var i = 0, end = chunk.length; i < end; ++i) {
+		bytes.push(~chunk.readUInt8(i));
+	}
+	var buffer = Buffer.from(bytes);
+
+	return buffer.readDoubleBE(0);
+}
 
 var vdb_setup = function(node, config, callback) {
 	var dbdir_local = dbdir;
@@ -25,44 +48,41 @@ var vdb_setup = function(node, config, callback) {
 
 	console.log("filename", dbname);
 	var ldb = levelup(leveldown(dbname));
-	var vdb = version(ldb);
 	ldb.on("ready", function() {
 		console.log("vdb opened:", dbname);
 		if (typeof callback === "function") {
 			callback();
 		}
 	});
-	return vdb;
+	return ldb;
 };
 
 var vdb_read = function(vdb, config, callback) {
 	var hdata = [];
-	vdb.createVersionStream("", {
-		//versionLimit: config.maxentries,
+	var options = {
 		limit: config.maxentries,
 		reverse: config.reverse_align,
-		minVersion: config.fromtime,
-		maxVersion: config.totime
-	})
+	};
+	if (typeof config.fromtime === "number") {
+		options.lt = makeKey(config.fromtime);
+	}
+	if (typeof config.totime === "number") {
+		options.gt = makeKey(config.totime);
+	}
+	vdb.createReadStream(options)
 	.on('data', function (data) {
-		var value;
-		if (data.value === "")
-			value = null;
-		else
+		var time = unmakeKey(data.key);
+		var value = null;
+		if (data.value !== "")
 			value = parseFloat(data.value);
 
-		hdata.push({"time": data.version, "value": value});
+		hdata.push({"time": time, "value": value});
 	})
 	.on('error', function (err) {
 		console.warn('Error from getting history:',err);
 		callback(null);
 	})
 	.on('end', function() {
-		// from and to time not included: Remove them:
-		if (config.fromtime != null)
-			hdata.shift();
-		if (config.totime != null)
-			hdata.pop();
 		if (!config.reverse_align)
 			hdata.reverse();
 		callback(hdata);
@@ -92,7 +112,7 @@ exports.history.prototype.add = function (time, value) {
 		value = "";
 	}
 
-	this.vdb.put("", value, {version: time}, function(err, version) {
+	this.vdb.put(makeKey(time), value, function(err) {
 		if(err)
 			console.warn('Error:', err);
 	});
@@ -126,15 +146,6 @@ exports.history.prototype.get = function (parameters, callback) {
 		config.maxentries = null;
 	}
 
-	// correct max entries (from and to time not included)
-	if (config.maxentries !== null) {
-		if (config.fromtime !== null)
-			config.maxentries++;
-		if (config.totime !== null)
-			config.maxentries++;
-	}
-
-	// search version db
 	vdb_read(this.vdb, config, function(hdata) {
 		if (hdata === null) {
 			callback(hdata, true);
