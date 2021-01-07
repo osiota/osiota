@@ -239,6 +239,15 @@ exports.init = function(router, ws) {
 		// this == node
 		var node = this;
 
+		// Meta data key for identification and limiting hops
+		if (typeof metadata.__osiota_remote !== "number") {
+			metadata.__osiota_remote = 1;
+		} else {
+			metadata.__osiota_remote++;
+			if (metadata.__osiota_remote > 16) {
+				return;
+			}
+		}
 		node.connection = ws;
 		node.announce(metadata);
 
@@ -257,6 +266,15 @@ exports.init = function(router, ws) {
 		// this == node
 		var node = this;
 
+		// Meta data key for identification and limiting hops
+		if (typeof metadata.__osiota_remote !== "number") {
+			metadata.__osiota_remote = 1;
+		} else {
+			metadata.__osiota_remote++;
+			if (metadata.__osiota_remote > 16) {
+				return;
+			}
+		}
 		node.announce(metadata, true);
 
 		node.emit("node_update", true);
