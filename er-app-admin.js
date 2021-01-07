@@ -10,9 +10,7 @@ exports.init = function(node, app_config, main, host_info) {
 		schema: schema,
 		extrabutton: "save"
 	});
-	node.publish(undefined,
-		require("./" + main._config.config)
-	);
+	node.publish(undefined, main._config);
 	node.rpc_publish = function(reply, time, value) {
 		//if (main.config_update)
 		//	value = main.config_update(value);
