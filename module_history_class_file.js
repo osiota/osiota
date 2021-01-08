@@ -108,7 +108,7 @@ exports.history.prototype.add = function (time, value) {
 	if (time === null) {
 		return;
 	}
-	if (value === null) {
+	if (value === null || typeof value === "undefined") {
 		value = "";
 	}
 
