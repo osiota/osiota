@@ -6,7 +6,9 @@ exports.read = function(config_file) {
 		return {};
 	}
 	try {
-		return JSON.parse(fs.readFileSync(config_file));
+		var contents = fs.readFileSync(config_file);
+		contents = contents.toString().replace(/^#.*\n/, "");
+		return JSON.parse(contents);
 	} catch (err) {
 		// Show JSON parsing errors:
 		if (err.code !== "ENOENT") {
