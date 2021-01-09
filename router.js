@@ -163,9 +163,10 @@ exports.node.prototype.announce = function(metadata, update) {
 	}
 	if (Array.isArray(metadata)) {
 		metadata = merge_object({}, metadata);
-	}
-	if (typeof metadata !== "object" || metadata === null) {
+	} else if (typeof metadata !== "object" || metadata === null) {
 		metadata = {};
+	} else {
+		metadata = JSON.parse(JSON.stringify(metadata));
 	}
 	if (this.metadata === null) {
 		console.log("new node:", this.name);
