@@ -18,8 +18,6 @@ exports.init = function(node, app_config, main, host_info) {
 		var obj = _this.init_delayed(node, app_config, main, host_info);
 		_this.object_delayed = obj;
 	});
-
-	return tid;
 };
 exports.unload = function(object, unload_object) {
 	unload_object(object);
