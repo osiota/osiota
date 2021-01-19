@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "jsdoc-to-markdown": "^5.0.3",
+    "osiota-dev": "^1.x",
     "webpack": "^4.16.5",
     "webpack-cli": "^3.1.0",
     "why-is-node-running": "^2.0.3"
