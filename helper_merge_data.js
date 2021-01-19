@@ -40,8 +40,11 @@ var merge_object = function(obj_a, obj_b) {
 					Array.isArray(obj_a[k])) {
 				obj_a[k] = merge_array(obj_a[k], obj_b[k]);
 			}
-			if (typeof obj_b[k] === "object" &&
-					typeof obj_a[k] === "object") {
+			if (obj_a.hasOwnProperty(k) &&
+					typeof obj_b[k] === "object" &&
+					obj_b[k] !== null &&
+					typeof obj_a[k] === "object" &&
+					obj_a[k] !== null) {
 				obj_a[k] = merge_object(obj_a[k], obj_b[k]);
 			} else {
 				if (obj_b[k] != obj_a[k]) {
