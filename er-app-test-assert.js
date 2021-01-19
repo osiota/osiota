@@ -4,7 +4,7 @@ exports.inherit = ["load-on-started"];
 
 var get = function(object, path) {
 	if (typeof object !== "object" || object === null) {
-		return "unexpected";	
+		return "unexpected";
 	}
 	var item = path.shift();
 	if (!path.length) {
