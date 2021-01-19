@@ -12,7 +12,9 @@ exports.merge_object = function(object) {
 			return;
 		for (var key in o) {
 			if (o.hasOwnProperty(key)) {
-				if (typeof object[key] === "object" &&
+				if (object.hasOwnProperty(key) &&
+						typeof object[key] === "object"
+								&&
 						object[key] !== null &&
 						typeof o[key] === "object" &&
 						o[key] !== null) {
