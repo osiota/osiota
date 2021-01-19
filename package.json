@@ -22,7 +22,6 @@
   },
   "optionalDependencies": {
     "graceful-fs": "^4.1.3",
-    "level-version": "github:simonwalz/level-version",
     "leveldown": "^5.4.1",
     "levelup": "^4.3.2",
     "readdirp": "^2.0.0"
