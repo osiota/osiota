@@ -24,7 +24,7 @@ exports.history.prototype.submodules_init = function(node, config) {
 	var _this = this;
 	config.submodules.forEach(function(c) {
 		try {
-			HM = exports.get_history_module(c);
+			var HM = exports.get_history_module(c);
 			var m = new HM(node, c);
 			_this.submodules.push(m);
 		} catch(e) {
