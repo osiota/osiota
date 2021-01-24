@@ -908,7 +908,7 @@ exports.node.prototype.rpc_connect = function(reply, dnode) {
 /**
  * Register a RPC command on the node
  * @param {string} method - Method to be called
- * @param {function} callack - Function to register
+ * @param {function} callback - Function to register
  * @example
  * node.on_rpc("ping", function(reply, text) {
  *	reply(null, "pong " + text);
