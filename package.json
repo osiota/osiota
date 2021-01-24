@@ -38,7 +38,7 @@
     "start": "node osiota.js",
     "build": "./node_modules/.bin/webpack -d --display-modules",
     "set_push_url": "git remote set-url --push origin git@github.com:osiota/osiota.git",
-    "test": "tape 'test/0?_*.js'",
+    "test": "tape 'test/0?_*.js' 'test/1?_*.js'",
     "doc": "jsdoc2md --template .jsdoc2md.hbs main.js router.js router_remotecall.js node_map.js application.js application_manager.js >doc/API.md"
   },
   "author": "Simon Walz and others",

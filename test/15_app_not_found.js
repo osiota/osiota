@@ -1,33 +1,29 @@
 #!/usr/bin/env node
 
-var EnergyRouter = require("../");
+var helper = require("./helper_test.js");
+var test = helper.test();
 
-var main = new EnergyRouter();
+var osiota = require("../");
+var main = new osiota();
 
-main.config({
-	"app_dir": __dirname+"/",
-	"app": [
-		{
-			"name": "er-app-test-10"
-		}
-	]
+main.config({});
+
+test('load non existing app', function (t) {
+	t.plan(2);
+
+	main.on("app_loading_error", function(e, node, app, l_app_config,
+			host_info, auto_install, callback) {
+		t.equal(e.code, "OSIOTA_APP_NOT_FOUND", "error code");
+	});
+
+	var a = main.startup(null, "er-app-test-not-found", {}, undefined, undefined, function(a) {
+		throw new Error("Do not start this callback.");
+		console.warn("app (inner)", a._app);
+	});
+
+	if (a)
+		console.warn("app", a._app);
+
+	t.equal(a._state, "ERROR_LOADING", "app state");
 });
-
-
-main.on("app_loading_error", function(e, node, app, l_app_config, host_info, auto_install, callback) {
-	if (e.hasOwnProperty("code") && e.code === "ER_APP_NOT_FOUND") {
-		console.log("name", e.code);
-		this.startup(node, "er-app-test-10", l_app_config,
-				host_info, auto_install, callback);
-	} else {
-		console.error("error starting app:", e.stack || e);
-	}
-});
-
-var a = main.startup(null, "er-app-test-not-found", {}, undefined, undefined, function(a) {
-	console.log("app (inner)", a._app);
-});
-
-if (a)
-	console.log("app", a._app);
 
