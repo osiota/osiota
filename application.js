@@ -42,6 +42,25 @@ exports.application = function(app) {
 	this._error = null;
 };
 /**
+ * [internal use] Set state
+ * @param {string} state - the new state
+ * @private
+ */
+exports.application.prototype._set_state = function(state, error) {
+	if (state === "ERROR_LOADING" || state === "ERROR_STARTING") {
+		this._state = state;
+		this._error = error;
+
+		this._node.connect_schema(this._schema);
+		this._node.connect_config(this._config);
+		this._object = this._node.announce({
+			"type": "app.error",
+			"state": state,
+			"error": JSON.parse(JSON.stringify(error))
+		});
+	}
+};
+/**
  * [internal use] Bind to main class
  * @param {main} main - main instance
  * @param {*} extra - extra information
@@ -235,6 +254,14 @@ exports.application.prototype._init = function(app_config) {
  * @private
  */
 exports.application.prototype._unload = function() {
+	if (this._state.match(/^ERROR_/)) {
+		unload_object(this._object);
+		this._object = null;
+
+		this._node.connect_schema(null);
+		this._node.connect_config(null);
+		return;
+	}
 	if (this._state !== "RUNNING" && this._state !== "REINIT")
 		return;
 
