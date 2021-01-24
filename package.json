@@ -1,7 +1,8 @@
 {
   "name": "osiota",
   "version": "2.0.4",
-  "main": "main.js",
+  "main": "main_nodejs.js",
+  "browser": "main_web.js",
   "bin": "osiota.js",
   "dependencies": {
     "ajv": "^6.9.0",
