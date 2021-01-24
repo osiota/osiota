@@ -880,14 +880,20 @@ main.prototype.close = function() {
  * Reload configuration
  *
  * @param {function} callback
+ * @example
+ * main.reload(function(m) {
+ *	main = m;
+ * });
  */
 main.prototype.reload = function(callback) {
+	var _this = this;
 	var config = this._config;
 	this.close();
 
-	console.warn("\n\nRELOADING ...");
+	console.log("\n\nRELOADING ...");
 	var s = setTimeout(function() {
-		var m = new main();
+		var rname = config.hostname || _this.router.name;
+		var m = new (Object.getPrototypeOf(_this)).constructor(rname);
 		m.config(config);
 		if (typeof callback === "function")
 			callback(m);
