@@ -18,7 +18,7 @@ function main_web(router_name) {
 		}]
 	};
 
-	main.call(this);
+	main.apply(this, arguments);
 };
 util.inherits(main_web, main);
 

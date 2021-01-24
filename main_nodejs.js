@@ -7,7 +7,7 @@ var ApplicationManager =require("./application_manager.js").application_manager;
 var require_vm = require("./helper_require_vm.js");
 
 function main_nodejs(router_name) {
-	main.call(this);
+	main.apply(this, arguments);
 
 	this.application_manager = new ApplicationManager(this);
 
