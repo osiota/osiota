@@ -1,37 +1,37 @@
 #!/usr/bin/env node
 
-// helper functions:
-var gn = function(r) {
-	var nodes = [];
-	for (var nn in r.nodes) {
-		nodes.push(nn);
-	}
-	return nodes;
-};
+var helper = require("./helper_test.js");
+var test = helper.test();
 
 var Router = require("../router.js").router;
-
 var r = new Router();
-
-console.log("nodes", gn(r));
-
 var n = r.node("/test");
 
-var vn = n.virtualnode();
-
-vn.subscribe(function() {
-	console.log("data", this.time, this.value);
+test('client list nodes', function (t) {
+	t.plan(1);
+	t.deepEqual(helper.get_node_list(r), [], "node list");
 });
 
-vn.announce();
+var vn = null;
+test('announce virtual node', function (t) {
+	t.plan(2);
 
-vn.publish(undefined, 1);
+	vn = n.virtualnode();
+	var i = 0;
+	var s = vn.subscribe(function(do_not_add_to_history, initial) {
+		//console.warn("data", this.time, this.value, initial);
+		if (i++ == 0)
+			t.equal(this.value, 1, "published value");
+	});
+	vn.announce();
+	vn.publish(undefined, 1);
 
-console.log("nodes", gn(r));
+	t.deepEqual(helper.get_node_list(r), [], "node list");
+});
 
-vn.unannounce();
+test('unannounce virtual node', function (t) {
+	t.plan(1);
 
-var n2 = vn.node("hallo");
-
-console.log("nodes", gn(r));
-
+	vn.unannounce();
+	t.deepEqual(helper.get_node_list(r), [], "node list");
+});

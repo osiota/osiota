@@ -1,37 +1,26 @@
 #!/usr/bin/env node
 
-process.env.OSIOTA_TEST = "1";
-const assert = require('assert').strict;
-
-// helper functions:
-var gn = function(r) {
-	var nodes = [];
-	for (var nn in r.nodes) {
-		var n = r.nodes[nn];
-		if (n.metadata !== null) {
-			nodes.push(nn);
-		}
-	}
-	return nodes;
-};
+var helper = require("./helper_test.js");
+var test = helper.test();
 
 var Router = require("../router.js").router;
-
 var r = new Router();
-
-assert.deepEqual(gn(r), [], "no nodes");
-console.log("nodes", gn(r));
-
 var n = r.node("/test");
 
-n.announce();
+test('list nodes', function (t) {
+	t.plan(1);
+	t.deepEqual(helper.get_node_list(r), [], "node list");
+});
 
-n.publish(undefined, 1);
+test('announce node', function (t) {
+	t.plan(1);
+	n.announce();
+	n.publish(undefined, 1);
+	t.deepEqual(helper.get_node_list(r), [ '/test' ], "node list");
+});
 
-assert.deepEqual(gn(r), [ '/test' ], "one node announced");
-console.log("nodes", gn(r));
-
-n.unannounce();
-
-assert.deepEqual(gn(r), [], "no nodes");
-console.log("nodes", gn(r));
+test('unannounce node', function (t) {
+	t.plan(1);
+	n.unannounce();
+	t.deepEqual(helper.get_node_list(r), [], "node list");
+});

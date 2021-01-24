@@ -1,17 +1,38 @@
 #!/usr/bin/env node
 
-var EnergyRouter = require("../");
-var main = new EnergyRouter();
+var helper = require("./helper_test.js");
+var test = helper.test();
 
+var osiota = require("../");
+var main = new osiota();
+var n = main.node("/test");
 
-var r1 = main.node("/Hallo/Welt").ready("announce", function(method) {
-	console.log("[1] node is ready:", method);
+test('ready callback', function (t) {
+	t.plan(1);
+	var r1 = n.ready("announce", function(method) {
+		console.log("[1] node is ready:", method);
+		t.equal(method, "announce", "node is ready");
 
-	return function() {
-		console.log("[1] node is closed.");
-	};
+		return function() {
+			console.log("[1] node is closed.");
+		};
+	});
+	n.announce();
+});
+test('ready callback', function (t) {
+	t.plan(1);
+	var r1 = n.ready("announce", function(method) {
+		console.log("[2] node is ready:", method);
+
+		return function() {
+			console.log("[2] node is closed.");
+			t.ok(1, "node is unannounced");
+		};
+	});
+	n.unannounce();
 });
 
+/*
 var r2 = main.node("/Hallo/Welt").ready(function(method) {
 	console.log("[2] node is ready:", method);
 
@@ -49,5 +70,6 @@ setTimeout(function() {
 setTimeout(function() {
 	console.log(Object.keys(main.apps));
 
-	main.apps["er-app-random-in"]._unload();
+	main.apps["random-in"]._unload();
 }, 3000);
+*/
