@@ -446,7 +446,7 @@ main.prototype.module_get = function(app, callback) {
 			],
 			function(err, results) {
 				if (err) {
-					return callback(err);
+					return callback(err, a);
 				}
 				var struct = results[0];
 				var schema = results[1];
@@ -456,8 +456,9 @@ main.prototype.module_get = function(app, callback) {
 					struct,
 					_this.module_get.bind(_this),
 					function(err) {
-						if (err)
-							return callback(err);
+						if (err) {
+							return callback(err, a);
+						}
 						a._bind_schema(
 							schema,
 							_this.load_schema,
@@ -487,39 +488,52 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 	var _this = this;
 
 	return this.module_get(app, function(e, a) {
-		if (!e) {
-			return _this.startup_module( a,
-					node, app, app_config,
-					host_info, auto_install,
-					callback);
-		}
-
-		// trigger global callback:
-		/**
-		 * Application Loading Error
-		 * @param {object} error - Error object
-		 * @param {node} node - Node object
-		 * @param {app} app - Application name
-		 * @param {object} app_config - Application config
-		 * @param {*} extra - Extra information
-		 * @param {boolean} auto_install - Auto install flag
-		 * @event main#app_loading_error
-		 */
-		if (_this.emit("app_loading_error", e, node, app, app_config,
-					host_info, auto_install,
-				function(an, level) {
-			if (typeof an === "object") {
-				if (typeof callback === "function") {
-					callback(an, level);
-				}
+		if (e) {
+			// announce error message:
+			if (typeof a._config === "undefined") {
+				a._config = app_config;
 			}
-		})) {
-			// assume that an other app as been loaded.
-			return null;
+			a._error = e;
 		}
 
-		// show error:
-		console.error("error starting app:", e.stack || e);
+		// load app (with or without error):
+		var m = _this.startup_module( a,
+				node, app, app_config,
+				host_info, auto_install,
+				callback);
+
+		if (e) {
+			a._set_state("ERROR_LOADING", e);
+
+			// trigger global callback:
+			/**
+			 * Application Loading Error
+			 * @param {object} error - Error object
+			 * @param {node} node - Node object
+			 * @param {app} app - Application name
+			 * @param {object} app_config - Application config
+			 * @param {*} extra - Extra information
+			 * @param {boolean} auto_install - Auto install flag
+			 * @event main#app_loading_error
+			 */
+			if (_this.emit("app_loading_error", e, node, app,
+					app_config, host_info, auto_install,
+					function(an, level) {
+				if (typeof an === "object") {
+					if (typeof callback === "function") {
+						callback(an, level);
+					}
+				}
+			})) {
+				// assume that an other app as been loaded.
+				return null;
+			}
+
+			// show error:
+			console.error("error starting app:", e.stack || e);
+		}
+
+		return m;
 	});
 };
 
@@ -594,9 +608,10 @@ main.prototype.startup_module = function(a, node, app, app_config, host_info, au
 		}
 	} catch(e) {
 		// save error:
-		a._error = e;
 		if (typeof a._config === "undefined")
 			a._config = app_config;
+		a._set_state("ERROR_STARTING", e);
+		a._error = e;
 
 		// trigger global callback:
 		this.emit("app_init_error", e, node, app, app_config,
