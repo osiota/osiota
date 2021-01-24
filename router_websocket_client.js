@@ -121,7 +121,7 @@ pwsc.prototype.init = function() {
 			pthis.recvjson(message);
 		});
 		this.ws.on('close', function(code, message) {
-			console.log("BasicWebSocket closing", this.remote,
+			console.log("BasicWebSocket closing", pthis.remote,
 				"code", code, "message", message,
 				"reconnect", this.reconnect);
 			this.end_keepalive();

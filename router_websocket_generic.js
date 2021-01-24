@@ -480,8 +480,14 @@ exports.init = function(router, ws) {
 		});
 	});
 	ws.on("close", function(code, message) {
-		console.log("WebSocket closing", router.name, "to",  ws.remote,
-			"code", code, "message", message);
+		if (code || message) {
+			console.log("WebSocket closing", router.name,
+				"to",  ws.remote,
+				"code", code, "message", message);
+		} else {
+			console.log("WebSocket closing", router.name,
+				"to",  ws.remote);
+		}
 		ws.cmds.emit("close");
 	});
 
