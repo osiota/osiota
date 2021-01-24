@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+process.env.OSIOTA_TEST = "1";
+const assert = require('assert').strict;
+
 // helper functions:
 var gn = function(r) {
 	var nodes = [];
@@ -12,7 +15,7 @@ var gn = function(r) {
 	return nodes;
 };
 
-var main = require("../main.js");
+var main = require("../");
 
 var m = new main("Eins");
 m.config({
@@ -30,7 +33,9 @@ m2.config({
 });
 
 
+assert.deepEqual(gn(m.router), [], "no nodes -- 1");
 console.log("eins nodes", gn(m.router));
+assert.deepEqual(gn(m2.router), [], "no nodes -- 2");
 console.log("zwei nodes", gn(m2.router));
 
 var n = m.node("/test");
@@ -43,27 +48,25 @@ setTimeout(function() {
 }, 1000);
 
 setTimeout(function() {
+	assert.deepEqual(gn(m.router), [ '/test' ], "Node test -- 1");
 	console.log("eins nodes", gn(m.router));
+	assert.deepEqual(gn(m2.router), [ '/Eins/test' ], "Remote node -- 2");
 	console.log("zwei nodes", gn(m2.router));
-
 }, 2000);
 
 setTimeout(function() {
 	console.log("UNANNOUNCE");
 
 	n.unannounce();
-
-
 }, 3000);
 setTimeout(function() {
+	assert.deepEqual(gn(m.router), [], "unannounce: no nodes -- 1");
 	console.log("eins nodes", gn(m.router));
+	assert.deepEqual(gn(m2.router), [], "unannounce: no nodes -- 2");
 	console.log("zwei nodes", gn(m2.router));
 
-	var nodes = gn(m2.router);
-	if (nodes.length === 0) {
-		console.log("okay");
-		m.close();
-		m2.close();
-	}
+	console.log("okay");
+	m.close();
+	m2.close();
 
 }, 4000);

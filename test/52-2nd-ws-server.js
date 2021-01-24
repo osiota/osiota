@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var EnergyRouter = require("../");
+var EnergyRouter = require("../main_nodejs");
 var main = new EnergyRouter();
 
 main.config({

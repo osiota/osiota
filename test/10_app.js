@@ -1,34 +1,39 @@
 #!/usr/bin/env node
 
-var EnergyRouter = require("../");
+process.env.OSIOTA_TEST = "1";
+console.debug = ()=>{};
+console.log = ()=>{};
 
+var EnergyRouter = require("../");
 var main = new EnergyRouter();
 
 main.config({
 	"app_dir": __dirname+"/",
 	"app": [
 		{
-			"name": "er-app-test-10"
+			"name": "test-10"
 		}
 	]
 });
 
-main.apps["er-app-test-10"]._unload();
+main.apps["test-10"]._unload();
 
 var b = main.startup_struct(undefined, {
-	"name": "er-app-test-10-b"
+	"name": "test-10-b"
 });
 b._reinit();
 b._unload();
 
 var c = main.startup_struct(undefined, {
-	"name": "er-app-test-10-c"
+	"name": "test-10-c"
 });
 c._reinit();
-c._unload();
+setTimeout(()=>{
+	c._unload();
+},100);
 
 var d = main.startup_struct(undefined, {
-	"name": "er-app-test-10-d"
+	"name": "test-10-d"
 });
 
 setTimeout(function() {
@@ -37,7 +42,7 @@ setTimeout(function() {
 
 setTimeout(function() {
 	var a = main.startup_struct(undefined, {
-		"name": "er-app-test-10"
+		"name": "test-10"
 	});
 	a._reinit();
 	a._unload();

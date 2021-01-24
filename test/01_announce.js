@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+process.env.OSIOTA_TEST = "1";
+const assert = require('assert').strict;
+
 // helper functions:
 var gn = function(r) {
 	var nodes = [];
@@ -16,6 +19,7 @@ var Router = require("../router.js").router;
 
 var r = new Router();
 
+assert.deepEqual(gn(r), [], "no nodes");
 console.log("nodes", gn(r));
 
 var n = r.node("/test");
@@ -24,13 +28,10 @@ n.announce();
 
 n.publish(undefined, 1);
 
+assert.deepEqual(gn(r), [ '/test' ], "one node announced");
 console.log("nodes", gn(r));
 
 n.unannounce();
 
+assert.deepEqual(gn(r), [], "no nodes");
 console.log("nodes", gn(r));
-
-var nodes = gn(r);
-if (nodes.length === 0) {
-	console.log("okay");
-}

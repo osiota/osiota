@@ -2,12 +2,13 @@
 
 var EnergyRouter = require("../");
 var main = new EnergyRouter();
+console.debug = () => {};
 
 main.config({
 	"app_dir": __dirname+"/",
 	"app": [
 		{
-			"name": "er-app-random-in",
+			"name": "er-app-test-linear",
 			"config": {
 				"node": "/Hallo/Welt",
 				"delay": 100
