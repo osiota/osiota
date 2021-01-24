@@ -177,16 +177,18 @@ if (process.on) { /* if NodeJS */
 		process.emit("preexit", true);
 	});
 
-	// if an error occurred:
-	process.on('uncaughtException', function(e) {
-		process.exitCode = 1;
-		console.error('Uncaught exception:', e.stack || e);
-		// Do __not__ exit
-		//process.emit("preexit");
-	});
-	process.on('unhandledRejection', function(e) {
-		console.log('unhandledRejection', e.stack || e);
-	});
+	if (!process.env.TEST) {
+		// if an error occurred:
+		process.on('uncaughtException', function(e) {
+			process.exitCode = 1;
+			console.error('Uncaught exception:', e.stack || e);
+			// Do __not__ exit
+			//process.emit("preexit");
+		});
+		process.on('unhandledRejection', function(e) {
+			console.log('unhandledRejection', e.stack || e);
+		});
+	}
 
 
 	var why_is_node_running = null;
