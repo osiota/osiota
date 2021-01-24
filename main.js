@@ -480,12 +480,13 @@ main.prototype.module_get = function(app, callback) {
 	} else {
 		throw new Error("variable app has unknown type.");
 	}
+	return a;
 };
 
 main.prototype.startup = function(node, app, app_config, host_info, auto_install, callback) {
 	var _this = this;
 
-	this.module_get(app, function(e, a) {
+	return this.module_get(app, function(e, a) {
 		if (!e) {
 			return _this.startup_module( a,
 					node, app, app_config,
