@@ -764,7 +764,12 @@ main.prototype.app_remove = function(app) {
 	}
 
 	// unload app:
-	app._unload();
+	try {
+		app._unload();
+	} catch(e) {
+		console.error("Error unloading", e);
+		//a._set_state("ERROR_UNLOADING", e);
+	}
 
 	this.app_unregister(app);
 
@@ -848,7 +853,11 @@ main.prototype.close = function() {
 		for (var a in _this.apps) {
 			console.log("unloading:", a);
 			if (_this.apps[a]._unload) {
-				_this.apps[a]._unload();
+				try {
+					_this.apps[a]._unload();
+				} catch(e) {
+					console.error("Error unloading", e);
+				}
 				delete _this.apps[a];
 			}
 		}
