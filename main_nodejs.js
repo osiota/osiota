@@ -177,7 +177,7 @@ if (process.on) { /* if NodeJS */
 		process.emit("preexit", true);
 	});
 
-	if (!process.env.TEST) {
+	if (process.env.OSIOTA_TEST != 1) {
 		// if an error occurred:
 		process.on('uncaughtException', function(e) {
 			process.exitCode = 1;
@@ -193,7 +193,7 @@ if (process.on) { /* if NodeJS */
 
 	var why_is_node_running = null;
 	try {
-		if (process.env.ER_DEBUG == 1)
+		if (process.env.OSIOTA_DEBUG == 1)
 			why_is_node_running = require("why-is-node-running");
 	} catch(err) {}
 
