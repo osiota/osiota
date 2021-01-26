@@ -6,7 +6,7 @@ exports.get_node_list = function(r) {
 };
 
 var first_run = true;
-exports.test = function() {
+exports.test = function(filename) {
 	var test = require('tape');
 
 	if (first_run) {
@@ -20,6 +20,13 @@ exports.test = function() {
 		console.log = ()=>{};
 		first_run = false;
 	}
+	var title = filename
+			.replace(/.*\//, "")
+			.replace(/_/, " - ")
+			.replace(/_/g, " ")
+			.replace(/\.js/i, "") + ": ";
 
-	return test;
+	return function(subtitle, callback) {
+		return test(title+subtitle, callback);
+	};
 };

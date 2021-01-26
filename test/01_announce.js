@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var helper = require("./helper_test.js");
-var test = helper.test();
+var test = helper.test(__filename);
 
 var Router = require("../router.js").router;
 var r = new Router();
