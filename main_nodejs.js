@@ -54,6 +54,7 @@ main_nodejs.prototype.check_started = function(factor) {
 		var diff = process.hrtime(t);
 		var delta = diff[0] * 1e9 + diff[1];
 
+		if (_this._close) return;
 		console.debug("delta", delta, "factor", factor);
 		var tid = null;
 		if (delta >= 4e6) {

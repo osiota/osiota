@@ -290,6 +290,7 @@ main.prototype.check_started = function(factor) {
 	 * @event main#started
 	 */
 	var tid = setTimeout(function() {
+		if (_this._close) return;
 		_this.emit("started");
 	}, 500);
 	if (tid && typeof tid.unref === "function" &&
