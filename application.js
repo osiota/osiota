@@ -8,6 +8,9 @@
  * INIT -- (*) --> RUNNING
  */
 
+var util = require('util');
+var EventEmitter = require('events').EventEmitter;
+
 var unload_object = require("./helper_unload_object.js").unload_object;
 var merge = require("./helper_merge_data.js").merge;
 
@@ -41,13 +44,15 @@ exports.application = function(app) {
 
 	this._error = null;
 };
+util.inherits(exports.application, EventEmitter);
 /**
  * [internal use] Set state
  * @param {string} state - the new state
  * @private
  */
 exports.application.prototype._set_state = function(state, error) {
-	if (state === "ERROR_LOADING" || state === "ERROR_STARTING") {
+	if (state === "ERROR_LOADING" || state === "ERROR_STARTING" ||
+			state === "ERROR_APP") {
 		this._state = state;
 		this._error = error;
 
@@ -60,6 +65,14 @@ exports.application.prototype._set_state = function(state, error) {
 		});
 	}
 };
+/**
+ * Set Error State
+ * @param {object} error - Error object
+ * @private
+ */
+exports.application.prototype._handle_error = function(error) {
+	this._set_state("ERROR_APP", error);
+}
 /**
  * [internal use] Bind to main class
  * @param {main} main - main instance
@@ -215,6 +228,7 @@ exports.application.prototype._auto_configure = function(app_config) {
  * @private
  */
 exports.application.prototype._init = function(app_config) {
+	var _this = this;
 	if (this._state === "RUNNING") {
 		console.log("Warning: App still running: doing reinit");
 		return this._reinit(app_config);
@@ -228,6 +242,14 @@ exports.application.prototype._init = function(app_config) {
 		// TODO: Change Arguments:
 		this._object = this.init(this._node, this._config,
 				this._main, this._extra);
+		if (typeof this._object === "object" && this._object !== null &&
+				typeof this._object.catch === "function") {
+			this._object.catch(function(error) {
+				if (error !== "canceled") {
+					_this.handle_error(error);
+				}
+			});
+		}
 		if (!this._node._announced) {
 			var a = this._node.announce({});
 			this._object = [a, this._object];
@@ -235,6 +257,7 @@ exports.application.prototype._init = function(app_config) {
 	} else if (typeof this.cli !== "function") {
 		console.warn("WARNING: No init and no cli function found:", this._app);
 	}
+	this.emit("init");
 
 	this._state = "RUNNING";
 };
@@ -268,6 +291,7 @@ exports.application.prototype._unload = function() {
 	this._node.connect_schema(null);
 	this._node.connect_config(null);
 
+	this.emit("unload");
 	if (typeof this.unload === "function") {
 		this.unload(this._object, unload_object);
 	} else {
@@ -319,6 +343,7 @@ exports.application.prototype._reinit = function(app_config) {
 			this._state = "RUNNING";
 		});
 	}
+	this.emit("reinit");
 
 };
 /**
