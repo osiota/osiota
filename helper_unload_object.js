@@ -26,6 +26,11 @@ exports.unload_object = function(object) {
 			object.cancel();
 		} else if (typeof object.end === "function") {
 			object.end();
+		// Promise:
+		} else if (typeof object.then === "function") {
+			object.then(function(value) {
+				exports.unload_object(value);
+			});
 		// subscribe:
 		} else if (typeof object.remove === "function") {
 			object.remove();
