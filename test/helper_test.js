@@ -20,11 +20,14 @@ exports.test = function(filename) {
 		console.log = ()=>{};
 		first_run = false;
 	}
-	var title = filename
-			.replace(/.*\//, "")
-			.replace(/_/, " - ")
-			.replace(/_/g, " ")
-			.replace(/\.js/i, "") + ": ";
+	var title = "";
+	if (typeof filename === "string") {
+		title = filename
+				.replace(/.*\//, "")
+				.replace(/_/, " - ")
+				.replace(/_/g, " ")
+				.replace(/\.js/i, "") + ": ";
+	}
 
 	return function(subtitle, callback) {
 		return test(title+subtitle, callback);
