@@ -1,5 +1,5 @@
 # Configuration
-An osiota instance is configured by a config file in JSON format. The default name for this file is `osiota.json` (can be set to other names as well, see [INSTALLATION](installation.md))
+An osiota instance is configured by a config file in JSON format. The default name for this file is `osiota.json` (can be set to other names as well, see [installation](installation.md))
 
 A good solution is to commit the configuration file in a git repositoy like in the [system-example repository](https://github.com/osiota/system-example/).
 
