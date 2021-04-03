@@ -1,4 +1,4 @@
-## How to install osiota
+# How to install osiota
 
 This tutorial shows how to install and start osiota on a new device.
 
@@ -10,7 +10,7 @@ This tutorial shows how to install and start osiota on a new device.
   + Make sure that [Node.js](http://nodejs.org/) is  installed correctly.
   + Remember that some osiota applications have stronger requirements.
 
-### Installation
+## Installation
 
   + Create a directory to hold the configuration and change to it.
   + Install osiota via npm: `npm install osiota`
@@ -23,11 +23,11 @@ cd my-system
 npm install
 ```
 
-### Configuration
+## Configuration
 
 To run osiota you need to specify a JSON-formatted configuration file. See [configuration](configuration.md). Don't forget about the startup.
 
-### Set up automatic startup
+## Set up automatic startup
 
 Choose one of the following options:
 
