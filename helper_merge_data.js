@@ -16,14 +16,14 @@ exports.hash = function(obj) {
 }
 
 
-exports.merge = function(obj_a, obj_b) {
+exports.merge = function(obj_a, obj_b, ignore_keys) {
 	if (obj_a === obj_b) return obj_b;
 	if (typeof obj_a === "object" &&
 			typeof obj_b === "object") {
 		if (Array.isArray(obj_a) || Array.isArray(obj_b)) {
-			return merge_array(obj_a, obj_b);
+			return merge_array(obj_a, obj_b, ignore_keys);
 		}
-		return merge_object(obj_a, obj_b);
+		return merge_object(obj_a, obj_b, ignore_keys);
 	} else {
 		if (obj_a != obj_b) {
 			obj_a = obj_b;
@@ -32,20 +32,23 @@ exports.merge = function(obj_a, obj_b) {
 	return obj_a;
 };
 
-var merge_object = function(obj_a, obj_b) {
+var merge_object = function(obj_a, obj_b, ignore_keys) {
+	if (!Array.isArray(ignore_keys)) ignore_keys = [];
 	// merge objects:
 	for (var k in obj_b) {
 		if (obj_b.hasOwnProperty(k)) {
 			if (Array.isArray(obj_b[k]) ||
 					Array.isArray(obj_a[k])) {
-				obj_a[k] = merge_array(obj_a[k], obj_b[k]);
+				obj_a[k] = merge_array(obj_a[k], obj_b[k],
+						ignore_keys);
 			}
 			if (obj_a.hasOwnProperty(k) &&
 					typeof obj_b[k] === "object" &&
 					obj_b[k] !== null &&
 					typeof obj_a[k] === "object" &&
 					obj_a[k] !== null) {
-				obj_a[k] = merge_object(obj_a[k], obj_b[k]);
+				obj_a[k] = merge_object(obj_a[k], obj_b[k],
+					ignore_keys);
 			} else {
 				if (obj_b[k] != obj_a[k]) {
 					obj_a[k] = obj_b[k];
@@ -56,8 +59,10 @@ var merge_object = function(obj_a, obj_b) {
 	for (var k in obj_a) {
 		if (obj_a.hasOwnProperty(k)) {
 			if (!obj_b.hasOwnProperty(k)) {
-				//todo: unload config
-				delete obj_a[k];
+				if (!ignore_keys.includes(k)) {
+					//todo: unload config
+					delete obj_a[k];
+				}
 			}
 		}
 	}
@@ -65,7 +70,7 @@ var merge_object = function(obj_a, obj_b) {
 };
 
 
-var merge_array = function(obj_a, obj_b) {
+var merge_array = function(obj_a, obj_b, ignore_keys) {
 	if (!Array.isArray(obj_a)) {
 		//todo: unload config
 		return obj_b;
@@ -80,14 +85,15 @@ var merge_array = function(obj_a, obj_b) {
 	obj_a.forEach(function(a) {
 		if (exports.hash(a) == exports.hash(obj_b[i])) {
 			//console.log(i, "fit");
-			array.push(exports.merge(a, obj_b[i]));
+			array.push(exports.merge(a, obj_b[i], ignore_keys));
 			i++;
 			//todo: unload config
 			missing = null;
 		} else if (exports.hash(a) == exports.hash(obj_b[i+1])) {
 			if (missing) {
 				//console.log(i, "merge");
-				array.push(exports.merge(missing, obj_b[i]));
+				array.push(exports.merge(missing, obj_b[i],
+						ignore_keys));
 				missing = null;
 			} else {
 				//console.log(i, "extra");

@@ -208,12 +208,12 @@ exports.node.prototype.unannounce = function() {
 	if (this.metadata === null)
 		return;
 
-	this.publish_sync(null, null, undefined, true);
-
 	this.announce_local("unannounce");
 
 	this.metadata = null;
 	this._announced = null;
+	this.time = null;
+	this.value = null;
 
 	return this;
 };

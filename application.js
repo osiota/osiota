@@ -413,7 +413,8 @@ exports.application.prototype._cli = function(args, show_help) {
  */
 exports.application.prototype.rpc_node_config = function(reply, config, save) {
 	// update config object:
-	this._config = merge(this._config, config);
+	this._config = merge(this._config, config, ["app", "node", "pnode",
+			"source", "metadata"]);
 
 	// restart app:
 	if (this._app) {
@@ -421,7 +422,7 @@ exports.application.prototype.rpc_node_config = function(reply, config, save) {
 	}
 
 	if (save) {
-		this._main.emit("config_save");
+		this._app._main.emit("config_save");
 	}
 	if (this._app._node !== this) {
 		return reply("node_moved", this._app._node.name);
