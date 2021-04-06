@@ -1,16 +1,21 @@
 
+exports.meta_type = "link.rpc";
+
 exports.map_event = function(e) {
 	return e;
 };
 
-exports.meta_type = "link.rpc";
+exports.node_set = function(node, value, time, app_config) {
+	value = this.map_event(value, time, app_config);
+	return node.rpc("set", value, time);
+};
 
 exports.init = function(node, app_config, main, host_info) {
 	var _this = this;
 
-	node.announce({
+	node.announce([{
 		"type": this.meta_type
-	});
+	}, app_config.metadata]);
 
 	if (!node.parentnode) {
 		return;
@@ -22,10 +27,9 @@ exports.init = function(node, app_config, main, host_info) {
 
 		return _this._source.subscribe(function(
 				do_not_add_to_history, initial){
-			_parent.rpc("set",
-				_this.map_event(this.value),
-				this.time);
-
+			if (initial) return;
+			_this.node_set(_parent, this.value, this.time,
+					app_config);
 		});
 	});
 
