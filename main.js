@@ -251,7 +251,7 @@ main.prototype.sub_config = function(config, node, callback) {
 		config.remote.forEach(function(c) {
 			if (typeof c.name !== "string" ||
 					typeof c.url !== "string") {
-				console.warn("Waring: Remote config options missing.", c);
+				console.warn("Warning: Remote config options missing.", c);
 				return;
 			}
 			_this.remotes[c.name] =
@@ -652,7 +652,7 @@ main.prototype.startup_struct = function(node, struct, host_info, auto_install, 
 	if (typeof struct.name === "string") {
 		return this.startup(node, struct.name, struct.config, host_info, auto_install, callback);
 	} else {
-		console.warn("Waring: Application config options missing.", struct);
+		console.warn("Warning: Application config options missing.", struct);
 		return null;
 	}
 };
