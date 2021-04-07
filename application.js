@@ -414,7 +414,7 @@ exports.application.prototype._cli = function(args, show_help) {
 exports.application.prototype.rpc_node_config = function(reply, config, save) {
 	// update config object:
 	this._config = merge(this._config, config, ["app", "node", "pnode",
-			"source", "metadata"]);
+			"source", "metadata", "self_app"]);
 
 	// restart app:
 	if (this._app) {
