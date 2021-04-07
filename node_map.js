@@ -1,3 +1,6 @@
+const get_ref = require("./helper_get_ref.js").get_ref;
+const get_deref_all = require("./helper_get_ref.js").get_deref_all;
+
 /**
  * Create a node-map
  * @class
@@ -148,6 +151,7 @@ exports.node_map.prototype.remove_node = function(app_config) {
  */
 exports.node_map.prototype.map_element = function(key, app_config,
 		local_metadata, cache){
+	var _this = this;
 	var local_app = this._app;
 	if (typeof app_config.self_app !== "undefined"){
 		local_app = app_config.self_app;
@@ -155,6 +159,20 @@ exports.node_map.prototype.map_element = function(key, app_config,
 	if (local_app === false || app_config.node === "" ||
 			app_config.node === "-")
 		return null;
+	if (typeof local_app === "string") {
+		let local_app_str = local_app;
+		local_app = {
+			"inherit": [ local_app_str ],
+			"init": function() {
+				var map = _this.get_schema_map();
+				var s = _this.merge_schema_properties(
+					this._base[local_app_str]._schema, map);
+				this._node.connect_schema(s);
+				return this._base[local_app_str].init.apply(this,
+					arguments);
+			}
+		};
+	}
 
 	var n;
 	if (local_app === null) {
@@ -172,7 +190,7 @@ exports.node_map.prototype.map_element = function(key, app_config,
 			app_config.metadata !== null) {
 		metadata = [metadata, app_config.metadata];
 	}
-	connect_schema(n, this._node);
+	this.connect_schema(n);
 	n.connect_config(app_config);
 
 	this.map_initialise(n, metadata, app_config);
@@ -219,9 +237,17 @@ exports.node_map.prototype.map_nodename = function(key, app_config, local_metada
 	return key.replace(/^\//, "");
 }
 
-var connect_schema = function(n, node) {
+/**
+ * Get schema of mapped elements
+ * @private
+ */
+exports.node_map.prototype.get_schema_map = function() {
+	if (typeof this._schema_map !== "undefined") {
+		return this._schema_map;
+	}
+	var node = this._node;
 	if (typeof node._schema !== "object" || node._schema === null)
-		return;
+		return null;
 	var schema = node._schema;
 
 	var map = null;
@@ -229,20 +255,82 @@ var connect_schema = function(n, node) {
 			schema.properties !== null &&
 			typeof schema.properties.map === "object" &&
 			schema.properties.map !== null) {
-		map = schema.properties.map;
+		map = get_deref_all(schema, schema.properties.map);
+	} else if (Array.isArray(schema.oneOf) && schema.oneOf.length &&
+			typeof schema.oneOf[0] === "object" &&
+			schema.oneOf[0] !== null  &&
+			typeof schema.oneOf[0].properties === "object" &&
+			schema.oneOf[0].properties !== null &&
+			typeof schema.oneOf[0].properties.map === "object" &&
+			schema.oneOf[0].properties.map !== null) {
+		map = get_deref_all(schema, schema.oneOf[0].properties.map);
+	} else {
+		console.warn("Warning: No map-schema found:", node.name, node._schema);
 	}
-	// Bad hack:
-	if (typeof schema.definitions === "object" &&
-			schema.definitions !== null &&
-			typeof schema.definitions.map === "object" &&
-			schema.definitions.map !== null) {
-		map = schema.definitions.map;
+	if (!map) {
+		this._schema_map = null;
+		return null;
 	}
-	if (!map) return;
 	if (map.type === "array" &&
 		typeof map.items === "object" &&
 		map.items !== null
 	) {
-		n.connect_schema(map.items);
+		this._schema_map = map.items;
+		return map.items;
 	}
+	this._schema_map = null;
+	return null;
+};
+
+/**
+ * Connect Schema to node
+ * @private
+ */
+exports.node_map.prototype.connect_schema = function(n) {
+	var schema_map = this.get_schema_map();
+	if (typeof schema_map === "object" && schema_map !== null) {
+		n.connect_schema(schema_map);
+	}
+}
+
+/**
+ * Merge properties of two JSON Schemas
+ * @private
+ */
+exports.node_map.prototype.merge_schema_properties = function(schema_1, schema_2) {
+	if (typeof schema_1 !== "object" ||
+			schema_1 === null ||
+			typeof schema_1.properties !== "object" ||
+			schema_1.properties === null) {
+		return schema_2;
+	}
+	if (typeof schema_2 !== "object" ||
+			schema_2 === null ||
+			typeof schema_2.properties !== "object" ||
+			schema_2.properties === null) {
+		return schema_1;
+	}
+	var schema = JSON.parse(JSON.stringify(schema_1));
+	for (let key in schema_2.properties) {
+		if (schema_2.properties.hasOwnProperty(key)) {
+			let p = JSON.parse(JSON.stringify(
+					schema_2.properties[key]));
+			//schema.properties[key].title =
+			schema.properties[key] = p;
+		}
+	}
+	if (Array.isArray(schema_2.required)) {
+		if (!Array.isArray(schema_1.required)) {
+			schema.required = schema_2.required;
+		} else {
+			schema.required = schema_2.required.concat(schema_1.required);
+		}
+	}
+	if (typeof schema_2.additionalProperties !== "undefined") {
+		if (!schema.additionalProperties) {
+			schema.additionalProperties =
+					schema_2.additionalProperties;
+		}
+	}
+	return schema;
 }
