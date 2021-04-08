@@ -405,6 +405,40 @@ exports.application.prototype._cli = function(args, show_help) {
 };
 
 /**
+ * Get Application Name (from Schema)
+ */
+exports.application.prototype._get_app_name = function() {
+	var locale = Intl.DateTimeFormat().resolvedOptions().locale.
+		replace(/-.*$/, "");
+	if (!locale) locale = "en";
+
+	if (typeof this._schema === "object" &&
+			this._schema !== null) {
+		var r = null;
+		if (typeof this._schema["gui_title_" + locale] === "string") {
+			r = this._schema["gui_title_"+locale];
+		}
+		else if (typeof this._schema["title_" + locale] === "string") {
+			r = this._schema["title_"+locale];
+		}
+		else if (typeof this._schema["gui_title"] === "string") {
+			r = this._schema["gui_title"];
+		}
+		else if (typeof this._schema["title"] === "string") {
+			r = this._schema["title"];
+		}
+		if (r && r !== "Settings") {
+			r = r.replace(/^osiota application /i, "");
+			return r;
+		}
+
+	}
+
+	return this._id.
+		replace(/^(er|osiota)-app-/, "").replace(/\//g, "-")
+};
+
+/**
  * [internal use] Reinit and save new app configuration
  * @param {function} reply - RPC reply function
  * @param {object} config - New config object

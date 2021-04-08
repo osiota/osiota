@@ -577,8 +577,7 @@ main.prototype.startup_module = function(a, node, app, app_config, host_info, au
 	} else if (typeof a.default_node_name === "string") {
 		node_destination = node_source.node(a.default_node_name);
 	} else {
-		node_destination = node_source.node(a._id.
-			replace(/^(er|osiota)-app-/, "").replace(/\//g, "-"));
+		node_destination = node_source.node(a._get_app_name());
 	}
 
 	if (node_destination._app &&
