@@ -270,7 +270,7 @@ exports.application_manager.prototype.create_schema = function(name,
 	};
 
 	cb_add_schema(short_name, path, schema_a);
-	console.log(short_name, path, sub_schema);
+	//console.log("added schema:", short_name, path, sub_schema);
 
 	return schema_a;
 };

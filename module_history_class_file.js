@@ -46,7 +46,6 @@ var vdb_setup = function(node, config, callback) {
 	dbname = dbname.replace(/^\/+/,"").replace(/[\/@]/g, "_");
 	dbname = dbdir_local + dbname;
 
-	console.log("filename", dbname);
 	var ldb = levelup(leveldown(dbname));
 	ldb.on("ready", function() {
 		console.log("vdb opened:", dbname);
@@ -90,8 +89,6 @@ var vdb_read = function(vdb, config, callback) {
 }
 
 exports.history = function (node, config) {
-	console.log("node, file", node.name);
-
 	if (typeof node.metadata === "object" &&
 			node.metadata !== null &&
 			typeof node.metadata.history !== "undefined") {
