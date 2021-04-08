@@ -4,7 +4,7 @@ exports.init = function(node, app_config, main) {
 					node, method, initial, update) {
 		if (update) return;
 
-		console.info("ANNCOUNCE", method, node.name, node.metadata);
+		console.info("ANNOUNCE", method, node.name, node.metadata);
 
 		return node.subscribe(function() {
 			console.info("PUBLISH", node.name, node.time,
