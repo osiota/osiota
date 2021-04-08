@@ -118,6 +118,8 @@ exports.node_map.prototype.unload = function() {
 			this.map[s].vn.unannounce();
 			if (this.map[s].a)
 				this.map[s].a.unload();
+			else
+				delete this.map[s].vn._app;
 			delete this.map[s];
 		}
 	}
@@ -177,6 +179,7 @@ exports.node_map.prototype.map_element = function(key, app_config,
 	var n;
 	if (local_app === null) {
 		n = this._node.node(app_config.node);
+		n._app = this._node._app;
 	} else {
 		n = this._node.virtualnode();
 	}
