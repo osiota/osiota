@@ -10,6 +10,11 @@ var install_app = function(app, app_config, callback) {
 };
 
 exports.cli = function(argv, main) {
+	if (show_help) {
+		console.info('App Options\n' +
+			'  [apps ...]     Apps to install\n');
+		return;
+	}
 	argv._.forEach(function(a) {
 		install_app(a, argv, function(err) {
 			if (err) {

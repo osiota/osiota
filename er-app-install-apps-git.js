@@ -29,9 +29,10 @@ var install_app = function(app, app_config, callback) {
 };
 exports.cli = function(argv, show_help, main) {
 	if (show_help) {
-		console.log('App Options\n' +
+		console.info('App Options\n' +
 			'  --install_dir  Installation path\n' +
-			'                 (default: "./")\n');
+			'                 (default: "./")\n' +
+			'  [apps ...]     Apps to install\n');
 		return;
 	}
 	argv._.forEach(function(a) {
