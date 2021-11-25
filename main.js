@@ -432,14 +432,7 @@ main.prototype.module_get = function(app, callback) {
 	appname = appname.replace(/^(er|osiota)-app-/, "");
 	console.log("loading:", appname);
 
-	var app_identifier = appname;
-	var app_increment = 2;
-	while(this.apps.hasOwnProperty(app_identifier)) {
-		app_identifier = appname + "_" + app_increment++;
-	}
-
 	var a = new Application(appname);
-	a._id = app_identifier;
 	if (typeof app === "string") {
 		async_calls([
 				this.require.bind(this, appname),
@@ -541,6 +534,14 @@ main.prototype.startup = function(node, app, app_config, host_info, auto_install
 main.prototype.startup_module = function(a, node, app, app_config, host_info, auto_install, callback) {
 	var _this = this;
 
+	var appname = a._get_app_name();
+	var app_identifier = appname;
+	var app_increment = 2;
+	while(this.apps.hasOwnProperty(app_identifier)) {
+		app_identifier = appname + " " + app_increment++;
+	}
+	a._id = app_identifier;
+
 	if (typeof host_info === "undefined") {
 		host_info = this;
 	}
@@ -577,7 +578,7 @@ main.prototype.startup_module = function(a, node, app, app_config, host_info, au
 	} else if (typeof a.default_node_name === "string") {
 		node_destination = node_source.node(a.default_node_name);
 	} else {
-		node_destination = node_source.node(a._get_app_name());
+		node_destination = node_source.node(a._id);
 	}
 
 	if (node_destination._app &&

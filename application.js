@@ -434,7 +434,7 @@ exports.application.prototype._get_app_name = function() {
 
 	}
 
-	return this._id.
+	return this._app.
 		replace(/^(er|osiota)-app-/, "").replace(/\//g, "-")
 };
 
