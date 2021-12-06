@@ -13,7 +13,7 @@
     "ws": "^5.2.1"
   },
   "devDependencies": {
-    "jsdoc-to-markdown": "^5.0.3",
+    "jsdoc-to-markdown": "^7.1.0",
     "osiota-dev": "^1.x",
     "tape": "^5.1.1",
     "webpack": "^4.16.5",
