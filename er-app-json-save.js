@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const mkdirp = require('mkdirp');
 
 exports.init = function(node, app_config, main, host_info) {
 	var _this = this;
@@ -110,7 +109,8 @@ exports.unload = function(co, unload_object) {
 		}
 
 		// create parent directory and file:
-		mkdirp(path.dirname(filename), function(err) {
+		fs.mkdir(path.dirname(filename), {recursive: true},
+				function(err) {
 			if (err) throw err;
 			fs.writeFile(filename, _this.format_file(_this.object),
 					write_options,
