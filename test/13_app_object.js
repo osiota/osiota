@@ -39,10 +39,10 @@ test('startup subapps', function (t) {
 		"loaded apps");
 
 	main.startup(null, a1, {test: 567});
-	t.deepEqual(Object.keys(main.apps), ['test-10', 'unknown', 'unknown_2'
+	t.deepEqual(Object.keys(main.apps), ['test-10', 'unknown', 'unknown 2'
 		], "loaded apps");
 
 	main.startup(null, a2, {test: 890});
-	t.deepEqual(Object.keys(main.apps), ['test-10', 'unknown', 'unknown_2',
+	t.deepEqual(Object.keys(main.apps), ['test-10', 'unknown', 'unknown 2',
 			'a2'], "loaded apps");
 });
