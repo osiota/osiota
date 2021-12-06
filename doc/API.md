@@ -132,6 +132,12 @@ Reload configuration
 | --- | --- |
 | callback | <code>function</code> | 
 
+**Example**  
+```js
+main.reload(function(m) {
+	main = m;
+});
+```
 <a name="main+event_started"></a>
 
 ### "started"
@@ -196,6 +202,7 @@ Node class
         * [.node(name)](#node+node) ⇒ [<code>node</code>](#node)
         * [.virtualnode()](#node+virtualnode) ⇒ [<code>node</code>](#node)
         * [.connect_config()](#node+connect_config)
+        * [.connect_schema()](#node+connect_schema)
         * [.announce(metadata, update)](#node+announce)
         * [.unannounce()](#node+unannounce)
         * [.publish(time, value, only_if_differ, do_not_add_to_history)](#node+publish)
@@ -207,7 +214,7 @@ Node class
         * [.ready_remove(object)](#node+ready_remove)
         * [.is_parentnode(parent)](#node+is_parentnode)
         * [.filter(filter_config, filter_method, object)](#node+filter)
-        * [.on_rpc(method, callack)](#node+on_rpc)
+        * [.on_rpc(method, callback)](#node+on_rpc)
         * [.rpc(method, ...args, [callback])](#node+rpc)
         * ["set" (time, value, only_if_differ, do_not_add_to_history)](#node+event_set)
         * ["registerd"](#node+event_registerd)
@@ -272,6 +279,12 @@ Create a virtual node for data handling
 
 ### node.connect\_config()
 Connect config to a node. Will be announced with to node
+
+**Kind**: instance method of [<code>node</code>](#node)  
+<a name="node+connect_schema"></a>
+
+### node.connect\_schema()
+Connect configuration schema to a node. Will be announced with to node
 
 **Kind**: instance method of [<code>node</code>](#node)  
 <a name="node+announce"></a>
@@ -464,7 +477,7 @@ node.unsubscribe_announcement(s);
 ```
 <a name="node+on_rpc"></a>
 
-### node.on\_rpc(method, callack)
+### node.on\_rpc(method, callback)
 Register a RPC command on the node
 
 **Kind**: instance method of [<code>node</code>](#node)  
@@ -472,7 +485,7 @@ Register a RPC command on the node
 | Param | Type | Description |
 | --- | --- | --- |
 | method | <code>string</code> | Method to be called |
-| callack | <code>function</code> | Function to register |
+| callback | <code>function</code> | Function to register |
 
 **Example**  
 ```js
@@ -615,6 +628,7 @@ Node-Map class
     * [.remove_node(app_config)](#node_map+remove_node)
     * [.map_initialise(n, metadata, app_config)](#node_map+map_initialise)
     * [.map_key(app_config, [cache])](#node_map+map_key)
+    * [.map_nodename(key, app_config, [local_metadata])](#node_map+map_nodename)
 
 <a name="new_node_map_new"></a>
 
@@ -645,7 +659,7 @@ Map a config object to a node
 | Param | Type | Description |
 | --- | --- | --- |
 | app_config | <code>object</code> | A config object |
-| [local_metadata] | <code>object</code> | Addional metadata |
+| [local_metadata] | <code>object</code> | Addional meta data |
 | [cache] | <code>\*</code> | Addional object for caching |
 
 <a name="node_map+unload"></a>
@@ -675,7 +689,7 @@ Initialise a new node
 | Param | Type | Description |
 | --- | --- | --- |
 | n | [<code>node</code>](#node) | The node to initialse |
-| metadata | <code>object</code> | metadata gathered together |
+| metadata | <code>object</code> | Meta data gathered together |
 | app_config | <code>object</code> | Mapped or saved config |
 
 <a name="node_map+map_key"></a>
@@ -687,8 +701,21 @@ Map a config object to a string
 
 | Param | Type | Description |
 | --- | --- | --- |
-| app_config | <code>object</code> | A config object |
+| app_config | <code>object</code> | Mapped or saved config |
 | [cache] | <code>\*</code> | Addional object for caching |
+
+<a name="node_map+map_nodename"></a>
+
+### node_map.map\_nodename(key, app_config, [local_metadata])
+Map nodename
+
+**Kind**: instance method of [<code>node\_map</code>](#node_map)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| key | <code>string</code> | String key for mapping |
+| app_config | <code>object</code> | Mapped or saved config |
+| [local_metadata] | <code>object</code> | Addional meta data |
 
 <a name="application"></a>
 
@@ -705,6 +732,7 @@ Application class
     * *[.unload(object, unload_object)](#application+unload)*
     * *[.reinit(app_config, node, main, extra)](#application+reinit)*
     * *[.cli(args, show_help, main, extra)](#application+cli)*
+    * [._get_app_name()](#application+_get_app_name)
 
 <a name="new_application_new"></a>
 
@@ -813,7 +841,7 @@ exports.cli = function(args, show_help, main, extra) {
 		console.group();
 		console.info(
 			'  --config [file]  Path to the config file\n' +
-			'                 (default: "config.json")\n' +
+			'                 (default: "osiota.json")\n' +
 			'  --name [name]  Name and filename of the service\n' +
 		console.groupEnd();
 		return;
@@ -821,6 +849,12 @@ exports.cli = function(args, show_help, main, extra) {
 	// ...
 };
 ```
+<a name="application+_get_app_name"></a>
+
+### application.\_get\_app\_name()
+Get Application Name (from Schema)
+
+**Kind**: instance method of [<code>application</code>](#application)  
 <a name="application_manager"></a>
 
 ## application\_manager
