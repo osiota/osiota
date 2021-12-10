@@ -14,8 +14,10 @@
   "devDependencies": {
     "jsdoc-to-markdown": "^7.1.0",
     "osiota-dev": "^1.x",
+    "process": "^0.11.10",
     "tape": "^5.1.1",
-    "webpack": "^4.16.5",
+    "util": "^0.12.4",
+    "webpack": "^5.65.0",
     "webpack-cli": "^4.9.1",
     "why-is-node-running": "^2.0.3"
   },
@@ -35,7 +37,7 @@
   },
   "scripts": {
     "start": "node osiota.js",
-    "build": "./node_modules/.bin/webpack -d --display-modules",
+    "build": "./node_modules/.bin/webpack --mode=development",
     "set_push_url": "git remote set-url --push origin git@github.com:osiota/osiota.git",
     "test": "tape 'test/??_*.js'",
     "doc": "jsdoc2md --template .jsdoc2md.hbs main.js router.js router_remotecall.js node_map.js application.js application_manager.js >doc/API.md"

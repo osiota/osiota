@@ -1,7 +1,9 @@
 
 var webpack = require('webpack');
 
-var ignore = new webpack.IgnorePlugin(/levelup|^ws$|^webpack$|^\.\/module_history_class_file.js$/);
+var ignore = new webpack.IgnorePlugin({
+	resourceRegExp: /levelup|^ws$|^webpack$|^\.\/module_history_class_file.js$/
+});
 
 module.exports = {
 	//TODO: entry: "./main_web.js",
@@ -13,10 +15,11 @@ module.exports = {
 		path: __dirname,
 		filename: "webpack-osiota.js"
 	},
-	node: {
-		console: false,
-		process: "mock",
-		global: true
+	resolve: {
+		fallback: {
+			process: require.resolve('process/browser'),
+			util: require.resolve('util'),
+		}
 	},
 	module: {
 	},
