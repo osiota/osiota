@@ -110,7 +110,7 @@ if (argv.help && !argv.app) {
 	if (!argv.help && !argv.app && !argv.systemd) {
 		try {
 			require('console-stamp')(console, {
-				pattern: 'yyyy-mm-dd HH:MM:ss',
+				format: ':date(yyyy-mm-dd HH:MM:ss) :label(7)',
 				extend: {
 					debug: 5,
 				},
