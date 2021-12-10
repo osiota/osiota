@@ -67,12 +67,8 @@ exports.init = function(node, app_config, main) {
 				return false;
 			return true;
 		}
-	}, function(err, files) {
-		if (err) throw err;
-
-		files.files.forEach(function(file) {
-			_this.config_readfile_fileobject(map, file);
-		});
+	}).on("data", function(file) {
+		_this.config_readfile_fileobject(map, file);
 	});
 
 	return [map];
