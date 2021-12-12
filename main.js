@@ -357,7 +357,8 @@ main.prototype.create_websocket_client = function(url, nodes, config) {
 	if (typeof config.remote_prefix === "string") {
 		remote_prefix = config.remote_prefix;
 	}
-	if (typeof config.remote_basename === "string") {
+	if (typeof config.remote_basename === "string" &&
+			config.remote_basename !== "") {
 		ws.remote_basename = remote_prefix + config.remote_basename;
 	} else {
 		ws.remote_basename = remote_prefix + "/" + this.router.name;
@@ -368,6 +369,9 @@ main.prototype.create_websocket_client = function(url, nodes, config) {
 
 	// data to UPSTREAM
 	if (Array.isArray(nodes)) {
+		if (!nodes.length) {
+			ws.node_plocal("/", "subscribe_announcement");
+		}
 		nodes.forEach(function(node) {
 			ws.node_plocal(node, "subscribe_announcement");
 		});
@@ -378,7 +382,11 @@ main.prototype.create_websocket_client = function(url, nodes, config) {
 	}
 
 	// data from UPSTREAM
-	if (typeof config.subscribe === "string") {
+	if (Array.isArray(config.subscribe)) {
+		config.subscribe.forEach(function(s) {
+			ws.subscribe_announcement(s);
+		});
+	} else if (typeof config.subscribe === "string") {
 		/*
 		 * NOTE: 'remote_basename' (see above) is added to
 		 * 'config.subscribe'
