@@ -15,6 +15,10 @@ Usage: `osiota [args]`
     <td>Path to the config file (default: "osiota.json")</td>
   </tr>
   <tr>
+    <td><code>--check</code></td>
+    <td>Check the config file</td>
+  </tr>
+  <tr>
     <td><code>--status</code>, <code>-s</code></td>
     <td>Get status of the daemon</td>
   </tr>
