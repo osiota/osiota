@@ -323,11 +323,12 @@ exports.application.prototype._reinit = function(app_config) {
 		return;
 	console.log("restarting app:", this._id);
 
+	if (typeof app_config !== "object" || app_config === null) {
+		app_config = this._config;
+	}
+
 	this._state = "REINIT";
 	if (typeof this.reinit === "function") {
-		if (typeof app_config === "object" && app_config !== null) {
-			this._config = app_config;
-		}
 		this._node.connect_config(app_config);
 		this._node._announced = null;
 		this.reinit(this._node, this._config, this._main, this._extra);
@@ -340,7 +341,6 @@ exports.application.prototype._reinit = function(app_config) {
 		setImmediate(function() {
 			_this._node.connect_config(app_config);
 			_this._init(app_config);
-			this._state = "RUNNING";
 		});
 	}
 	this.emit("reinit");
