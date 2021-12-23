@@ -108,7 +108,7 @@ test('client B announced node', function (t) {
 });
 
 
-test('close sever', function (t) {
+test('close server', function (t) {
 	t.plan(1);
 	//m.on("close", ()=>{ t.ok(1, "closed"); });
 	//m2.on("close", ()=>{ t.ok(1, "closed"); });

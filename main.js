@@ -357,8 +357,7 @@ main.prototype.create_websocket_client = function(url, nodes, config) {
 	if (typeof config.remote_prefix === "string") {
 		remote_prefix = config.remote_prefix;
 	}
-	if (typeof config.remote_basename === "string" &&
-			config.remote_basename !== "") {
+	if (typeof config.remote_basename === "string") {
 		ws.remote_basename = remote_prefix + config.remote_basename;
 	} else {
 		ws.remote_basename = remote_prefix + "/" + this.router.name;
