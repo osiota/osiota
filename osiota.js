@@ -154,6 +154,9 @@ if (argv.help && !argv.app) {
 		// Load configuration:
 		m.config(config);
 	} else {
+		// Save config in main object (to pass it to the app):
+		m._config = config;
+
 		// call cli function of an app:
 		if (argv.help) {
 			console.info('Usage: osiota --app %s [args]\n',
