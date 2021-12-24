@@ -18,7 +18,7 @@ then
 	COMMAND="status -s"	
 fi
 
-echo "osiota"
+echo "$(tput bold)osiota$(tput sgr0)"
 git -c core.excludesfile="${GG}" $COMMAND
 
 for i in er-app-*/ osiota-app-*/ system-*/ ../er-app-*/ ../osiota-app-*/ ../system-*/;
@@ -26,14 +26,14 @@ do
 	if test -d "$i.git"
 	then
 		echo
-		echo "${i}"
+		echo "$(tput bold)${i}$(tput sgr0)"
 		cd "${i}"
 		git -c core.excludesfile="${GG}" $COMMAND
 		cd - >/dev/null
 	elif test -d "$i"
 	then
 		echo
-		echo "${i}"
+		echo "$(tput bold)${i}$(tput sgr0)"
 		echo "Not a git repository"
 	fi
 done
