@@ -578,8 +578,12 @@ main.prototype.startup_module = function(a, node, app, app_config, host_info, au
 	}
 
 	var node_destination = null;
+	var node_postname = "";
+	if (typeof a.node_postname === "string") {
+		node_postname = a.node_postname;
+	}
 	if (typeof app_config.node === "string") {
-		node_destination = node_source.node(app_config.node);
+		node_destination = node_source.node(app_config.node + node_postname);
 	} else if (typeof app_config.pnode === "string") {
 		node_destination = node.node(app_config.pnode);
 	} else if (typeof a.default_node_name === "string") {
