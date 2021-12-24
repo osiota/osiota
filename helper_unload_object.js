@@ -30,6 +30,8 @@ exports.unload_object = function(object) {
 		} else if (typeof object.then === "function") {
 			object.then(function(value) {
 				exports.unload_object(value);
+			}, function(err) {
+				exports.unload_object(value);
 			});
 		// subscribe:
 		} else if (typeof object.remove === "function") {
