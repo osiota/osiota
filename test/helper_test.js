@@ -16,8 +16,10 @@ exports.test = function(filename) {
 			row = row.replace(/\n$/, "");
 			console.info(row)
 		});
-		console.debug = ()=>{};
-		console.log = ()=>{};
+		if (process.env.DEBUG != '1') {
+			console.debug = ()=>{};
+			console.log = ()=>{};
+		}
 		first_run = false;
 	}
 	var title = "";
