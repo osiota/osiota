@@ -1,0 +1,11 @@
+{
+	"type": "object",
+	"title": "osiota Application WebSocket Server",
+	"properties": {
+		"server": {
+			"type": "number",
+			"title": "WebSocket Server Port"
+		}
+	},
+	"additionalProperties": false
+}

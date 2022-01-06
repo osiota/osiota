@@ -9,7 +9,6 @@
 		"args": {
 			"title": "Command line arguments",
 			"type": "array",
-			"format": "table",
 			"items": {
 				"type": "string",
 				"title": "Argument"
@@ -30,7 +29,6 @@
 		},
 		"map": {
 			"type": "array",
-			"format": "table",
 			"title": "Node mapping",
 			"items": {
 				"type": "object",

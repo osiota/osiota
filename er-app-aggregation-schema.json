@@ -18,7 +18,7 @@
 			"default": "integral_avg"
 		},
 		"filter": {
-			"type": "er-filter"
+			"$ref": "#/definitions/filter"
 		}
 	},
 	"additionalProperties": false

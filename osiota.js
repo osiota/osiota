@@ -35,6 +35,7 @@ if (argv.help && !argv.app) {
 	console.info('Options:\n' +
 		'  --config [file]  Path to the config file\n' +
 		'                 (default: "osiota.json")\n' +
+		'  --check        Check the config file\n' +
 		'  --status, -s   Get status of the daemon\n' +
 		'  --daemon, -d   Daemonize the process\n' +
 		'  --restart      Restart process\n' +
@@ -149,6 +150,24 @@ if (argv.help && !argv.app) {
 
 	m.argv = argv;
 	m.add_app_dir(path.dirname(argv.config || "osiota.json"));
+
+	if (argv.check) {
+		var validation_errors = m.application_manager.check_config(
+				config);
+		if (validation_errors) {
+			console.error("Config is not valid");
+			console.info("Validation Errors:",
+					validation_errors.filter(function(e) {
+				return e.keyword !== 'enum' ||
+					!e.dataPath.match(/^\.app.*\.name$/) ||
+					e.message !== 'should be equal to one of the allowed values';
+			}));
+			process.exit(1);
+		}
+
+		console.info("Config is valid");
+		return;
+	}
 
 	if (!argv.app) {
 		// Load configuration:

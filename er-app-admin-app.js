@@ -37,7 +37,6 @@ exports.init = function(node, app_config, main, host_info) {
 		} else {
 			schema = main.application_manager.get_schema(a._app);
 		}
-		schema = main.application_manager.schema_default_types(schema);
 		cn.announce({
 			type: "config.basic",
 			schema: schema,

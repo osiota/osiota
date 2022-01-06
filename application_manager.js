@@ -9,6 +9,7 @@ const Ajv = require('ajv');
  * @param {main} main - Main instance
  */
 exports.application_manager = function(main) {
+	this._app_schema = null;
 	this._schema = null;
 	this._main = main;
 
@@ -41,7 +42,7 @@ exports.application_manager.prototype.find_app = function(metadata) {
 	}
 	var app_max_prio = 0;
 	var app = null;
-	this.schema().forEach(function(app_schema) {
+	this.app_schema().forEach(function(app_schema) {
 		if (typeof app_schema.properties== "object" &&
 				typeof app_schema.properties.config
 					== "object" &&
@@ -69,13 +70,77 @@ exports.application_manager.prototype.find_app = function(metadata) {
  * Load schema of all apps
  * @returns {object} The JSON schema
  */
-exports.application_manager.prototype.schema = function() {
+exports.application_manager.prototype.app_schema = function() {
 	// WARNING: This function is SYNCHRON:
-	if (this._schema === null) {
-		this._schema = this.load_schema_apps();
+	if (this._app_schema === null) {
+		this._app_schema = this.load_schema_apps();
 	}
-	return this._schema;
+	return this._app_schema;
 };
+
+/**
+ * Get full schema
+ * @returns {object} The JSON schema
+ */
+exports.application_manager.prototype.schema = function() {
+	if (this._schema !== null) {
+		return this._schema;
+	}
+	var schema = require("./schema_config.json");
+	var app_schema = this.app_schema().filter(function(a) {
+		try {
+			var test_ajv = new Ajv({strict: "log"});
+			var s = {
+				"type": "object",
+				"properties": {
+					"app": {
+						"type": "array",
+						"items": {
+							"oneOf": [a]
+						}
+					}
+				},
+				"definitions": schema.definitions
+			};
+			var compiled = test_ajv.compile(s);
+			return true;
+		} catch(e) {
+			console.warn("App", a.properties.name.enum[0]+":", e.message);
+			return false;
+		}
+	});
+	schema.properties.app.items.oneOf = app_schema;
+
+	// config
+	//require('fs').writeFileSync("test_output_schema.json", JSON.stringify(schema, undefined, "\t"));
+	this._schema = schema;
+	return schema;
+};
+
+/**
+ * Check config object
+ * @param {object} config - Config object
+ * @returns {boolean} config valid
+ */
+exports.application_manager.prototype.check_config = function(config) {
+	var schema = this.schema();
+
+	var ajv = new Ajv({strict: "log"});
+	try {
+		var validate = ajv.compile(schema);
+	} catch(e) {
+		console.error("Schema Compile", e);
+		process.exit(1);
+	}
+	if (!validate(config)) {
+		return validate.errors.filter(function(e) {
+			return e.keyword !== 'enum' ||
+				!e.dataPath.match(/^\.app.*\.name$/) ||
+				e.message !== 'should be equal to one of the allowed values';
+		});
+	}
+	return null;
+}
 
 var schema_cache = {};
 /**
@@ -112,29 +177,6 @@ exports.application_manager.prototype.get_schema = function(app) {
 	if (!schema) {
 		schema = this.create_default_schema();
 	}
-	// defaults:
-	if (typeof schema.type === "undefined") {
-		schema.type = "object";
-	}
-	if (typeof schema.additionalProperties === "undefined") {
-		schema.additionalProperties = false;
-	}
-	if (typeof schema.title === "undefined") {
-		schema.title = "Settings";
-	}
-	if (typeof schema.properties === "undefined" &&
-			schema.additionalProperties === false &&
-			typeof schema.options === "undefined") {
-		schema.options = { "hidden": true };
-	}
-	if (typeof schema.properties === "object" &&
-			schema.properties !== null &&
-			schema.additionalProperties === false &&
-			typeof schema.options === "undefined" &&
-			Object.keys(schema.properties).length === 0) {
-		schema.options = { "hidden": true };
-	}
-
 	schema_cache[app] = schema;
 	return schema;
 };
@@ -165,11 +207,7 @@ exports.application_manager.prototype.create_default_schema = function() {
 	return {
 		"type": "object",
 		"title": "Settings",
-		"additionalProperties": true,
-		"options": {
-			"disable_properties": false,
-			"disable_edit_json": false
-		}
+		"additionalProperties": true
 	};
 }
 
@@ -253,55 +291,20 @@ exports.application_manager.prototype.create_schema = function(name,
 			"name": {
 				"type": "string",
 				"enum": [
-					name,
-					short_name
-				],
-				"options": {
-					"hidden": true
-				}
+					short_name,
+					name
+				]
 			 },
 			"config": sub_schema
 		},
 		"required": [ "name" ],
-		"additionalProperties": false,
-		"options": {
-			"disable_collapse": false
-		}
+		"additionalProperties": false
 	};
 
 	cb_add_schema(short_name, path, schema_a);
-	//console.log("added schema:", short_name, path, sub_schema);
 
 	return schema_a;
 };
-
-exports.application_manager.prototype.add_default_schema = function(schema) {
-	var sub_schema = this.create_default_schema();
-	var schema_a = {
-		"type": "object",
-		"title": "Sonstiges ...",
-		"properties": {
-			"disabled": {
-				"type": "string",
-				"enum": ["disabled"],
-				"options": {
-					"hidden": true
-				}
-			},
-			"name": {
-				"type": "string",
-			 },
-			"config": sub_schema
-		},
-		"required": [ "name", "disabled" ],
-		"additionalProperties": false,
-		"options": {
-			"disable_collapse": false
-		}
-	};
-
-	schema.unshift(schema_a);
-}
 
 exports.application_manager.prototype.load_schema_apps = function() {
 	var _this = this;
@@ -320,8 +323,6 @@ exports.application_manager.prototype.load_schema_apps = function() {
 			a.title < b.title ? -1 : 1
 		);
 	});
-
-	this.add_default_schema(schema_apps);
 
 	return schema_apps;
 };
@@ -366,56 +367,3 @@ exports.application_manager.prototype.search_apps = function() {
 	return apps;
 };
 
-
-var default_types = {
-	"er-filter": {
-		"type": "object",
-		"title": "Node filter options",
-		"properties": {
-			"metadata": {
-				"type": "object",
-				"title": "Meta data to filter",
-				"additionalProperties": true,
-				"options": {
-					"disable_properties": false,
-					"disable_edit_json": false
-				}
-			},
-			"nodes": {
-				"type": "array",
-				"title": "List of nodes permitted",
-				"items": {
-					"type": "string"
-				}
-			},
-			"depth": {
-				"type": "number",
-				"title": "Node depth permitted"
-			}
-		}
-	}
-};
-exports.application_manager.prototype.schema_default_types = function(schema) {
-	if (typeof schema !== "object") {
-		return schema;
-	}
-	if (Array.isArray(schema)) {
-		for (var k=0; k<schema.length; k++) {
-			schema[k] = this.schema_default_types(schema[k]);
-		}
-
-		return schema;
-	}
-	if (typeof schema.type === "string" &&
-			typeof default_types[schema.type] === "object") {
-		schema = default_types[schema.type];
-	}
-
-	for (var key in schema) {
-		if (schema.hasOwnProperty(key)) {
-			schema[key] = this.schema_default_types(schema[key]);
-		}
-	}
-
-	return schema;
-};

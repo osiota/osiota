@@ -11,6 +11,7 @@ var nodelist = function(m) {
 	return helper.get_node_list(m.router).filter(function(n) {
 		if (n === '/app/ws-requrl-login') return false;
 		if (n === '/app/ws-server') return false;
+		if (n === '/app/WebSocket Server') return false;
 		return true;
 	});
 }

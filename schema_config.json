@@ -1,5 +1,4 @@
 {
-	"$schema": "http://json-schema.org/draft-04/schema#",
 	"description": "schema for an osiota config file",
 	"type": "object",
 	"title": "osiota configuration",
@@ -33,7 +32,6 @@
 			"type": "array",
 			"title": "Remotes",
 			"description": "To get or forward data from or to an other osiota instance, you can add remotes.",
-			"format": "table",
 			"items": {
 				"type": "object",
 				"title": "Remote",
@@ -59,7 +57,6 @@
 			"type": "array",
 			"title": "Applications",
 			"description": "Applications allow to extend the functionality.",
-			"format": "tabs",
 			"items": {
 				"type": "object",
 				"title": "Application",
@@ -75,7 +72,6 @@
 			"type": "array",
 			"title": "Privacy policies",
 			"description": "You can prevent data from forwarding by defining privacy policies.",
-			"format": "tabs",
 			"items": {
 				"type": "object",
 				"properties": {
@@ -133,6 +129,34 @@
 				},
 				"additionalProperties": false,
 				"required" : ["action"]
+			}
+		}
+	},
+	"definitions": {
+		"filter": {
+			"type": "object",
+			"title": "Node filter options",
+			"properties": {
+				"metadata": {
+					"type": "object",
+					"title": "Meta data to filter",
+					"additionalProperties": true,
+					"options": {
+						"disable_properties": false,
+						"disable_edit_json": false
+					}
+				},
+				"nodes": {
+					"type": "array",
+					"title": "List of nodes permitted",
+					"items": {
+						"type": "string"
+					}
+				},
+				"depth": {
+					"type": "number",
+					"title": "Node depth permitted"
+				}
 			}
 		}
 	}

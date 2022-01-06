@@ -1,0 +1,48 @@
+{
+	"$schema": "http://json-schema.org/draft/2019-09/schema#",
+	"type": "object",
+	"title": "osiota Application Websocket Client",
+	"description": "This application connects the osiota instance to an other instnace using a WebSocket client.",
+	"properties": {
+		"name": {
+			"type": "string",
+			"description": "Provide a name for this connection:",
+			"examples": [ "myconnection" ]
+		},
+		"url": {
+			"type": "string",
+			"description": "Enter the WebSocket Server to connect to:",
+			"examples": [ "wss://example.com:8080" ]
+		},
+		"basename": {
+			"type": "string",
+			"description": "Add local prefix (basename):",
+			"examples": [ "/local_base" ]
+		},
+		"remote_basename": {
+			"type": "string",
+			"description": "Add remote prefix (basename):",
+			"examples": [ "/remote_base" ]
+		},
+		"node": {
+			"type": "array",
+			"description": "Define nodes to publish to remote:",
+			"items": {
+				"type": "string",
+				"description": "Define a node to publish to remote:",
+				"examples": [ "/local_node" ],
+				"default": "/"
+			}
+		},
+		"subscribe": {
+			"type": "array",
+			"description": "Subscribe nodes from upstream:",
+			"items": {
+				"type": "string",
+				"description": "Subscribe node from upstream:",
+				"examples": [ "", "/remote_node" ]
+			}
+		}
+	},
+	"required": ["name", "url"]
+}
