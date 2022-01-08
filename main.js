@@ -62,6 +62,7 @@ main.prototype.preparation_config = function(config) {
 	var _this = this;
 
 	// preparation:
+	this._started = false;
 	this._close = false;
 	this._config = config;
 	this.config_cleaning();
@@ -146,6 +147,7 @@ main.prototype.check_started = function(factor) {
 	 */
 	var tid = setTimeout(function() {
 		if (_this._close) return;
+		_this._started = true;
 		_this.emit("started");
 	}, 500);
 	if (tid && typeof tid.unref === "function" &&

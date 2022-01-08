@@ -68,6 +68,7 @@ main_nodejs.prototype.check_started = function(factor) {
 		} else {
 			if (factor == 1) {
 				console.log("started");
+				_this._started = true;
 				_this.emit("started");
 			} else {
 				tid = setTimeout(_this.check_started.bind(_this,
