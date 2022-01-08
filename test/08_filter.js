@@ -47,7 +47,7 @@ test('filter callback', function (t) {
 	main.config({
 		"app": [
 			{
-				"name": "er-app-random-in",
+				"name": "random-in",
 				"config": {
 					"node": "/Hallo/Welt",
 					"metadata": {
@@ -78,7 +78,7 @@ test('filter callback', function (t) {
 	main.config({
 		"app": [
 			{
-				"name": "er-app-random-in",
+				"name": "random-in",
 				"config": {
 					"node": "/Hallo/Welt/abc",
 					"metadata": {
@@ -88,7 +88,7 @@ test('filter callback', function (t) {
 				}
 			},
 			{
-				"name": "er-app-random-in",
+				"name": "random-in",
 				"config": {
 					"node": "/Guten Tag/1/2/3/4/5",
 					"metadata": {

@@ -12,6 +12,7 @@ var nodelist = function(m) {
 		if (n === '/app/ws-requrl-login') return false;
 		if (n === '/app/ws-server') return false;
 		if (n === '/app/WebSocket Server') return false;
+		if (n === '/app/WebSocket Client') return false;
 		return true;
 	});
 }

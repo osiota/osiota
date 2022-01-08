@@ -12,46 +12,61 @@ test('load config', function (t) {
 		"app_dir": __dirname+"/",
 		"app": [
 			{
-				"name": "er-app-test-10"
+				"name": "ws-server",
+				"config": {
+					"server": 8081
+				}
+			},
+			{
+				"name": "test-10"
 			}
-		],
-		"server": 8081
+		]
 	});
 	t.deepEqual(main._config, {
 		"app_dir": [ __dirname+"/" ],
 		"app": [
 			{
-				"name": "er-app-test-10",
+				"name": "ws-server",
+				"config": {
+					"server": 8081
+				}
+			},
+			{
+				"name": "test-10",
 				"config": {}
 			}
-		],
-		"server": 8081
+		]
 	}, "configuration");
 });
 var a;
 test('add app to config', function (t) {
 	t.plan(1);
 
-	a = main.application_loader.app_add("er-app-test-10", { option: 2});
-	main.application_loader.app_add("er-app-test-10", { option: 3});
+	a = main.application_loader.app_add("test-10", { option: 2});
+	main.application_loader.app_add("test-10", { option: 3});
 
 	t.deepEqual(main._config, {
 		"app_dir": [ __dirname+"/" ],
 		"app": [
 			{
-				"name": "er-app-test-10",
+				"name": "ws-server",
+				"config": {
+					"server": 8081
+				}
+			},
+			{
+				"name": "test-10",
 				"config": {}
 			},
 			{
-				"name": "er-app-test-10",
+				"name": "test-10",
 				"config": { "option": 2 }
 			},
 			{
-				"name": "er-app-test-10",
+				"name": "test-10",
 				"config": { "option": 3 }
 			}
-		],
-		"server": 8081
+		]
 	}, "configuration");
 });
 
@@ -64,15 +79,20 @@ test('remove app from config', function (t) {
 		"app_dir": [ __dirname+"/" ],
 		"app": [
 			{
-				"name": "er-app-test-10",
+				"name": "ws-server",
+				"config": {
+					"server": 8081
+				}
+			},
+			{
+				"name": "test-10",
 				"config": {}
 			},
 			{
-				"name": "er-app-test-10",
+				"name": "test-10",
 				"config": { "option": 3 }
 			}
-		],
-		"server": 8081
+		]
 	}, "configuration");
 });
 
@@ -92,15 +112,20 @@ test('check config', function (t) {
 		"app_dir": [ __dirname+"/" ],
 		"app": [
 			{
-				"name": "er-app-test-10",
+				"name": "ws-server",
+				"config": {
+					"server": 8081
+				}
+			},
+			{
+				"name": "test-10",
 				"config": {}
 			},
 			{
-				"name": "er-app-test-10",
+				"name": "test-10",
 				"config": { "option": 3 }
 			}
-		],
-		"server": 8081
+		]
 	}, "configuration");
 });
 

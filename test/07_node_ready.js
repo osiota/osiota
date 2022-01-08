@@ -51,7 +51,7 @@ var s = main.node("/").subscribe_announcement("announce", function(node) {
 main.config({
 	"app": [
 		{
-			"name": "er-app-random-in",
+			"name": "random-in",
 			"config": {
 				"node": "/Hallo/Welt",
 				"delay": 100

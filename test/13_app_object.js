@@ -24,7 +24,7 @@ test('load config', function (t) {
 		"app_dir": __dirname+"/",
 		"app": [
 			{
-				"name": "er-app-test-10"
+				"name": "test-10"
 			}
 		]
 	});
