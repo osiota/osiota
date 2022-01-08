@@ -23,7 +23,7 @@ require('./module_history_class_filter.js');
 /**
  * Main Process Instance
  * @class
- * @classdesc Remote Process Instance
+ * @classdesc Main Process Instance
  * @name main
  * @param {string} router_name - Name of the instance
  * @example

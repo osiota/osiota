@@ -9,7 +9,7 @@ Auto generated documentation:
 
 <dl>
 <dt><a href="#main">main</a></dt>
-<dd><p>Remote Process Instance</p>
+<dd><p>Main Process Instance</p>
 </dd>
 <dt><a href="#node">node</a></dt>
 <dd><p>Node class</p>
@@ -37,7 +37,7 @@ Auto generated documentation:
 <a name="main"></a>
 
 ## main
-Remote Process Instance
+Main Process Instance
 
 **Kind**: global class  
 
