@@ -10,6 +10,8 @@ var addins = require("./addins.js").addins;
 var merge = require("./helper_merge_data.js").merge;
 var helper = require("./helper.js");
 
+var update_config = require("./helper_config_update.js").update_config;
+
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
@@ -60,6 +62,8 @@ main.prototype.classes = {
 
 main.prototype.preparation_config = function(config) {
 	var _this = this;
+
+	update_config(config);
 
 	// preparation:
 	this._started = false;
