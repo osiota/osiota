@@ -26,6 +26,9 @@ Auto generated documentation:
 <dt><a href="#application">application</a></dt>
 <dd><p>Application class</p>
 </dd>
+<dt><a href="#application_loader">application_loader</a></dt>
+<dd><p>Application Loader class</p>
+</dd>
 <dt><a href="#application_manager">application_manager</a></dt>
 <dd><p>Application Manager class</p>
 </dd>
@@ -42,6 +45,7 @@ Remote Process Instance
     * [new main(router_name)](#new_main_new)
     * [.config(config)](#main+config)
     * [.sub_config(config, node, callback)](#main+sub_config)
+    * [.node(name)](#main+node) ⇒ [<code>node</code>](#node)
     * *[.require(appname, callback)](#main+require)*
     * *[.load_schema(appname, callback)](#main+load_schema)*
     * [.close()](#main+close)
@@ -90,6 +94,17 @@ Load sub configurations
 | config | <code>object</code> | Configuration |
 | node | [<code>node</code>](#node) | Parent node |
 | callback | <code>function</code> |  |
+
+<a name="main+node"></a>
+
+### main.node(name) ⇒ [<code>node</code>](#node)
+Get a node instance (format to router instance)
+
+**Kind**: instance method of [<code>main</code>](#main)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| name | <code>string</code> | Name of the node |
 
 <a name="main+require"></a>
 
@@ -214,6 +229,7 @@ Node class
         * [.ready_remove(object)](#node+ready_remove)
         * [.is_parentnode(parent)](#node+is_parentnode)
         * [.filter(filter_config, filter_method, object)](#node+filter)
+        * [.map(config, [app], [map_extra_elements], [map_key], [map_initialise])](#node+map)
         * [.on_rpc(method, callback)](#node+on_rpc)
         * [.rpc(method, ...args, [callback])](#node+rpc)
         * ["set" (time, value, only_if_differ, do_not_add_to_history)](#node+event_set)
@@ -474,6 +490,50 @@ var s = node.filter([{
 	// ...
 });
 node.unsubscribe_announcement(s);
+```
+<a name="node+map"></a>
+
+### node.map(config, [app], [map_extra_elements], [map_key], [map_initialise])
+Create a node-map
+
+**Kind**: instance method of [<code>node</code>](#node)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| config | <code>object</code> | A config object |
+| [app] | <code>string</code> \| [<code>application</code>](#application) \| <code>boolean</code> | An application to map content |
+| [map_extra_elements] | <code>boolean</code> \| <code>object</code> \| <code>function</code> | Map extra elements? |
+| [map_key] | <code>function</code> | Map key function |
+| [map_initialise] | <code>function</code> | Map initialise element |
+
+**Example**  
+```js
+var map = node.map(app_config, null, true, function(c) {
+	var name = c.map;
+	return name;
+}, function(n, metadata, c) {
+	n.rpc_set = function(reply, value, time) { };
+	n.announce(metadata);
+});
+var on_message = function(item, value) {
+	var n = map.node(item);
+	if (n) {
+		n.publish(undefined, value);
+	}
+};
+```
+**Example**  
+```js
+// TODO TODO Schema???
+// require("./schema_map.json");
+// TODO or get from node.
+var map = node.map(app_config, {
+	"map_extra_elements": false,
+	"key": function(config) { return config.map; },
+	"announce": function(n, metadata, config) {
+		return n.announce(metadata);
+	},
+});
 ```
 <a name="node+on_rpc"></a>
 
@@ -855,6 +915,82 @@ exports.cli = function(args, show_help, main, extra) {
 Get Application Name (from Schema)
 
 **Kind**: instance method of [<code>application</code>](#application)  
+<a name="application_loader"></a>
+
+## application\_loader
+Application Loader class
+
+**Kind**: global class  
+
+* [application_loader](#application_loader)
+    * [new application_loader(main)](#new_application_loader_new)
+    * [.load(node, apps, callback)](#application_loader+load)
+    * [.startup(node, app, app_config, [host_info], [auto_install], [callback])](#application_loader+startup) ⇒ <code>string</code>
+    * [.startup_struct(node, struct, [host_info], [auto_install], [callback])](#application_loader+startup_struct) ⇒ <code>string</code>
+    * [.close()](#application_loader+close)
+
+<a name="new_application_loader_new"></a>
+
+### new application\_loader(main)
+Application Loader class
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| main | [<code>main</code>](#main) | Main instance |
+
+<a name="application_loader+load"></a>
+
+### application_loader.load(node, apps, callback)
+Load applications
+
+**Kind**: instance method of [<code>application\_loader</code>](#application_loader)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| node | [<code>node</code>](#node) | Parent node |
+| apps | <code>Array.&lt;object&gt;</code> | Application Structs |
+| callback | <code>function</code> |  |
+
+<a name="application_loader+startup"></a>
+
+### application_loader.startup(node, app, app_config, [host_info], [auto_install], [callback]) ⇒ <code>string</code>
+Startup an application by name and config
+
+**Kind**: instance method of [<code>application\_loader</code>](#application_loader)  
+**Returns**: <code>string</code> - Application name  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| node | [<code>node</code>](#node) | Parent node |
+| app | <code>string</code> \| [<code>application</code>](#application) | Application Name or Application |
+| app_config | <code>object</code> | Application Config |
+| [host_info] | <code>object</code> | Host Information |
+| [auto_install] | <code>boolean</code> | Automatic Installation |
+| [callback] | <code>function</code> |  |
+
+<a name="application_loader+startup_struct"></a>
+
+### application_loader.startup\_struct(node, struct, [host_info], [auto_install], [callback]) ⇒ <code>string</code>
+Startup an application by struct
+
+**Kind**: instance method of [<code>application\_loader</code>](#application_loader)  
+**Returns**: <code>string</code> - Application name  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| node | [<code>node</code>](#node) | Parent node |
+| struct | <code>object</code> | Application Struct |
+| [host_info] | <code>object</code> | Host Information |
+| [auto_install] | <code>boolean</code> | Automatic Installation |
+| [callback] | <code>function</code> |  |
+
+<a name="application_loader+close"></a>
+
+### application_loader.close()
+Stop all applications
+
+**Kind**: instance method of [<code>application\_loader</code>](#application_loader)  
 <a name="application_manager"></a>
 
 ## application\_manager
@@ -865,7 +1001,9 @@ Application Manager class
 * [application_manager](#application_manager)
     * [new application_manager(main)](#new_application_manager_new)
     * [.find_app(metadata)](#application_manager+find_app) ⇒ <code>string</code>
+    * [.app_schema()](#application_manager+app_schema) ⇒ <code>object</code>
     * [.schema()](#application_manager+schema) ⇒ <code>object</code>
+    * [.check_config(config)](#application_manager+check_config) ⇒ <code>boolean</code>
     * [.get_schema(app)](#application_manager+get_schema) ⇒ <code>object</code>
     * [.list_applications()](#application_manager+list_applications) ⇒ <code>Array.&lt;string&gt;</code>
 
@@ -891,13 +1029,32 @@ Find application by metadata
 | --- | --- | --- |
 | metadata | <code>object</code> | Meta data |
 
-<a name="application_manager+schema"></a>
+<a name="application_manager+app_schema"></a>
 
-### application_manager.schema() ⇒ <code>object</code>
+### application_manager.app\_schema() ⇒ <code>object</code>
 Load schema of all apps
 
 **Kind**: instance method of [<code>application\_manager</code>](#application_manager)  
 **Returns**: <code>object</code> - The JSON schema  
+<a name="application_manager+schema"></a>
+
+### application_manager.schema() ⇒ <code>object</code>
+Get full schema
+
+**Kind**: instance method of [<code>application\_manager</code>](#application_manager)  
+**Returns**: <code>object</code> - The JSON schema  
+<a name="application_manager+check_config"></a>
+
+### application_manager.check\_config(config) ⇒ <code>boolean</code>
+Check config object
+
+**Kind**: instance method of [<code>application\_manager</code>](#application_manager)  
+**Returns**: <code>boolean</code> - config valid  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| config | <code>object</code> | Config object |
+
 <a name="application_manager+get_schema"></a>
 
 ### application_manager.get\_schema(app) ⇒ <code>object</code>
