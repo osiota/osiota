@@ -21,10 +21,6 @@ util.inherits(main_nodejs, main);
 main_nodejs.prototype.os_config = function(config) {
 	var _this = this;
 
-	if (typeof config.server !== "undefined" && config.server) {
-		this.wss = this.create_websocket_server(config.server);
-	}
-
 	this.apps_use_vm = true;
 	if (typeof config.apps_use_vm !== "undefined") {
 		this.apps_use_vm = config.apps_use_vm;
@@ -39,11 +35,16 @@ main_nodejs.prototype.os_config = function(config) {
 	}
 };
 
-main_nodejs.prototype.check_started = function(factor) {
+main_nodejs.prototype.check_started = function(factor, counter) {
+	if (typeof counter === "undefined")
+		counter = 100;
 	if (typeof factor === "undefined")
 		factor = 8;
 	else if (factor < 1) factor = 1;
 	else if (factor > 32) factor = 32;
+	if (counter <= 0) {
+		return this.started();
+	}
 
 	var _this = this;
 	//var t_1 = new Date()*1;
@@ -56,35 +57,31 @@ main_nodejs.prototype.check_started = function(factor) {
 
 		if (_this._close) return;
 		console.debug("delta", delta, "factor", factor);
+		if (process.env.OSIOTA_TEST == "1") {
+			delta = 0;
+			factor = 1;
+		}
 		var tid = null;
 		if (delta >= 4e6) {
 			if (factor < 8) factor = 8;
 			tid = setTimeout(_this.check_started.bind(_this,
-				factor*2), 100*factor);
+				factor*2), 100*factor, counter-1);
 		}
 		else if (delta >= 1e6) {
 			tid = setTimeout(_this.check_started.bind(_this,
-				factor), 100*factor);
+				factor), 100*factor, counter-1);
 		} else {
 			if (factor == 1) {
-				console.log("started");
-				_this._started = true;
-				_this.emit("started");
+				_this.started();
 			} else {
 				tid = setTimeout(_this.check_started.bind(_this,
-					factor/2), 100*factor);
+					factor/2), 100*factor, counter-1);
 			}
 		}
 		if (tid && _this.listenerCount("started") == 0) {
 			tid.unref();
 		}
 	}, 0);
-};
-
-main_nodejs.prototype.create_websocket_server = function(server_port) {
-	var wss = require('./router_websocket_server').init(this.router, "", server_port);
-	//this.router.policy_checker.add_observed_connection(wss.wpath);
-	return wss;
 };
 
 main_nodejs.prototype.app_dirs = [__dirname+"/", __dirname+"/../", "./",

@@ -142,14 +142,24 @@ main.prototype.check_started = function(factor) {
 	 * @event main#started
 	 */
 	var tid = setTimeout(function() {
-		if (_this._close) return;
-		_this._started = true;
-		_this.emit("started");
+		_this.started();
 	}, 500);
 	if (tid && typeof tid.unref === "function" &&
 			this.listenerCount("started") == 0) {
 		tid.unref();
 	}
+};
+
+/**
+ * [internal] Run when instance is started
+ *
+ * @private
+ */
+main.prototype.started = function() {
+	if (this._close) return;
+	console.log("started");
+	this._started = true;
+	this.emit("started");
 };
 
 /**
@@ -212,7 +222,8 @@ main.prototype.setup_history = function(save_history) {
 /**
  * [internal] Create Websocket client
  *
- * @todo TODO: Move code!
+ * Move code to app: ws
+ *
  * @deprecated
  * @private
  */

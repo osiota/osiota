@@ -6,5 +6,11 @@ exports.init_delayed = function(node, app_config, main, host_info) {
 				"Not starting server.");
 		return;
 	}
-	return main.create_websocket_server(app_config.server);
+	return this.create_websocket_server(app_config.server);
+};
+
+exports.create_websocket_server = function(server_port) {
+	var wss = require('./router_websocket_server').init(this._main.router, "", server_port);
+	//this._main.router.policy_checker.add_observed_connection(wss.wpath);
+	return wss;
 };
