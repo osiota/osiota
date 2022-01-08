@@ -1,35 +1,68 @@
 #!/usr/bin/env node
+// This test shall connect a client to a websocket server.
 
 var helper = require("./helper_test.js");
 var test = helper.test(__filename);
 
+var nodelist = function(m) {
+	return helper.get_node_list(m.router).filter(function(n) {
+		if (n === '/app/WebSocket Client') return false;
+		if (n === '/Client/app/WebSocket Client') return false;
+		if (n === '/app/ws') return false;
+		if (n === '/app/ws-server') return false;
+		if (n === '/app/WebSocket Server') return false;
+		return true;
+	});
+}
+
 var main = require("../");
-var m = new main("Eins");
-m.config({
-	remote: [
-		{
-			name: "zwei",
-			url: "ws://localhost:8099",
-			subscribe: "/"
+var m_s = new main("Server");
+m_s.config({
+	"app": [{
+		"name": "ws-server",
+		"config": {
+			"server": 8098
 		}
-	]
+	}]
 });
 
-var m2 = new main("Zwei");
-m2.config({
-	server: 8099
+test("wait started", function(t) {
+	t.plan(1);
+	if (m_s._started) {
+		t.ok(1, "started");
+		return;
+	}
+	m_s.once("started", function() {
+		t.ok(1, "started");
+	});
 });
 
-var n = m.node("/test");
-var n2 = m2.node("/Eins/test2");
+var m_c = new main("Client");
+test("define client", function(t) {
+        t.plan(1);
+	m_c.config({
+		"app": [{
+			"name": "ws",
+			"config": {
+				"name": "server",
+				"url": "ws://localhost:8098",
+				"subscribe": "/"
+			}
+		}]
+	});
+	t.ok(1, "defined");
+});
+
+var n = m_c.node("/test");
+var n2 = m_s.node("/Client/test2");
 
 test('client list nodes', function (t) {
 	t.plan(1);
-	t.deepEqual(helper.get_node_list(m.router), [], "node list");
+	t.deepEqual(nodelist(m_c), [], "node list");
 });
 test('server list nodes', function (t) {
 	t.plan(1);
-	t.deepEqual(helper.get_node_list(m2.router), [], "node list");
+	t.deepEqual(nodelist(m_s), [], "node list");
 });
 test('client announce node', function (t) {
 	t.plan(1);
@@ -37,12 +70,12 @@ test('client announce node', function (t) {
 	n.announce();
 	n.publish(undefined, 1);
 
-	t.deepEqual(helper.get_node_list(m.router), [ '/test' ], "node list");
+	t.deepEqual(nodelist(m_c), [ '/test' ], "node list");
 });
 test('check server announced node', function (t) {
 	t.plan(1);
 	setTimeout(()=>{
-		t.deepEqual(helper.get_node_list(m2.router), [ '/Eins/test' ], "node list");
+		t.deepEqual(nodelist(m_s), [ '/Client/test' ], "node list");
 	}, 200);
 });
 
@@ -51,12 +84,12 @@ test('client unannounce node', function (t) {
 
 	n.unannounce();
 
-	t.deepEqual(helper.get_node_list(m.router), [ ], "node list");
+	t.deepEqual(nodelist(m_c), [ ], "node list");
 });
 test('check server node unannounced', function (t) {
 	t.plan(1);
 	setTimeout(()=>{
-		t.deepEqual(helper.get_node_list(m2.router), [ ], "node list");
+		t.deepEqual(nodelist(m_s), [ ], "node list");
 	}, 200);
 });
 
@@ -66,20 +99,20 @@ test('client announce node', function (t) {
 	n2.announce();
 	n2.publish(undefined, 1);
 
-	t.deepEqual(helper.get_node_list(m2.router), [ '/Eins/test2' ], "node list");
+	t.deepEqual(nodelist(m_s), [ '/Client/test2' ], "node list");
 });
 test('check server announced node', function (t) {
 	t.plan(1);
 	setTimeout(()=>{
-		t.deepEqual(helper.get_node_list(m.router), [ '/test2' ], "node list");
+		t.deepEqual(nodelist(m_c), [ '/test2' ], "node list");
 	}, 200);
 });
 
 test('close sever', function (t) {
 	t.plan(1);
-	//m.on("close", ()=>{ t.ok(1, "closed"); });
-	//m2.on("close", ()=>{ t.ok(1, "closed"); });
-	m.close();
-	m2.close();
+	//m_c.on("close", ()=>{ t.ok(1, "closed"); });
+	//m_s.on("close", ()=>{ t.ok(1, "closed"); });
+	m_c.close();
+	m_s.close();
 	t.ok(1, "closed");
 });

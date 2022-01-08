@@ -37,7 +37,11 @@ m_s.config({
 
 test("wait started", function(t) {
 	t.plan(1);
-	m_s.on("started", function() {
+	if (m_s._started) {
+		t.ok(1, "started");
+		return;
+	}
+	m_s.once("started", function() {
 		t.ok(1, "started");
 	});
 });
