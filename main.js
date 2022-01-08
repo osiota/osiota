@@ -114,10 +114,6 @@ main.prototype.config = function(config) {
 main.prototype.sub_config = function(config, node, callback) {
 	var _this = this;
 
-	if (typeof config.connect === "object") {
-		this.router.connectArray(config.connect);
-	}
-
 	if (Array.isArray(config.remote)) {
 		config.remote.forEach(function(c) {
 			if (typeof c.name !== "string" ||
