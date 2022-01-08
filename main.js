@@ -420,6 +420,7 @@ main.prototype.reload = function(callback) {
 		if (typeof callback === "function")
 			callback(m);
 	}, 1000);
+	return s;
 };
 
 module.exports = main;

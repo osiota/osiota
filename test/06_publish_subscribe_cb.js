@@ -32,7 +32,7 @@ test('announce virtual node', function (t) {
 				"name": "test-linear",
 				"config": {
 					"node": "/test1",
-					"delay": 100
+					"delay": 10
 				}
 			}
 		]
@@ -61,7 +61,7 @@ test('announce virtual node', function (t) {
 				"name": "test-linear",
 				"config": {
 					"node": "/test2",
-					"delay": 100
+					"delay": 10
 				}
 			}
 		]

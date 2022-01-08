@@ -104,13 +104,13 @@ test('client A announced node', function (t) {
 	t.plan(1);
 	setTimeout(()=>{
 		t.deepEqual(nodelist(m_a), [ '/test' ], "connected");
-	}, 2000);
+	}, 20);
 });
 test('client B announced node', function (t) {
 	t.plan(1);
 	setTimeout(()=>{
 		t.deepEqual(nodelist(m_b), [ ], "not connected");
-	}, 200);
+	}, 20);
 });
 
 

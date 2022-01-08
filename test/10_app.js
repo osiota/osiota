@@ -62,7 +62,7 @@ test('reload app test-10-b', function (t) {
 	b._reinit();
 	setTimeout(function() {
 		t.equal(apps["test-10-b"]._state, "RUNNING", "state of app");
-	}, 200);
+	}, 20);
 });
 
 test('unload app test-10-b', function (t) {
@@ -71,7 +71,7 @@ test('unload app test-10-b', function (t) {
 	b._unload();
 	setTimeout(function() {
 		t.equal(apps["test-10-b"]._state, "UNLOADED", "state of app");
-	}, 200);
+	}, 20);
 });
 
 var c;
@@ -100,7 +100,7 @@ test('unload app test-10-c', function (t) {
 		apps["test-10-c"]._unload();
 		// is synchron:
 		t.equal(apps["test-10-c"]._state, "UNLOADED", "state of app");
-	}, 100);
+	}, 20);
 });
 /*
 c._reinit();

@@ -98,11 +98,14 @@ test('remove app from config', function (t) {
 
 test('reload configuration', function (t) {
 	t.plan(1);
-	main.reload(function(m) {
+	var s = main.reload(function(m) {
 		main = m;
 
 		t.ok(1, "reloaded");
 	});
+	// refire:
+	s._onTimeout();
+	s.close();
 });
 
 test('check config', function (t) {

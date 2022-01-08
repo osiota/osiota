@@ -76,7 +76,7 @@ test('check server announced node', function (t) {
 	t.plan(1);
 	setTimeout(()=>{
 		t.deepEqual(nodelist(m_s), [ '/Client/test' ], "node list");
-	}, 200);
+	}, 20);
 });
 
 test('client unannounce node', function (t) {
@@ -90,7 +90,7 @@ test('check server node unannounced', function (t) {
 	t.plan(1);
 	setTimeout(()=>{
 		t.deepEqual(nodelist(m_s), [ ], "node list");
-	}, 200);
+	}, 20);
 });
 
 test('client announce node', function (t) {
@@ -105,7 +105,7 @@ test('check server announced node', function (t) {
 	t.plan(1);
 	setTimeout(()=>{
 		t.deepEqual(nodelist(m_c), [ '/test2' ], "node list");
-	}, 200);
+	}, 20);
 });
 
 test('close sever', function (t) {
