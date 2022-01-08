@@ -32,8 +32,8 @@ var a;
 test('add app to config', function (t) {
 	t.plan(1);
 
-	a = main.app_add("er-app-test-10", { option: 2});
-	main.app_add("er-app-test-10", { option: 3});
+	a = main.application_loader.app_add("er-app-test-10", { option: 2});
+	main.application_loader.app_add("er-app-test-10", { option: 3});
 
 	t.deepEqual(main._config, {
 		"app_dir": [ __dirname+"/" ],
@@ -58,7 +58,7 @@ test('add app to config', function (t) {
 test('remove app from config', function (t) {
 	t.plan(1);
 
-	main.app_remove(a);
+	main.application_loader.app_remove(a);
 
 	t.deepEqual(main._config, {
 		"app_dir": [ __dirname+"/" ],

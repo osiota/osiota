@@ -10,6 +10,7 @@ exports.test = function(filename) {
 	var test = require('tape');
 
 	if (first_run) {
+		process.setMaxListeners(200);
 		process.env.OSIOTA_TEST = "1";
 
 		test.createStream().on('data', function (row) {

@@ -52,7 +52,7 @@ exports.init = function(node, app_config, main, host_info) {
 					e.code === "OSIOTA_APP_NOT_FOUND") {
 				install_app(app, app_config, function(err) {
 					if (err) throw err;
-					main.startup(node, app, l_app_config,
+					main.application_loader.startup(node, app, l_app_config,
 						host_info, auto_install,
 						callback);
 				});

@@ -76,7 +76,7 @@ exports.init = function(node, app_config, main, host_info) {
 				install_app(app, app_config,
 						function(err, stdout) {
 					if (err) throw err;
-					main.startup(node, app, l_app_config,
+					main.application_loader.startup(node, app, l_app_config,
 						host_info, auto_install,
 						callback);
 				});

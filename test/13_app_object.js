@@ -34,15 +34,15 @@ test('load config', function (t) {
 test('startup subapps', function (t) {
 	t.plan(3);
 
-	main.startup(null, a1, {test: 123});
+	main.application_loader.startup(null, a1, {test: 123});
 	t.deepEqual(Object.keys(main.apps), ['test-10', 'unknown'],
 		"loaded apps");
 
-	main.startup(null, a1, {test: 567});
+	main.application_loader.startup(null, a1, {test: 567});
 	t.deepEqual(Object.keys(main.apps), ['test-10', 'unknown', 'unknown 2'
 		], "loaded apps");
 
-	main.startup(null, a2, {test: 890});
+	main.application_loader.startup(null, a2, {test: 890});
 	t.deepEqual(Object.keys(main.apps), ['test-10', 'unknown', 'unknown 2',
 			'a2'], "loaded apps");
 });

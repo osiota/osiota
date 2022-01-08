@@ -18,6 +18,8 @@ var match = require("./helper_match").match;
 
 var RemoteCall = require('./router_remotecall.js').remotecall;
 
+var NodeMap = require("./node_map.js").node_map;
+
 /**
  * Create a node instance
  * @class
@@ -893,6 +895,58 @@ exports.node.prototype.filter_node = function(filter_config, node) {
 	}
 
 	return filter_config;
+};
+
+
+/**
+ * Create a node-map
+ *
+ * @param {object} config - A config object
+ * @param {(string|application|boolean)} [app] - An application to map content
+ * @param {(boolean|object|function)} [map_extra_elements] - Map extra elements?
+ * @param {function} [map_key] - Map key function
+ * @param {function} [map_initialise] - Map initialise element
+ * @example
+ * var map = node.map(app_config, null, true, function(c) {
+ *	var name = c.map;
+ *	return name;
+ * }, function(n, metadata, c) {
+ *	n.rpc_set = function(reply, value, time) { };
+ *	n.announce(metadata);
+ * });
+ * var on_message = function(item, value) {
+ *	var n = map.node(item);
+ *	if (n) {
+ *		n.publish(undefined, value);
+ *	}
+ * };
+ * @example
+// TODO TODO Schema???
+// require("./schema_map.json");
+// TODO or get from node.
+var map = node.map(app_config, {
+	"map_extra_elements": false,
+	"key": function(config) { return config.map; },
+	"announce": function(n, metadata, config) {
+		return n.announce(metadata);
+	},
+});
+
+ */
+exports.node.prototype.map = function(config, app, map_extra_elements,
+		map_key, map_initialise) {
+	var node = this;
+	var map = new NodeMap(node, config, app, map_extra_elements);
+
+	if (typeof map_initialise === "function") {
+		map.map_initialise = map_initialise;
+	}
+	if (typeof map_key === "function") {
+		map.map_key = map_key;
+	}
+	map.init();
+
+	return map;
 };
 
 /* Remote procedure calls */

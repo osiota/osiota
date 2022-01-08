@@ -72,7 +72,7 @@ exports.init = function(node, app_config, main, host_info) {
 			reply(null, list);
 		};
 		cn.rpc_app_add = function(reply, app, settings) {
-			main.app_add(app, settings, a._node, false, reply);
+			main.application_loader.app_add(app, settings, a._node, false, reply);
 		};
 
 		nodes.push(cn);
