@@ -6,6 +6,14 @@ This is a minimal set of metadata.
 
 * data = time series data (plotable)
 * info = static data
+* status
+* state
+* object
+* area
+* trigger
+* rpc
+
+* log
 
 ## Types
 

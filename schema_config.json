@@ -8,6 +8,11 @@
 			"type": "string",
 			"description": "Name of the osiota instance"
 		},
+		"save_history": {
+			"title": "Save historical values",
+			"description": "Shall historical values be written to disk?",
+			"type": "boolean"
+		},
 		"server": {
 			"title": "Server",
 			"description": "Open a WebSocket server port, to allow other instances to connect to this instance.",
