@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-var EnergyRouter = require("../main_nodejs");
-var main = new EnergyRouter();
+var osiota = require("../../");
+var main = new osiota();
 
 main.config({
 	"app": [{
@@ -20,4 +20,3 @@ main.config({
 setTimeout(function() {
 	main.close();
 }, 2000);
-		
