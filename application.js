@@ -11,7 +11,7 @@
 var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 
-var unload_object = require("./helper_unload_object.js").unload_object;
+var unload_object = require("unload-object").unload;
 var merge = require("./helper_merge_data.js").merge;
 
 /**

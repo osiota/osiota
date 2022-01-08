@@ -4,7 +4,7 @@
  * Simon Walz, IfN, 2016
  */
 
-var unload_object = require("./helper_unload_object.js").unload_object;
+var unload_object = require("unload-object").unload;
 
 var EventEmitter = require('events').EventEmitter;
 

@@ -13,7 +13,7 @@ RegExp.quote = function(str) {
 };
 
 var merge_object = require("./helper.js").merge_object;
-var unload_object = require("./helper_unload_object.js").unload_object;
+var unload_object = require("unload-object").unload;
 var match = require("./helper_match").match;
 
 var RemoteCall = require('./router_remotecall.js').remotecall;

@@ -58,8 +58,6 @@ main.prototype.classes = {
 	"Application": Application
 };
 
-main.prototype.unload_object = unload_object;
-
 main.prototype.preparation_config = function(config) {
 	var _this = this;
 
