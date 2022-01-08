@@ -246,7 +246,7 @@ exports.application.prototype._init = function(app_config) {
 				typeof this._object.catch === "function") {
 			this._object.catch(function(error) {
 				if (error !== "canceled") {
-					_this.handle_error(error);
+					_this._handle_error(error);
 				}
 			});
 		}
