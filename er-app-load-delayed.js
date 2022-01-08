@@ -10,6 +10,9 @@ exports.init = function(node, app_config, main, host_info) {
 	var _this = this;
 
 	var delay = 1;
+	if (typeof this._load_delay === "number") {
+		delay = this._load_delay;
+	}
 	if (typeof app_config.load_delay === "number") {
 		delay = app_config.load_delay;
 	}
