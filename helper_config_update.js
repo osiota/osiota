@@ -6,9 +6,7 @@ const isObject = function(o) {
 exports.update_app = function(config) {
 	if (!isObject(config)) return;
 	if (typeof config.name === "string") {
-		console.log("before:", config.name);
 		config.name = config.name.replace(/^(er|osiota)-app-/, "");
-		console.log("after:", config.name);
 	}
 };
 exports._update_apps = function(config) {
@@ -75,6 +73,6 @@ exports.update_config = function(config) {
 	}
 
 	exports._update_apps(config.app);
-	console.error(JSON.stringify(config, undefined, "\t"));
+	//console.error(JSON.stringify(config, undefined, "\t"));
 	return config;
 };
