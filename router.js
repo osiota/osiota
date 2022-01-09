@@ -901,18 +901,23 @@ exports.node.prototype.filter_node = function(filter_config, node) {
 /**
  * Create a node-map
  *
- * @param {object} config - A config object
- * @param {(string|application|boolean)} [app] - An application to map content
- * @param {(boolean|object|function)} [map_extra_elements] - Map extra elements?
- * @param {function} [map_key] - Map key function
- * @param {function} [map_initialise] - Map initialise element
+ * @param {object} app_config - A config object
+ * @param {object} [map_settings] - A config object
+ * @param {(string|application|boolean)} [map_settings.app] - An application to map content
+ * @param {(boolean|object|function)} [map_settings.map_extra_elements] - Map extra elements?
+ * @param {function} [map_settings.map_key] - Map key function
+ * @param {function} [map_settings.map_initialise] - Map initialise element
  * @example
- * var map = node.map(app_config, null, true, function(c) {
- *	var name = c.map;
- *	return name;
- * }, function(n, metadata, c) {
- *	n.rpc_set = function(reply, value, time) { };
- *	n.announce(metadata);
+ * var map = node.map(app_config, {
+ *	"map_extra_elements": true,
+ *	"map_key": function(c) {
+ *		var name = c.map;
+ *		return name;
+ *	},
+ *	"map_initialise": function(n, metadata, c) {
+ *		n.rpc_set = function(reply, value, time) { };
+ *		n.announce(metadata);
+ *	}
  * });
  * var on_message = function(item, value) {
  *	var n = map.node(item);
@@ -920,32 +925,25 @@ exports.node.prototype.filter_node = function(filter_config, node) {
  *		n.publish(undefined, value);
  *	}
  * };
- * @example
-// TODO TODO Schema???
-// require("./schema_map.json");
-// TODO or get from node.
-var map = node.map(app_config, {
-	"map_extra_elements": false,
-	"key": function(config) { return config.map; },
-	"announce": function(n, metadata, config) {
-		return n.announce(metadata);
-	},
-});
-
  */
-exports.node.prototype.map = function(config, app, map_extra_elements,
-		map_key, map_initialise) {
+exports.node.prototype.map = function(app_config, map_settings) {
+	/* deprecated usage (app_config, app, map_extra_elements,
+	 *	map_key, map_initialise) {
+	 */
 	var node = this;
-	var map = new NodeMap(node, config, app, map_extra_elements);
 
-	if (typeof map_initialise === "function") {
-		map.map_initialise = map_initialise;
+	if (typeof map_settings === "string" ||
+			arguments.length > 2) { // is app
+		map_settings = {
+			"app": arguments[1],
+			"map_extra_elements": arguments[2],
+			"map_key": arguments[3],
+			"map_initialise": arguments[4],
+		};
 	}
-	if (typeof map_key === "function") {
-		map.map_key = map_key;
-	}
+
+	var map = new NodeMap(node, app_config, map_settings);
 	map.init();
-
 	return map;
 };
 
