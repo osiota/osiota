@@ -118,6 +118,7 @@ main.prototype.config = function(config) {
 main.prototype.sub_config = function(config, node, callback) {
 	var _this = this;
 
+	// DEPRECATED:
 	if (Array.isArray(config.remote)) {
 		config.remote.forEach(function(c) {
 			if (typeof c.name !== "string" ||
@@ -388,12 +389,6 @@ main.prototype.close = function() {
 			console.log("closing: remote", r);
 			_this.remotes[r].close();
 			delete _this.remotes[r];
-		}
-
-		if (_this.wss) {
-			console.log("closing: websocket server");
-			_this.wss.close();
-			_this.wss = undefined;
 		}
 	});
 };
