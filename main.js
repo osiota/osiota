@@ -119,6 +119,7 @@ main.prototype.sub_config = function(config, node, callback) {
 	var _this = this;
 
 	// DEPRECATED:
+	/* istanbul ignore next */
 	if (Array.isArray(config.remote)) {
 		config.remote.forEach(function(c) {
 			if (typeof c.name !== "string" ||
@@ -139,6 +140,7 @@ main.prototype.sub_config = function(config, node, callback) {
  *
  * @private
  */
+/* istanbul ignore next */
 main.prototype.check_started = function(factor) {
 	var _this = this;
 	/**
@@ -232,6 +234,7 @@ main.prototype.setup_history = function(save_history) {
  * @deprecated
  * @private
  */
+/* istanbul ignore next */
 main.prototype.create_websocket_client = function(url, nodes, config) {
 	var ws = require('./router_websocket_client').init(this.router, "", url);
 	var remote_prefix = "";
@@ -297,6 +300,7 @@ main.prototype.node = function(name) {
  * @param {function} callback
  * @abstract
  */
+/* istanbul ignore next */
 main.prototype.require = function(appname, callback) {
 	throw new Error("Require function not supported.");
 };
@@ -307,6 +311,7 @@ main.prototype.require = function(appname, callback) {
  * @param {function} callback
  * @abstract
  */
+/* istanbul ignore next */
 main.prototype.load_schema = function(appname, callback) {
 	throw new Error("Load schema function not supported.");
 };
