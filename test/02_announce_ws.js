@@ -54,7 +54,6 @@ test("define client", function(t) {
 });
 
 var n = m_c.node("/test");
-var n2 = m_s.node("/Client/test2");
 
 test('client list nodes', function (t) {
 	t.plan(1);
@@ -93,6 +92,7 @@ test('check server node unannounced', function (t) {
 	}, 20);
 });
 
+var n2 = m_s.node("/Client/test2");
 test('client announce node', function (t) {
 	t.plan(1);
 
