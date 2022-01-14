@@ -1,4 +1,15 @@
 
+/*
+ * Fail test after 30s automatically
+ */
+
+var t1 = setTimeout(function() {
+	console.error("Test run longer than 30 sec. Exiting ...");
+	process.exit(1);
+}, 1000*30);
+t1.unref();
+
+
 exports.get_node_list = function(r) {
 	return Object.keys(r.nodes).filter(function(nn) {
 		return r.nodes[nn].metadata !== null;
