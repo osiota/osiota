@@ -8,6 +8,8 @@ var unload_object = require("unload-object").unload;
 
 var EventEmitter = require('events').EventEmitter;
 
+var nodename_transform = require("./helper_nodenametransform").nodename_transform;
+
 
 /* cmd state maschine:
  *
@@ -392,7 +394,7 @@ exports.init = function(router, ws) {
 			}
 		}
 
-		node = router.nodename_transform(node, ws.remote_basename,
+		node = nodename_transform(node, ws.remote_basename,
 				ws.basename);
 
 		object.scope = "node";

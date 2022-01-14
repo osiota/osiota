@@ -15,6 +15,7 @@ RegExp.quote = function(str) {
 var merge_object = require("./helper.js").merge_object;
 var unload_object = require("unload-object").unload;
 var match = require("./helper_match").match;
+var nodename_transform = require("./helper_nodenametransform").nodename_transform;
 
 var RemoteCall = require('./router_remotecall.js').remotecall;
 
@@ -1190,7 +1191,7 @@ exports.router.prototype.process_single_message = function(basename, d, respond,
 			if (!d.hasOwnProperty('node')) {
 				throw new Error("Message scope needs attribute node: " + JSON.stringify(d));
 			}
-			var n = this.node(this.nodename_transform(d.node, module.basename, module.remote_basename));
+			var n = this.node(nodename_transform(d.node, module.basename, module.remote_basename));
 
 			if(this.hasOwnProperty('policy_checker')) {
 				var policy_checker = this.policy_checker;
@@ -1326,27 +1327,4 @@ exports.router.prototype.no_cue = function(callback) {
 		}
 	};
 };
-
-exports.router.prototype.nodename_transform = function(nodename, basename_add, basename_remove) {
-	if (typeof basename_remove === "string") {
-		var regex = new RegExp("^" + RegExp.quote(basename_remove) + "(/.*)?$", '');
-		var found = nodename.match(regex)
-		if (found) {
-			nodename = found[1];
-			if (typeof nodename !== "string")
-				nodename = "/";
-		} else {
-			throw new Error("nodename_transform: Basename not found: " + basename_remove + " (node: " + nodename + ")");
-		}
-	}
-	if (typeof basename_add === "string") {
-		if (nodename == "/") {
-			nodename = basename_add;
-		} else {
-			nodename = basename_add + nodename;
-		}
-	}
-
-	return nodename;
-}
 
