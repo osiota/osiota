@@ -108,6 +108,7 @@ exports.node_map.prototype.init = function() {
  * @param {object} app_config - A config object
  * @param {object} [local_metadata] - Addional meta data
  * @param {*} [cache] - Addional object for caching
+ * @returns {node}
  */
 exports.node_map.prototype.node = function(app_config, local_metadata, cache) {
 	if (typeof app_config !== "object" ||
@@ -276,6 +277,7 @@ exports.node_map.prototype.map_initialise = function(n, metadata, app_config) {
  * Map a config object to a string
  * @param {object} app_config - Mapped or saved config
  * @param {*} [cache] - Addional object for caching
+ * @returns {string} Mapped key string
  */
 exports.node_map.prototype.map_key = function(app_config, cache) {
 	return ""+app_config.map;
