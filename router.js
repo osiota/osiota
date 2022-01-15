@@ -14,6 +14,7 @@ RegExp.quote = function(str) {
 
 var rpcstack_init = require("./rpc_stack.js").rpcstack_init;
 var merge_object = require("./helper.js").merge_object;
+var merge = require("./helper_merge_data.js").merge;
 var unload_object = require("unload-object").unload;
 var match = require("./helper_match").match;
 var nodename_transform = require("./helper_nodenametransform").nodename_transform;
@@ -959,6 +960,35 @@ exports.node.prototype.rpc_where_are_you_from = function(reply) {
 	console.log("I'm from", this.router.name);
 	reply(null, this.router.name);
 };
+/**
+ * RPC config: Reinit and save new app configuration
+ * @param {function} reply - RPC reply function
+ * @param {object} config - New config object
+ * @param {boolean} save - Flag to save the configuration
+ * @private
+ */
+exports.node.prototype.rpc_config = function(reply, config, save) {
+	if (typeof this._config !== "object" || this._config === null) {
+		return reply("no_config", "No config object set");
+	}
+	// update config object:
+	this._config = merge(this._config, config, ["app", "node", "pnode",
+			"source", "metadata", "self_app"]);
+
+	// restart app:
+	if (this._app) {
+		var a = this._app;
+		a._reinit(this._config);
+
+		if (save) {
+			a._main.emit("config_save");
+			return reply(null, "saved");
+		}
+	}
+
+	reply(null, "okay");
+};
+
 /**
  * Register a RPC command on the node
  * @param {string} method - Method to be called

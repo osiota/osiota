@@ -12,7 +12,6 @@ var util = require('util');
 var EventEmitter = require('events').EventEmitter;
 
 var unload_object = require("unload-object").unload;
-var merge = require("./helper_merge_data.js").merge;
 
 /**
  * Osiota can run applications. This is the base class every application
@@ -438,28 +437,3 @@ exports.application.prototype._get_app_name = function() {
 		replace(/^(er|osiota)-app-/, "").replace(/\//g, "-")
 };
 
-/**
- * [internal use] Reinit and save new app configuration
- * @param {function} reply - RPC reply function
- * @param {object} config - New config object
- * @param {boolean} save - Flag to save the configuration
- * @private
- */
-exports.application.prototype.rpc_node_config = function(reply, config, save) {
-	// update config object:
-	this._config = merge(this._config, config, ["app", "node", "pnode",
-			"source", "metadata", "self_app"]);
-
-	// restart app:
-	if (this._app) {
-		this._app._reinit(this._config);
-	}
-
-	if (save) {
-		this._app._main.emit("config_save");
-	}
-	if (this._app._node !== this) {
-		return reply("node_moved", this._app._node.name);
-	}
-	reply(null, "okay");
-};
