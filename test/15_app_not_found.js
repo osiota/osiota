@@ -9,7 +9,7 @@ var main = new osiota();
 main.config({});
 
 test('load non existing app', function (t) {
-	t.plan(2);
+	t.plan(3);
 
 	main.on("app_loading_error", function(e, node, app, l_app_config,
 			host_info, auto_install, callback) {
@@ -17,12 +17,12 @@ test('load non existing app', function (t) {
 	});
 
 	var a = main.application_loader.startup(null, "test-not-found", {}, undefined, undefined, function(a) {
-		throw new Error("Do not start this callback.");
+		t.ok(false, "fail");
 		console.warn("app (inner)", a._app);
+		throw new Error("Do not start this callback.");
 	});
 
-	if (a)
-		console.warn("app", a._app);
+	t.equal(a._app, "test-not-found", "app name");
 
 	t.equal(a._state, "ERROR_LOADING", "app state");
 });

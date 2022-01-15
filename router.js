@@ -12,12 +12,13 @@ RegExp.quote = function(str) {
 	    return (str+'').replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&");
 };
 
+var rpcstack_init = require("./rpc_stack.js").rpcstack_init;
 var merge_object = require("./helper.js").merge_object;
 var unload_object = require("unload-object").unload;
 var match = require("./helper_match").match;
 var nodename_transform = require("./helper_nodenametransform").nodename_transform;
 
-var RemoteCall = require('./router_remotecall.js').remotecall;
+var EventEmitter = require('events').EventEmitter;
 
 var NodeMap = require("./node_map.js").node_map;
 
@@ -26,7 +27,7 @@ var NodeMap = require("./node_map.js").node_map;
  * @class
  * @classdesc Node class
  * @name node
- * @mixes remotecall
+ * @mixes EventEmitter
  * @param {router} r - The router instance
  * @param {string} name - The name of the node
  * @param {node} parentnode - The parent node
@@ -74,7 +75,7 @@ exports.node = function(r, name, parentnode) {
 
 	this.parentnode = parentnode;
 
-	RemoteCall.call(this);
+	EventEmitter.call(this);
 
 	// subscripbe from remote host:
 	var is_subscriped = false;
@@ -110,7 +111,7 @@ exports.node = function(r, name, parentnode) {
 	 */
 	r.emit('create_new_node', this);
 };
-util.inherits(exports.node, RemoteCall);
+util.inherits(exports.node, EventEmitter);
 /**
  * Get a node instance
  * @param {string} name - Name of the node
@@ -953,11 +954,11 @@ exports.node.prototype.rpc_data = function(reply, time, value, only_if_differ, d
 	this.publish(time, value, only_if_differ, do_not_add_to_history, initial);
 	reply(null, "okay");
 };
-exports.node.prototype.rpc_connect = function(reply, dnode) {
-	var rentry = this.connect(dnode);
-	reply(null, rentry);
-};
 
+exports.node.prototype.rpc_where_are_you_from = function(reply) {
+	console.log("I'm from", this.router.name);
+	reply(null, this.router.name);
+};
 /**
  * Register a RPC command on the node
  * @param {string} method - Method to be called
@@ -1017,11 +1018,11 @@ exports.node.prototype.rpc = function(method) {
 		}
 
 		try {
-			if (this._rpc_process(method, args, reply)) {
+			if (this.router.rpcstack._rpc_process(method, args, reply, _this)) {
 				return;
 			}
-			else if (this._rpc_process("node_" + method, args,
-						reply, this.router)) {
+			else if (this.router.rpcstack._rpc_process("node_" + method, args,
+						reply, _this, this.router)) {
 				return;
 			}
 			throw new Error("method not found:" + method);
@@ -1070,9 +1071,11 @@ exports.router = function(name) {
 	if (typeof name === "string")
 		this.name = name;
 
-	RemoteCall.call(this);
+	this.rpcstack = rpcstack_init(this);
+
+	EventEmitter.call(this);
 };
-util.inherits(exports.router, RemoteCall);
+util.inherits(exports.router, EventEmitter);
 
 /* Route data */
 exports.router.prototype.publish = function(name, time, value, only_if_differ, do_not_add_to_history) {
@@ -1152,179 +1155,13 @@ exports.router.prototype.node = function(name) {
 exports.router.prototype.rpc_ping = function(reply) {
 	reply(null, "ping");
 };
+/**
+ * RPC function: List current nodes.
+ *
+ * Please use subscribe_announcement
+ * @deprecated
+ */
 exports.router.prototype.rpc_list = function(reply) {
 	reply(null, this.nodes);
-};
-
-/* process a single command message */
-exports.router.prototype.process_single_message = function(basename, d, respond, module) {
-	var rpc_ref = d.ref;
-	var reply = function(error, data) {
-		var args = Array.prototype.slice.call(arguments);
-		if (typeof rpc_ref !== "undefined") {
-			if (typeof error === "undefined") {
-				//error = null;
-				args[0] = null;
-			}
-			args.unshift(rpc_ref);
-			respond({"scope": "respond", "type": "reply",
-				"args": args});
-		}
-		rpc_ref = undefined;
-	};
-
-	try {
-		if (!d.hasOwnProperty('type')) {
-			throw new Error("Message type not defined: " + JSON.stringify(d));
-		}
-		var method = d.type;
-
-		var scope = "global";
-		if (d.hasOwnProperty('scope') && typeof d.scope === "string")
-			scope = d.scope;
-		// backward compatibility
-		if (!d.hasOwnProperty('scope') && d.hasOwnProperty('node')) {
-			scope = "node";
-		}
-
-		if (scope === "node") {
-			if (!d.hasOwnProperty('node')) {
-				throw new Error("Message scope needs attribute node: " + JSON.stringify(d));
-			}
-			var n = this.node(nodename_transform(d.node, module.basename, module.remote_basename));
-
-			if(this.hasOwnProperty('policy_checker')) {
-				var policy_checker = this.policy_checker;
-				// checks if the remote is allowed
-				// to perform this method on this node
-				var policy = policy_checker.check(n,
-					module.wpath, method, 'from_remote');
-
-				// react respectively to the policy-action
-				// if a policy was found
-				if (policy != null &&
-					policy.action == 'preprocess_value') {
-
-					// aggregating data of group of nodes
-					if (policy.action_extra.hasOwnProperty('group')) {
-						throw new Error("Blocked by Policy-Management");
-					}
-
-					// aggregating data of requested node
-					d.args = [ policy ];
-					method ='subscribe_for_aggregated_data';
-				}
-			}
-
-			if (typeof module === "object" && n._rpc_process("node_" + method, d.args, reply, module)) {
-				return;
-			} else if (n._rpc_process(method, d.args, reply)) {
-				return;
-			} else if (n._app && n._rpc_process("node_" + method, d.args, reply, n._app)) {
-				return;
-			} else if (n._rpc_process("node_" + method, d.args, reply, this)) {
-				return;
-			} else if (typeof n.connection === "object" && n._rpc_forwarding(d, reply)) {
-				return;
-			}
-		} else if (scope === "global") {
-			if (typeof module === "object" && this._rpc_process(method, d.args, reply, module)) {
-				return;
-			} else if (this._rpc_process(method, d.args, reply)) {
-				return;
-			}
-		} else if (scope === "respond" && method === "reply") {
-			if (this._rpc_process(method, d.args, reply)) {
-				return;
-			}
-		}
-		throw new Error("Router, process message: packet with unknown rpc command received: " + scope + "." + method +
-			" Packet: "+ JSON.stringify(d));
-
-	} catch (e) {
-		console.warn("Router, process_single_message:\n",
-				e.stack || e);
-		console.warn("Packet: "+ JSON.stringify(d));
-		reply("Exception:", (e.stack || e).toString());
-	}
-};
-
-/* process command messages (ie from websocket) */
-exports.router.prototype.process_message = function(basename, data, respond, module) {
-	var r = this;
-	if (typeof respond !== "function")
-		respond = function() {};
-
-	if (!Array.isArray(data)) {
-		data = [data];
-	}
-
-	data.forEach(function(d) {
-		r.process_single_message(basename, d, respond, module);
-
-	});
-};
-
-/* Cue data */
-exports.router.prototype.cue = function(callback) {
-	var cue_data = [];
-	return function(entry) {
-		cue_data.push(entry);
-		process.nextTick(function() {
-			try {
-				if (cue_data.length > 0) {
-					var data = cue_data.splice(0,cue_data.length);
-					callback(data);
-				}
-			} catch (e) {
-				console.warn("Exception (Router, cue):",
-						e.stack || e);
-			}
-		});
-	};
-};
-/* Cue data, getter */
-exports.router.prototype.cue_getter = function(callback) {
-	var cue_data = [];
-	var processing = false;
-	return function(entry) {
-		if (cue_data.length > 100000) {
-			console.warn("Cue data exceeding limit of 100 000 entries. Is your processing function broken? Flushing cue to avoid memory overflow.");
-			cue_data = [];
-			return;
-		}
-		cue_data.push(entry);
-		process.nextTick(function() {
-			try {
-				if (cue_data.length > 0 && !processing) {
-					processing = true;
-					callback(function(err) {
-						processing = false;
-						if (err) {
-							return;
-						}
-						var data = cue_data.splice(0,cue_data.length);
-						return data;
-					});
-				}
-			} catch (e) {
-				console.warn("Exception (Router, cue):",
-						e.stack || e);
-				processing = false;
-			}
-		});
-	};
-};
-
-/* direct data processing without cue */
-exports.router.prototype.no_cue = function(callback) {
-	return function(data) {
-		try {
-			callback(data);
-		} catch (e) {
-			console.warn("Exception (Router, nocue):",
-					e.stack || e);
-		}
-	};
 };
 

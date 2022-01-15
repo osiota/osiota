@@ -10,7 +10,7 @@ exports.init_delayed = function(node, app_config, main, host_info) {
 };
 
 exports.create_websocket_server = function(server_port) {
-	var wss = require('./router_websocket_server').init(this._main.router, "", server_port);
+	var wss = require('./router_websocket_server').init(this._main, this._main.rpcstack, "", server_port);
 	//this._main.router.policy_checker.add_observed_connection(wss.wpath);
 	return wss;
 };

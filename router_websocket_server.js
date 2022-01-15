@@ -1,6 +1,10 @@
 var WebSocket = require('ws');
 
-exports.init = function(router, basename, options) {
+/**
+ *
+ */
+exports.init = function(main, rpcstack, basename, options) {
+	var router = main.router;
 
 	if (typeof options !== "object" || options === null) {
 		options = { port: options };
@@ -32,9 +36,17 @@ exports.init = function(router, basename, options) {
 
 		// check if connection is allowed:
 		try {
-			// throw an error if not allowed:
+			/**
+			 * Emits an event on a new connection
+			 *
+			 * If the connection shall not be allowed, throw
+			 * an exception.
+			 *
+			 * @event router#connection
+			 */
 			router.emit("connection", "ws", ws, req);
 		} catch (err) {
+			// send error message:
 			ws.sendjson({"type": "error", "args": [
 				err.message, (err.stack || err).toString()
 			]});
@@ -70,7 +82,7 @@ exports.init = function(router, basename, options) {
 			//console.log('received: %s', message);
 			try {
 				var data = JSON.parse(message);
-				router.process_message(basename, data,
+				rpcstack.process_message(data,
 						ws.respond.bind(ws), ws);
 			} catch (e) {
 				console.log("WebSocket, on message, Exception:",
@@ -91,7 +103,7 @@ exports.init = function(router, basename, options) {
 		});
 
 		// TODO login: move to: post login
-		require('./router_websocket_generic.js').init(router, ws);
+		require('./router_websocket_generic.js').init(router, rpcstack, ws);
 	});
 
 	return wss;

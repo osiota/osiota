@@ -38,7 +38,7 @@ test('Create Nodemap', function (t) {
 	};
 	map = node.map(app_config, {
 		"map_initialise": function(n, metadata, app_config) {
-			console.error("NODE", n.name);
+			//console.error("NODE", n.name);
 			if (n.name === "/mymap/key_ABC" ||
 					n.name === "/mymap/key_DEF" ||
 					n.name === "/mymap/key_GHI")
@@ -46,9 +46,7 @@ test('Create Nodemap', function (t) {
 			n.announce(metadata);
 		},
 		"map_key": function(app_config, cache) {
-			console.error("ac", app_config);
 			var key = "key_" + app_config.map;
-			console.error("ack", key);
 			return key;
 		},
 		"map_extra_elements": true

@@ -217,19 +217,20 @@ pwsc.prototype.reconnect = function(wpath) {
 
 // Usage: init(r, "", 'ws://localhost:8080/');
 
-exports.init = function(router, basename, ws_url, init_callback) {
+exports.init = function(main, rpcstack, basename, ws_url, init_callback) {
+	var router = main.router;
 	var ws = new pwsc(ws_url);
 	ws.basename = basename;
 
 	ws.on("message", function(data) {
-		router.process_message(basename, data,
-				ws.respond.bind(ws), ws);
+		rpcstack.process_message(data, ws.respond.bind(ws), ws);
 	});
 
-	require('./router_websocket_generic.js').init(router, ws);
+	require('./router_websocket_generic.js').init(router, rpcstack, ws);
 
 	ws.on("open", function() {
 		this.rpc("hello", router.name, function(error, name) {
+			// this = ws
 			if (error) throw error;
 
 			if (typeof name === "string")

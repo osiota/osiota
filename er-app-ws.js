@@ -27,7 +27,8 @@ exports.init = function(node, app_config, main) {
  * @private
  */
 exports.create_websocket_client = function(url, nodes, config) {
-	var ws = require('./router_websocket_client').init(this._main.router, "", url);
+	var main = this._main;
+	var ws = require('./router_websocket_client').init(this._main, this._main.rpcstack, "", url);
 	var remote_prefix = "";
 	if (typeof config.remote_prefix === "string") {
 		remote_prefix = config.remote_prefix;
@@ -44,21 +45,21 @@ exports.create_websocket_client = function(url, nodes, config) {
 	// data to UPSTREAM
 	if (Array.isArray(nodes)) {
 		if (!nodes.length) {
-			ws.node_plocal("/", "subscribe_announcement");
+			ws.node_plocal(main.router.node("/"), "subscribe_announcement");
 		}
 		nodes.forEach(function(node) {
-			ws.node_plocal(node, "subscribe_announcement");
+			ws.node_plocal(main.router.node(node), "subscribe_announcement");
 		});
 	} else if (typeof nodes === "string") {
-		ws.node_plocal(nodes, "subscribe_announcement");
+		ws.node_plocal(main.router.node(nodes), "subscribe_announcement");
 	} else if (nodes !== false) {
-		ws.node_plocal("/", "subscribe_announcement");
+		ws.node_plocal(main.router.node("/"), "subscribe_announcement");
 	}
 
 	// data from UPSTREAM
 	if (Array.isArray(config.subscribe)) {
 		config.subscribe.forEach(function(s) {
-			ws.subscribe_announcement(s);
+			ws.subscribe_announcement(main.router.node(s));
 		});
 	} else if (typeof config.subscribe === "string") {
 		/*
@@ -66,7 +67,7 @@ exports.create_websocket_client = function(url, nodes, config) {
 		 * 'config.subscribe'
 		 */
 		console.log("subscribe:", ws.remote_basename +config.subscribe);
-		ws.subscribe_announcement(config.subscribe);
+		ws.subscribe_announcement(main.router.node(config.subscribe));
 	}
 
 	if (config.secure === true || config.secure === "true") {

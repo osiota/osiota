@@ -9,6 +9,7 @@ var unload_object = require("unload-object").unload;
 var EventEmitter = require('events').EventEmitter;
 
 var nodename_transform = require("./helper_nodenametransform").nodename_transform;
+var cue = require("./helper_cue").cue;
 
 
 /* cmd state maschine:
@@ -149,12 +150,12 @@ var single_function_remove = function(cmd_stack_obj, method) {
 };
 
 
-exports.init = function(router, ws) {
+exports.init = function(router, rpcstack, ws) {
 	/* config */
 	ws.remote = "[unknown]";
 
 	/* Send buffer: Use cue */
-	ws.respond = router.cue(function(data) {
+	ws.respond = cue(function(data) {
 		ws.sendjson(data);
 	});
 
@@ -225,10 +226,10 @@ exports.init = function(router, ws) {
 	ws.rpc_node_unsubscribe = single_function_remove(ws.cmds, "subscribe");
 
 
-	ws.rpc_error = function(reply, name, message) {
-		console.log("error", name);
+	ws.rpc_global_error = function(reply, name, message) {
+		console.warn("remote error", name);
 	};
-	ws.rpc_hello = function(reply, name) {
+	ws.rpc_global_hello = function(reply, name) {
 		// TODO login: check login, asynchron
 
 		if (typeof name === "string") {
@@ -312,11 +313,6 @@ exports.init = function(router, ws) {
 			});
 		}
 	};
-	ws.rpc_node_where_are_you_from = function(reply) {
-		// this == node
-		console.log("I'm from " + this.router.name);
-		reply(null, this.router.name);
-	};
 
 	/* helpers */
 	ws.sync_history = function(node, fromtime, totime) {
@@ -330,7 +326,7 @@ exports.init = function(router, ws) {
 		if (typeof fromtime === "undefined")
 			fromtime = null;
 
-		ws.node_rpc(node.name, "history", {
+		ws.node_rpc(node, "history", {
 			"interval": 0,
 			"maxentries": null,
 			"fromtime": fromtime,
@@ -357,27 +353,27 @@ exports.init = function(router, ws) {
 		if (ws.closed)
 			return false;
 		var args = Array.prototype.slice.call(arguments);
-		var object = router._rpc_create_object.apply(router, args);
+		var object = rpcstack._rpc_create_object(ws, ws, args);
 		ws.respond(object);
 		return true;
 	};
 	ws.node_rpc = function(node, method) {
 		if (ws.closed)
 			return false;
-		if (typeof node === "object")
-			node = node.name;
+		if (typeof node !== "object")
+			throw new Error("Node is not an object");
 
 		var args = Array.prototype.slice.call(arguments);
 		//var node =
 		args.shift();
-		var object = router._rpc_create_object.apply(router, args);
+		var object = rpcstack._rpc_create_object(ws, node, args);
 
 		if (router.hasOwnProperty('policy_checker')) {
 			// checks if the remote is allowed to perform this
 			// method on this node
 			try {
 				var reaction = router.policy_checker.check(
-						router.node(node), ws.wpath,
+						node, ws.wpath,
 						method, 'to_remote');
 				if (reaction != null && reaction.reaction_id
 						== 'hide_value_and_metadata'){
@@ -394,15 +390,20 @@ exports.init = function(router, ws) {
 			}
 		}
 
-		node = nodename_transform(node, ws.remote_basename,
+		if (typeof node.name !== "string")
+			console.error("node", node);
+		var nodename = nodename_transform(node.name, ws.remote_basename,
 				ws.basename);
 
 		object.scope = "node";
-		object.node = node;
+		object.node = nodename;
 		ws.respond(object);
 		return true;
 	};
 	ws.node_local = function(node, method) {
+		if (typeof node !== "object")
+			throw new Error("Node is not an object");
+
 		var args = Array.prototype.slice.call(arguments);
 		//var node =
 		args.shift();
@@ -414,10 +415,9 @@ exports.init = function(router, ws) {
 				console.error("RPC(local)-Error: ", error, data);
 		};
 
-		var n = router.node(node);
-		if (typeof module === "object" && n._rpc_process("node_" + method, args, reply, ws)) {
+		if (typeof module === "object" && rpcstack._rpc_process("node_" + method, args, reply, node, ws)) {
 			return;
-		} else if (n._rpc_process(method, args, reply)) {
+		} else if (rpcstack._rpc_process(method, args, reply, node)) {
 			return;
 		}
 

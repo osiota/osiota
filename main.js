@@ -39,6 +39,7 @@ function main(router_name) {
 	this.helper = helper;
 
 	this.router = new Router(router_name);
+	this.rpcstack = this.router.rpcstack;
 	this.application_loader = new application_loader(this);
 	this.apps = this.application_loader.apps;
 
@@ -236,7 +237,8 @@ main.prototype.setup_history = function(save_history) {
  */
 /* istanbul ignore next */
 main.prototype.create_websocket_client = function(url, nodes, config) {
-	var ws = require('./router_websocket_client').init(this.router, "", url);
+	var _this = this;
+	var ws = require('./router_websocket_client').init(this, this.rpcstack, "", url);
 	var remote_prefix = "";
 	if (typeof config.remote_prefix === "string") {
 		remote_prefix = config.remote_prefix;
@@ -253,21 +255,21 @@ main.prototype.create_websocket_client = function(url, nodes, config) {
 	// data to UPSTREAM
 	if (Array.isArray(nodes)) {
 		if (!nodes.length) {
-			ws.node_plocal("/", "subscribe_announcement");
+			ws.node_plocal(this.router.node("/"), "subscribe_announcement");
 		}
 		nodes.forEach(function(node) {
-			ws.node_plocal(node, "subscribe_announcement");
+			ws.node_plocal(_this.router.node(node), "subscribe_announcement");
 		});
 	} else if (typeof nodes === "string") {
-		ws.node_plocal(nodes, "subscribe_announcement");
+		ws.node_plocal(this.router.node(nodes), "subscribe_announcement");
 	} else if (nodes !== false) {
-		ws.node_plocal("/", "subscribe_announcement");
+		ws.node_plocal(this.router.node("/"), "subscribe_announcement");
 	}
 
 	// data from UPSTREAM
 	if (Array.isArray(config.subscribe)) {
 		config.subscribe.forEach(function(s) {
-			ws.subscribe_announcement(s);
+			ws.subscribe_announcement(_this.router.node(s));
 		});
 	} else if (typeof config.subscribe === "string") {
 		/*
@@ -275,7 +277,7 @@ main.prototype.create_websocket_client = function(url, nodes, config) {
 		 * 'config.subscribe'
 		 */
 		console.log("subscribe:", ws.remote_basename +config.subscribe);
-		ws.subscribe_announcement(config.subscribe);
+		ws.subscribe_announcement(_this.router.node(config.subscribe));
 	}
 
 	if (config.secure === true || config.secure === "true") {
