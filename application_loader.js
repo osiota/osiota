@@ -162,7 +162,7 @@ exports.application_loader.prototype.module_get = function(app, callback) {
 	appname = appname.replace(/^(er|osiota)-app-/, "");
 	console.log("loading:", appname);
 
-	var a = new Application(appname);
+	var a = new Application(this, appname);
 	if (typeof app === "string") {
 		async_calls([
 				this._main.require.bind(this._main, appname),
@@ -257,6 +257,7 @@ exports.application_loader.prototype.startup_module = function(a, node, app, app
 	if (typeof node !== "object" || node === null) {
 		node = this._main.node("/app");
 	}
+	a._rnode = node;
 
 	var node_source = node;
 	if (typeof app_config.source === "string") {
@@ -485,3 +486,35 @@ exports.application_loader.prototype.app_remove = function(app) {
 	// init config cleaning:
 	this._main.config_cleaning();
 };
+
+/**
+ * Reload an app by creating a new app object
+ * @param {application} app - Old app instance
+ * @param {function} callback - Triggered on loaded app
+ * @example
+ * app._config.node = "/newnodename";
+ * application_loader.app_reload(app, function(a) {
+ *     app = a;
+ * });
+ */
+exports.application_loader.prototype.app_reload = function(app, callback) {
+	// buffer old references:
+	var rnode = app._rnode;
+	var aconfig = app._config;
+	var aname = app._app;
+
+	// unload app
+	app._unload();
+	this.app_unregister(app);
+
+	// add timeout?
+
+	// load app
+	return this.load(rnode, [{
+		"name": aname,
+		"config": aconfig
+	}], function(a) {
+		callback(a[0]);
+	});
+};
+

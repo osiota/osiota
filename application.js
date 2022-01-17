@@ -22,11 +22,14 @@ var unload_object = require("unload-object").unload;
  * @class
  * @classdesc Application class
  * @name application
+ * @param {application_loader} application_loader - Application Loader instance
  * @param {string} app - Application name
  * @tutorial doc/build_your_own_apps.md
  * @hideconstructor
  */
-exports.application = function(app) {
+exports.application = function(application_loader, app) {
+	this._application_loader = application_loader;
+
 	this._state = "INIT";
 
 	this._app = "[unknown]";
@@ -300,6 +303,7 @@ exports.application.prototype._unload = function() {
 
 	this._state = "UNLOADED";
 };
+
 /**
  * Reinit method
  *
@@ -401,6 +405,21 @@ exports.application.prototype._cli = function(args, show_help) {
 	if (typeof this.cli === "function") {
 		return this.cli(args, show_help, this._main, this._extra);
 	}
+};
+
+/**
+ * Reload an app by creating a new app object
+ * @param {function} callback - Triggered on loaded app
+ * @example
+ * app._config.node = "/newnodename";
+ * app._reload(function(a) {
+ *     app = a;
+ * });
+ */
+exports.application.prototype._reload = function(callback) {
+	if (!this._application_loader)
+		throw new Error("No Application Loader instance provided");
+	return this._application_loader.app_reload(this, callback);
 };
 
 /**

@@ -988,7 +988,27 @@ exports.node.prototype.rpc_config = function(reply, config, save) {
 
 	reply(null, "okay");
 };
+/**
+ * RPC config node: Move the app to an other node
+ * @param {function} reply - RPC reply function
+ * @param {string} relativ_nodename - New node name
+ * @param {boolean} save - Flag to save the configuration
+ * @private
+ */
+exports.node.prototype.rpc_config_node = function(reply, relative_nodename) {
+	if (typeof relative_nodename !== "string")
+		return reply("parameter", "relative_nodename is not string");
+	var app = this._app;
 
+	// set new node name:
+	var n = app._node.node(relative_nodename);
+	this._config.node = n.name;
+
+	app._reload(function(a) {
+		console.error("a", a);
+		reply("node_moved", relative_nodename);
+	});
+};
 /**
  * Register a RPC command on the node
  * @param {string} method - Method to be called
