@@ -28,6 +28,7 @@ m_s.config({
 
 test("wait started", function(t) {
 	t.plan(1);
+	t.timeoutAfter(1000);
 	if (m_s._started) {
 		t.ok(1, "started - instantly");
 		return;

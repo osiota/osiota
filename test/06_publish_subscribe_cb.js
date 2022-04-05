@@ -12,6 +12,7 @@ var n3 = main.node("/test3");
 
 test('announce virtual node', function (t) {
 	t.plan(10);
+	t.timeoutAfter(400);
 
 	// 1 ... 10
 	var i = 0;
@@ -40,6 +41,7 @@ test('announce virtual node', function (t) {
 });
 test('announce virtual node', function (t) {
 	t.plan(10);
+	t.timeoutAfter(400);
 
 	// 10 ... 19 (i: 11 ... 20)
 	var i = 0;

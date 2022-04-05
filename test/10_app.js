@@ -30,6 +30,7 @@ test('load app test-10', function (t) {
 
 test('reload app test-10', function (t) {
 	t.plan(2);
+	t.timeoutAfter(100);
 	e.once("unload", () => { t.ok(1, "app A unloaded"); });
 	e.once("init", () => { t.ok(1, "app A inited"); });
 	apps["test-10"]._reinit();
@@ -37,6 +38,7 @@ test('reload app test-10', function (t) {
 
 test('unload app test-10', function (t) {
 	t.plan(2);
+	t.timeoutAfter(100);
 	e.once("unload", () => { t.ok(1, "app A unloaded"); });
 	apps["test-10"]._unload();
 	// is synchron:
@@ -56,6 +58,7 @@ test('load app test-10-b', function (t) {
 });
 test('reload app test-10-b', function (t) {
 	t.plan(2);
+	t.timeoutAfter(100);
 
 	e.once("reinit", () => { t.ok(1, "app B reinited"); });
 
@@ -77,6 +80,7 @@ test('reload app test-10-b with delay', function (t) {
 
 test('unload app test-10-b', function (t) {
 	t.plan(2);
+	t.timeoutAfter(100);
 	e.once("unload", () => { t.ok(1, "app B unloaded"); });
 	b._unload();
 	setTimeout(function() {
@@ -98,6 +102,7 @@ test('load app test-10-c', function (t) {
 
 test('reload app test-10-c', function (t) {
 	t.plan(2);
+	t.timeoutAfter(100);
 	e.once("unload", () => { t.ok(1, "app C unloaded"); });
 	e.once("init", () => { t.ok(1, "app C inited"); });
 	apps["test-10-c"]._reinit();
@@ -105,6 +110,7 @@ test('reload app test-10-c', function (t) {
 
 test('unload app test-10-c', function (t) {
 	t.plan(2);
+	t.timeoutAfter(100);
 	setTimeout(()=>{
 		e.once("unload", () => { t.ok(1, "app C unloaded"); });
 		apps["test-10-c"]._unload();

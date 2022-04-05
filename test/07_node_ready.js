@@ -9,6 +9,7 @@ var n = main.node("/test");
 
 test('ready callback', function (t) {
 	t.plan(1);
+	t.timeoutAfter(100);
 	var r1 = n.ready("announce", function(method) {
 		console.log("[1] node is ready:", method);
 		t.equal(method, "announce", "node is ready");
@@ -21,6 +22,7 @@ test('ready callback', function (t) {
 });
 test('ready callback', function (t) {
 	t.plan(1);
+	t.timeoutAfter(100);
 	var r1 = n.ready("announce", function(method) {
 		console.log("[2] node is ready:", method);
 
