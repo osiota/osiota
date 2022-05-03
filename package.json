@@ -10,7 +10,7 @@
     "console-stamp": "^3.0.5",
     "minimist": "^1.2.6",
     "unload-object": "^1.0.2",
-    "ws": "^8.5.0"
+    "ws": "^8.6.0"
   },
   "devDependencies": {
     "istanbul": "^0.4.5",
