@@ -1,6 +1,5 @@
 
 const fs = require("fs");
-const bytewise_hex = require("bytewise/hex");
 
 const util = require('util');
 const HistoryGlobal = require("./module_history_global.js");
