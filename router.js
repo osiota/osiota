@@ -978,7 +978,7 @@ exports.node.prototype.rpc_config = function(reply, config, save) {
 	// restart app:
 	if (this._app) {
 		var a = this._app;
-		a._reinit(this._config);
+		a._reinit();
 
 		if (save) {
 			a._main.emit("config_save");
