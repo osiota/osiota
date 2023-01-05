@@ -9,7 +9,7 @@ var unload_object = require("unload-object").unload;
 var EventEmitter = require('events').EventEmitter;
 
 var nodename_transform = require("./helper_nodenametransform").nodename_transform;
-var cue = require("./helper_cue").cue;
+var queue = require("./helper_queue").queue;
 
 
 /* cmd state maschine:
@@ -154,8 +154,8 @@ exports.init = function(router, rpcstack, ws) {
 	/* config */
 	ws.remote = "[unknown]";
 
-	/* Send buffer: Use cue */
-	ws.respond = cue(function(data) {
+	/* Send buffer: Use queue */
+	ws.respond = queue(function(data) {
 		ws.sendjson(data);
 	});
 
