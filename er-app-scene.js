@@ -28,7 +28,7 @@ exports.init = function(node, app_config, main, host_info) {
 		for(var nn in nodes){
 			if (nodes.hasOwnProperty(nn)) {
 				var n = nodes[nn];
-				console.error("  CHECK", nn, n.value, n.expected);
+				//console.error("  CHECK", nn, n.value, n.expected);
 				if (n.value !== n.expected) {
 					return false;
 				}
@@ -39,7 +39,7 @@ exports.init = function(node, app_config, main, host_info) {
 
 	var do_check = function() {
 		let c = check();
-		console.error("CHECK", c);
+		//console.error("CHECK", c);
 		node.publish(undefined, c);
 	};
 
@@ -55,7 +55,7 @@ exports.init = function(node, app_config, main, host_info) {
 	var nodes = {};
 	var filter = this._source.filter(app_config.filter, "announce",
 			function(cnode, method, initial, update, fconfig) {
-		console.error("ANNOUNCED", cnode.name, fconfig);
+		//console.error("ANNOUNCED", cnode.name, fconfig);
 		nodes[cnode.name] = {
 			node: cnode,
 			filter: fconfig,

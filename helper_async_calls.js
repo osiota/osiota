@@ -5,6 +5,7 @@ exports.async_calls = function(functions, callback) {
 	functions.forEach(function(f, i) {
 		f(function(err, result) {
 			if (err) {
+				if (items <= 0) return;
 				items = 0;
 				return callback(err);
 			}
