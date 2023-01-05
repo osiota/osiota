@@ -1,0 +1,8 @@
+{
+	"app": [{
+		"name": "debug-echo",
+		"config": {
+			"text": "Hello World!"
+		}
+	}]
+}

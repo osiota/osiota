@@ -3,8 +3,11 @@
  * Fail test after 30s automatically
  */
 
+var console_error = console.error;
+var console_info = console.info;
+
 var t1 = setTimeout(function() {
-	console.error("Test run longer than 30 sec. Exiting ...");
+	console_error("Test run longer than 30 sec. Exiting ...");
 	process.exit(1);
 }, 1000*30);
 t1.unref();
@@ -26,7 +29,7 @@ exports.test = function(filename) {
 
 		test.createStream().on('data', function (row) {
 			row = row.replace(/\n$/, "");
-			console.info(row)
+			console_info(row);
 		});
 		if (process.env.DEBUG != '1') {
 			console.debug = ()=>{};
