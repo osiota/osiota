@@ -94,7 +94,11 @@ test('filter callback', function (t) {
 					"metadata": {
 						"type": "energy.data"
 					},
-					"delay": 100
+					"delay": 100,
+					"cmin": 0,
+					"cmax": 100,
+					"exp": 5,
+					"round": 0
 				}
 			}
 		]

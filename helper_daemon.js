@@ -79,7 +79,7 @@ exports.daemon_start = function(log_file) {
  */
 exports.pidfile_create = function(pid_file) {
 	// create pid file:
-	fs.writeFileSync(pid_file, process.pid);
+	fs.writeFileSync(pid_file, ""+process.pid);
 };
 /**
  * Delete a pid file

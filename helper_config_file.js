@@ -12,7 +12,7 @@ exports.read = function(config_file) {
 	} catch (err) {
 		// Show JSON parsing errors:
 		if (err.code !== "ENOENT") {
-			return console.error(err);
+			throw err;
 		}
 		console.warn("Warning: Config file not found.");
 	}

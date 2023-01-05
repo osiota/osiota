@@ -1,0 +1,13 @@
+{
+	"app": [{
+		"name": "ws-server",
+		"config": {
+			"server": 8984
+		}
+	},{
+		"name": "debug-echo",
+		"config": {
+			"text": "Hello World!"
+		}
+	}]
+}

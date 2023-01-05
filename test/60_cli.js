@@ -9,18 +9,36 @@ console.group = function() {};
 console.groupEnd = function() {};
 
 var require_osiota = function(argv, callback) {
-	var process_argv = ["node", "script", "--systemd"];
+	var process_argv = ["node", "script"];
 	argv.forEach(function(a) {
 		process_argv.push(a);
 	});
 	process.argv = process_argv;
 
-	console_info = console.info;
-	console.info = callback;
+	if (callback) {
+		console_info = console.info;
+		console.info = callback;
+		console_error = console.error;
+		console.error = callback;
+	}
+	process_exit = process.exit;
+	process.exit = function() {};
 
-	//require("../osiota");
-	proxyquire('../osiota.js',{});
-	console.info = console_info;
+	var throw_error = null;
+	try {
+		//require("../osiota");
+		proxyquire('../osiota.js',{
+			"console-stamp": function() {},
+		});
+	} catch(err) {
+		throw_error = err;
+	}
+	if (callback) {
+		console.info = console_info;
+		console.error = console_error;
+	}
+	process.exit = process_exit;
+	if (throw_error) throw throw_error;
 };
 
 
@@ -29,6 +47,26 @@ test('check', function (t) {
 	require_osiota(["--check", "--config", __dirname + "/60_config.json"], function(message) {
 		t.equal(message, "Config is valid", "check output");
 	});
+});
+
+test('check (invalid config)', function (t) {
+	t.plan(1);
+	var done = false;
+	require_osiota(["--check", "--config", __dirname + "/60_config_invalid.json"], function(message) {
+		if (done) return;
+		t.equal(message, "Config is not valid", "check output");
+		done = true;
+	});
+});
+
+test('check (invalid json config)', function (t) {
+	t.plan(1);
+	var done = false;
+	try {
+		require_osiota(["--check", "--config", __dirname + "/60_config_invalid_json.json"]);
+	} catch (err) {
+		t.equal(err.message, "Unexpected token ] in JSON at position 83", "exception");
+	}
 });
 
 
@@ -61,6 +99,15 @@ test('app', function (t) {
 	require_osiota(["--app", "test-cli-app", "hallo", "hi"], function() {
 		t.deepEqual(Array.prototype.slice.call(arguments),
 			["args:", [ 'hallo', 'hi' ]], "check output");
+	});
+});
+
+test('app help', function (t) {
+	t.plan(1);
+	require_osiota(["--app", "test-cli-app", "--help"], function(message) {
+		if (message === "App Options: none") {
+			t.ok(true, "check output");
+		}
 	});
 });
 

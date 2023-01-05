@@ -1005,7 +1005,6 @@ exports.node.prototype.rpc_config_node = function(reply, relative_nodename) {
 	this._config.node = n.name;
 
 	app._reload(function(a) {
-		console.error("a", a);
 		reply("node_moved", relative_nodename);
 	});
 };

@@ -85,7 +85,7 @@ if (argv.help && !argv.app) {
 	process.kill(pid, 'SIGUSR2');
 
 } else if (argv.status) {
-	return console.log("Status:",
+	return console.info("Status:",
 		daemon.process_status(pid_file) ? "running" : "stopped");
 
 } else if (argv.daemon && !process.env.__daemon) {

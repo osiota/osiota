@@ -5,10 +5,11 @@
 
 var console_error = console.error;
 var console_info = console.info;
+var process_exit = process.exit;
 
 var t1 = setTimeout(function() {
 	console_error("Test run longer than 30 sec. Exiting ...");
-	process.exit(1);
+	process_exit(1);
 }, 1000*30);
 t1.unref();
 
