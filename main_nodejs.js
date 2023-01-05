@@ -35,7 +35,7 @@ main_nodejs.prototype.os_config = function(config) {
 	}
 };
 
-/* istanbul ignore next */
+/* istanbul ignore next manually tested */
 main_nodejs.prototype.check_started = function(factor, counter) {
 	if (typeof counter === "undefined")
 		counter = 100;
@@ -143,7 +143,7 @@ main_nodejs.prototype.load_schema = function(appname, callback) {
 };
 
 /* on signal: end the process */
-/* istanbul ignore next */
+/* istanbul ignore next tested in test/61 */
 if (process.on) { /* if NodeJS */
 	process.on("preexit", function(user_terminated) {
 		if (process.exitTimeoutId) return;

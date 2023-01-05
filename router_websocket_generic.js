@@ -58,6 +58,7 @@ cmd_stack.prototype.get = function(key) {
 			e.emit("start");
 			return e;
 		};
+		/* istanbul ignore next unused? */
 		e.init_single = function(cb_start, cb_end) {
 			e.emit("end");
 			e.once("start", function() {
@@ -199,7 +200,8 @@ exports.init = function(router, rpcstack, ws) {
 		});
 	});
 	ws.rpc_node_subscribe_for_aggregated_data = single_function(ws.cmds,
-			"subscribe", function(policy) {
+			"subscribe", /* istanbul ignore next deprecated */
+				function(policy) {
 		var policy_checker = router.policy_checker;
 		var callback;
 		if (policy.action_extra.type == "count") {

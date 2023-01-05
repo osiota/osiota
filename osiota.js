@@ -65,7 +65,7 @@ if (argv.help && !argv.app) {
 		daemon.pidfile_delete(pid_file);
 	});
 
-} else if (argv.restart) {
+} else /* istanbul ignore if tested in test/61 */ if (argv.restart) {
 	var pid = daemon.process_status(pid_file);
 	if (!pid) {
 		console.warn("Warning: no running process found");
@@ -77,7 +77,7 @@ if (argv.help && !argv.app) {
 		daemon.daemon_start(log_file);
 	});
 
-} else if (argv.reload) {
+} else /* istanbul ignore if manually tested in test/61 */ if (argv.reload) {
 	var pid = daemon.process_status(pid_file);
 	if (!pid) {
 		return console.error("Error: no running process found");
@@ -141,7 +141,8 @@ if (argv.help && !argv.app) {
 	});
 
 	// do config reload on signal
-	process.on('SIGUSR2', function() {
+	process.on('SIGUSR2', /* istanbul ignore next tested in test/61 */
+			function() {
 		console.log("reloading config ...");
 		m.close();
 		setTimeout(function() {
