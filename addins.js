@@ -6,7 +6,9 @@ exports.addins = function(main) {
 	 * [LITTLE USED / DEPRECATED?? / IDEA]
 	 *
 	 * @todo: Check where this is used
+	 * @deprecated
 	 */
+	/* istanbul ignore next */
 	Node.prototype.app = function(app, app_config) {
 		return main.application_loader.startup(this, app, app_config);
 	};
@@ -15,7 +17,9 @@ exports.addins = function(main) {
 	 * [LITTLE USED / DEPRECATED?? / IDEA]
 	 *
 	 * @todo: Check where this is used
+	 * @deprecated
 	 */
+	/* istanbul ignore next */
 	main.map_app = function(metadatatype) {
 		var subapp = {};
 		subapp.init = function(node, app_config, main, host_info) {
@@ -39,7 +43,10 @@ exports.addins = function(main) {
 	 * Publish a changable property as a node
 	 *
 	 * Only used in lightmodule
+	 *
+	 * @deprecated
 	 */
+	/* istanbul ignore next */
 	Node.prototype.property = function(name, type, callback, default_value){
 		if (typeof default_value === "undefined")
 			default_value = null;
@@ -100,7 +107,9 @@ exports.addins = function(main) {
 	 * Get fields of an object published to a node
 	 *
 	 * @todo: use subkey
+	 * @deprecated
 	 */
+	/* istanbul ignore next */
 	Node.prototype.subnode = function(property, type) {
 		var _this = this;
 		var n = this.node(property);

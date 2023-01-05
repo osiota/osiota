@@ -9,6 +9,7 @@ webclient/ethercat/bower_components
 .persistent/
 
 documentation/
+coverage/
 
 .*.un~
 
