@@ -1,6 +1,8 @@
 const fs = require("fs");
 const Ajv = require('ajv');
 
+const json_validate = require("./helper_json_validate.js").json_validate;
+
 /**
  * Application Manager class
  * @class
@@ -21,15 +23,6 @@ exports.application_manager = function(main) {
 	console.log("found app:", app);
 	*/
 };
-
-var json_validate = function(schema, data) {
-	if (!schema.__compiled) {
-		var ajv = new Ajv({allErrors: true});
-		schema.__compiled = ajv.compile(schema);
-		Object.defineProperty(schema, '__compiled',{enumerable: false});
-	}
-	return schema.__compiled(data);
-}
 
 /**
  * Find application by metadata
@@ -90,6 +83,8 @@ exports.application_manager.prototype.schema = function() {
 	var app_schema = this.app_schema().filter(function(a) {
 		try {
 			var test_ajv = new Ajv({strict: "log"});
+			test_ajv.addKeyword("app_metadata");
+			test_ajv.addKeyword("options");
 			var s = {
 				"type": "object",
 				"properties": {
@@ -126,6 +121,8 @@ exports.application_manager.prototype.check_config = function(config) {
 	var schema = this.schema();
 
 	var ajv = new Ajv({strict: "log"});
+	ajv.addKeyword("app_metadata");
+	ajv.addKeyword("options");
 	try {
 		var validate = ajv.compile(schema);
 	} catch(e) {

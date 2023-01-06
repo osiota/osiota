@@ -4,7 +4,7 @@
 	"properties": {
 		"type": {
 			"type": "string",
-			"values": ["time", "value"],
+			"enum": ["time", "value"],
 			"title": "The intervall shall trigger on"
 		},
 		"interval": {
@@ -14,7 +14,7 @@
 		"method": {
 			"type": "string",
 			"title": "Aggregation method",
-			"values": ["integral_avg", "integral", "sum", "average", "max", "min"],
+			"enum": ["integral_avg", "integral", "sum", "average", "max", "min"],
 			"default": "integral_avg"
 		},
 		"filter": {

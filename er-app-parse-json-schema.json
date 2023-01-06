@@ -3,6 +3,7 @@
 	"title": "Settings",
 	"options": { "hidden": true },
 	"app_metadata": {
+		"type": "object",
 		"properties": {
 			"app_type": {
 				"type": "string",

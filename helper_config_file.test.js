@@ -6,13 +6,24 @@ var helper = require("./test/helper_test.js");
 var test = helper.test(__filename);
 
 
-test('read & write', function(t) {
-	t.plan(3);
+test('read', function(t) {
+	t.plan(1);
 	var config_file = proxyquire("./helper_config_file.js", {
 		"fs": {
 			readFileSync: function(filename) {
 				return '{"hi": 5}';
 			},
+		}
+	});
+	t.deepEqual(config_file.read("config.json"),
+			{"hi": 5}, "config structure");
+
+});
+
+test('write', function(t) {
+	t.plan(2);
+	var config_file = proxyquire("./helper_config_file.js", {
+		"fs": {
 			writeFile: function(filename, content, callback) {
 				t.equal(filename, "config.json", "filename");
 				t.deepEqual(content, '{\n\t"hi": 7\n}\n', "content");
@@ -20,14 +31,12 @@ test('read & write', function(t) {
 			},
 		}
 	});
-	t.deepEqual(config_file.read("config.json"),
-			{"hi": 5}, "config structure");
 	config_file.write("config.json", {"hi": 7});
-
 });
 
 test('read - not existing file', function(t) {
 	t.plan(1);
+
 	var config_file = proxyquire("./helper_config_file.js", {
 		"fs": {
 			readFileSync: function(filename) {
@@ -37,8 +46,16 @@ test('read - not existing file', function(t) {
 			},
 		}
 	});
-	t.deepEqual(config_file.read("notexisting"),
-			{}, "config structure");
+
+	// do not show warn message
+	var console_warn = console.warn;
+	console.warn = function() {};
+
+	var c = config_file.read("notexisting");
+
+	console.warn = console_warn;
+
+	t.deepEqual(c, {}, "config structure");
 });
 
 

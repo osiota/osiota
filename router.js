@@ -5,6 +5,7 @@
  * Simon Walz, IfN, 2015
  */
 
+var json_validate = require("./helper_json_validate.js").json_validate;
 var util = require('util');
 
 /* Helper: */
@@ -939,6 +940,15 @@ exports.node.prototype.rpc_config = function(reply, config, save) {
 	if (typeof this._config !== "object" || this._config === null) {
 		return reply("no_config", "No config object set");
 	}
+
+	// check configuration by schema:
+	if (typeof this.metadata.schema === "object" &&
+			this.metadata.schema !== null) {
+		if (!json_validate(this.metadata.schema, config)) {
+			return reply("invalid_config", m);
+		}
+	}
+
 	// update config object:
 	this._config = merge(this._config, config, ["app", "node", "pnode",
 			"source", "metadata", "self_app"]);

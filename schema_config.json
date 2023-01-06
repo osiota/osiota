@@ -65,7 +65,6 @@
 			"items": {
 				"type": "object",
 				"title": "Application",
-				"headerTemplate": "Application #{{ i1 }}",
 				"oneOf": [
 				],
 				"options": {
@@ -90,7 +89,15 @@
 						"type": "object",
 						"patternProperties": {
 							"^(.*)$": {
-								"disallow": ["object","array"]
+								"anyOf": [
+									{
+										"type": "string"
+									},{
+										"type": "number"
+									},{
+										"type": "boolean"
+									}
+								]
 							}
 						},
 						"additionalProperties": true,
@@ -103,31 +110,31 @@
 						"oneOf": [{
 							"type": "string",
 							"title": "Hide resource",
-							"values": ["hide_all"]
+							"enum": ["hide_all"]
 						},{
 							"type": "string",
 							"title": "Hide value and metadata",
-							"values": ["hide_value_and_metadata"]
+							"enum": ["hide_value_and_metadata"]
 						},{
 							"type": "string",
 							"title": "Hide value",
-							"values": ["hide_value"]
+							"enum": ["hide_value"]
 						},{
 							"type": "string",
 							"title": "Preprocess value",
-							"values": ["preprocess_value"]
+							"enum": ["preprocess_value"]
 						},{
 							"type": "string",
 							"title": "Forward all",
-							"values": ["forward_all"]
+							"enum": ["forward_all"]
 						},{
 							"type": "string",
 							"title": "Block write",
-							"values": ["block_write"]
+							"enum": ["block_write"]
 						},{
 							"type": "string",
 							"title": "Allow write",
-							"values": ["allow_write"]
+							"enum": ["allow_write"]
 						}],
 						"default": "forward_all"
 					}

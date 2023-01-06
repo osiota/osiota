@@ -47,7 +47,7 @@
 						"title": "Meta data type"
 					}
 				},
-				"required": ["node", "address"]
+				"required": ["node", "map"]
 			}
 		}
 	},
