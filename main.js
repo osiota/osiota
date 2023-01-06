@@ -141,7 +141,7 @@ main.prototype.sub_config = function(config, node, callback) {
  *
  * @private
  */
-/* istanbul ignore next deprecated */
+/* istanbul ignore next abstract */
 main.prototype.check_started = function(factor) {
 	var _this = this;
 	/**
@@ -313,7 +313,7 @@ main.prototype.require = function(appname, callback) {
  * @param {function} callback
  * @abstract
  */
-/* istanbul ignore next is abstract*/
+/* istanbul ignore next is abstract */
 main.prototype.load_schema = function(appname, callback) {
 	throw new Error("Load schema function not supported.");
 };

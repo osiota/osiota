@@ -298,28 +298,6 @@ exports.node.prototype.generate_metadata = function() {
 	this.announce(metadata);
 }
 
-/* add metadata to node-object
- * 	data example: {value:"energy"}
- */
-exports.node.prototype.add_metadata = function(data) {
-	if (typeof this.metadata !== "object" || this.metadata === null) {
-		this.metadata = {};
-	}
-
-	if (typeof data === 'object' && data !== null){
-		for (var key in data){
-			this.metadata[key] = data[key];
-		}
-	}
-
-	this.announce(this.metadata, true);
-}
-
-/*gets metadata of node-object*/
-exports.node.prototype.get_metadata = function() {
-	return this.metadata;
-}
-
 /* create a unique time stamp */
 exports.node.prototype.unique_date = function() {
 	var d = new Date()/1000;
@@ -377,7 +355,12 @@ exports.node.prototype.set = function(time, value, only_if_differ, do_not_add_to
 	return true;
 };
 
-/* Route data (synchronous) */
+/* Route data (synchronous)
+ *
+ * This is an internal expert function
+ * DO NOT USE!
+ */
+/* istanbul ignore next expert function */
 exports.node.prototype.publish_sync = function(time, value, only_if_differ, do_not_add_to_history, initial) {
 	if (typeof time === "undefined")
 		time = this.unique_date();
@@ -417,17 +400,12 @@ exports.node.prototype.publish = function(time, value, only_if_differ, do_not_ad
 	return time;
 };
 
-/* Route data object (asynchronous) */
-exports.node.prototype.publish_obj = function(object) {
-	if (typeof object !== "object")
-		throw new Error("publish_obj: argument is not an object: "+
-			typeof object);
-
-	return this.publish(object.time, object.value,
-			object.only_if_differ, object.do_not_add_to_history);
-};
-
-/* Route data array (asynchronous) */
+/* Route data array (asynchronous)
+ *
+ * This is an internal expert function
+ * DO NOT USE!
+ */
+/* istanbul ignore next expert function */
 exports.node.prototype.publish_all = function(data, step, done, offset) {
 	if (typeof offset !== "number") {
 		offset = 0;
@@ -436,7 +414,7 @@ exports.node.prototype.publish_all = function(data, step, done, offset) {
 	var i = offset;
 	var n = Math.min(offset+slots, data.length);
 	for (; i < n; i++) {
-		this.publish_obj(data[i]);
+		this.publish(data[i]);
 	}
 	if (i >= data.length) {
 		if (typeof done === "function")
@@ -461,33 +439,9 @@ exports.node.prototype.publish_subscribe_cb = function() {
 };
 
 /* DEPRECATED: Register a link name for a route */
+/* istanbul ignore next deprecated */
 exports.node.prototype.connect = function(dnode, metadata) {
-	var _this = this;
-	if (Array.isArray(dnode)) {
-		return dnode.map(function(dn) {
-			return _this.connect(dn);
-		});
-	}
-	if (typeof dnode === "string") {
-		dnode = this.node(dnode);
-	}
-	if (typeof dnode !== "object" && dnode !== null) {
-		throw new Error("dnode is not a node");
-	}
-
-	console.info("connecting " + this.name + " to " + dnode.name);
-
-	if (typeof metadata !== "object") {
-		metadata = this.metadata;
-	}
-
-	dnode.announce(metadata);
-	var s = this.subscribe(dnode.publish_subscribe_cb());
-
-	return function() {
-		s.remove();
-		dnode.unannounce();
-	};
+	throw new Error("Deprecated function: connect");
 };
 
 /**

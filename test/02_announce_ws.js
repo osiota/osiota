@@ -97,7 +97,9 @@ test('client announce node', function (t) {
 	t.plan(1);
 
 	n2.announce();
-	n2.publish(undefined, 1);
+	n2.publish({
+		value: 1
+	});
 
 	t.deepEqual(nodelist(m_s), [ '/Client/test2' ], "node list");
 });

@@ -18,6 +18,7 @@ test('ready callback', function (t) {
 		};
 	});
 	n.announce();
+	r1.remove();
 });
 test('ready callback', function (t) {
 	t.plan(1);

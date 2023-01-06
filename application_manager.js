@@ -181,12 +181,6 @@ exports.application_manager.prototype.get_schema = function(app) {
 	return schema;
 };
 
-exports.application_manager.prototype.read_schema_file_simple = function(file) {
-	var data = fs.readFileSync(file);
-	var json = JSON.parse(data);
-	return json;
-};
-
 exports.application_manager.prototype.read_schema_file = function(file, app) {
 	if (schema_cache.hasOwnProperty(app)) {
 		return schema_cache[app];
