@@ -10,6 +10,7 @@ main.config({});
 
 test('load non existing app', function (t) {
 	t.plan(3);
+	t.timeoutAfter(100);
 
 	main.on("app_loading_error", function(e, node, app, l_app_config,
 			host_info, auto_install, callback) {

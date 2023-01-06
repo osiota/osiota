@@ -98,6 +98,7 @@ test('remove app from config', function (t) {
 
 test('reload configuration', function (t) {
 	t.plan(1);
+	t.timeoutAfter(100);
 	var s = main.reload(function(m) {
 		main = m;
 

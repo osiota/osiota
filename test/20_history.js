@@ -20,6 +20,7 @@ for (var i=0; i<10; i++) {
 }
 
 const hc = function(t, exceeded_value, de_value) {
+	t.timeoutAfter(100);
 	t.plan(2);
 	return function(data, exceeded) {
 		var de = data.map(function(d) { return d.value; });

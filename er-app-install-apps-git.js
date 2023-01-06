@@ -9,7 +9,7 @@ var install_app = function(app, app_config, callback) {
 			app_config.install_dir !== "") {
 		install_dir = app_config.install_dir.replace(/\/$/, "") + "/";
 	}
-	execFile("git", ["clone", "git@gitlab.ibr.cs.tu-bs.de:eneff-campus-2020/er-app-" + app + ".git", install_dir + "er-app-" + app], function(err) {
+	execFile("git", ["clone", "git@gitlab.nerdbox.de:energy-router/er-app-" + app + ".git", install_dir + "er-app-" + app], function(err) {
 		if (err) {
 			callback(err);
 			return;
