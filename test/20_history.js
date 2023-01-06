@@ -16,7 +16,7 @@ n.announce();
 
 const ds = new Date()/1000;
 for (var i=0; i<10; i++) {
-	n.publish(ds+i, i);
+	n.publish(ds+i, i, {});
 }
 
 const hc = function(t, exceeded_value, de_value) {

@@ -18,7 +18,7 @@ var util = require('util');
 require('./module_history_class_memory.js');
 require('./module_history_class_remote.js');
 require('./module_history_class_timebase.js');
-require('./module_history_class_filter.js');
+//require('./module_history_class_filter.js'); //unused??
 
 /**
  * Main Process Instance

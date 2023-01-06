@@ -388,8 +388,22 @@ exports.node.prototype.publish_sync = function(time, value, only_if_differ, do_n
 exports.node.prototype.publish = function(time, value, only_if_differ, do_not_add_to_history, initial) {
 	var _this = this;
 
-	if (typeof time === "undefined")
+	if (typeof time === "undefined" || time === null)
 		time = this.unique_date();
+	if (typeof time === "object" && typeof time.getMonth !== 'function') {
+		var object = time;
+		time = object.time;
+		value = object.value;
+		only_if_differ = object.only_if_differ;
+		do_not_add_to_history = object.do_not_add_to_history;
+		initial = object.initial;
+	}
+	if (typeof only_if_differ === "object" && only_if_differ !== null) {
+		var object = only_if_differ;
+		only_if_differ = object.only_if_differ;
+		do_not_add_to_history = object.do_not_add_to_history;
+		initial = object.initial;
+	}
 
 	process.nextTick(function() {
 		if (_this.set(time, value, only_if_differ, do_not_add_to_history, initial)) {

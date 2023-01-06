@@ -111,3 +111,8 @@ test('Nodemap.on_rpc', function (t) {
 		t.ok(1, "tick reply");
 	});
 });
+test('Nodemap.unload', function (t) {
+	t.plan(1);
+	map.unload();
+	t.ok(true, "unload");
+});

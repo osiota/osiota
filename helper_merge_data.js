@@ -69,7 +69,6 @@ var merge_object = function(obj_a, obj_b, ignore_keys) {
 	return obj_a;
 };
 
-
 var merge_array = function(obj_a, obj_b, ignore_keys) {
 	if (!Array.isArray(obj_a)) {
 		//todo: unload config
@@ -83,25 +82,33 @@ var merge_array = function(obj_a, obj_b, ignore_keys) {
 	var i = 0;
 	var missing = null;
 	obj_a.forEach(function(a) {
+		if (i >= obj_b.length) return;
+		//console.log("I", i, exports.hash(a),
+		//		exports.hash(obj_b[i]),
+		//		exports.hash(obj_b[i+1]) );
 		if (exports.hash(a) == exports.hash(obj_b[i])) {
 			//console.log(i, "fit");
 			array.push(exports.merge(a, obj_b[i], ignore_keys));
 			i++;
 			//todo: unload config
 			missing = null;
-		} else if (exports.hash(a) == exports.hash(obj_b[i+1])) {
-			if (missing) {
-				//console.log(i, "merge");
-				array.push(exports.merge(missing, obj_b[i],
-						ignore_keys));
-				missing = null;
-			} else {
-				//console.log(i, "extra");
-				array.push(obj_b[i]);
-			}
+		} else if (missing && (i+1) < obj_b.length &&
+				exports.hash(a) == exports.hash(obj_b[i+1])) {
+			/* if
+			 *   prev (missing) != b[i]
+			 *   this (a) === b[i+1]
+			 * then
+			 *   merge(missing, b[i]);
+			 *   merge(a, b[i+1]);
+			 */
+			//console.log(i, "merge");
+			array.push(exports.merge(missing, obj_b[i],
+					ignore_keys));
+			missing = null;
 			i++;
 			//console.log(i, "fit");
-			array.push(a);
+			//array.push(a);
+			array.push(exports.merge(a, obj_b[i], ignore_keys));
 			i++;
 		} else {
 			//console.log(i, "missing => deleting");
@@ -109,6 +116,11 @@ var merge_array = function(obj_a, obj_b, ignore_keys) {
 			// do not push.
 		}
 	});
+	if (missing) {
+		array.push(exports.merge(missing, obj_b[i],
+				ignore_keys));
+		i++;
+	}
 	for (;i < obj_b.length; i++) {
 		//console.log(i, "adding");
 		array.push(obj_b[i]);

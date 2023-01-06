@@ -23,6 +23,7 @@ test('load config', function (t) {
 
 	main.config({
 		"app_dir": __dirname+"/",
+		"hostname": "Test 13",
 		"app": [
 			{
 				"name": "test-10"
@@ -46,4 +47,26 @@ test('startup subapps', function (t) {
 	main.application_loader.startup(null, a2, {test: 890});
 	t.deepEqual(Object.keys(main.apps), ['test-10', 'unknown', 'unknown 2',
 			'a2'], "loaded apps");
+});
+
+test('load config - subapps', function (t) {
+	t.plan(1);
+
+	main.config({
+		"app_dir": __dirname+"/",
+		"app": [
+			{
+				"name": "node",
+				"config": {
+					"node": "/hi",
+					"metadata": {"hi": "hi"},
+					"app": [{
+						"name": "test-10"
+					}]
+				}
+			}
+		]
+	});
+	t.deepEqual(Object.keys(main.apps), ['test-10', 'unknown', 'unknown 2',
+			'a2', 'node', 'test-10 2'], "loaded apps");
 });
