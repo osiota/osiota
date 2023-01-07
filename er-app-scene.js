@@ -28,10 +28,8 @@ exports.init = function(node, app_config, main, host_info) {
 		for(var nn in nodes){
 			if (nodes.hasOwnProperty(nn)) {
 				var n = nodes[nn];
-				//console.error("  CHECK", nn, n.value, n.expected);
-				if (n.value !== n.expected) {
-					return false;
-				}
+				//console.error("  CHECK", nn, n.expected, n.node.value, n.expected_value);
+				if (!n.expected) return false;
 			}
 		}
 		return true;
@@ -47,7 +45,10 @@ exports.init = function(node, app_config, main, host_info) {
 		//console.error("SUBSCIRBED", this.name, this.value);
 		// this = node
 
-		nodes[this.name].value = this.value;
+		var n = nodes[this.name];
+		n.expected = (this.value == n.expected_value ||
+				( this.value === null &&
+					n.expected_value === false ) );
 
 		do_check();
 	};
@@ -56,18 +57,24 @@ exports.init = function(node, app_config, main, host_info) {
 	var filter = this._source.filter(app_config.filter, "announce",
 			function(cnode, method, initial, update, fconfig) {
 		//console.error("ANNOUNCED", cnode.name, fconfig);
+		var expected_value = (fconfig.value === undefined ?
+					true : fconfig.value);
 		nodes[cnode.name] = {
 			node: cnode,
+			expected: (cnode.value == expected_value ||
+				( cnode.value === null &&
+					expected_value === false ) ),
 			filter: fconfig,
-			expected: (fconfig.value === undefined ?
-					true : fconfig.value),
+			expected_value: expected_value,
 			subscription: cnode.subscribe(values)
 		};
 
 		return function() {
-			nodes[cnode.name].subscription();
-			delete nodes[cnode.name];
-			do_check();
+			if (nodes[cnode.name]) {
+				nodes[cnode.name].subscription();
+				delete nodes[cnode.name];
+				do_check();
+			}
 		};
 	});
 
@@ -88,10 +95,10 @@ exports.init = function(node, app_config, main, host_info) {
 	// none, some, all
 	*/
 
-	node.announce({
+	node.announce([{
 		"type": "scene.function",
 		"state": app_config.state,
-	});
+	}, app_config.metadata]);
 
 	node.rpc_set = function(reply, state, time) {
 		if (!app_config.state && !state) return;
@@ -109,7 +116,8 @@ exports.init = function(node, app_config, main, host_info) {
 					}
 				}
 				if (v !== null) {
-					n.node.rpc("set", v, time);
+					if (v != n.node.value)
+						n.node.rpc("set", v, time);
 				}
 			}
 		}
