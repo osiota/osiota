@@ -116,7 +116,7 @@ exports.init = function(node, app_config, main, host_info) {
 					}
 				}
 				if (v !== null) {
-					if (v != n.node.value)
+					//if (v != n.node.value)
 						n.node.rpc("set", v, time);
 				}
 			}
