@@ -69,31 +69,28 @@ exports.setup = function(router, save_history, history_config) {
 	*/
 }
 
-exports.init = function(router, config) {
+exports.init = function(router, config_data) {
 
-	var History_info = HG.get_history_module({
+	var config_info = {
 		"type": "global",
 		"submodules": [{
-			"type": "filter",
-			"interval": 0,
-			"submodules": [{
-				"type": "memory",
-				"max_data": 3000
-			}]
+			"type": "memory",
+			"max_data": 3000
 		},{
 			"type": "remote"
 		}]
-	});
-	var History_data = HG.get_history_module(config);
+	};
+	var History_info = HG.get_history_module(config_info);
+	var History_data = HG.get_history_module(config_data);
 
 	router.on("create_new_node", function(node) {
 		node.ready("announce", function(method, initial, update) {
 			if (update) return;
 
-			if (this.metadata && typeof this.metadata.type === "string" && this.metadata.type.match(/\.data$/)) {
-				exports.init_node(History_data, router, node, config);
+			if (node.metadata && typeof node.metadata.type === "string" && node.metadata.type.match(/\.data$/)) {
+				exports.init_node(History_data, router, node, config_data);
 			} else {
-				exports.init_node(History_info, router, node, config);
+				exports.init_node(History_info, router, node, config_info);
 			}
 		});
 	});

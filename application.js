@@ -73,7 +73,7 @@ exports.application.prototype._set_state = function(state, error) {
 		this._object = this._node.announce({
 			"type": "app.error",
 			"state": state,
-			"error": JSON.parse(JSON.stringify(error))
+			"error": error.stack || error
 		});
 	}
 };
