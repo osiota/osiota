@@ -20,7 +20,7 @@ test('load app with error', function (t) {
 	var console_error = console.error;
 	console.error = function() {};
 
-	var a = main.application_loader.startup(null, "test-16", {}, undefined, undefined, function(a) {
+	var a = main.application_loader.startup(null, "test-16", {}, undefined, undefined, undefined, function(a) {
 		t.fail("loaded");
 		console.warn("app (inner)", a._app);
 		throw new Error("Do not start this callback.");

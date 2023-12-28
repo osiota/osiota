@@ -53,6 +53,16 @@ util.inherits(exports.application, EventEmitter);
  * @private
  */
 exports.application.prototype._set_state = function(state, error) {
+	if (state === "DEACTIVE") {
+		this._state = state;
+
+		this._node.connect_schema(this._schema);
+		this._node.connect_config(this._config);
+		this._object = this._node.announce({
+			"type": "app.deactive",
+			"state": state
+		});
+	}
 	if (state === "ERROR_LOADING" || state === "ERROR_STARTING" ||
 			state === "ERROR_APP") {
 		this._state = state;

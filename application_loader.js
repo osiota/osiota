@@ -62,8 +62,53 @@ exports.application_loader.prototype.load = function(node, apps, callback) {
  * @param {function} [callback]
  * @returns {string} Application name
  */
-exports.application_loader.prototype.startup = function(node, app, app_config, host_info, auto_install, callback) {
+exports.application_loader.prototype.startup = function(node, app, app_config, host_info, auto_install, deactive, callback) {
+	if (typeof callback !== "function") {
+		callback = deactive;
+		deactive = undefined;
+	}
+	var struct = {
+		name: app,
+		deactive: deactive,
+		config: app_config,
+	};
+	if (node._app._struct) {
+		struct = node._app._struct;
+	}
+	return this.startup_struct(node, struct, host_info, auto_install, callback);
+};
+
+/**
+ * Startup an application by struct
+ * @param {node} node - Parent node
+ * @param {object} struct - Application Struct
+ * @param {object} [host_info] - Host Information
+ * @param {boolean} [auto_install] - Automatic Installation
+ * @param {function} [callback]
+ * @returns {string} Application name
+ */
+exports.application_loader.prototype.startup_struct = function(node, struct, host_info, auto_install, callback) {
 	var _this = this;
+
+	if (typeof struct !== "object" || struct === null) {
+		if (typeof struct === "string") {
+			struct = {"name": struct};
+		} else {
+			struct = {};
+		}
+	}
+	if (typeof struct.config !== "object") {
+		struct.config = {};
+	}
+
+	if (typeof struct.name !== "string") {
+		console.warn("Warning: Application config options missing.", struct);
+		return null;
+	}
+
+	var app = struct.name;
+	var app_config = struct.config;
+	var deactive = struct.deactive;
 
 	return this.module_get(app, function(e, a) {
 		if (e) {
@@ -76,8 +121,9 @@ exports.application_loader.prototype.startup = function(node, app, app_config, h
 
 		// load app (with or without error):
 		var m = _this.startup_module( a,
-				node, app, app_config,
+				node, struct,
 				host_info, auto_install,
+				deactive,
 				callback);
 
 		if (e) {
@@ -113,35 +159,7 @@ exports.application_loader.prototype.startup = function(node, app, app_config, h
 
 		return m;
 	});
-};
 
-/**
- * Startup an application by struct
- * @param {node} node - Parent node
- * @param {object} struct - Application Struct
- * @param {object} [host_info] - Host Information
- * @param {boolean} [auto_install] - Automatic Installation
- * @param {function} [callback]
- * @returns {string} Application name
- */
-exports.application_loader.prototype.startup_struct = function(node, struct, host_info, auto_install, callback) {
-	if (typeof struct !== "object") {
-		if (typeof struct === "string") {
-			struct = {"name": struct};
-		} else {
-			struct = {};
-		}
-	}
-	if (typeof struct.config !== "object") {
-		struct.config = {};
-	}
-
-	if (typeof struct.name === "string") {
-		return this.startup(node, struct.name, struct.config, host_info, auto_install, callback);
-	} else {
-		console.warn("Warning: Application config options missing.", struct);
-		return null;
-	}
 };
 
 /**
@@ -212,8 +230,11 @@ exports.application_loader.prototype.module_get = function(app, callback) {
  * [internal use] Bind application and initialize it
  * @private
  */
-exports.application_loader.prototype.startup_module = function(a, node, app, app_config, host_info, auto_install, callback) {
+exports.application_loader.prototype.startup_module = function(a, node, struct, host_info, auto_install, deactive, callback) {
 	var _this = this;
+
+	var app = app.name;
+	var app_config = app.config;
 
 	var appname = a._get_app_name();
 	var app_identifier = appname;
@@ -223,6 +244,7 @@ exports.application_loader.prototype.startup_module = function(a, node, app, app
 	}
 	a._id = app_identifier;
 
+	a._struct = struct;
 
 	if (typeof callback === "undefined" &&
 			typeof auto_install === "function") {
@@ -291,7 +313,10 @@ exports.application_loader.prototype.startup_module = function(a, node, app, app
 
 	// init:
 	try {
-		if (!a._error) {
+		if (deactive) {
+			a._set_state("DEACTIVE");
+
+		} else if (!a._error) {
 			a._init(app_config);
 			/**
 			 * Application init

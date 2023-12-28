@@ -54,6 +54,7 @@ exports.init = function(node, app_config, main, host_info) {
 					if (err) throw err;
 					main.application_loader.startup(node, app, l_app_config,
 						host_info, auto_install,
+						false,
 						callback);
 				});
 			} else {

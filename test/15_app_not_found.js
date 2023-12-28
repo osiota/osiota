@@ -17,7 +17,7 @@ test('load non existing app', function (t) {
 		t.equal(e.code, "OSIOTA_APP_NOT_FOUND", "error code");
 	});
 
-	var a = main.application_loader.startup(null, "test-not-found", {}, undefined, undefined, function(a) {
+	var a = main.application_loader.startup(null, "test-not-found", {}, undefined, undefined, undefined, function(a) {
 		t.ok(false, "fail");
 		console.warn("app (inner)", a._app);
 		throw new Error("Do not start this callback.");

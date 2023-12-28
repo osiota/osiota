@@ -987,6 +987,43 @@ exports.node.prototype.rpc_config_node = function(reply, relative_nodename) {
 	});
 };
 /**
+ * RPC activate: Activate or deactivate app
+ * @param {function} reply - RPC reply function
+ * @param {boolean} activate - Activate or deactivate app
+ * @param {boolean} save - Flag to save the configuration
+ * @private
+ */
+exports.node.prototype.rpc_activate = function(reply, activate, save) {
+	if (typeof this._config !== "object" || this._config === null) {
+		return reply("no_config", "No config object set");
+	}
+
+	let app = this._app;
+	if (!app) {
+		return reply(new Error("No application set"));
+	}
+	if (app._state === "DEACTIVE" && activate) {
+		unload_object(app._object);
+		app._object = null;
+		setImmediate(function() {
+			app._init(app_config);
+		});
+	}
+	if (app._state !== "DEACTIVE" && !activate) {
+		app._unload();
+		setImmediate(function() {
+			app._set_state("DEACTIVE");
+		});
+	}
+
+	if (save) {
+		a._main.emit("config_save");
+		return reply(null, "saved");
+	}
+
+	reply(null, "okay");
+};
+/**
  * Register a RPC command on the node
  * @param {string} method - Method to be called
  * @param {function} callback - Function to register
@@ -1155,7 +1192,7 @@ exports.router.prototype.node = function(name) {
 	if (typeof name === "object") return name;
 
 	name = "/" + name;
-	name = name.replace(/\/{2,}/, "/");
+	name = name.replace(/\/{2,}/g, "/");
 
 	if (this.nodes.hasOwnProperty(name)) {
 		return this.nodes[name];
