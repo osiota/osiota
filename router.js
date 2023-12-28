@@ -993,24 +993,27 @@ exports.node.prototype.rpc_config_node = function(reply, relative_nodename) {
  * @param {boolean} save - Flag to save the configuration
  * @private
  */
-exports.node.prototype.rpc_activate = function(reply, activate, save) {
-	if (typeof this._config !== "object" || this._config === null) {
-		return reply("no_config", "No config object set");
+exports.node.prototype.rpc_deactivate = function(reply, deactivate, save) {
+	if (typeof deactivate !== "boolean") {
+		return reply(new Error("deactivate argument not set"));
 	}
 
 	let app = this._app;
 	if (!app) {
 		return reply(new Error("No application set"));
 	}
-	if (app._state === "DEACTIVE" && activate) {
+	if (app._state === "DEACTIVE" && !deactivate) {
 		unload_object(app._object);
 		app._object = null;
+		delete app._struct.deactive;
+
 		setImmediate(function() {
 			app._init(app_config);
 		});
 	}
-	if (app._state !== "DEACTIVE" && !activate) {
+	if (app._state !== "DEACTIVE" && deactivate) {
 		app._unload();
+		app._struct.deactive = true;
 		setImmediate(function() {
 			app._set_state("DEACTIVE");
 		});

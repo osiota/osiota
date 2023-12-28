@@ -72,7 +72,7 @@ exports.application_loader.prototype.startup = function(node, app, app_config, h
 		deactive: deactive,
 		config: app_config,
 	};
-	if (node._app._struct) {
+	if (node && node._app && node._app._struct) {
 		struct = node._app._struct;
 	}
 	return this.startup_struct(node, struct, host_info, auto_install, callback);
@@ -101,14 +101,14 @@ exports.application_loader.prototype.startup_struct = function(node, struct, hos
 		struct.config = {};
 	}
 
-	if (typeof struct.name !== "string") {
+	if (typeof struct.name !== "string" && typeof struct.name !== "object"
+			&& struct.name !== null) {
 		console.warn("Warning: Application config options missing.", struct);
 		return null;
 	}
 
 	var app = struct.name;
 	var app_config = struct.config;
-	var deactive = struct.deactive;
 
 	return this.module_get(app, function(e, a) {
 		if (e) {
@@ -123,7 +123,6 @@ exports.application_loader.prototype.startup_struct = function(node, struct, hos
 		var m = _this.startup_module( a,
 				node, struct,
 				host_info, auto_install,
-				deactive,
 				callback);
 
 		if (e) {
@@ -230,11 +229,12 @@ exports.application_loader.prototype.module_get = function(app, callback) {
  * [internal use] Bind application and initialize it
  * @private
  */
-exports.application_loader.prototype.startup_module = function(a, node, struct, host_info, auto_install, deactive, callback) {
+exports.application_loader.prototype.startup_module = function(a, node, struct, host_info, auto_install, callback) {
 	var _this = this;
 
-	var app = app.name;
-	var app_config = app.config;
+	var app = struct.name;
+	var app_config = struct.config;
+	var deactive = struct.deactive;
 
 	var appname = a._get_app_name();
 	var app_identifier = appname;
