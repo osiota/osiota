@@ -1008,7 +1008,7 @@ exports.node.prototype.rpc_deactivate = function(reply, deactivate, save) {
 		delete app._struct.deactive;
 
 		setImmediate(function() {
-			app._init(app_config);
+			app._init(app._config);
 		});
 	}
 	if (app._state !== "DEACTIVE" && deactivate) {
