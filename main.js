@@ -176,55 +176,7 @@ main.prototype.started = function() {
  * @private
  */
 main.prototype.setup_history = function(save_history) {
-	// Load history module
-	var dbdir = "./.level_db/";
-	if (save_history && typeof save_history === "object") {
-		if (typeof save_history.dbdir === "string") {
-			dbdir = save_history.dbdir;
-		}
-	}
-	if (!this.history_config)
-	this.history_config = {
-		"type": "global",
-		"submodules": [{
-			"type": "timebase",
-			"interval": 60,
-			"submodules": [{
-				"type": "timebase",
-				"interval": 3600,
-				"submodules": [{
-					"type": "timebase",
-					"interval": 3600*24,
-					"submodules": [{
-						"type": "file",
-						"dbdir": dbdir,
-						"filename": "1d.vdb"
-					}]
-				},{
-					"type": "file",
-					"dbdir": dbdir,
-					"filename": "60min.vdb"
-				}]
-			},{
-				"type": "file",
-				"dbdir": dbdir,
-				"filename": "60sec.vdb"
-			}]
-		},{
-			"type": "memory",
-			"max_data": 3000
-		},{
-			"type": "file",
-			"dbdir": dbdir,
-			"filename": "0.vdb"
-		},{
-			"type": "remote"
-		}]
-	};
-	if (save_history) {
-		require('./module_history_class_file.js');
-	}
-	require('./module_history.js').init(this.router, this.history_config);
+	return require('./module_history.js').setup(this.router, save_history, this.history_config);
 }
 
 /**

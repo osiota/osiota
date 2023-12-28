@@ -1,15 +1,100 @@
 
 var HG = require('./module_history_global.js');
 
+exports.setup = function(router, save_history, history_config) {
+	// Load history module
+	var dbdir = "./.level_db/";
+	if (save_history && typeof save_history === "object") {
+		if (typeof save_history.dbdir === "string") {
+			dbdir = save_history.dbdir;
+		}
+	}
+	if (!history_config)
+	history_config = {
+		"type": "global",
+		"submodules": [{
+			"type": "timebase",
+			"interval": 60,
+			"submodules": [{
+				"type": "timebase",
+				"interval": 3600,
+				"submodules": [{
+					"type": "timebase",
+					"interval": 3600*24,
+					"submodules": [{
+						"type": "file",
+						"dbdir": dbdir,
+						"filename": "1d.vdb"
+					}]
+				},{
+					"type": "file",
+					"dbdir": dbdir,
+					"filename": "60min.vdb"
+				}]
+			},{
+				"type": "file",
+				"dbdir": dbdir,
+				"filename": "60sec.vdb"
+			}]
+		},{
+			"type": "memory",
+			"max_data": 3000
+		},{
+			"type": "file",
+			"dbdir": dbdir,
+			"filename": "0.vdb"
+		},{
+			"type": "remote"
+		}]
+	};
+	if (save_history) {
+		require('./module_history_class_file.js');
+	}
+	exports.init(router, history_config);
+
+	/* local
+	this.history_config = {
+		"type": "global",
+		"submodules": [{
+			"type": "filter",
+			"interval": 0,
+			"submodules": [{
+				"type": "memory",
+				"max_data": 3000
+			}]
+		},{
+			"type": "remote"
+		}]
+	};
+	*/
+}
+
 exports.init = function(router, config) {
 
-	var History = HG.get_history_module(config);
+	var History_info = HG.get_history_module({
+		"type": "global",
+		"submodules": [{
+			"type": "filter",
+			"interval": 0,
+			"submodules": [{
+				"type": "memory",
+				"max_data": 3000
+			}]
+		},{
+			"type": "remote"
+		}]
+	});
+	var History_data = HG.get_history_module(config);
 
 	router.on("create_new_node", function(node) {
 		node.ready("announce", function(method, initial, update) {
 			if (update) return;
 
-			exports.init_node(History, router, node, config);
+			if (this.metadata && typeof this.metadata.type === "string" && this.metadata.type.match(/\.data$/)) {
+				exports.init_node(History_data, router, node, config);
+			} else {
+				exports.init_node(History_info, router, node, config);
+			}
 		});
 	});
 };
