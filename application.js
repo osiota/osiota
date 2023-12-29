@@ -58,10 +58,10 @@ exports.application.prototype._set_state = function(state, error) {
 
 		this._node.connect_schema(this._schema);
 		this._node.connect_config(this._config);
-		this._object = this._node.announce({
+		this._object = this._node.announce([this._config.metadata, {
 			"type": "app.deactive",
 			"state": state
-		});
+		}]);
 	}
 	if (state === "ERROR_LOADING" || state === "ERROR_STARTING" ||
 			state === "ERROR_APP") {
@@ -70,11 +70,11 @@ exports.application.prototype._set_state = function(state, error) {
 
 		this._node.connect_schema(this._schema);
 		this._node.connect_config(this._config);
-		this._object = this._node.announce({
+		this._object = this._node.announce([this._config.metadata, {
 			"type": "app.error",
 			"state": state,
 			"error": error.stack || error
-		});
+		}]);
 	}
 };
 /**

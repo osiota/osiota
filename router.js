@@ -1020,7 +1020,7 @@ exports.node.prototype.rpc_deactivate = function(reply, deactivate, save) {
 	}
 
 	if (save) {
-		a._main.emit("config_save");
+		app._main.emit("config_save");
 		return reply(null, "saved");
 	}
 
