@@ -52,7 +52,10 @@ util.inherits(exports.application, EventEmitter);
  * @param {string} state - the new state
  * @private
  */
-exports.application.prototype._set_state = function(state, error) {
+exports.application.prototype._set_state = function(state, error, app_config) {
+	if (typeof this._config === "undefined") {
+		this._config = app_config;
+	}
 	if (state === "DEACTIVE") {
 		this._state = state;
 
@@ -250,6 +253,9 @@ exports.application.prototype._init = function(app_config) {
 		this._config = app_config;
 	}
 	this._node.connect_config(app_config);
+	if (this._struct && this._struct.deactive) {
+		delete app._struct.deactive;
+	}
 	if (typeof this.init === "function") {
 		// TODO: Change Arguments:
 		this._object = this.init(this._node, this._config,
@@ -289,12 +295,14 @@ exports.application.prototype._init = function(app_config) {
  * @private
  */
 exports.application.prototype._unload = function() {
-	if (this._state.match(/^ERROR_/)) {
+	if (this._state.match(/^ERROR_/) || this._state === "DEACTIVE") {
 		unload_object(this._object);
 		this._object = null;
 
 		this._node.connect_schema(null);
 		this._node.connect_config(null);
+
+		this._state = "UNLOADED";
 		return;
 	}
 	if (this._state !== "RUNNING" && this._state !== "REINIT")
@@ -332,16 +340,15 @@ exports.application.prototype._unload = function() {
  */
 exports.application.prototype._reinit = function(app_config) {
 	var _this = this;
-	if (this._state !== "RUNNING" && this._state !== "REINIT")
-		return;
 	console.log("restarting app:", this._id);
 
 	if (typeof app_config !== "object" || app_config === null) {
 		app_config = this._config;
 	}
 
-	this._state = "REINIT";
-	if (typeof this.reinit === "function") {
+	if ((this._state === "RUNNING" || this._state === "REINIT_DELAYED")
+			&& typeof this.reinit === "function") {
+		this._state = "REINIT";
 		this._node.connect_config(app_config);
 		this._node._announced = null;
 		this.reinit(this._node, this._config, this._main, this._extra);
@@ -350,6 +357,9 @@ exports.application.prototype._reinit = function(app_config) {
 		}
 		this._state = "RUNNING";
 	} else {
+		if (this._struct && this._struct.deactive) {
+			delete this._struct.deactive;
+		}
 		this._unload();
 		setImmediate(function() {
 			_this._node.connect_config(app_config);
@@ -370,14 +380,44 @@ exports.application.prototype._reinit_delay = function(delay, app_config) {
 		delay = 1000;
 
 	if (this._state !== "RUNNING")
-		return;
+		throw new Error("Can only reinit running applications");
 
 	var _this = this;
-	this._state = "REINIT";
+	this._state = "REINIT_DELAYED";
 	setTimeout(function() {
 		if (_this._state === "REINIT")
 			_this._reinit(app_config);
 	}, delay);
+};
+
+/**
+ * [internal use] Call init function
+ * @param {object} app_config - Config object
+ * @private
+ */
+exports.application.prototype._init_deactive = function(app_config) {
+	this._config = app_config;
+	this._set_state("DEACTIVE");
+};
+
+
+/**
+ * [internal use] Deactivate app
+ * @private
+ */
+exports.application.prototype._deactivate = function() {
+	var _this = this;
+	console.log("deactivating app:", this._id);
+
+	this._unload();
+	if (this._struct) {
+		this._struct.deactive = true;
+	}
+	setImmediate(function() {
+		_this._set_state("DEACTIVE");
+	});
+
+	this.emit("deactivate");
 };
 
 /**

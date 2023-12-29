@@ -314,7 +314,9 @@ exports.application_loader.prototype.startup_module = function(a, node, struct, 
 	// init:
 	try {
 		if (deactive) {
-			a._set_state("DEACTIVE");
+			a._init_deactive(app_config);
+
+			this.emit("app_initi_deactive", a);
 
 		} else if (!a._error) {
 			a._init(app_config);
@@ -332,9 +334,7 @@ exports.application_loader.prototype.startup_module = function(a, node, struct, 
 		}
 	} catch(e) {
 		// save error:
-		if (typeof a._config === "undefined")
-			a._config = app_config;
-		a._set_state("ERROR_STARTING", e);
+		a._set_state("ERROR_STARTING", e, app_config);
 		a._error = e;
 
 		// trigger global callback:

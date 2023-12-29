@@ -135,9 +135,11 @@ if (argv.help && !argv.app) {
 	var m = new main(config.hostname || config_filename || os.hostname());
 	m.on("config_save", function() {
 		var _this = this;
-		helper_config_file.write(
-			argv.config || "osiota.json",
-			m._config);
+		setImmediate(function() {
+			helper_config_file.write(
+				argv.config || "osiota.json",
+				m._config);
+		});
 	});
 
 	// do config reload on signal

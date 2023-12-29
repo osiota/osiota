@@ -1003,20 +1003,10 @@ exports.node.prototype.rpc_deactivate = function(reply, deactivate, save) {
 		return reply(new Error("No application set"));
 	}
 	if (app._state === "DEACTIVE" && !deactivate) {
-		unload_object(app._object);
-		app._object = null;
-		delete app._struct.deactive;
-
-		setImmediate(function() {
-			app._init(app._config);
-		});
+		app._reinit();
 	}
 	if (app._state !== "DEACTIVE" && deactivate) {
-		app._unload();
-		app._struct.deactive = true;
-		setImmediate(function() {
-			app._set_state("DEACTIVE");
-		});
+		app._deactivate();
 	}
 
 	if (save) {
