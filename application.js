@@ -53,21 +53,11 @@ util.inherits(exports.application, EventEmitter);
  * @private
  */
 exports.application.prototype._set_state = function(state, error, app_config) {
-	if (typeof this._config === "undefined") {
-		this._config = app_config;
-	}
-	if (state === "DEACTIVE") {
-		this._state = state;
-
-		this._node.connect_schema(this._schema);
-		this._node.connect_config(this._config);
-		this._object = this._node.announce([this._config.metadata, {
-			"type": "app.deactive",
-			"state": state
-		}]);
-	}
 	if (state === "ERROR_LOADING" || state === "ERROR_STARTING" ||
 			state === "ERROR_APP") {
+		if (typeof app_config === "object" && app_config !== null) {
+			this._config = app_config;
+		}
 		this._state = state;
 		this._error = error;
 
@@ -385,7 +375,7 @@ exports.application.prototype._reinit_delay = function(delay, app_config) {
 	var _this = this;
 	this._state = "REINIT_DELAYED";
 	setTimeout(function() {
-		if (_this._state === "REINIT")
+		if (_this._state === "REINIT_DELAYED")
 			_this._reinit(app_config);
 	}, delay);
 };
@@ -396,8 +386,18 @@ exports.application.prototype._reinit_delay = function(delay, app_config) {
  * @private
  */
 exports.application.prototype._init_deactive = function(app_config) {
-	this._config = app_config;
-	this._set_state("DEACTIVE");
+	if (typeof app_config === "object" && app_config !== null) {
+		this._config = app_config;
+	}
+
+	this._state = "DEACTIVE";
+
+	this._node.connect_schema(this._schema);
+	this._node.connect_config(this._config);
+	this._object = this._node.announce([this._config.metadata, {
+		"type": "app.deactive",
+		"state": this._state
+	}]);
 };
 
 
@@ -414,7 +414,7 @@ exports.application.prototype._deactivate = function() {
 		this._struct.deactive = true;
 	}
 	setImmediate(function() {
-		_this._set_state("DEACTIVE");
+		_this._init_deactive();
 	});
 
 	this.emit("deactivate");
