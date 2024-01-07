@@ -5,9 +5,22 @@ exports.json_validate = function(schema, data) {
 		var ajv = new Ajv({allErrors: true, strictSchema: false});
 		ajv.addKeyword("app_metadata");
 		ajv.addKeyword("options");
-		schema.__compiled = ajv.compile(schema);
+
+		schema_copy = JSON.parse(JSON.stringify(schema));
+		if (schema_copy.additionalProperties === false) {
+			schema_copy.additionalProperties = true;
+		}
+
+		schema.__compiled = ajv.compile(schema_copy);
 		Object.defineProperty(schema, '__compiled',{enumerable: false});
 	}
-	return schema.__compiled(data);
+	var m = schema.__compiled(data);
+	if (!m) {
+		console.log("data", schema, data);
+		console.log("m", m);
+		console.log("sce", schema.__compiled.errors);
+		return m;
+	}
+	return m;
 	// errors in schema.__compiled.errors
 }

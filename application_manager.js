@@ -286,7 +286,10 @@ exports.application_manager.prototype.create_schema = function(name,
 					name
 				]
 			 },
-			"config": sub_schema
+			"config": sub_schema,
+			"deactive": {
+				"type": "boolean"
+			}
 		},
 		"required": [ "name" ],
 		"additionalProperties": false

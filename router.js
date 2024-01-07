@@ -945,7 +945,10 @@ exports.node.prototype.rpc_config = function(reply, config, save) {
 	if (typeof this.metadata.schema === "object" &&
 			this.metadata.schema !== null) {
 		if (!json_validate(this.metadata.schema, config)) {
-			return reply("invalid_config", m);
+			return reply("invalid_config", {
+				schema: this.metadata.schema,
+				config: config,
+			});
 		}
 	}
 
