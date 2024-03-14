@@ -140,7 +140,7 @@ exports.node.prototype.node = function(name) {
  * @returns {node}
  */
 exports.node.prototype.virtualnode = function() {
-	return new exports.node(this, this.name, null);
+	return new exports.node(this.router, this.name, null);
 };
 
 /**
