@@ -56,21 +56,26 @@ exports.init = function(node, app_config, main, host_info) {
 	var nodes = {};
 	var filter = this._source.filter(app_config.filter, "announce",
 			function(cnode, method, initial, update, fconfig) {
+		//console.log("SCENE", cnode.name);
+
+		if (update) return;
 		//console.error("ANNOUNCED", cnode.name, fconfig);
 		var expected_value = (fconfig.value === undefined ?
 					true : fconfig.value);
-		nodes[cnode.name] = {
+		var n = {
 			node: cnode,
 			expected: (cnode.value == expected_value ||
 				( cnode.value === null &&
 					expected_value === false ) ),
 			filter: fconfig,
 			expected_value: expected_value,
-			subscription: cnode.subscribe(values)
 		};
+		nodes[cnode.name] = n;
+		n.subscription = cnode.subscribe(values);
 
 		return function() {
 			if (nodes[cnode.name]) {
+				//console.log("SCENE/unannounce", cnode.name);
 				nodes[cnode.name].subscription();
 				delete nodes[cnode.name];
 				do_check();
