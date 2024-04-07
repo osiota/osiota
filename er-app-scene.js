@@ -102,6 +102,7 @@ exports.init = function(node, app_config, main, host_info) {
 
 	node.announce([{
 		"type": "scene.function",
+		"button": true,
 		"state": app_config.state,
 	}, app_config.metadata]);
 
