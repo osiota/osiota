@@ -73,6 +73,10 @@ exports.init = function(node, app_config, main, host_info) {
 			snode = null;
 		}];
 	});
+	var target = node.parentnode;
+	if (typeof app_config.target === "string") {
+		target = node.node(app_config.target);
+	}
 	var pr=target.ready("announce", function(method, initial, update) {
 		if (update) return;
 
@@ -101,11 +105,6 @@ exports.init = function(node, app_config, main, host_info) {
 			}
 		}
 	});
-	var target = node.parentnode;
-	if (typeof app_config.target === "string") {
-		target = node.node(app_config.target);
-	}
-
 
 	return [node, s, p, sr, pr];
 };
