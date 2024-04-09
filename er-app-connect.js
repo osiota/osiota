@@ -27,27 +27,60 @@ exports.init = function(node, app_config, main, host_info) {
 	var enable = true;
 
 	var last_time = undefined;
+	var snode = null;
 	var pnode = null;
 
 	var s = this._source.subscribe(function() {
-		if (this.value === null)
+		if (this.time === null || this.value === null || !enable)
 			return;
-
-		if (!enable)
-			return;
-
 		if (!pnode)
 			return;
 
-		var value = _this.map_value(this.value,
-				this.metadata,
-				pnode.metadata);
+		if (!last_time || this.time > last_time) {
+			var value = _this.map_value(this.value,
+					this.metadata, pnode.metadata);
 
-		if (typeof value === "undefined")
+			if (typeof value === "undefined")
+				return;
+
+			last_time = this.time;
+			pnode.rpc("set", value, this.time);
+		}
+	});
+	var p = this.subscribe(function() {
+		if (this.time === null || this.value === null || !enable)
+			return;
+		if (!snode)
 			return;
 
-		last_time = this.time;
-		pnode.rpc("set", value, this.time);
+		if (!last_time || this.time > last_time) {
+			var value = _this.re_map_value(this.value,
+					this.metadata, snode.metadata);
+
+			if (typeof value === "undefined")
+				return;
+
+			last_time = this.time;
+			snode.rpc("set", value, this.time);
+		}
+	});
+	var sr=this.source.ready("announce", function(method, initial, update) {
+		if (update) return;
+
+		snode = this;
+
+		return [function() {
+			snode = null;
+		}];
+	});
+	var pr=target.ready("announce", function(method, initial, update) {
+		if (update) return;
+
+		pnode = this;
+
+		return [function() {
+			pnode = null;
+		}];
 	});
 
 	node.rpc_set = function(reply, value, time) {
@@ -73,34 +106,6 @@ exports.init = function(node, app_config, main, host_info) {
 		target = node.node(app_config.target);
 	}
 
-	var sr=target.ready("announce", function(method, initial,
-				update) {
-		if (update) return;
 
-		pnode = this;
-		var s = this.subscribe(function() {
-			if (this.time === null) return;
-			if (!last_time || this.time > last_time) {
-				var value = _this.re_map_value(this.value,
-						this.metadata,
-						_this._source.metadata);
-				_this._source.rpc("set", value,
-						this.time, function(e) {
-					if (e) {
-						console.warn("Connect, rpc:",
-						"\nsource", pnode.name,
-						"\nnode:", _this._source.name,
-						"\nstack:", e.stack || e);
-					}
-				});
-				last_time = this.time;
-			}
-		});
-
-		return [s, function() {
-			pnode = null;
-		}];
-	});
-
-	return [node, sr, s];
+	return [node, s, p, sr, pr];
 };

@@ -39,7 +39,7 @@ exports.init = function(node, app_config, main, host_info) {
 	var do_check = function() {
 		let c = check();
 		//console.error("CHECK", c);
-		node.publish(undefined, c);
+		node.publish(undefined, c, true);
 	};
 
 	let values = function() {

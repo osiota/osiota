@@ -7,7 +7,7 @@ exports.map_event = function(e) {
 
 exports.node_set = function(node, value, time, app_config) {
 	value = this.map_event(value, time, app_config);
-	return node.rpc("set", value, time);
+	return node.rpc(app_config.rpc_function || "set", value, time);
 };
 
 exports.init = function(node, app_config, main, host_info) {
