@@ -30,6 +30,11 @@ exports.init = function(node, app_config, main, host_info) {
 	var snode = null;
 	var pnode = null;
 
+	var target = node.parentnode;
+	if (typeof app_config.target === "string") {
+		target = node.node(app_config.target);
+	}
+
 	var s = this._source.subscribe(function() {
 		if (this.time === null || this.value === null || !enable)
 			return;
@@ -47,7 +52,7 @@ exports.init = function(node, app_config, main, host_info) {
 			pnode.rpc("set", value, this.time);
 		}
 	});
-	var p = this.subscribe(function() {
+	var p = target.subscribe(function() {
 		if (this.time === null || this.value === null || !enable)
 			return;
 		if (!snode)
@@ -73,10 +78,6 @@ exports.init = function(node, app_config, main, host_info) {
 			snode = null;
 		}];
 	});
-	var target = node.parentnode;
-	if (typeof app_config.target === "string") {
-		target = node.node(app_config.target);
-	}
 	var pr=target.ready("announce", function(method, initial, update) {
 		if (update) return;
 
