@@ -72,16 +72,18 @@ exports.init = function(node, app_config, main, host_info) {
 			expected_value: expected_value,
 		};
 		nodes[cnode.name] = n;
-		n.subscription = cnode.subscribe(values);
+		var s = null;
+		if (!fconfig.ignore_feedback) {
+			s = cnode.subscribe(values);
+		}
 
-		return function() {
+		return [s, function() {
 			if (nodes[cnode.name]) {
 				//console.log("SCENE/unannounce", cnode.name);
-				nodes[cnode.name].subscription();
 				delete nodes[cnode.name];
 				do_check();
 			}
-		};
+		}];
 	});
 
 	/* Eine Szene mappt Zustände von einem Node auf ein (oder mehrere?)
