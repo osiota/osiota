@@ -69,7 +69,7 @@ exports.init = function(node, app_config, main, host_info) {
 			snode.rpc("set", value, this.time);
 		}
 	});
-	var sr=this.source.ready("announce", function(method, initial, update) {
+	var sr=this._source.ready("announce", function(method, initial, update){
 		if (update) return;
 
 		snode = this;
