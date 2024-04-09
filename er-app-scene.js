@@ -29,7 +29,8 @@ exports.init = function(node, app_config, main, host_info) {
 			if (nodes.hasOwnProperty(nn)) {
 				var n = nodes[nn];
 				//console.error("  CHECK", nn, n.expected, n.node.value, n.expected_value);
-				if (!n.expected) return false;
+				if (!n.filter.ignore_feedback &&
+						!n.expected) return false;
 			}
 		}
 		return true;
