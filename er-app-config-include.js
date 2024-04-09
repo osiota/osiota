@@ -1,11 +1,21 @@
 var http = require("http");
 var fs = require("fs");
 
+const configuration_files = {};
+
 exports.init = function(node, app_config, main, host_info) {
 	if (typeof app_config.file !== "string") {
 		console.warn("config-include: No filename given.");
 		return;
 	}
+	if (app_config.once && typeof configuration_files[app_config.file]
+			!== "undefined") {
+		console.log("config-include: Configuration file already "+
+				"loaded.");
+		return;
+	}
+	configuration_files[app_config.file] = this;
+
 	if (typeof app_config.writeable !== "boolean") {
 		app_config.writeable = false;
 	}
@@ -34,10 +44,14 @@ exports.init = function(node, app_config, main, host_info) {
 			});
 		};
 		main.on("config_save", cb_config_save);
-		return [function() {
+		cleaning_object.push(() => {
 			main.removeListener("config_save", cb_config_save);
-		}];
+		});
 	}
+
+	cleaning_object.push(() => {
+		configuration_files[app_config.file] = undefined;
+	});
 
 	// undo sub_config
 	return cleaning_object;
