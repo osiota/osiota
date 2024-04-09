@@ -202,7 +202,7 @@ exports.application_loader.prototype.module_get = function(app, callback) {
 						}
 						a._bind_schema(
 							schema,
-							_this._main.load_schema,
+							_this._main.load_schema.bind(_this._main),
 							function(err) {
 								callback(err, a);
 							}
