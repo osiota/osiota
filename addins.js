@@ -47,7 +47,7 @@ exports.addins = function(main) {
 	 * @deprecated
 	 */
 	/* istanbul ignore next deprecated */
-	Node.prototype.property = function(name, type, callback, default_value){
+	Node.prototype.property = function(name, type, callback, default_value, metadata){
 		if (typeof default_value === "undefined")
 			default_value = null;
 
@@ -88,7 +88,7 @@ exports.addins = function(main) {
 				"type": type
 			};
 		}
-		e.announce({
+		e.announce([{
 			"type": ltype+".property",
 			"property": true,
 			"schema": schema,
@@ -98,7 +98,7 @@ exports.addins = function(main) {
 					"args": [true]
 				}
 			}
-		});
+		}, metadata]);
 
 		return e;
 	};
