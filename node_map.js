@@ -191,6 +191,12 @@ exports.node_map.prototype.remove_node = function(app_config) {
 			this.map[key].a.unload();
 			delete this.map[key].a;
 		}
+		if (Array.isArray(this.map[key].sub_apps)) {
+			this.map[key].sub_apps.forEach(function(a) {
+				a.unload();
+			});
+			delete this.map[key].sub_apps;
+		}
 	}
 };
 
@@ -254,11 +260,16 @@ exports.node_map.prototype.map_element = function(key, app_config,
 	this._forEachCallbacks.forEach(function(callback) {
 		callback.call(_this, n, app_config);
 	});
+	var sub_apps = [];
+	if (local_app === null) {
+		sub_apps = n.load_app(app_config.app);
+	}
 
 	this.map[key] = {
 		vn: n,
 		a: a,
-		config: app_config
+		config: app_config,
+		sub_apps: sub_apps,
 	};
 	return n;
 };

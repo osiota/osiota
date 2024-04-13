@@ -20,6 +20,17 @@ exports.addins = function(main) {
 	 * @deprecated
 	 */
 	/* istanbul ignore next deprecated */
+	Node.prototype.load_app = function(app, app_config_app, callback) {
+		return main.application_loader.load(this, app, app_config_app, callback);
+	};
+
+	/**
+	 * [LITTLE USED / DEPRECATED?? / IDEA]
+	 *
+	 * @todo: Check where this is used
+	 * @deprecated
+	 */
+	/* istanbul ignore next deprecated */
 	main.map_app = function(metadatatype) {
 		var subapp = {};
 		subapp.init = function(node, app_config, main, host_info) {
