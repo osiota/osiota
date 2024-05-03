@@ -175,10 +175,10 @@ exports.application.prototype._inherit = function(inherit, loader, callback) {
 	loader(iname, function(err, m) {
 		if (err) return callback(err);
 
-		if (typeof _this._base !== "object") {
-			_this._base = {};
+		if (typeof _this._super !== "object") {
+			_this._super = {};
 		}
-		_this._base[iname] = m;
+		_this._super[iname] = m;
 		_this._bind_module(m, loader, function(err) {
 			if (err) return callback(err);
 			_this._inherit(inherit, loader, callback);

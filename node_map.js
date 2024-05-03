@@ -221,9 +221,9 @@ exports.node_map.prototype.map_element = function(key, app_config,
 			"init": function() {
 				var map = _this.get_schema_map();
 				var s = _this.merge_schema_properties(
-					this._base[local_app_str]._schema, map);
+					this._super[local_app_str]._schema, map);
 				this._node.connect_schema(s);
-				return this._base[local_app_str].init.apply(this,
+				return this._super[local_app_str].init.apply(this,
 					arguments);
 			}
 		};
