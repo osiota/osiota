@@ -1,4 +1,4 @@
-var Node = require("./router").node;
+var Node = require("./node").node;
 
 exports.addins = function(main) {
 
