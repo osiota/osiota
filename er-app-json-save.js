@@ -62,7 +62,7 @@ exports.init = function(node, app_config, main, host_info) {
 exports.unload = function(co, unload_object) {
 	var _this = this;
 
-	if (this._main.user_terminated) {
+	if (process.user_terminated) {
 		unload_object(co);
 		return;
 	}
