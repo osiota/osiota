@@ -1,13 +1,12 @@
 
 const fs = require("fs");
 
-const util = require('util');
 const HistoryGlobal = require("./module_history_global.js");
 
 const levelup = require("levelup");
 const leveldown = require("leveldown");
 
-var dbdir = "./.level_db/";
+const dbdir = "./.level_db/";
 
 function makeKey(version) {
 	if (typeof version !== "number") return undefined;
@@ -87,69 +86,71 @@ var vdb_read = function(vdb, config, callback) {
 	});
 }
 
-exports.history = function (node, config) {
-	if (typeof node.metadata === "object" &&
-			node.metadata !== null &&
-			typeof node.metadata.history !== "undefined") {
-		if (node.metadata.history === false) {
-			throw new Error("Module disabled.");
+class history extends HistoryGlobal.history {
+	constructor(node, config) {
+		if (typeof node.metadata === "object" &&
+				node.metadata !== null &&
+				typeof node.metadata.history !== "undefined") {
+			if (node.metadata.history === false) {
+				throw new Error("Module disabled.");
+			}
 		}
-	}
 
-	this.vdb = vdb_setup(node, config);
-};
-util.inherits(exports.history, HistoryGlobal.history);
+		this.vdb = vdb_setup(node, config);
+	};
 
-exports.history.prototype.add = function (time, value) {
-	if (time === null) {
-		return;
-	}
-	if (value === null || typeof value === "undefined") {
-		value = "";
-	}
-
-	this.vdb.put(makeKey(time), value, function(err) {
-		if(err)
-			console.warn('Error:', err);
-	});
-};
-
-//remote getting history
-exports.history.prototype.get = function (parameters, callback) {
-	var config = {};
-	config.maxentries = 3000;
-	config.fromtime = null; // not included
-	config.totime = null; // not included.
-	config.reverse_align = false;
-
-	// read config from parameters object
-	if (typeof parameters !== "object") {
-		parameters = {};
-	}
-	if (typeof parameters.maxentries === "number") {
-		config.maxentries = parameters.maxentries;
-	}
-	if (typeof parameters.fromtime === "number") {
-		config.fromtime = parameters.fromtime;
-	}
-	if (typeof parameters.totime === "number") {
-		config.totime = parameters.totime;
-	}
-	if (typeof parameters.reverse_align === "boolean") {
-		config.reverse_align = parameters.reverse_align;
-	}
-	if (config.maxentries === -1) {
-		config.maxentries = null;
-	}
-
-	vdb_read(this.vdb, config, function(hdata) {
-		if (hdata === null) {
-			callback(hdata, true);
-		} else {
-			callback(hdata, false);
+	add(time, value) {
+		if (time === null) {
+			return;
 		}
-	});
+		if (value === null || typeof value === "undefined") {
+			value = "";
+		}
+
+		this.vdb.put(makeKey(time), value, function(err) {
+			if(err)
+				console.warn('Error:', err);
+		});
+	};
+
+	//remote getting history
+	get(parameters, callback) {
+		var config = {};
+		config.maxentries = 3000;
+		config.fromtime = null; // not included
+		config.totime = null; // not included.
+		config.reverse_align = false;
+
+		// read config from parameters object
+		if (typeof parameters !== "object") {
+			parameters = {};
+		}
+		if (typeof parameters.maxentries === "number") {
+			config.maxentries = parameters.maxentries;
+		}
+		if (typeof parameters.fromtime === "number") {
+			config.fromtime = parameters.fromtime;
+		}
+		if (typeof parameters.totime === "number") {
+			config.totime = parameters.totime;
+		}
+		if (typeof parameters.reverse_align === "boolean") {
+			config.reverse_align = parameters.reverse_align;
+		}
+		if (config.maxentries === -1) {
+			config.maxentries = null;
+		}
+
+		vdb_read(this.vdb, config, function(hdata) {
+			if (hdata === null) {
+				callback(hdata, true);
+			} else {
+				callback(hdata, false);
+			}
+		});
+	};
 };
+exports.history = history;
 
 exports.vdb_setup = vdb_setup;
 
