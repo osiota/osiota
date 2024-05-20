@@ -8,8 +8,6 @@ class history extends HistoryGlobal.history {
 		if (typeof this.interval !== "number") {
 			this.interval = 0;
 		}
-
-		this.submodules_init(node, config);
 	};
 
 	add(time, value) {

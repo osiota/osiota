@@ -34,6 +34,7 @@ var get_walk = function(modules, parameters, callback) {
 /* history */
 class history {
 	constructor(node, config) {
+		this.submodules_init(node, config);
 	}
 	submodules = [];
 

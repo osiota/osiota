@@ -12,8 +12,6 @@ class history extends HistoryGlobal.history {
 		this.sum = null;
 		this.count = 0;
 		this.last_time_slot = null;
-
-		this.submodules_init(node, config);
 	};
 
 	add(time, value) {
