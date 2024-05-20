@@ -6,7 +6,9 @@ var test = helper.test(__filename);
 var osiota = require("../");
 var main = new osiota();
 
-main.config({});
+main.config({
+	"app_dir": __dirname+"/",
+});
 
 test('load non existing app', function (t) {
 	t.plan(3);

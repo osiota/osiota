@@ -4,12 +4,12 @@
  * Simon Walz, IfN, 2016
  */
 
-var unload_object = require("unload-object").unload;
+const unload_object = require("unload-object").unload;
 
-var EventEmitter = require('events').EventEmitter;
+const EventEmitter = require('events').EventEmitter;
 
-var nodename_transform = require("./helper_nodenametransform").nodename_transform;
-var queue = require("./helper_queue").queue;
+const nodename_transform = require("./helper_nodenametransform").nodename_transform;
+const queue = require("./helper_queue").queue;
 
 
 /* cmd state maschine:
@@ -29,73 +29,75 @@ var queue = require("./helper_queue").queue;
  *
  *  -- close
  */
-var cmd_stack = function() {
-	this.stack = {};
-};
-cmd_stack.prototype.get = function(key) {
-	var _this = this;
-	if (!this.stack.hasOwnProperty(key)) {
-		var e = new EventEmitter();
-		e.on("end", function() {
-			this.removeAllListeners("open");
-			this.removeAllListeners("close");
-		});
+class cmd_stack {
+	constructor() {
+		this.stack = {};
+	};
+	get(key) {
+		var _this = this;
+		if (!this.stack.hasOwnProperty(key)) {
+			var e = new EventEmitter();
+			e.on("end", function() {
+				this.removeAllListeners("open");
+				this.removeAllListeners("close");
+			});
 
-		e.init = function(cb_start, cb_end) {
-			e.emit("end");
-			e.once("start", function() {
-				cb_start.call(this, true);
-			});
-			e.on("open", function() {
-				cb_start.call(this, false);
-			});
-			e.on("close", function() {
-				cb_end.call(this, true);
-			});
-			e.once("end", function() {
-				cb_end.call(this, false);
-			});
-			e.emit("start");
-			return e;
-		};
-		/* istanbul ignore next unused? */
-		e.init_single = function(cb_start, cb_end) {
-			e.emit("end");
-			e.once("start", function() {
-				cb_start.call(this, true);
-			});
-			e.once("close", function() {
-				cb_end.call(this, true);
-			});
-			e.once("end", function() {
-				cb_end.call(this, false);
-			});
-			e.emit("start");
-			return e;
-		};
-		e.end = function() {
-			var cl = e.listeners("end").length;
-			e.emit("end");
-			_this.remove(key);
-			return cl > 1;
-		};
+			e.init = function(cb_start, cb_end) {
+				e.emit("end");
+				e.once("start", function() {
+					cb_start.call(this, true);
+				});
+				e.on("open", function() {
+					cb_start.call(this, false);
+				});
+				e.on("close", function() {
+					cb_end.call(this, true);
+				});
+				e.once("end", function() {
+					cb_end.call(this, false);
+				});
+				e.emit("start");
+				return e;
+			};
+			/* istanbul ignore next unused? */
+			e.init_single = function(cb_start, cb_end) {
+				e.emit("end");
+				e.once("start", function() {
+					cb_start.call(this, true);
+				});
+				e.once("close", function() {
+					cb_end.call(this, true);
+				});
+				e.once("end", function() {
+					cb_end.call(this, false);
+				});
+				e.emit("start");
+				return e;
+			};
+			e.end = function() {
+				var cl = e.listeners("end").length;
+				e.emit("end");
+				_this.remove(key);
+				return cl > 1;
+			};
 
-		this.stack[key] = e;
-		return e;
+			this.stack[key] = e;
+			return e;
+		}
+		return this.stack[key];
 	}
-	return this.stack[key];
-}
-cmd_stack.prototype.remove = function(key) {
-	if (this.stack.hasOwnProperty(key)) {
-		delete this.stack[key];
-		return true;
+	remove(key) {
+		if (this.stack.hasOwnProperty(key)) {
+			delete this.stack[key];
+			return true;
+		}
+		return false;
 	}
-	return false;
-}
-cmd_stack.prototype.emit = function(subkey) {
-	for (var key in this.stack) {
-		this.stack[key].emit(subkey);
-	}
+	emit(subkey) {
+		for (var key in this.stack) {
+			this.stack[key].emit(subkey);
+		}
+	};
 };
 
 /* string key generated from method and nodename: */

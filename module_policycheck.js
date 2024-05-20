@@ -14,7 +14,7 @@
  *        secured_connections-array of the routers Policy_checker-object
  */
 
-var match = require("./helper_match").match;
+const match = require("./helper_match").match;
 
 /*
  * This definition maps a method of an rpc-call to policy actions
@@ -27,7 +27,7 @@ var match = require("./helper_match").match;
  * the policy checker will think that the specific method does not need
  * to be evaluated in the szenario and will not do a full policy check!
  */
-var REACTIONS = {
+const REACTIONS = {
 	"from_remote": {
 		"announce": {
 			"block_write": false,
@@ -83,49 +83,6 @@ var REACTIONS = {
 	}
 };
 
-/*
- * Policy_checker contructor
- */
-exports.Policy_checker = function() {
-	this.policy_set = [[], [], []];
-	// policySet[2] = user-level
-	// policySet[1] = application-level
-	// policySet[0] = default-level,
-
-	this.observed_connections = [];
-};
-
-/*
- * Checks if the "method" defined in the rpc-call coming from or being send
- * to a remote, is allowed to be executed for the respective node!
- *
- * possible results:
- *   - is allowed: return null
- *   - is not allowed: abort further processing of the rpc-call
- *   - is allowed under certain conditions: return policy
- *
- * Example call 1:
- *  check("/IBR", "localhost:8080", "subscribe_announcement", "from_remote");
- * Example call 2:
- *  check("/TUBS/IBR", "locahlhost:8081", "announce", to remote);
- */
-exports.Policy_checker.prototype.check = function(node, remote_id, method,
-		data_flow) {
-	// is connection observed
-	if (this.observed_connections.indexOf(remote_id) <= -1 ) {
-		return null;
-	}
-
-	var reaction = get_reaction(data_flow, method);
-
-	// Does method need to be evaluated for this data_flow direction
-	if (reaction == null) {
-		return null;
-	}
-
-	var policy = this.find_most_relevant_policy(node, remote_id, reaction);
-	return exec_reaction(reaction, policy, remote_id, method);
-};
 
 function get_reaction(data_flow, method, policy_action) {
 	if (typeof data_flow === "string" &&
@@ -163,77 +120,120 @@ function exec_reaction(reaction, policy, remote_id, method) {
 	return null;
 }
 
-exports.Policy_checker.prototype.add_observed_connection = function(
-		connection_id) {
-	this.observed_connections.push(connection_id);
-};
-
-exports.Policy_checker.prototype.remove_observed_connection = function(
-		connection_id) {
-	var array = this.observed_connections;
-	var index = array.indexOf(connection_id);
-	if (index > -1) {
-		array.splice(index, 1);
-	}
-};
-
-exports.Policy_checker.prototype.add_policy = function(policy_level, policy) {
-	if (typeof policy !== "object" ||
-			typeof policy.action !== "string") {
-		console.log("Your policy "+ policy.toString() +" is not valid");
-		return;
-	}
-	if (policy_level == 'default_level') {
-		this.policy_set[0].push(policy);
-	} else if (policy_level == 'application_level') {
-		this.policy_set[1].push(policy);
-	} else if (policy_level == 'user_level') {
-		this.policy_set[2].push(policy);
-	} else {
-		console.log(policy_level+' is an invalid policy-level! '+
-			'Please choose one of the following: ' +
-			'default_level, application_level, user_level'
-		);
-	}
-};
-
-
-/* 
- * Find the relevant policy dependent on the node, remote and metadata
- *    - node: node-object
- *    - remote: remote-id like "ws://localhost:8080"
- *    - policy-type: can be "read" or "write"
+/*
+ * Policy_checker contructor
  */
-exports.Policy_checker.prototype.find_most_relevant_policy = function (node,
-		remote_id, reaction) {
+class Policy_checker {
+	constructor() {
+		this.policy_set = [[], [], []];
+		// policySet[2] = user-level
+		// policySet[1] = application-level
+		// policySet[0] = default-level,
 
-	var mostRelevantPolicy;
-	var mostRelevantMatchscore = [[], [], []];
-	for (var x = 2; x >= 0; x--) {
-		var policies = this.policy_set[x];
-		for (var y = 0; y < policies.length; y++) {
-			var policy = policies[y];
+		this.observed_connections = [];
+	};
 
-			var r = map_reaction(reaction, policy.action);
-			if (r) {
-				var match = check_if_relevant(policy,
-						node, remote_id);
-				if (match[0] == true && check_if_more_relevant(
-						match[1],
-						mostRelevantMatchscore
-				)) {
-					mostRelevantPolicy = policy;
-					mostRelevantMatchscore = match[1];
+	/*
+	 * Checks if the "method" defined in the rpc-call coming from or being send
+	 * to a remote, is allowed to be executed for the respective node!
+	 *
+	 * possible results:
+	 *   - is allowed: return null
+	 *   - is not allowed: abort further processing of the rpc-call
+	 *   - is allowed under certain conditions: return policy
+	 *
+	 * Example call 1:
+	 *  check("/IBR", "localhost:8080", "subscribe_announcement", "from_remote");
+	 * Example call 2:
+	 *  check("/TUBS/IBR", "locahlhost:8081", "announce", to remote);
+	 */
+	check(node, remote_id, method, data_flow) {
+		// is connection observed
+		if (this.observed_connections.indexOf(remote_id) <= -1 ) {
+			return null;
+		}
+
+		var reaction = get_reaction(data_flow, method);
+
+		// Does method need to be evaluated for this data_flow direction
+		if (reaction == null) {
+			return null;
+		}
+
+		var policy = this.find_most_relevant_policy(node, remote_id, reaction);
+		return exec_reaction(reaction, policy, remote_id, method);
+	};
+
+	add_observed_connection(connection_id) {
+		this.observed_connections.push(connection_id);
+	};
+
+	remove_observed_connection(connection_id) {
+		var array = this.observed_connections;
+		var index = array.indexOf(connection_id);
+		if (index > -1) {
+			array.splice(index, 1);
+		}
+	};
+
+	add_policy(policy_level, policy) {
+		if (typeof policy !== "object" ||
+				typeof policy.action !== "string") {
+			console.log("Your policy "+ policy.toString() +" is not valid");
+			return;
+		}
+		if (policy_level == 'default_level') {
+			this.policy_set[0].push(policy);
+		} else if (policy_level == 'application_level') {
+			this.policy_set[1].push(policy);
+		} else if (policy_level == 'user_level') {
+			this.policy_set[2].push(policy);
+		} else {
+			console.log(policy_level+' is an invalid policy-level! '+
+				'Please choose one of the following: ' +
+				'default_level, application_level, user_level'
+			);
+		}
+	};
+
+
+	/* 
+	 * Find the relevant policy dependent on the node, remote and metadata
+	 *    - node: node-object
+	 *    - remote: remote-id like "ws://localhost:8080"
+	 *    - policy-type: can be "read" or "write"
+	 */
+	find_most_relevant_policy(node, remote_id, reaction) {
+
+		var mostRelevantPolicy;
+		var mostRelevantMatchscore = [[], [], []];
+		for (var x = 2; x >= 0; x--) {
+			var policies = this.policy_set[x];
+			for (var y = 0; y < policies.length; y++) {
+				var policy = policies[y];
+
+				var r = map_reaction(reaction, policy.action);
+				if (r) {
+					var match = check_if_relevant(policy,
+							node, remote_id);
+					if (match[0] == true && check_if_more_relevant(
+							match[1],
+							mostRelevantMatchscore
+					)) {
+						mostRelevantPolicy = policy;
+						mostRelevantMatchscore = match[1];
+					}
 				}
 			}
 		}
-	}
-	if (typeof mostRelevantPolicy != 'undefined') {
-		return mostRelevantPolicy;
-	}
-	//if no matching policy was found
-	return 'default';
+		if (typeof mostRelevantPolicy != 'undefined') {
+			return mostRelevantPolicy;
+		}
+		//if no matching policy was found
+		return 'default';
+	};
 };
+exports.Policy_checker = Policy_checker;
 
 
 /*

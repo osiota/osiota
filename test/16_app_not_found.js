@@ -6,7 +6,9 @@ var test = helper.test(__filename);
 var osiota = require("../");
 var main = new osiota();
 
-main.config({});
+main.config({
+	"app_dir": __dirname+"/",
+});
 
 test('load app with error', function (t) {
 	t.plan(2);

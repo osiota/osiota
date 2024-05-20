@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 
-var helper = require("./test/helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./test/helper_test.js");
+const test = helper.test(__filename);
 
-var msp = require("./node_map.js").node_map.prototype.merge_schema_properties;
-
-var gsm = require("./node_map.js").node_map.prototype.get_schema_map
+const msp = require("./node_map.js").node_map.prototype.merge_schema_properties;
+const gsm = require("./node_map.js").node_map.prototype.get_schema_map
 
 test('async call data', function(t) {
 	t.plan(1);

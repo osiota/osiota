@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-var helper = require("./test/helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./test/helper_test.js");
+const test = helper.test(__filename);
 
-var application_manager = require("./application_manager.js").application_manager;
+const application_manager = require("./application_manager.js").application_manager;
 
-var am = new application_manager({
+const am = new application_manager({
 	require: function(module_array, callback) {
 		return callback(require("./" + module_array[1]));
 	},

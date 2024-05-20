@@ -1,5 +1,5 @@
 
-var HG = require('./module_history_global.js');
+const HG = require('./module_history_global.js');
 
 exports.setup = function(router, save_history, history_config) {
 	// Load history module
