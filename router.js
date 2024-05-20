@@ -48,16 +48,19 @@ class router extends EventEmitter {
 		var nodes = {};
 		var _this = this;
 
+		// Filter nodes:
+		var regex = new RegExp("^" + RegExp.quote(basename) + "(/.*)$", '');
+		if (!children_of_children) {
+			// only direct children:
+			regex = new RegExp("^" + RegExp.quote(basename) + "(/[^/@]*)$", '');
+		}
+
+
 		// Sort keys:
-		Object.keys(this.nodes).sort().forEach(function(name) {
+		Object.keys(this.nodes).forEach(function(name) {
 			var n = _this.nodes[name];
 
-			// Filter nodes:
-			var regex = new RegExp("^" + RegExp.quote(basename) + "(/.*)$", '');
-			if (!children_of_children) {
-				// only direct children:
-				regex = new RegExp("^" + RegExp.quote(basename) + "(/[^/@]*)$", '');
-			}
+			// TODO: consider using .startsWith
 			var found = name.match(regex)
 			if (found) {
 				nodes[found[1]] = n;

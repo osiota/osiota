@@ -2,9 +2,9 @@
 
 // use graceful-fs to protect against EMFILE errors when opening to many files.
 //var fs = require('fs');
-var fs = require('graceful-fs');
+const fs = require('graceful-fs');
 
-var module_appendFile = function(filename, content) {
+function module_appendFile(filename, content) {
 	fs.appendFile(filename, content, function(err) {
 		if (err) {
 			throw err;

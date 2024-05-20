@@ -282,9 +282,9 @@ class application_loader {
 		}
 		a._rnode = node;
 
-		var node_source = node;
-		if (typeof app_config.source === "string") {
-			node_source = node.node(app_config.source);
+		var node_base = node;
+		if (typeof app_config.base === "string") {
+			node_base = node.node(app_config.base);
 		}
 
 		var node_destination = null;
@@ -293,13 +293,13 @@ class application_loader {
 			node_postname = a.node_postname;
 		}
 		if (typeof app_config.node === "string") {
-			node_destination = node_source.node(app_config.node + node_postname);
+			node_destination = node_base.node(app_config.node + node_postname);
 		} else if (typeof app_config.pnode === "string") {
 			node_destination = node.node(app_config.pnode);
 		} else if (typeof a.default_node_name === "string") {
-			node_destination = node_source.node(a.default_node_name);
+			node_destination = node_base.node(a.default_node_name);
 		} else {
-			node_destination = node_source.node(a._id);
+			node_destination = node_base.node(a._id);
 		}
 
 		if (node_destination._app &&

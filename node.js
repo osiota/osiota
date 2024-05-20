@@ -1040,13 +1040,9 @@ class node extends EventEmitter {
 	 *	console.log(data);
 	 * });
 	 */
-	rpc(method) {
+	rpc(method, ...args) {
 		var _this = this;
 		if (!this.hasOwnProperty("connection")) {
-			var args = Array.prototype.slice.call(arguments);
-			//var method =
-			args.shift();
-
 			var callback = null;
 			var reply = null;
 			if (typeof args[args.length-1] === "function") {
@@ -1078,12 +1074,8 @@ class node extends EventEmitter {
 		} else {
 			var ws = this.connection;
 
-			var args = Array.prototype.slice.call(arguments);
-
-			// Add node object to arguments:
-			args.unshift(this);
 			if (ws !== null)
-				ws.node_rpc.apply(ws, args);
+				ws.node_rpc.apply(ws, [this, method, ...args]);
 		}
 	};
 

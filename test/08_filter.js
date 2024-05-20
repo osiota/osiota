@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 
-var helper = require("./helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./helper_test.js");
+const test = helper.test(__filename);
 
-var osiota = require("../");
-var main = new osiota();
-var n = main.node("/test");
+const osiota = require("../");
+const main = new osiota();
+const n = main.node("/test");
 
 const EventEmitter = require('events');
-var e = new EventEmitter();
+const e = new EventEmitter();
 
-var r1 = main.node("/").filter([
+const r1 = main.node("/").filter([
 	{
 		"nodes": ["/Guten Tag/1/2/3/4/5"]
 	},{

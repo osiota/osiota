@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-var helper = require("./helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./helper_test.js");
+const test = helper.test(__filename);
 
-var osiota = require("../");
-var main = new osiota();
-var Application = require("../application.js").application;
+const osiota = require("../");
+const main = new osiota();
+const Application = require("../application.js").application;
 var application_loader = null;
 
 var a1 = {};

@@ -1,5 +1,5 @@
 
-var match = require("./helper_match").match;
+const match = require("./helper_match").match;
 
 exports.init = function(node, app_config, main, host_info) {
 

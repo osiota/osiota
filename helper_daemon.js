@@ -1,5 +1,5 @@
-var fs = require('fs');
-var child_process = require('child_process');
+const fs = require('fs');
+const child_process = require('child_process');
 
 /**
  * Get the status of a process

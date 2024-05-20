@@ -2,8 +2,8 @@
 
 const proxyquire = require('proxyquire');
 
-var helper = require("./test/helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./test/helper_test.js");
+const test = helper.test(__filename);
 
 
 test('read', function(t) {

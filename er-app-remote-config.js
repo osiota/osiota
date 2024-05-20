@@ -1,4 +1,4 @@
-var http = require("http");
+const http = require("http");
 
 exports.init = function(node, app_config, main, host_info) {
 	var url = app_config.url;

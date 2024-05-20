@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-var helper = require("./helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./helper_test.js");
+const test = helper.test(__filename);
 
-var osiota = require("../");
-var main = new osiota();
-var apps = main.application_loader.apps;
+const osiota = require("../");
+const main = new osiota();
+const apps = main.application_loader.apps;
 
 const EventEmitter = require('events');
-var e = new EventEmitter();
+const e = new EventEmitter();
 
 var a;
 test('load app test-10', function (t) {

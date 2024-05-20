@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-var helper = require("./test/helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./test/helper_test.js");
+const test = helper.test(__filename);
 
-var async_calls = require("./helper_async_calls.js").async_calls;
+const async_calls = require("./helper_async_calls.js").async_calls;
 
 test('async call data', function(t) {
 	t.plan(1);

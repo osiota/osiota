@@ -4,10 +4,10 @@
 // The client A shall connect sucessfully and list the node '/test'
 // The client B shall not connect successfully and list no nodes.
 
-var helper = require("./helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./helper_test.js");
+const test = helper.test(__filename);
 
-var nodelist = function(m) {
+function nodelist(m) {
 	return helper.get_node_list(m.router).filter(function(n) {
 		if (n === '/app/ws-requrl-login') return false;
 		if (n === '/app/ws-server') return false;
@@ -17,8 +17,8 @@ var nodelist = function(m) {
 	});
 }
 
-var main = require("../");
-var m_s = new main("Server");
+const main = require("../");
+const m_s = new main("Server");
 m_s.config({
 	"app": [{
 		"name": "ws-requrl-login",
@@ -46,8 +46,8 @@ test("wait started", function(t) {
 		t.ok(1, "started");
 	});
 });
-var m_a = new main("Client 1");
-var m_b = new main("Client 2");
+const m_a = new main("Client 1");
+const m_b = new main("Client 2");
 
 test("define clients", function(t) {
 	t.plan(1);
@@ -76,9 +76,9 @@ test("define clients", function(t) {
 	t.ok(1, "defined");
 });
 
-var n = m_s.node("/test");
-//var na = m_a.node("/Server/test");
-//var nb = m_b.node("/Server/test");
+const n = m_s.node("/test");
+//const na = m_a.node("/Server/test");
+//const nb = m_b.node("/Server/test");
 
 test('server list nodes', function (t) {
 	t.plan(1);

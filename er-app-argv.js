@@ -2,7 +2,7 @@
 const process = require("process");
 
 // from: er-app-template:
-var obj_set = function(obj, key, value) {
+function obj_set(obj, key, value) {
 	if (!Array.isArray(key)) {
 		key = key.split(/\./).map(function(k) {
 			if (k.match(/^\d+$/))

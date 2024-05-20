@@ -2,7 +2,7 @@ const assert = require('assert').strict;
 
 exports.inherit = ["load-on-started"];
 
-var get = function(object, path) {
+function get(object, path) {
 	if (typeof object !== "object" || object === null) {
 		return "unexpected";
 	}

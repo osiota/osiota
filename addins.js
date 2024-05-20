@@ -1,4 +1,4 @@
-var Node = require("./node").node;
+const Node = require("./node").node;
 
 exports.addins = function(main) {
 

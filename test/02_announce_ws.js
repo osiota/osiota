@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // This test shall connect a client to a websocket server.
 
-var helper = require("./helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./helper_test.js");
+const test = helper.test(__filename);
 
-var nodelist = function(m) {
+function nodelist(m) {
 	return helper.get_node_list(m.router).filter(function(n) {
 		if (n === '/app/WebSocket Client') return false;
 		if (n === '/Client/app/WebSocket Client') return false;
@@ -15,8 +15,8 @@ var nodelist = function(m) {
 	});
 }
 
-var main = require("../");
-var m_s = new main("Server");
+const main = require("../");
+const m_s = new main("Server");
 m_s.config({
 	"app": [{
 		"name": "ws-server",
@@ -38,7 +38,7 @@ test("wait started", function(t) {
 	});
 });
 
-var m_c = new main("Client");
+const m_c = new main("Client");
 test("define client", function(t) {
         t.plan(1);
 	m_c.config({
@@ -54,7 +54,7 @@ test("define client", function(t) {
 	t.ok(1, "defined");
 });
 
-var n = m_c.node("/test");
+const n = m_c.node("/test");
 
 test('client list nodes', function (t) {
 	t.plan(1);
@@ -93,7 +93,7 @@ test('check server node unannounced', function (t) {
 	}, 20);
 });
 
-var n2 = m_s.node("/Client/test2");
+const n2 = m_s.node("/Client/test2");
 test('client announce node', function (t) {
 	t.plan(1);
 

@@ -1,7 +1,7 @@
 /*
  * patch a websocket to get data rate
  */
-var patch_callback = function(object, function_name, callback) {
+function patch_callback(object, function_name, callback) {
 	var orig_function = object[function_name];
 	object[function_name] = function(...args) {
 		callback.apply(this, args);
@@ -10,7 +10,7 @@ var patch_callback = function(object, function_name, callback) {
 };
 
 const EventEmitter = require('events');
-var wsc = require('./router_websocket_client');
+const wsc = require('./router_websocket_client');
 
 patch_callback(wsc.pWebSocket.prototype, "sendjson_raw", function(message) {
 	console.log("ws send", message);

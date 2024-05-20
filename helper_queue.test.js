@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-var helper = require("./test/helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./test/helper_test.js");
+const test = helper.test(__filename);
 
 const queue = require("./helper_queue.js");
 

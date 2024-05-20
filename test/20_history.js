@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-var helper = require("./helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./helper_test.js");
+const test = helper.test(__filename);
 
-var osiota = require("../");
-var main = new osiota();
+const osiota = require("../");
+const main = new osiota();
 
 main.config({
 	"app_dir": __dirname+"/",

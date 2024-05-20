@@ -1,6 +1,6 @@
-var execFile = require('child_process').execFile;
+const execFile = require('child_process').execFile;
 
-var install_app = function(app, app_config, callback) {
+function install_app(app, app_config, callback) {
 	app = app.replace(/^er-app-/, "").replace(/\/.*$/, "");
 
 	console.log("install app (npm):", app);

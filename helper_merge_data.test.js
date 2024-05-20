@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-var helper = require("./test/helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./test/helper_test.js");
+const test = helper.test(__filename);
 
-var merge = require("./helper_merge_data.js").merge;
+const merge = require("./helper_merge_data.js").merge;
 
 test('merge data', function(t) {
 	t.plan(1);

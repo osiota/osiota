@@ -3,13 +3,13 @@
 const proxyquire = require('proxyquire');
 const fs = require('fs');
 
-var helper = require("./helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./helper_test.js");
+const test = helper.test(__filename);
 
 console.group = function() {};
 console.groupEnd = function() {};
 
-var require_osiota = function(argv, callback) {
+function require_osiota(argv, callback) {
 	var process_argv = ["node", __dirname + "/../osiota.js"];
 	argv.forEach(function(a) {
 		process_argv.push(a);
@@ -32,7 +32,7 @@ var require_osiota = function(argv, callback) {
 	process.exit = process_exit;
 };
 
-var log_file_match = function(check) {
+function log_file_match(check) {
 	const log_file = __dirname + "/61_config.log";
 	var log = fs.readFileSync(log_file);
 	return !!(log.toString().match(check));

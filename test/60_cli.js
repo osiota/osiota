@@ -2,13 +2,13 @@
 
 const proxyquire = require('proxyquire');
 
-var helper = require("./helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./helper_test.js");
+const test = helper.test(__filename);
 
 console.group = function() {};
 console.groupEnd = function() {};
 
-var require_osiota = function(argv, callback) {
+function require_osiota(argv, callback) {
 	var process_argv = ["node", "script"];
 	argv.forEach(function(a) {
 		process_argv.push(a);

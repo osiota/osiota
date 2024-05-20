@@ -1,4 +1,4 @@
-var execFile = require('child_process').execFile;
+const execFile = require('child_process').execFile;
 
 exports.default_metadata = {
 	"type": "state.state"

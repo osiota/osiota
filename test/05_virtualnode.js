@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-var helper = require("./helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./helper_test.js");
+const test = helper.test(__filename);
 
-var Router = require("../router.js").router;
-var r = new Router();
-var n = r.node("/test");
+const Router = require("../router.js").router;
+const r = new Router();
+const n = r.node("/test");
 
 test('client list nodes', function (t) {
 	t.plan(1);

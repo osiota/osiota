@@ -1,7 +1,7 @@
-var helper_config_file = require('./helper_config_file.js');
-var path = require("path");
-var fs = require("fs");
-var process = require("process");
+const path = require("path");
+const fs = require("fs");
+const process = require("process");
+const helper_config_file = require('./helper_config_file.js');
 
 exports.inherit = [ 'install-systemd' ];
 

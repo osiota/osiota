@@ -1,6 +1,6 @@
-var helper_config_file = require('./helper_config_file.js');
-var path = require("path");
-var fs = require("fs");
+const path = require("path");
+const fs = require("fs");
+const helper_config_file = require('./helper_config_file.js');
 
 exports.local_service_name = '-systemd.service';
 

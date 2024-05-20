@@ -3,7 +3,7 @@
  * The data format is decribed in the documentation.
  */
 
-var subapp = {};
+const subapp = {};
 subapp.init = function(node, app_config, main, host_info) {
 	var type = "unknown.data";
 	if (typeof app_config.metadatatype === "string") {

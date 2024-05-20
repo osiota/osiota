@@ -1,4 +1,4 @@
-var fs = require("fs");
+const fs = require("fs");
 
 // helper:
 exports.read = function(config_file) {

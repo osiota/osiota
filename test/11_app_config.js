@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-var helper = require("./helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./helper_test.js");
+const test = helper.test(__filename);
 
-var osiota = require("../");
+const osiota = require("../");
 var main = new osiota();
 
 test('load config', function (t) {

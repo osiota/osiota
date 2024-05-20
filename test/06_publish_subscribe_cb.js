@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-var helper = require("./helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./helper_test.js");
+const test = helper.test(__filename);
 
-var osiota = require("../");
-var main = new osiota();
+const osiota = require("../");
+const main = new osiota();
 
-var n = main.node("/test1");
-var n2 = main.node("/test2");
-var n3 = main.node("/test3");
+const n = main.node("/test1");
+const n2 = main.node("/test2");
+const n3 = main.node("/test3");
 
 test('announce virtual node', function (t) {
 	t.plan(10);

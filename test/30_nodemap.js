@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-var helper = require("./helper_test.js");
-var test = helper.test(__filename);
+const helper = require("./helper_test.js");
+const test = helper.test(__filename);
 
-var nodelist = function(m) {
+function nodelist(m) {
 	return helper.get_node_list(m.router).filter(function(n) {
 		if (n === '/app/WebSocket Client') return false;
 		if (n === '/Client/app/WebSocket Client') return false;
@@ -14,8 +14,8 @@ var nodelist = function(m) {
 	});
 }
 
-var osiota = require("../");
-var main = new osiota();
+const osiota = require("../");
+const main = new osiota();
 
 main.config({
 	"app": [
