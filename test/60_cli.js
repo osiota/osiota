@@ -71,7 +71,7 @@ test('check (invalid json config)', function (t) {
 			t.equal(err.message, "Unexpected token ] in JSON at position 83", "exception");
 		// node v18 and before
 		} else {
-			t.equal(message, 'Expected \',\' or \'}\' after property value in JSON at position 83 (line 7 column 3)', 'exception');
+			t.equal(err.message, 'Expected \',\' or \'}\' after property value in JSON at position 83 (line 7 column 3)', 'exception');
 		}
 	}
 });
