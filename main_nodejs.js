@@ -1,12 +1,11 @@
-var main = require("./main.js");
-var util = require('util');
+const main = require("./main.js");
 
-var ApplicationManager =require("./application_manager.js").application_manager;
+const  ApplicationManager =require("./application_manager.js").application_manager;
 
 
-var require_vm = require("./helper_require_vm.js");
+const require_vm = require("./helper_require_vm.js");
 
-var schema_cache = {};
+const schema_cache = {};
 
 class main_nodejs extends main {
 	constructor(router_name) {

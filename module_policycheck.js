@@ -14,7 +14,7 @@
  *        secured_connections-array of the routers Policy_checker-object
  */
 
-var match = require("./helper_match").match;
+const match = require("./helper_match").match;
 
 /*
  * This definition maps a method of an rpc-call to policy actions
@@ -27,7 +27,7 @@ var match = require("./helper_match").match;
  * the policy checker will think that the specific method does not need
  * to be evaluated in the szenario and will not do a full policy check!
  */
-var REACTIONS = {
+const REACTIONS = {
 	"from_remote": {
 		"announce": {
 			"block_write": false,

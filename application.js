@@ -8,9 +8,9 @@
  * INIT -- (*) --> RUNNING
  */
 
-var EventEmitter = require('events').EventEmitter;
+const EventEmitter = require('events').EventEmitter;
 
-var unload_object = require("unload-object").unload;
+const unload_object = require("unload-object").unload;
 
 /**
  * Osiota can run applications. This is the base class every application

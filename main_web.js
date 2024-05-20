@@ -1,5 +1,4 @@
-var main = require("./main.js");
-var util = require('util');
+const main = require("./main.js");
 
 class main_web extends main {
 	constructor(router_name) {

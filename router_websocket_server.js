@@ -1,4 +1,4 @@
-var WebSocket = require('ws');
+const WebSocket = require('ws');
 
 /**
  *

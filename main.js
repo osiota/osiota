@@ -13,7 +13,6 @@ const helper = require("./helper.js");
 const update_config = require("./helper_config_update.js").update_config;
 
 const EventEmitter = require('events').EventEmitter;
-const util = require('util');
 
 require('./module_history_class_memory.js');
 require('./module_history_class_remote.js');

@@ -1,5 +1,4 @@
-var EventEmitter = require('events').EventEmitter;
-var util = require('util');
+const EventEmitter = require('events').EventEmitter;
 
 var WebSocket;
 if (typeof window !== 'undefined') {

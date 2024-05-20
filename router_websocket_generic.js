@@ -4,12 +4,12 @@
  * Simon Walz, IfN, 2016
  */
 
-var unload_object = require("unload-object").unload;
+const unload_object = require("unload-object").unload;
 
-var EventEmitter = require('events').EventEmitter;
+const EventEmitter = require('events').EventEmitter;
 
-var nodename_transform = require("./helper_nodenametransform").nodename_transform;
-var queue = require("./helper_queue").queue;
+const nodename_transform = require("./helper_nodenametransform").nodename_transform;
+const queue = require("./helper_queue").queue;
 
 
 /* cmd state maschine:
