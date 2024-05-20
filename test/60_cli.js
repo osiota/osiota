@@ -66,10 +66,11 @@ test('check (invalid json config)', function (t) {
 		require_osiota(["--check", "--config", __dirname + "/60_config_invalid_json.json"]);
 	} catch (err) {
 		const node_major_version = process.versions.node.split('.')[0];
-		// node v22:
-		if (node_major_version < 20) {
+
+		if (node_major_version <= 18) {
 			t.equal(err.message, "Unexpected token ] in JSON at position 83", "exception");
-		// node v18 and before
+		} else if (node_major_version <= 20) {
+			t.equal(err.message, 'Expected \',\' or \'}\' after property value in JSON at position 83');
 		} else {
 			t.equal(err.message, 'Expected \',\' or \'}\' after property value in JSON at position 83 (line 7 column 3)', 'exception');
 		}
