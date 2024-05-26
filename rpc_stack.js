@@ -4,9 +4,11 @@
  * (see {@link websocket_protocol.md|WebSocket protocol}
  */
 
-var EventEmitter = require('events').EventEmitter;
+const EventEmitter = require('events').EventEmitter;
 
-var nodename_transform = require("./helper_nodenametransform").nodename_transform;
+const nodename_transform = require("./helper_nodenametransform").nodename_transform;
+
+const create_promise_callback = require("./helper_promise.js").create_promise_callback;
 
 if (!EventEmitter.prototype.once_timeout)
 EventEmitter.prototype.once_timeout = function(event, handler, timeout) {
@@ -229,14 +231,85 @@ class rpcstack extends EventEmitter {
 		if (typeof args === "undefined" || !Array.isArray(args)) {
 			args = [];
 		}
+		if (typeof object['promise_rpc_' + method] == "function") {
+			var p2 = object['promise_rpc_' + method].apply(self, args);
+			if (typeof p2 === "object" &&
+				typeof p2.then === "function") return p2.then((data)=>reply(null, data), reply);
+			return true;
+		}
+		if (typeof object['rpc_' + method] == "function" &&
+				object['rpc_' + method].constructor.name == 'AsyncFunction') {
+			var p2 = object['rpc_' + method].apply(self, args);
+			if (typeof p2 === "object" &&
+				typeof p2.then === "function") return p2.then((data)=>reply(null, data), reply);
+			return true;
+		}
 		if (typeof object['rpc_' + method] == "function") {
 			args.unshift(reply);
-			// TODO: Has return value, Is Promise?
-			object['rpc_' + method].apply(self, args);
+			var p2 = object['rpc_' + method].apply(self, args);
+			if (typeof p2 === "object" &&
+				typeof p2.then === "function") return p2.then((data)=>reply(null, data), reply);
 			return true;
 		}
 		return false;
 	};
+
+	/* Process indirect rpc calls */
+	_rpc_process_promise(method, args, self, object) {
+		if (typeof method !== "string" || method === "")
+			return false;
+
+		if (typeof object !== "object" || object === null) {
+			object = self;
+		}
+		if (typeof args === "undefined" || !Array.isArray(args)) {
+			args = [];
+		}
+		if (typeof object['promise_rpc_' + method] == "function") {
+			return object['promise_rpc_' + method].apply(self, args);
+		}
+		if (typeof object['rpc_' + method] == "function" &&
+				object['rpc_' + method].constructor.name == 'AsyncFunction') {
+			return object['rpc_' + method].apply(self, args);
+		}
+		if (typeof object['rpc_' + method] == "function") {
+			var [reply, promise] = create_promise_callback();
+			var p2 = object['rpc_' + method].call(self, reply, ...args);
+			if (typeof p2 === "object" &&
+				typeof p2.then === "function") return p2;
+			return promise;
+		}
+		return false;
+	};
+	/* Process indirect rpc calls */
+	_rpc_process_promise_get(method, self, object) {
+		if (typeof method !== "string" || method === "")
+			return false;
+
+		if (typeof object !== "object" || object === null) {
+			object = self;
+		}
+		if (typeof object['promise_rpc_' + method] == "function") {
+			return object['promise_rpc_' + method].bind(self);
+		}
+		if (typeof object['rpc_' + method] == "function" &&
+				object['rpc_' + method].constructor.name == 'AsyncFunction') {
+			return object['rpc_' + method].bind(self);
+		}
+		if (typeof object['rpc_' + method] == "function") {
+			var cb = object['rpc_'+method].bind(self);
+			return function(...args) {
+				var [reply, promise] = create_promise_callback();
+				var p2 = cb(reply, ...args);
+				if (typeof p2 === "object" &&
+					typeof p2.then === "function") return p2;
+				return promise;
+			};
+		}
+		return false;
+	};
+
+
 
 	/**
 	 * Create a remote call object

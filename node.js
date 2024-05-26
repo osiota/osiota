@@ -7,6 +7,7 @@ const unload_object = require("unload-object").unload;
 const merge_object = require("./helper.js").merge_object;
 const merge = require("./helper_merge_data.js").merge;
 const json_validate = require("./helper_json_validate.js").json_validate;
+const create_promise_callback = require("./helper_promise.js").create_promise_callback;
 
 /**
  * Create a node instance
@@ -1078,6 +1079,77 @@ class node extends EventEmitter {
 				ws.node_rpc.apply(ws, [this, method, ...args]);
 		}
 	};
+
+	/**
+	 * Execute a RPC promise command on the node
+	 * @param {string} method - Method to be called
+	 * @param {...*} args - Extra arguments
+	 * @example
+	 * await node.rpc("ping", 1, 2, 3);
+	 */
+	async_rpc(method, ...args) {
+		var _this = this;
+		if (!this.hasOwnProperty("connection")) {
+
+			try {
+				var p = this.router.rpcstack._rpc_process_promise(method, args, this);
+				if (p) return p;
+				var p2 = this.router.rpcstack._rpc_process_promise("node_" + method, args, _this, this.router);
+				if (p2) return p2;
+
+				throw new Error("method not found:" + method);
+			} catch (e) {
+				console.warn("Router, process local rpc:",
+					"\nnode:", this.name,
+					"\nstack:", e.stack || e);
+				reply("Exception:", (e.stack || e).toString());
+			}
+		} else {
+			var [reply, promise] = create_promise_callback();
+
+			var ws = this.connection;
+			ws.node_rpc.apply(ws, [this, method, ...args, reply]);
+
+			return promise;
+		}
+	};
+
+	/**
+	 * Get a RPC function off the node
+	 * @param {string} method - Method to be called
+	 * @returns {async function} RPC function
+	 * @example
+	 * var f = node.rpc_cache("ping");
+	 * var result1 = await f(...args);
+	 * var result2 = await f(...args);
+	 */
+	rpc_cache(method) {
+		var _this = this;
+		if (!this.hasOwnProperty("connection") || this.connection === null) {
+			try {
+				var p = this.router.rpcstack._rpc_process_promise_get(method, this);
+				if (p) return p;
+
+				var p2 = this.router.rpcstack._rpc_process_promise_get("node_" + method, this, this.router);
+				if (p2) return p2;
+
+				throw new Error("method not found:" + method);
+			} catch (e) {
+				console.warn("Router, process local rpc:",
+						"\nnode:", this.name,
+						"\nstack:", e.stack || e);
+				throw e;
+			}
+		} else {
+			return function(...args) {
+				var [reply, promise] = create_promise_callback();
+				var ws = this.connection;
+				ws.node_rpc.apply(ws, [_this, method, ...args, reply]);
+				return promise;
+			}
+		}
+	};
+
 
 	/* Overwrite function to convert object to string: */
 	toJSON() {
