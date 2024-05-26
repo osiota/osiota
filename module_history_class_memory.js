@@ -6,7 +6,7 @@ const binarysearch = require("binary-search");
 class history extends HistoryGlobal.history {
 	constructor(node, config) {
 		super(node, config);
-		console.log("INIT INIT INIT", node.name);
+		//console.log("INIT INIT INIT", node.name);
 		this.history_length = 3000;
 		if (typeof config === "object" &&
 				config.hasOwnProperty("max_data") &&
@@ -18,7 +18,7 @@ class history extends HistoryGlobal.history {
 
 	/* history: add new data */
 	add(time, value) {
-		console.log("ADD", time, value);
+		//console.log("ADD", time, value);
 		if (typeof this.history_data[this.history_data.length - 1] !== "undefined")
 			// last added history data
 			var lasttime = this.history_data[this.history_data.length - 1].time;
