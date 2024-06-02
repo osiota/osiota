@@ -18,6 +18,7 @@ exports.init = function(node, app_config, main, host_info) {
 	}
 	*/
 
+	const nodes = {};
 
 	/* Eine Gruppe bindet Geräte zusammen. Diese besitzen die
 	 * gleichen Arten an Zuständen.
@@ -25,9 +26,9 @@ exports.init = function(node, app_config, main, host_info) {
 
 	let check = function() {
 		if (!Object.keys(nodes).length) return null;
-		for(var nn in nodes){
+		for(const nn in nodes){
 			if (nodes.hasOwnProperty(nn)) {
-				var n = nodes[nn];
+				const n = nodes[nn];
 				//console.error("  CHECK", nn, n.expected, n.node.value, n.expected_value);
 				if (!n.filter.ignore_feedback &&
 						!n.expected) return false;
@@ -46,7 +47,7 @@ exports.init = function(node, app_config, main, host_info) {
 		//console.error("SUBSCIRBED", this.name, this.value);
 		// this = node
 
-		var n = nodes[this.name];
+		const n = nodes[this.name];
 		n.expected = (this.value == n.expected_value ||
 				( this.value === null &&
 					n.expected_value === false ) );
@@ -54,16 +55,15 @@ exports.init = function(node, app_config, main, host_info) {
 		do_check();
 	};
 
-	var nodes = {};
-	var filter = this._source.filter(app_config.filter, "announce",
+	var filter = this._target.filter(app_config.target_filter, "announce",
 			function(cnode, method, initial, update, fconfig) {
-		//console.log("SCENE", cnode.name);
+		//console.error("SCENE", cnode.name);
 
 		if (update) return;
 		//console.error("ANNOUNCED", cnode.name, fconfig);
 		var expected_value = (fconfig.value === undefined ?
 					true : fconfig.value);
-		var n = {
+		const n = {
 			node: cnode,
 			expected: (cnode.value == expected_value ||
 				( cnode.value === null &&
@@ -79,7 +79,7 @@ exports.init = function(node, app_config, main, host_info) {
 
 		return [s, function() {
 			if (nodes[cnode.name]) {
-				//console.log("SCENE/unannounce", cnode.name);
+				//console.error("SCENE/unannounce", cnode.name);
 				delete nodes[cnode.name];
 				do_check();
 			}
@@ -94,7 +94,7 @@ exports.init = function(node, app_config, main, host_info) {
 	/*
 	config = {
 		"node": "/Funktionen/Alle Lampen",
-		"source": "/Wohnung",
+		"target": "/Wohnung",
 		"filter": {
 			"metadata": "lamp.object"
 		}
@@ -111,9 +111,10 @@ exports.init = function(node, app_config, main, host_info) {
 
 	node.rpc_set = function(reply, state, time) {
 		if (!app_config.state && !state) return;
-		for (var nn in nodes){
+		for (const nn in nodes){
 			if (nodes.hasOwnProperty(nn)) {
-				var n = nodes[nn];
+				const n = nodes[nn];
+				//console.error("SET", nn, n.name);
 				let v = n.filter.value;
 				if (typeof v === "undefined") v = true;
 				if (!state) {

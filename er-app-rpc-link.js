@@ -17,19 +17,18 @@ exports.init = function(node, app_config, main, host_info) {
 		"type": this.meta_type
 	}, app_config.metadata]);
 
-	if (!node.parentnode) {
-		return;
-	}
-	var sr = node.parentnode.ready("announce", function(method,
+	var sr = this._target.ready("announce", function(method,
 					initial, update) {
-		var _parent = this;
+		var tnode = this;
 		if (update) return;
 
 		return _this._source.subscribe(function(
 				do_not_add_to_history, initial){
 			if (initial) return;
-			_this.node_set(_parent, this.value, this.time,
+			_this.node_set(tnode, this.value, this.time,
 					app_config);
+			// publish for debugging?
+			//node.publish(this.time, time.value);
 		});
 	});
 

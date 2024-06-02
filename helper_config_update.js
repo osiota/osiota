@@ -3,21 +3,55 @@ const isObject = function(o) {
 	return typeof o === "object" && o !== null;
 };
 
-exports.update_app = function(config) {
-	if (!isObject(config)) return;
-	if (typeof config.name === "string") {
-		config.name = config.name.replace(/^(er|osiota)-app-/, "");
+exports.update_app = function(app_object) {
+	if (!isObject(app_object)) return;
+	if (typeof app_object.name === "string") {
+		app_object.name = app_object.name.replace(/^(er|osiota)-app-/, "");
+	}
+
+	var app_config = app_object.config;
+	if (isObject(app_config)) {
+		exports.update_apps(app_config.app);
+
+		/* {
+		 *    "pname": "My Node",
+		 *    "source": "/my/source/node"
+		 * }
+		 */
+		if (typeof app_config.pnode === "string" &&
+				typeof app_config.source === "string" &&
+				typeof app_config.node === "undefined") {
+			app_config.node = app_config.pnode;
+			delete app_config.pnode;
+		}
+
+		/* scene
+		 * {
+		 *   "source": ...,
+		 *   "filter": ...,
+		 * }
+		 */
+		if (app_object.name === "scene" &&
+				typeof app_config.source === "string" &&
+				typeof app_config.target === "undefined" &&
+				typeof app_config.filter === "object" &&
+				typeof app_config.target_filter === "undefined") {
+			app_config.target = app_config.source;
+			delete app_config.source;
+			app_config.target_filter = app_config.filter;
+			delete app_config.filter;
+		}
 	}
 };
-exports._update_apps = function(config) {
+// config = [app_object, app_object]
+// app_object = {"name": "", "config": app_config}
+// app_config = {..., app: config}
+exports.update_apps = function(config) {
 	if (!Array.isArray(config)) {
 		return;
 	}
 	config.forEach(function(a) {
 		exports.update_app(a);
-		if (isObject(a) && isObject(a.config)) {
-			exports._update_apps(a.config.app);
-		}
 	});
 };
 
@@ -72,7 +106,7 @@ exports.update_config = function(config) {
 		delete(config.remote);
 	}
 
-	exports._update_apps(config.app);
+	exports.update_apps(config.app);
 	//console.error(JSON.stringify(config, undefined, "\t"));
 	return config;
 };

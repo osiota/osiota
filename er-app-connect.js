@@ -28,28 +28,25 @@ exports.init = function(node, app_config, main, host_info) {
 
 	var last_time = undefined;
 	var snode = null;
-	var pnode = null;
+	var tnode = null;
 
-	var target = node.parentnode;
-	if (typeof app_config.target === "string") {
-		target = node.node(app_config.target);
-	}
+	var target = this._target;
 
 	var s = this._source.subscribe(function() {
 		if (this.time === null || this.value === null || !enable)
 			return;
-		if (!pnode)
+		if (!tnode)
 			return;
 
 		if (!last_time || this.time > last_time) {
 			var value = _this.map_value(this.value,
-					this.metadata, pnode.metadata);
+					this.metadata, tnode.metadata);
 
 			if (typeof value === "undefined")
 				return;
 
 			last_time = this.time;
-			pnode.rpc("set", value, this.time);
+			tnode.rpc("set", value, this.time);
 		}
 	});
 	var p = target.subscribe(function() {
@@ -81,10 +78,10 @@ exports.init = function(node, app_config, main, host_info) {
 	var pr=target.ready("announce", function(method, initial, update) {
 		if (update) return;
 
-		pnode = this;
+		tnode = this;
 
 		return [function() {
-			pnode = null;
+			tnode = null;
 		}];
 	});
 

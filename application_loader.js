@@ -284,7 +284,7 @@ class application_loader {
 
 		var node_base = node;
 		if (typeof app_config.base === "string") {
-			node_base = node.node(app_config.source);
+			node_base = node.node(app_config.base);
 		}
 
 		var node_destination = null;
@@ -310,7 +310,7 @@ class application_loader {
 			this.app_register(a);
 		}
 
-		a._source = node_base;
+		a._base = node_base;
 
 		// TODO TODO TODO: In seperate app?
 		var node_source = node_base;

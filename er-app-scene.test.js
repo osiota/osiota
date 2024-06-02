@@ -12,8 +12,8 @@ main.config({
 			"name": "scene",
 			"config": {
 				"node": "/scene",
-				"source": "/",
-				"filter": [{
+				"target": "/",
+				"target_filter": [{
 					"nodes": ["/hallo", "/hi"]
 				},{
 					"nodes": ["/hi2"],
