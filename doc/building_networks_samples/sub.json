@@ -1,0 +1,28 @@
+{
+	"app": [{
+		"name": "ws-server",
+		"config": {
+			"server": 8011
+		}
+	},{
+		"name": "ws",
+		"config": {
+			"name": "connect to server",
+			"url": "ws://localhost:8010",
+			"basename": "/Carport",
+			"remote_basename": "/Outdoor/Carport",
+			"node": ["/Carport"]
+		}
+	},{
+		"name": "node",
+		"config": {
+			"node": "/Carport/Hallo"
+		}
+	},{
+		"name": "node",
+		"config": {
+			"node": "/Not Forwarded"
+		}
+	}]
+}
+

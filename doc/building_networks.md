@@ -14,3 +14,5 @@ An example for such a structure can be seen in the diagram above. Every red bloc
   * Above the institute coordinating nodes there is one additional level of hierarchy (TU-BS). Here all of the data-streams are tied together, aggregated and analyzed.
 
 The objectives for this whole system are to aid in the general reduction of energy consumption, by exposing potentially unknown sources of big consumption and better organize the energy consumption. For example, peak loads can be spread out over time and self-produced, renewable energy can be used more effectively. Strategies and algorithms which help to achieve these objectives can be deployed on all levels of the hierarchy.
+
+For configuration samples see [here](building_networks_samples/).

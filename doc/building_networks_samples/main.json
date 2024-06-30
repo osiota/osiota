@@ -1,0 +1,13 @@
+{
+	"app": [{
+		"name": "wss",
+		"config": {
+			"server": 8010
+		}
+	},{
+		"name": "node",
+		"config": {
+			"node": "/Hi"
+		}
+	}]
+}
