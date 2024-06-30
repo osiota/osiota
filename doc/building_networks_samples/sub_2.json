@@ -1,0 +1,21 @@
+{
+	"app": [{
+		"name": "ws-server",
+		"config": {
+			"server": 8013
+		}
+	},{
+		"name": "ws",
+		"config": {
+			"name": "connect to server",
+			"url": "ws://localhost:8010",
+			"remote_prefix": "/remotes",
+			"node": ["/"]
+		}
+	},{
+		"name": "node",
+		"config": {
+			"node": "/Good Morning"
+		}
+	}]
+}
