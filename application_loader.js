@@ -104,7 +104,7 @@ class application_loader {
 
 		if (typeof struct.name !== "string" && typeof struct.name !== "object"
 				&& struct.name !== null) {
-			console.warn("Warning: Application config options missing.", struct);
+			console.warn("Warning: Application name option missing.", struct, node.name);
 			return null;
 		}
 

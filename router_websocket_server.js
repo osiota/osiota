@@ -68,6 +68,7 @@ exports.init = function(main, rpcstack, basename, options) {
 				ws.is_alive = false;
 				ws.ping();
 			}, ping_interval);
+			ws._keepalive.unref();
 		};
 		ws.end_keepalive = function() {
 			clearInterval(ws._keepalive);

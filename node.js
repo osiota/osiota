@@ -169,7 +169,7 @@ class node extends EventEmitter {
 			console.log("new node:", this.name);
 			update = false;
 		} else if (!update) {
-			console.warn("Announcing already available node:", this.name);
+			console.warn("Announcing already available node:", this.name, this.metadata, metadata);
 			update = true;
 		}
 
