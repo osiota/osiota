@@ -217,8 +217,6 @@ class main extends EventEmitter {
 			});
 		} else if (typeof nodes === "string") {
 			ws.node_plocal(this.router.node(nodes), "subscribe_announcement");
-		} else if (nodes !== false) {
-			ws.node_plocal(this.router.node("/"), "subscribe_announcement");
 		}
 
 		// data from UPSTREAM

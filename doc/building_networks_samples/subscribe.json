@@ -1,0 +1,19 @@
+{
+	"app": [{
+		"name": "ws-server",
+		"config": {
+			"server": 8012
+		}
+	},{
+		"name": "ws",
+		"config": {
+			"name": "connect to server",
+			"url": "ws://localhost:8010",
+			"basename": "/data_of_server",
+			"remote_basename": "",
+			"node": false,
+			"subscribe": ["/data_of_server"]
+		}
+	}]
+}
+
