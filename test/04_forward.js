@@ -54,7 +54,8 @@ test("define client", function(t) {
 			"config": {
 				"name": "server",
 				"url": "ws://localhost:8097",
-				"subscribe": "/"
+				"subscribe": "/",
+				"node": ["/"]
 			}
 		}]
 	});
@@ -70,7 +71,8 @@ test("define client", function(t) {
 			"config": {
 				"name": "server",
 				"url": "ws://localhost:8096",
-				"subscribe": "/"
+				"subscribe": "/",
+				"node": ["/"]
 			}
 		}]
 	});
