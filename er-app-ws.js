@@ -52,8 +52,6 @@ exports.create_websocket_client = function(url, nodes, config) {
 		});
 	} else if (typeof nodes === "string") {
 		ws.node_plocal(main.router.node(nodes), "subscribe_announcement");
-	} else if (nodes !== false) {
-		ws.node_plocal(main.router.node("/"), "subscribe_announcement");
 	}
 
 	// data from UPSTREAM
