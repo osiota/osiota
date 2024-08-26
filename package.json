@@ -31,7 +31,7 @@
     "graceful-fs": "^4.2.11",
     "leveldown": "^6.1.1",
     "levelup": "^5.1.1",
-    "readdirp": "^3.6.0"
+    "readdirp": "^4.0.1"
   },
   "homepage": "https://osiota.net",
   "repository": {
