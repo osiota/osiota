@@ -22,7 +22,7 @@
     "util": "^0.12.5",
     "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4",
-    "why-is-node-running": "^2.2.2"
+    "why-is-node-running": "^3.2.1"
   },
   "engines": {
     "node": ">=14.0.0"
