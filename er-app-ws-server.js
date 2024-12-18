@@ -48,7 +48,7 @@ exports.create_server = async function(app_config) {
 		var redirectUrl = protocolHttp + uiserver + "#" +
 				JSON.stringify(uiconfig);
 
-		this.create_redirect(res, redirectUrl);
+		this.redirect_page(res, redirectUrl);
 
 	});
 	return server;
