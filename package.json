@@ -10,7 +10,7 @@
     "console-stamp": "^3.1.2",
     "minimist": "^1.2.8",
     "pem": "^1.14.8",
-    "unload-object": "^1.0.2",
+    "unload-object": "^1.0.3",
     "ws": "^8.18.0"
   },
   "devDependencies": {
