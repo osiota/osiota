@@ -106,6 +106,13 @@ exports.init = function(main, rpcstack, basename, options) {
 		// TODO login: move to: post login
 		require('./router_websocket_generic.js').init(router, rpcstack, ws);
 	});
+	var wss_close = wss.close.bind(wss);
+	wss.close = function(callback) {
+		wss_close(callback);
+		for (const ws of wss.clients) {
+			ws.terminate();
+		}
+	};
 
 	return wss;
 };
