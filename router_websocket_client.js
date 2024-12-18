@@ -202,9 +202,12 @@ class pwsc extends EventEmitter {
 		}
 	};
 	reconnect(wpath) {
-		this._destroy = false;
 		if (typeof wpath === "string") {
 			this.wpath = wpath;
+		}
+		if (this._destroy) {
+			this._destroy = false;
+			return this.init();
 		}
 		if (!this.closed &&
 				typeof this.ws !== "undefined") {

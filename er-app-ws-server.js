@@ -43,6 +43,7 @@ exports.create_server = async function(app_config) {
 		var protocol = 'ws://';
 		var uiconfig = {
 			wpath: protocol + hostAndPort + req.url,
+			...app_config.uiconfig,
 		};
 		var protocolHttp = 'http://';
 		var redirectUrl = protocolHttp + uiserver + "#" +
