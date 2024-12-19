@@ -1,4 +1,5 @@
 const http = require('http');
+const os = require('os');
 
 exports.inherit = ["load-on-started"];
 
@@ -17,10 +18,18 @@ exports.init_delayed = async function(node, app_config, main, host_info) {
 		"server": server
 	});
 
-	server.listen(app_config.port || app_config.server);
+	const ip = this.get_current_ip();
+	const port = app_config.port || app_config.server;
+	server.listen(port, ()=>{
+		console.info(`Server running at ${this.protocol}localhost:${port} and ${this.protocol}${ip}:${port}`);
+		console.info(`Connect via ${this.protocolHttp}localhost:${port} or ${this.protocolHttp}${ip}:${port}`);
+	});
 
 	return [wss, server];
 }
+
+exports.protocolHttp = 'http://';
+exports.protocol = 'ws://';
 
 exports.create_websocket_server = function(server) {
 	var wss = require('./router_websocket_server').init(this._main, this._main.rpcstack, "", server);
@@ -28,7 +37,20 @@ exports.create_websocket_server = function(server) {
 	return wss;
 };
 
-exports.redirect_page = function(res, redirectUrl) {
+exports.redirect_page = function(app_config, req, res) {
+	const uiserver = app_config.uiserver || "osiota.net/ui/";
+	const hostAndPort = req.headers.host;
+	const uiconfig = {
+		wpath: this.protocol + hostAndPort + req.url,
+		...app_config.uiconfig,
+	};
+	const redirectUrl = this.protocolHttp + uiserver + "#" +
+		JSON.stringify(uiconfig);
+
+	return this.redirect_page_content(res, redirectUrl);
+};
+
+exports.redirect_page_content = function(res, redirectUrl) {
 	// this forwards to https sometimes:
 	//res.writeHead(302, { Location: redirectUrl });
 	//res.end();
@@ -37,21 +59,19 @@ exports.redirect_page = function(res, redirectUrl) {
 };
 
 exports.create_server = async function(app_config) {
-	const uiserver = app_config.uiserver || "osiota.net/ui/";
-	var server = http.createServer((req, res) => {
-		var hostAndPort = req.headers.host;
-		var protocol = 'ws://';
-		var uiconfig = {
-			wpath: protocol + hostAndPort + req.url,
-			...app_config.uiconfig,
-		};
-		var protocolHttp = 'http://';
-		var redirectUrl = protocolHttp + uiserver + "#" +
-				JSON.stringify(uiconfig);
-
-		this.redirect_page(res, redirectUrl);
-
-	});
+	const server = http.createServer(
+			this.redirect_page.bind(this, app_config));
 	return server;
 };
 
+exports.get_current_ip = function() {
+	const interfaces = os.networkInterfaces();
+	for (const interfaceName in interfaces) {
+		for (const iface of interfaces[interfaceName]) {
+			if (iface.family === 'IPv4' && !iface.internal) {
+				return iface.address;
+			}
+		}
+	}
+	return '127.0.0.1';
+}

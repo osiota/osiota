@@ -5,6 +5,10 @@ const { promisify } = require('util');
 
 exports.inherit = ["ws-server"];
 
+exports.protocolHttp = 'https://';
+exports.protocol = 'wss://';
+
+
 exports.createSelfSignedCert = async function(certPath, keyPath) {
 	const { generateKeyPairSync, selfSignedCertificate } = require('crypto');
 	const pem = require('pem');
@@ -23,8 +27,6 @@ exports.createSelfSignedCert = async function(certPath, keyPath) {
 }
 
 exports.create_server = async function(app_config, main) {
-	const uiserver = app_config.uiserver || "osiota.net/ui/";
-
 	const configFile = main.argv.config || 'osiota.json';
 	const configPath = configFile.replace(/\.json/, '');
 
@@ -47,19 +49,8 @@ exports.create_server = async function(app_config, main) {
 	};
 
 	// Create an HTTPS server
-	const server = https.createServer(options, (req, res) => {
-		var hostAndPort = req.headers.host;
-		var protocol = 'wss://';
-		var uiconfig = {
-			wpath: protocol + hostAndPort + req.url,
-			...app_config.uiconfig,
-		};
-		var protocolHttp = 'https://';
-		var redirectUrl = protocolHttp + uiserver + "#" +
-				JSON.stringify(uiconfig);
-
-		this.redirect_page(res, redirectUrl);
-	});
+	const server = https.createServer(options,
+			this.redirect_page.bind(this, app_config));
 	return server;
 }
 
