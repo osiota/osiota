@@ -131,7 +131,7 @@ if (argv.help && !argv.app) {
 
 	var config = helper_config_file.read(argv.config);
 	var config_filename = (typeof argv.config === "string" ?
-		argv.config.replace(/^.*\/|\.json$|(osiota|config)[-_]?/g, "") : "");
+		argv.config.replace(/^.*\/|\.json$|[-_]?(osiota|config)[-_]?/g, "") : "");
 	var m = new main(config.hostname || config_filename || os.hostname());
 	m.on("config_save", function() {
 		var _this = this;
