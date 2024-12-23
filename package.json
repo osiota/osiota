@@ -22,7 +22,7 @@
     "tape": "^5.9.0",
     "util": "^0.12.5",
     "webpack": "^5.97.1",
-    "webpack-cli": "^6.0.0",
+    "webpack-cli": "^6.0.1",
     "why-is-node-running": "^2.2.2"
   },
   "engines": {
