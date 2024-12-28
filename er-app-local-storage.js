@@ -1,11 +1,17 @@
 if (Storage) {
 	Storage.prototype.setObject = function(key, value) {
-		this.setItem(key, JSON.stringify(value));
+		if (typeof value === "object") {
+			value = JSON.stringify(value);
+		}
+		this.setItem(key, value);
 	}
 
 	Storage.prototype.getObject = function(key) {
 		var value = this.getItem(key);
-		return value && JSON.parse(value);
+		try {
+			value = JSON.parse(value);
+		} catch(err) {}
+		return value;
 	}
 
 	Storage.prototype.forEachKey = function(callback) {
@@ -15,52 +21,51 @@ if (Storage) {
 	};
 }
 exports.init = function(node, app_config, main, host_info) {
-	var router = main.router;
-
 	if (!window || !window.localStorage) return;
 
-	var storage_name = main.router.name;
-	if (typeof app_config.storage_name !== "string") {
-		storage_name = app_config.storage_name;
-	}
+	const storage = window.localStorage;
 
-	var nodes = [];
-
-	var lS = window.localStorage;
-	lS.forEachKey(function(key) {
-		try {
-			var nodename = router.nodename_transform(key, node.name,
-					storage_name + '#');
-			var n = router.node(nodename);
-			var c = lS.getObject(key);
-
-			if (typeof c.metadata === "object")
-				n.announce(c.metadata);
-
-			nodes.push(n);
-
-			n.publish(c.time, c.value);
-		} catch(e) {}
+	const map = node.map(app_config, {
+		"map_extra_elements": true,
+		"map_key": function(c) {
+			var name = c.map;
+			return name;
+		},
+		"map_initialise": function(n, metadata, c) {
+			n.rpc_set = function(reply, value, time) {
+				storage.setObject(c.map, value);
+			};
+			n.announce([{
+				"type": "object.storage"
+			}, metadata]);
+		},
 	});
 
-	var s = node.subscribe_announcement("announce", function(n, method,
-				initial, update) {
-		if (update) return;
+	node.rpc_saveObject = function(reply, key, value) {
+		storage.setObject(key, value);
+		reply(null, "okay");
+	};
 
-		return n.subscribe(function() {
-			if (n.value === null) {
-				return;
-			}
-			var key = router.nodename_transform(n.name,
-					storage_name + '#', node.name);
-			lS.setObject(key, {
-				"time": n.time,
-				"value": n.value,
-				"metadata": n.metadata
-			});
-		});
+	storage.forEachKey(function(key) {
+		var c = storage.getObject(key);
+		var n = map.node(key);
+		if (n) {
+			n.publish(undefined, c);
+		}
 	});
 
-	return [s, nodes];
+	const storageEvent = function(event) {
+		var key = event.key;
+		var n = map.node(key);
+		var c = event.newValue;
+		if (n) {
+			n.publish(undefined, c);
+		}
+	};
+	window.addEventListener("storage", storageEvent);
+
+	return [node, map, function() {
+		window.removeEventListener("storage", storageEvent);
+	}];
 };
 
