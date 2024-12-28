@@ -52,7 +52,7 @@ class history {
 				_this.submodules.push(m);
 			} catch(e) {
 				if (e.toString() != "Error: History module not found: file" && e.toString() != "Error: Module disabled.") {
-					console.warn("History Error:", e.stack || e);
+					console.warn("History Error:", e);
 				}
 			}
 		});
