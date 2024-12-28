@@ -16,11 +16,13 @@ class pwsc extends EventEmitter {
 		this.closed = true;
 		this.freezed = false;
 		this._destroy = false;
+		this._reconnect_delay = 1000;
 
 		this.tid = null;
-		this.on('need_reconnect', function(timeout) {
+		this.on('need_reconnect', (timeout)=>{
 			if (typeof timeout !== "number") {
-				timeout = 1000;
+				timeout = Math.min(this._reconnect_delay, 10000);
+				this._reconnect_delay *= 1.5;
 			}
 			this.ws = undefined;
 
@@ -38,8 +40,10 @@ class pwsc extends EventEmitter {
 				return;
 			}
 
-			var pthis = this;
-			this.tid = setTimeout(function() { pthis.init(); }, timeout);
+			this.tid = setTimeout(()=>{
+				console.log("need reconnect -> timeout");
+				this.init();
+			}, timeout);
 		});
 
 		this.init();
@@ -112,6 +116,7 @@ class pwsc extends EventEmitter {
 			});
 			this.ws.on('open', function() {
 				pthis.closed = false;
+				pthis._reconnect_delay = 1000;
 				pthis.emit('open');
 				this.keepalive(55*1000);
 			});
@@ -153,7 +158,7 @@ class pwsc extends EventEmitter {
 						"over SSL: wss://");
 				}
 			} else {
-				pthis.emit("need_reconnect", 3000);
+				pthis.emit("need_reconnect", 5000);
 			}
 		}
 	};

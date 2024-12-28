@@ -134,7 +134,7 @@ class rpcstack extends EventEmitter {
 			console.warn("Router, process_single_message:\n",
 					e.stack || e);
 			console.warn("Packet: "+ JSON.stringify(d));
-			reply("Exception", (e.stack || e).toString());
+			reply(e.message, (e.stack || e).toString());
 		}
 	};
 
