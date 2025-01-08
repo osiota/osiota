@@ -18,9 +18,9 @@ const get_deref_all = require("./helper_get_ref.js").get_deref_all;
  *	"map_key": function(app_config) {
  *		return ""+app_config.map;
  *	},
- *	"map_initialise": function(n, metadata, app_config) {
+ *	"map_initialise": function(n, metadata, app_config, reannounce) {
  *		n.rpc_set = function(reply, value, time) { };
- *		n.announce(metadata);
+ *		n.announce(metadata, reannounce);
  *	},
  * });
  * map.init();
@@ -37,9 +37,9 @@ const get_deref_all = require("./helper_get_ref.js").get_deref_all;
  *		var name = c.map;
  *		return name;
  *	},
- *	"map_initialise": function(n, metadata, c) {
+ *	"map_initialise": function(n, metadata, c, reannounce) {
  *		n.rpc_set = function(reply, value, time) { };
- *		n.announce(metadata);
+ *		n.announce(metadata, reannounce);
  *	}
  * });
  * var on_message = function(item, value) {
@@ -61,6 +61,12 @@ exports.node_map = function(node, config, map_settings) {
 			this.map_key = map_settings.map_key;
 		if (typeof map_settings.map_initialise === "function")
 			this.map_initialise = map_settings.map_initialise;
+		if (typeof map_settings.no_initial_mapping !== "undefined") {
+			this.no_initial_mapping = map_settings.no_initial_mapping;
+		}
+		if (typeof map_settings.reannounce_on_first_mapping !== "undefined") {
+			this.reannounce_on_first_mapping = map_settings.reannounce_on_first_mapping;
+		}
 	}
 
 	this.map = {};
@@ -92,15 +98,17 @@ exports.node_map.prototype.init = function() {
 	var _this = this;
 
 	// Map existing config items:
-	this._config.forEach(function(app_config) {
-		var key = _this.map_key(app_config);
-		if (typeof key !== "string")
-			return;
-		if (typeof app_config.node !== "string") {
-			app_config.node = key.replace(/^\//, "");
-		}
-		_this.map_element(key, app_config, null);
-	});
+	if (!this.no_initial_mapping) {
+		this._config.forEach(function(app_config) {
+			var key = _this.map_key(app_config);
+			if (typeof key !== "string")
+				return;
+			if (typeof app_config.node !== "string") {
+				app_config.node = key.replace(/^\//, "");
+			}
+			_this.map_element(key, app_config, null);
+		});
+	}
 };
 
 /**
@@ -123,16 +131,58 @@ exports.node_map.prototype.node = function(app_config, local_metadata, cache) {
 		return null;
 
 	if (this.map.hasOwnProperty(key)) {
-		if (typeof this.map[key].vn !== "undefined") {
-			var vn = this.map[key].vn;
-			return vn;
+		const item = this.map[key];
+		if (!item.seen) {
+			for (const [key, value] of Object.entries(app_config)) {
+				if (!(key in item.config)) {
+					item.config[key] = value;
+				}
+			}
+			if (this.reannounce_on_first_mapping) {
+				const metadata = {};
+				if (typeof local_metadata === "object" &&
+						local_metadata !== null) {
+					metadata = local_metadata;
+				}
+				if (typeof app_config.metadata === "object" &&
+						app_config.metadata !== null) {
+					metadata = [metadata, app_config.metadata];
+				}
+				this.map_initialise(n, metadata, app_config, true);
+			}
+			item.seen = true;
 		}
-		if (typeof this.map[key].config !== "undefined") {
-			app_config = this.map[key].config;
+		if (typeof item.vn !== "undefined") {
+			return item.vn;
+		}
+		// not used. Is alternative to no_initial_mapping
+		if (typeof item.config !== "undefined" && item.config !== null) {
+			for (const [key, value] of Object.entries(app_config)) {
+				if (!(key in item.config)) {
+					item.config[key] = value;
+				}
+			}
+			app_config = item.config;
 		}
 	}
 
-	if (!this.map_extra_elements) {
+	if (!this.map_extra_elements && !this.no_initial_mapping) {
+		return null;
+	}
+	var app_config_saved = this._config.find((c)=>{
+		return this.map_key(c) === key;
+	});
+	if (app_config_saved) {
+		// add keys from map object to config object:
+		for (const [key, value] of Object.entries(app_config)) {
+			if (!(key in app_config_saved)) {
+				app_config_saved[key] = value;
+			}
+		}
+		app_config = app_config_saved;
+	}
+
+	if (!this.map_extra_elements && !app_config_saved) {
 		return null;
 	}
 	if (typeof this.map_extra_elements === "object"
@@ -261,7 +311,7 @@ exports.node_map.prototype.map_element = function(key, app_config,
 		callback.call(_this, n, app_config);
 	});
 	var sub_apps = [];
-	if (local_app === null) {
+	if (local_app === null && app_config.app) {
 		sub_apps = n.load_app(app_config.app);
 	}
 
