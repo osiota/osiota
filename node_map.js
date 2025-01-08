@@ -98,17 +98,21 @@ exports.node_map.prototype.init = function() {
 	var _this = this;
 
 	// Map existing config items:
-	if (!this.no_initial_mapping) {
-		this._config.forEach(function(app_config) {
-			var key = _this.map_key(app_config);
-			if (typeof key !== "string")
-				return;
-			if (typeof app_config.node !== "string") {
-				app_config.node = key.replace(/^\//, "");
-			}
+	this._config.forEach(function(app_config) {
+		var key = _this.map_key(app_config);
+		if (typeof key !== "string")
+			return;
+		if (typeof app_config.node !== "string") {
+			app_config.node = key.replace(/^\//, "");
+		}
+		if (this.no_initial_mapping) {
+			_this.map[key] = {
+				config: app_config,
+			};
+		} else {
 			_this.map_element(key, app_config, null);
-		});
-	}
+		}
+	});
 };
 
 /**
@@ -148,14 +152,13 @@ exports.node_map.prototype.node = function(app_config, local_metadata, cache) {
 						app_config.metadata !== null) {
 					metadata = [metadata, app_config.metadata];
 				}
-				this.map_initialise(n, metadata, app_config, true);
+				this.map_initialise(n, metadata, app_config, true, cache);
 			}
 			item.seen = true;
 		}
 		if (typeof item.vn !== "undefined") {
 			return item.vn;
 		}
-		// not used. Is alternative to no_initial_mapping
 		if (typeof item.config !== "undefined" && item.config !== null) {
 			for (const [key, value] of Object.entries(app_config)) {
 				if (!(key in item.config)) {
@@ -164,43 +167,27 @@ exports.node_map.prototype.node = function(app_config, local_metadata, cache) {
 			}
 			app_config = item.config;
 		}
-	}
-
-	if (!this.map_extra_elements && !this.no_initial_mapping) {
-		return null;
-	}
-	var app_config_saved = this._config.find((c)=>{
-		return this.map_key(c) === key;
-	});
-	if (app_config_saved) {
-		// add keys from map object to config object:
-		for (const [key, value] of Object.entries(app_config)) {
-			if (!(key in app_config_saved)) {
-				app_config_saved[key] = value;
+	} else {
+		if (!this.map_extra_elements) {
+			return null;
+		}
+		if (typeof this.map_extra_elements === "object"
+				&& this.map_extra_elements !== null) {
+			for (var m in this.map_extra_elements) {
+				app_config[m] = this.map_extra_elements[m];
 			}
 		}
-		app_config = app_config_saved;
-	}
-
-	if (!this.map_extra_elements && !app_config_saved) {
-		return null;
-	}
-	if (typeof this.map_extra_elements === "object"
-			&& this.map_extra_elements !== null) {
-		for (var m in this.map_extra_elements) {
-			app_config[m] = this.map_extra_elements[m];
+		if (typeof this.map_extra_elements === "function") {
+			this.map_extra_elements(app_config, local_metadata);
 		}
-	}
-	if (typeof this.map_extra_elements === "function") {
-		this.map_extra_elements(app_config, local_metadata);
-	}
-	if (typeof app_config.node !== "string") {
-		app_config.node = this.map_nodename(key, app_config, local_metadata);
-	}
+		if (typeof app_config.node !== "string") {
+			app_config.node = this.map_nodename(key, app_config, local_metadata);
+		}
 
-	this._config.push(app_config);
-	if (this._config.__listener) {
-		this._config.__listener();
+		this._config.push(app_config);
+		if (this._config.__listener) {
+			this._config.__listener();
+		}
 	}
 
 	return this.map_element(key, app_config, local_metadata, cache);
@@ -212,7 +199,8 @@ exports.node_map.prototype.node = function(app_config, local_metadata, cache) {
 exports.node_map.prototype.unload = function() {
 	for(var s in this.map) {
 		if (this.map.hasOwnProperty(s)) {
-			this.map[s].vn.unannounce();
+			if (this.map[s].vn)
+				this.map[s].vn.unannounce();
 			if (this.map[s].a)
 				this.map[s].a.unload();
 			else
@@ -235,7 +223,8 @@ exports.node_map.prototype.remove_node = function(app_config) {
 	var key = this.map_key(app_config);
 
 	if (this.map.hasOwnProperty(key)) {
-		this.map[key].vn.unannounce();
+		if (this.map[key].vn)
+			this.map[key].vn.unannounce();
 		delete this.map[key].vn;
 		if (this.map[key].a) {
 			this.map[key].a.unload();
@@ -247,6 +236,7 @@ exports.node_map.prototype.remove_node = function(app_config) {
 			});
 			delete this.map[key].sub_apps;
 		}
+		this.map[key].seen = false;
 	}
 };
 
@@ -463,7 +453,7 @@ exports.node_map.prototype.forEach = function(callback) {
 	var r = [];
 	var _this = this;
 	for(var key in this.map) {
-		if (this.map.hasOwnProperty(key)) {
+		if (this.map.hasOwnProperty(key) && this.map[key].vn) {
 			var vn = this.map[key].vn;
 			var config = this.map[key].config;
 
