@@ -14,7 +14,7 @@ test('load config', function (t) {
 			{
 				"name": "ws-server",
 				"config": {
-					"server": 8081
+					"server": 8781
 				}
 			},
 			{
@@ -28,7 +28,7 @@ test('load config', function (t) {
 			{
 				"name": "ws-server",
 				"config": {
-					"server": 8081
+					"server": 8781
 				}
 			},
 			{
@@ -51,7 +51,7 @@ test('add app to config', function (t) {
 			{
 				"name": "ws-server",
 				"config": {
-					"server": 8081
+					"server": 8781
 				}
 			},
 			{
@@ -81,7 +81,7 @@ test('remove app from config', function (t) {
 			{
 				"name": "ws-server",
 				"config": {
-					"server": 8081
+					"server": 8781
 				}
 			},
 			{
@@ -118,7 +118,7 @@ test('check config', function (t) {
 			{
 				"name": "ws-server",
 				"config": {
-					"server": 8081
+					"server": 8781
 				}
 			},
 			{
@@ -152,7 +152,7 @@ test('check config', function (t) {
 			{
 				"name": "ws-server",
 				"config": {
-					"server": 8081
+					"server": 8781
 				}
 			},
 			{
@@ -195,7 +195,7 @@ test('check config', function (t) {
 			{
 				"name": "ws-server",
 				"config": {
-					"server": 8081
+					"server": 8781
 				}
 			},
 			{
