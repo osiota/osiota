@@ -35,15 +35,19 @@ class application_loader {
 		if (Array.isArray(apps) && apps.length) {
 			var count = 0;
 			apps.forEach(function(struct) {
-				_this.startup_struct(node, struct,
-						function(a, level){
-					loaded_apps.push(a);
-					if (level == 1 && ++count == apps.length){
-						if (typeof callback === "function") {
-							callback(loaded_apps);
+				try {
+					_this.startup_struct(node, struct,
+							function(a, level){
+						loaded_apps.push(a);
+						if (level == 1 && ++count == apps.length){
+							if (typeof callback === "function") {
+								callback(loaded_apps);
+							}
 						}
-					}
-				});
+					});
+				} catch(err) {
+					console.error("Error in application loading:", err);
+				}
 			});
 		} else {
 			if (typeof callback === "function") {
@@ -104,7 +108,7 @@ class application_loader {
 
 		if (typeof struct.name !== "string" && typeof struct.name !== "object"
 				&& struct.name !== null) {
-			console.warn("Warning: Application name option missing.", struct, node.name);
+			console.warn("Warning: Application name option missing.", struct, node && node.name);
 			return null;
 		}
 
