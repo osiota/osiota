@@ -16,7 +16,7 @@ exports.fileExists = async function(targetname) {
 		console.log("App already installed:", targetname);
 		return true;
 	} catch (err) {
-		if (err.code === "ENOENT") {
+		if (err.code !== "ENOENT") {
 			throw err;
 		}
 		return false;
