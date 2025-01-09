@@ -13,13 +13,17 @@ const node = require("./node.js").node;
 
 
 /**
- * Creates a Router instance
- * @class
- * @classdesc Router class
- * @name router
- * @param {string} [name] - The name of the router
+ * Router class
+ *
+ * Holdes all node instances
+ *
+ * @extends EventEmitter
  */
 class router extends EventEmitter {
+	/**
+	 * Creates a Router instance
+	 * @param {string} [name] - The name of the router
+	 */
 	constructor(name) {
 		super();
 		this.nodes = {};

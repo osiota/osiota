@@ -2,54 +2,53 @@ const get_ref = require("./helper_get_ref.js").get_ref;
 const get_deref_all = require("./helper_get_ref.js").get_deref_all;
 
 /**
- * Create a node-map
- * @class
- * @classdesc Node-Map class
- * @name node_map
- * @param {node} node - A node instance
- * @param {object} app_config - A config object
- * @param {object} [map_settings] - A config object
- * @param {(string|application|boolean)} [map_settings.app] - An application to map content
- * @param {(boolean|object|function)} [map_settings.map_extra_elements] - Map extra elements?
- * @param {function} [map_settings.map_key] - Map key function
- * @param {function} [map_settings.map_initialise] - Map initialise element
- * @example
- * const map = new main.classes.NodeMap(node, config, {
- *	"map_key": (app_config)=>{
- *		return ""+app_config.map;
- *	},
- *	"map_initialise": (n, metadata, app_config, reannounce)=>{
- *		n.rpc_set = function(reply, value, time) { };
- *		n.announce(metadata, reannounce);
- *	},
- * });
- * map.init();
- * const on_message = function(item, value) {
- *	const n = map.node(item);
- *	if (n) {
- *		n.publish(undefined, value);
- *	}
- * };
- * @example
- * const map = node.map(app_config, {
- *	"map_extra_elements": true,
- *	"map_key": (c)=>{
- *		const name = c.map;
- *		return name;
- *	},
- *	"map_initialise": (n, metadata, c, reannounce)=>{
- *		n.rpc_set = function(reply, value, time) { };
- *		n.announce(metadata, reannounce);
- *	}
- * });
- * const on_message = function(item, value) {
- *	const n = map.node(item);
- *	if (n) {
- *		n.publish(undefined, value);
- *	}
- * };
+ * Node-Map class
  */
 class node_map {
+	/**
+	 * @param {node} node - A node instance
+	 * @param {object} app_config - A config object
+	 * @param {object} [map_settings] - A config object
+	 * @param {(string|application|boolean)} [map_settings.app] - An application to map content
+	 * @param {(boolean|object|function)} [map_settings.map_extra_elements] - Map extra elements?
+	 * @param {function} [map_settings.map_key] - Map key function
+	 * @param {function} [map_settings.map_initialise] - Map initialise element
+	 * @example
+	 * const map = new main.classes.NodeMap(node, config, {
+	 *	"map_key": (app_config)=>{
+	 *		return ""+app_config.map;
+	 *	},
+	 *	"map_initialise": (n, metadata, app_config, reannounce)=>{
+	 *		n.rpc_set = function(reply, value, time) { };
+	 *		n.announce(metadata, reannounce);
+	 *	},
+	 * });
+	 * map.init();
+	 * const on_message = function(item, value) {
+	 *	const n = map.node(item);
+	 *	if (n) {
+	 *		n.publish(undefined, value);
+	 *	}
+	 * };
+	 * @example
+	 * const map = node.map(app_config, {
+	 *	"map_extra_elements": true,
+	 *	"map_key": (c)=>{
+	 *		const name = c.map;
+	 *		return name;
+	 *	},
+	 *	"map_initialise": (n, metadata, c, reannounce)=>{
+	 *		n.rpc_set = function(reply, value, time) { };
+	 *		n.announce(metadata, reannounce);
+	 *	}
+	 * });
+	 * const on_message = function(item, value) {
+	 *	const n = map.node(item);
+	 *	if (n) {
+	 *		n.publish(undefined, value);
+	 *	}
+	 * };
+	 */
 	constructor(node, config, map_settings) {
 		this._node = node;
 		this._app = null;

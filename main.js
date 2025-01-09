@@ -32,15 +32,16 @@ var fmap = function(array, callback) {
 
 /**
  * Main Process Instance
- * @class
- * @classdesc Main Process Instance
- * @name main
- * @param {string} router_name - Name of the instance
- * @example
- * // create a new instance:
- * var m = new main("my osiota");
+ * @extends EventEmitter
  */
 class main extends EventEmitter {
+	/**
+	 * Create a main instance
+	 * @param {string} router_name - Name of the instance
+	 * @example
+	 * // create a new instance:
+	 * var m = new main("my osiota");
+	 */
 	constructor(router_name) {
 		super();
 

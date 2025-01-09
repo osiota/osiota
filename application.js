@@ -13,20 +13,21 @@ const EventEmitter = require('events').EventEmitter;
 const unload_object = require("unload-object").unload;
 
 /**
+ * Application Class
+ *
  * Osiota can run applications. This is the base class every application
  * automatically inherits methods and attributes from. An application is
  * started when the `init()` function is called by osiota. It can `inherit`
  * methods and attributes from other applications.
  *
- * @class
- * @classdesc Application class
- * @name application
- * @param {application_loader} application_loader - Application Loader instance
- * @param {string} app - Application name
  * @tutorial doc/build_your_own_apps.md
- * @hideconstructor
  */
 class application extends EventEmitter {
+	/**
+	 * Creates an Application
+	 * @param {application_loader} application_loader - Application Loader instance
+	 * @param {string} app - Application name
+	 */
 	constructor(application_loader, app) {
 		super();
 

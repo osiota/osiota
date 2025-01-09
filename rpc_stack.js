@@ -1,9 +1,3 @@
-/*
- * Remote Procedure Call (RPC) Stack
- *
- * (see {@link websocket_protocol.md|WebSocket protocol}
- */
-
 const EventEmitter = require('events').EventEmitter;
 
 const nodename_transform = require("./helper_nodenametransform").nodename_transform;
@@ -39,14 +33,19 @@ EventEmitter.prototype.once_timeout = function(event, handler, timeout) {
 	};
 };
 
-/**
- * Remote Call class
- * @class
- * @classdesc Remote Call class
- * @name rpcstack
+/*
+ * Remote Procedure Call (RPC) Stack
+ *
+ * (see {@link websocket_protocol.md|WebSocket protocol}
+ *
+ * @extends EventEmitter
  * @abstract
  */
 class rpcstack extends EventEmitter {
+	/**
+	 * Creates a Remote Call instance
+	 * @name rpcstack
+	 */
 	constructor() {
 		super();
 		this._rpc_calls = {};
@@ -140,7 +139,7 @@ class rpcstack extends EventEmitter {
 
 	/**
 	 * process command messages (ie from websocket)
-	 * @param {object[]} messages - RPC messages (see doc/websocket_protocol.md)
+	 * @param {object[]} messages - RPC messages (see {@link websocket_protocol.md|WebSocket protocol})
 	 * @param {function} [respond] - Respond callback
 	 * @param {object} [module] - Source module
 	 */

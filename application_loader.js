@@ -3,12 +3,12 @@ const async_calls = require("./helper_async_calls.js").async_calls;
 
 /**
  * Application Loader class
- * @class
- * @classdesc Application Loader class
- * @name application_loader
- * @param {main} main - Main instance
  */
 class application_loader {
+	/**
+	 * Creates an application loader
+	 * @param {main} main - Main instance
+	 */
 	constructor(main) {
 		this._main = main;
 		this.auto_install = false;

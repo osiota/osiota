@@ -10,18 +10,19 @@ const json_validate = require("./helper_json_validate.js").json_validate;
 const create_promise_callback = require("./helper_promise.js").create_promise_callback;
 
 /**
- * Create a node instance
- * @class
- * @classdesc Node class
- * @name node
- * @mixes EventEmitter
- * @param {router} r - The router instance
- * @param {string} name - The name of the node
- * @param {node} parentnode - The parent node
- * @hideconstructor
- * @fires router#create_new_node
+ * Node class
+ *
+ * Nodes all exchanging information, either by publish/subscribe or from subscriber to publisher by RPC methods. It can transport any JavaScript data type besides functions.
+ * @extends EventEmitter
  */
 class node extends EventEmitter {
+	/**
+	 * Create a node instance
+	 * @param {router} r - The router instance
+	 * @param {string} name - The name of the node
+	 * @param {node} parentnode - The parent node
+	 * @fires router#create_new_node
+	 */
 	constructor(r, name, parentnode) {
 		super();
 
@@ -1123,7 +1124,7 @@ class node extends EventEmitter {
 	/**
 	 * Get a RPC function off the node
 	 * @param {string} method - Method to be called
-	 * @returns {async function} RPC function
+	 * @returns {function} RPC function
 	 * @example
 	 * var f = node.rpc_cache("ping");
 	 * var result1 = await f(...args);

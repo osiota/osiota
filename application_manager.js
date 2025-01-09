@@ -8,12 +8,12 @@ var __found_apps = null;
 
 /**
  * Application Manager class
- * @class
- * @classdesc Application Manager class
- * @name application_manager
- * @param {main} main - Main instance
  */
 class application_manager {
+	/**
+	 * Creates an application manager
+	 * @param {main} main - Main instance
+	 */
 	constructor(main) {
 		this._app_schema = null;
 		this._schema = null;
