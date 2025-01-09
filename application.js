@@ -64,13 +64,16 @@ class application extends EventEmitter {
 			this._state = state;
 			this._error = error;
 
-			this._node.connect_schema(this._schema);
-			this._node.connect_config(this._config);
-			this._object = this._node.announce([this._config.metadata, {
-				"type": "app.error",
-				"state": state,
-				"error": error.stack || error
-			}]);
+			// if app is not completely loaded _node can be null
+			if (this._node) {
+				this._node.connect_schema(this._schema);
+				this._node.connect_config(this._config);
+				this._object = this._node.announce([this._config.metadata, {
+					"type": "app.error",
+					"state": state,
+					"error": error.stack || error
+				}]);
+			}
 		}
 	};
 	/**
