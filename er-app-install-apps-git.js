@@ -6,14 +6,12 @@ const execFilePromise = util.promisify(execFile);
 
 exports.clean_repo_name = function(app_name) {
 	return app_name
-		.replace(/^(er|osiota)-app-/, "")
 		.replace(/^(?:(?:er|osiota)-app-)?((?:@[^\/]+\/)?[^\/]+)\/.*?$/, '$1');
 }
 
 exports.fileExists = async function(targetname) {
 	try {
 		await fs.promises.access(targetname, fs.constants.F_OK);
-		console.log("App already installed:", targetname);
 		return true;
 	} catch (err) {
 		if (err.code !== "ENOENT") {
@@ -38,11 +36,12 @@ exports.install_app = async function(app, app_config) {
 	const target_dir = install_dir + "osiota-app-" + app;
 
 	try {
-		if (this.fileExists(target_dir)) {
+		if (await this.fileExists(target_dir)) {
+			console.log("App already installed:", targetname);
 			return true;
 		}
 		await execFilePromise("git", ["clone", repo_path + app + ".git", target_dir]);
-		if (this.fileExists(target_dir + "/package.json")) {
+		if (await this.fileExists(target_dir + "/package.json")) {
 			console.info("run npm install:", app);
 			await execFilePromise("npm", ["install", "--omit=dev"], {"cwd": target_dir});
 		}

@@ -14,7 +14,7 @@ exports.install_app = async function(app, app_config) {
 		npm_path = app_config.npm_path;
 	}
 	const target_dir = "node_modules/osiota-app-" + app;
-	if (this.fileExists(target_dir)) {
+	if (await this.fileExists(target_dir)) {
 		return true;
 	}
 
