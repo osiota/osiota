@@ -41,12 +41,22 @@ exports.install_app = async function(app, app_config) {
 			return true;
 		}
 		await execFilePromise("git", ["clone", repo_path + app + ".git", target_dir]);
+	} catch (err) {
+		if (err.code === 128 && err.stderr && err.stderr.match(/not found/)) {
+			const msg = err.stderr.replace(/^Cloning into .*\n|^fatal: repository .* not found$/, "").replace(/\r?\n/, " ");
+			console.error("Error installing app (git): Repo does not exist.", msg)
+			return false;
+		}
+		console.error("Error installing app (git)", err);
+		return false;
+	}
+	try {
 		if (await this.fileExists(target_dir + "/package.json")) {
 			console.info("run npm install:", app);
 			await execFilePromise("npm", ["install", "--omit=dev"], {"cwd": target_dir});
 		}
-	} catch (err) {
-		console.error("Error installing app (git)", err);
+	} catch(err) {
+		console.error("Error installing npm packages of app (git)", err);
 		return false;
 	}
 	return true;
