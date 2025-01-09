@@ -1,0 +1,10 @@
+{
+	"app": [{
+		"name": "execcommand-service",
+		"config": {
+			"command": "/bin/sleep",
+			"args": [6],
+			"autostart": 1
+		}
+	}]
+}

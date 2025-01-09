@@ -1,0 +1,49 @@
+{
+	"type": "object",
+	"title": "osiota application scene",
+	"description": "Scenes to control multiple devices at once.",
+	"properties": {
+		"node": {
+			"$ref": "https://osiota.net/schemas/app-node.json"
+		},
+		"source": {
+			"$ref": "https://osiota.net/schemas/source.json"
+		},
+		"state": {
+			"type": "boolean"
+		},
+		"filter": {
+			"title": "Filter",
+			"type": "array",
+			"items": {
+				"type": "object",
+				"allOf": [{
+					"$ref": "https://osiota.net/schemas/filter_single.json"
+				}],
+				"properties": {
+					"ignore_feedback": {
+						"title": "Ignore Feedback from nodes",
+						"type": "boolean"
+					},
+					"value": {
+						"allOf": [{
+							"$ref": "https://osiota.net/schemas/value.json"
+						}],
+						"title": "Value"
+					},
+					"unset_value": {
+						"allOf": [{
+							"$ref": "https://osiota.net/schemas/value.json"
+						}],
+						"title": "Value to unset"
+					}
+				}
+			}
+		},
+		"metadata": {
+			"$ref": "https://osiota.net/schemas/metadata.json"
+		}
+	},
+	"required": [ ],
+	"additionalProperties": false
+}
