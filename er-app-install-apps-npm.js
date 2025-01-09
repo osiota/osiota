@@ -14,11 +14,8 @@ exports.install_app = async function(app, app_config) {
 		npm_path = app_config.npm_path;
 	}
 	const target_dir = "node_modules/osiota-app-" + app;
-	try {
-		await fs.promises.access(target_dir, fs.constants.F_OK);
-		console.log("App already installed:", target_dir);
-		return false;
-	} catch (err) {
+	if (this.fileExists(target_dir)) {
+		return true;
 	}
 
 	let url = npm_path + app;
@@ -35,7 +32,6 @@ exports.install_app = async function(app, app_config) {
 	return true;
 };
 
-
 exports.cli = async function(argv, show_help, main) {
 	if (show_help) {
 		console.info('App Options\n' +
@@ -45,6 +41,6 @@ exports.cli = async function(argv, show_help, main) {
 		return;
 	}
 	for (const a of argv._) {
-		await this.install_app(a, argv);
+		await this.install_app(this.clean_repo_name(a), argv);
 	}
 };

@@ -4,6 +4,25 @@ const util = require('util');
 
 const execFilePromise = util.promisify(execFile);
 
+exports.clean_repo_name = function(app_name) {
+	return app_name
+		.replace(/^(er|osiota)-app-/, "")
+		.replace(/^(?:(?:er|osiota)-app-)?((?:@[^\/]+\/)?[^\/]+)\/.*?$/, '$1');
+}
+
+exports.fileExists = async function(targetname) {
+	try {
+		await fs.promises.access(targetname, fs.constants.F_OK);
+		console.log("App already installed:", targetname);
+		return true;
+	} catch (err) {
+		if (err.code === "ENOENT") {
+			throw err;
+		}
+		return false;
+	}
+}
+
 exports.install_app = async function(app, app_config) {
 	console.info("install app (git):", app);
 	let install_dir = "../";
@@ -17,17 +36,16 @@ exports.install_app = async function(app, app_config) {
 		repo_path = app_config.repo_path;
 	}
 	const target_dir = install_dir + "osiota-app-" + app;
+
 	try {
-		await fs.promises.access(target_dir, fs.constants.F_OK);
-		console.log("App already installed:", target_dir);
-		return false;
-	} catch (err) {
-	}
-	try {
+		if (this.fileExists(target_dir)) {
+			return true;
+		}
 		await execFilePromise("git", ["clone", repo_path + app + ".git", target_dir]);
-		await fs.promises.access(target_dir + "/package.json", fs.constants.R_OK);
-		console.log("run npm install:", app);
-		await execFilePromise("npm", ["install", "--production"], {"cwd": target_dir});
+		if (this.fileExists(target_dir + "/package.json")) {
+			console.info("run npm install:", app);
+			await execFilePromise("npm", ["install", "--omit=dev"], {"cwd": target_dir});
+		}
 	} catch (err) {
 		console.error("Error installing app (git)", err);
 		return false;
@@ -46,7 +64,7 @@ exports.cli = async function(argv, show_help, main) {
 		return;
 	}
 	for (const a of argv._) {
-		await this.install_app(a, argv);
+		await this.install_app(this.clean_repo_name(a), argv);
 	}
 };
 
@@ -58,7 +76,8 @@ exports.init = function(node, app_config, main, host_info) {
 	node.announce({
 		"type": "installapps.admin"
 	});
-	node.rpc_install_app = async function(app) {
+	node.rpc_install_app = async function(app_name) {
+		const app = _this.clean_repo_name(app_name);
 		exports.try_to_install[app] = _this.install_app(app, app_config);
 		return await exports.try_to_install[app];
 	};
@@ -74,7 +93,7 @@ exports.init = function(node, app_config, main, host_info) {
 
 	if (app_config.auto_install_missing_apps) {
 		main.removeAllListeners("app_loading_error");
-		var cb_app_loading_error = async function(e, node, app, l_app_config,
+		const cb_app_loading_error = async function(e, node, app_name, local_app_config,
 				host_info, auto_install, callback) {
 			if (!e.hasOwnProperty("code") ||
 					e.code !== "OSIOTA_APP_NOT_FOUND") {
@@ -82,14 +101,13 @@ exports.init = function(node, app_config, main, host_info) {
 				return;
 			}
 
-			var l_app = app.replace(/^(er|osiota)-app-/, "")
-					.replace(/\/.*$/, "");
+			const app = _this.clean_repo_name(app_name);
 
-			if (!exports.try_to_install.hasOwnProperty(l_app)) {
-				exports.try_to_install[l_app] = _this.install_app(app, app_config);
+			if (!exports.try_to_install.hasOwnProperty(app)) {
+				exports.try_to_install[app] = _this.install_app(app, app_config);
 			}
-			if (await exports.try_to_install[l_app]) {
-				main.application_loader.startup(node, app, l_app_config,
+			if (await exports.try_to_install[app]) {
+				main.application_loader.startup(node, app_name, local_app_config,
 					host_info, auto_install,
 					false,
 					callback);
