@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-var path = require('path');
-var daemon = require('./helper_daemon.js');
-var helper_config_file = require('./helper_config_file.js');
-var argv = require('minimist')(process.argv.slice(2));
+const path = require('path');
+const daemon = require('./helper_daemon.js');
+const helper_config_file = require('./helper_config_file.js');
+const argv = require('minimist')(process.argv.slice(2));
 
 // Flags:
 argv.help    = argv.help    || argv.h;
@@ -23,9 +23,9 @@ if (argv.restart && process.env.__daemon) {
 	argv.daemon = true;
 }
 
-var config_file = argv.config || "osiota.json";
-var log_file = config_file.replace(/\.json$/i, "") + ".log";
-var pid_file = config_file.replace(/\.json$/i, "") + ".pid";
+let config_file = argv.config || "osiota.json";
+const log_file = config_file.replace(/\.json$/i, "") + ".log";
+const pid_file = config_file.replace(/\.json$/i, "") + ".pid";
 if (argv.app) config_file = null;
 
 
@@ -57,7 +57,7 @@ if (argv.help && !argv.app) {
 	console.info(require("./package.json").version);
 
 } else if (argv.stop) {
-	var pid = daemon.process_status(pid_file);
+	const pid = daemon.process_status(pid_file);
 	if (!pid) {
 		return console.error("Error: no running process found");
 	}
@@ -66,7 +66,7 @@ if (argv.help && !argv.app) {
 	});
 
 } else /* istanbul ignore if tested in test/61 */ if (argv.restart) {
-	var pid = daemon.process_status(pid_file);
+	const pid = daemon.process_status(pid_file);
 	if (!pid) {
 		console.warn("Warning: no running process found");
 		daemon.daemon_start(log_file);
@@ -78,7 +78,7 @@ if (argv.help && !argv.app) {
 	});
 
 } else /* istanbul ignore if manually tested in test/61 */ if (argv.reload) {
-	var pid = daemon.process_status(pid_file);
+	const pid = daemon.process_status(pid_file);
 	if (!pid) {
 		return console.error("Error: no running process found");
 	}
@@ -103,9 +103,9 @@ if (argv.help && !argv.app) {
 	if (process.env.__daemon)
 		daemon.pidfile_create(pid_file);
 
-	var fs = require('fs');
-	var os = require('os');
-	var main = require('./main_nodejs.js');
+	const fs = require('fs');
+	const os = require('os');
+	const main = require('./main_nodejs.js');
 
 	// optional better console output:
 	if (!argv.help && !argv.app && !argv.systemd) {
@@ -129,12 +129,12 @@ if (argv.help && !argv.app) {
 		console.debug = function() {};
 	}
 
-	var config = helper_config_file.read(argv.config);
-	var config_filename = (typeof argv.config === "string" ?
+	let config = helper_config_file.read(argv.config);
+	const config_filename = (typeof argv.config === "string" ?
 		argv.config.replace(/^.*\/|\.json$|[-_]?(osiota|config)[-_]?/g, "") : "");
-	var m = new main(config.hostname || config_filename || os.hostname());
+	const m = new main(config.hostname || config_filename || os.hostname());
 	m.on("config_save", function() {
-		var _this = this;
+		const _this = this;
 		setImmediate(function() {
 			helper_config_file.write(
 				argv.config || "osiota.json",
@@ -157,7 +157,7 @@ if (argv.help && !argv.app) {
 	m.add_app_dir(path.dirname(argv.config || "osiota.json"));
 
 	if (argv.check) {
-		var validation_errors = m.application_manager.check_config(
+		const validation_errors = m.application_manager.check_config(
 				config);
 		if (validation_errors) {
 			console.error("Config is not valid");
