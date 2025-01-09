@@ -1,74 +1,48 @@
+const fs = require("fs");
 const execFile = require('child_process').execFile;
+const util = require('util');
 
-function install_app(app, app_config, callback) {
-	app = app.replace(/^er-app-/, "").replace(/\/.*$/, "");
+const execFilePromise = util.promisify(execFile);
 
-	console.log("install app (npm):", app);
-	var url = "git+ssh://git@gitlab.ibr.cs.tu-bs.de/eneff-campus-2020/er-app-" + app + ".git";
-	//var url = "git+https://gitlab.ibr.cs.tu-bs.de/eneff-campus-2020/er-app-" + app + ".git";
-	execFile("npm", ["install", url], callback);
+exports.inherit = ['install-apps-git'];
+
+exports.install_app = async function(app, app_config) {
+	console.info("install app (npm):", app);
+
+	let npm_path = "osiota-app-";
+	if (typeof app_config.npm_path === "string") {
+		npm_path = app_config.npm_path;
+	}
+	const target_dir = "node_modules/osiota-app-" + app;
+	try {
+		await fs.promises.access(target_dir, fs.constants.F_OK);
+		console.log("App already installed:", target_dir);
+		return;
+	} catch (err) {
+	}
+
+	let url = npm_path + app;
+	if (npm_path.match(/^git/)) {
+		// e.g. for "git+https://github.com/osiota/osiota-app-"
+		url += ".git";
+	}
+	try {
+		await execFilePromise("npm", ["install", url]);
+	} catch (err) {
+		console.error("Error installing app (npm)", err);
+	}
 };
 
-exports.cli = function(argv, main) {
+
+exports.cli = async function(argv, show_help, main) {
 	if (show_help) {
 		console.info('App Options\n' +
+			'  --npm_path     Prefix for the npm package\n' +
+			'                 (default: "osiota-app-")\n' +
 			'  [apps ...]     Apps to install\n');
 		return;
 	}
-	argv._.forEach(function(a) {
-		install_app(a, argv, function(err) {
-			if (err) {
-				console.error("Error installing app (git)",err);
-			}
-		});
-	});
-};
-
-exports.init = function(node, app_config, main, host_info) {
-	node.announce({
-		"type": "installapps.admin"
-	});
-	node.rpc_install_app = function(reply, app) {
-		install_app(app, app_config, function(err) {
-			if (err) {
-				reply("Error installing app (npm)", err);
-				return;
-			}
-
-			reply(null, "okay");
-		});
-	};
-
-	if (typeof app_config.auto_install_missing_apps === "boolean" &&
-			app_config.auto_install_missing_apps) {
-		main.removeAllListeners("app_loading_error");
-		var try_to_install = {};
-		var cb_app_loading_error = function(e, node, app, l_app_config,
-				host_info, auto_install, callback) {
-			if (try_to_install.hasOwnProperty("app"))
-				return;
-			try_to_install[app] = true;
-			if (e.hasOwnProperty("code") &&
-					e.code === "OSIOTA_APP_NOT_FOUND") {
-				install_app(app, app_config, function(err) {
-					if (err) throw err;
-					main.application_loader.startup(node, app, l_app_config,
-						host_info, auto_install,
-						false,
-						callback);
-				});
-			} else {
-				console.error("error starting app:",
-						e.stack || e);
-			}
-		};
-		main.on("app_loading_error", cb_app_loading_error);
-		return [node, function() {
-			main.removeListener("app_loading_error",
-					cb_app_loading_error);
-		}];
+	for (const a of argv._) {
+		await this.install_app(a, argv);
 	}
-
-	return [node];
 };
-
