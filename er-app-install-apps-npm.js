@@ -17,7 +17,7 @@ exports.install_app = async function(app, app_config) {
 	try {
 		await fs.promises.access(target_dir, fs.constants.F_OK);
 		console.log("App already installed:", target_dir);
-		return;
+		return false;
 	} catch (err) {
 	}
 
@@ -30,7 +30,9 @@ exports.install_app = async function(app, app_config) {
 		await execFilePromise("npm", ["install", url]);
 	} catch (err) {
 		console.error("Error installing app (npm)", err);
+		return false;
 	}
+	return true;
 };
 
 

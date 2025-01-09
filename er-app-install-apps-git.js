@@ -20,7 +20,7 @@ exports.install_app = async function(app, app_config) {
 	try {
 		await fs.promises.access(target_dir, fs.constants.F_OK);
 		console.log("App already installed:", target_dir);
-		return;
+		return false;
 	} catch (err) {
 	}
 	try {
@@ -30,7 +30,9 @@ exports.install_app = async function(app, app_config) {
 		await execFilePromise("npm", ["install", "--production"], {"cwd": target_dir});
 	} catch (err) {
 		console.error("Error installing app (git)", err);
+		return false;
 	}
+	return true;
 };
 
 exports.cli = async function(argv, show_help, main) {
@@ -86,11 +88,12 @@ exports.init = function(node, app_config, main, host_info) {
 			if (!exports.try_to_install.hasOwnProperty(l_app)) {
 				exports.try_to_install[l_app] = _this.install_app(app, app_config);
 			}
-			await exports.try_to_install[l_app];
-			main.application_loader.startup(node, app, l_app_config,
-				host_info, auto_install,
-				false,
-				callback);
+			if (await exports.try_to_install[l_app]) {
+				main.application_loader.startup(node, app, l_app_config,
+					host_info, auto_install,
+					false,
+					callback);
+			}
 		};
 		main.on("app_loading_error", cb_app_loading_error);
 		return [node, function() {
