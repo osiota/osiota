@@ -61,7 +61,7 @@ exports.init = function(node, app_config, main, host_info) {
 		return await exports.try_to_install[app];
 	};
 	if (Array.isArray(app_config.install_apps)) {
-		for (const app of app_config.apps) {
+		for (const app of app_config.install_apps) {
 			if (!exports.try_to_install.hasOwnProperty(app)) {
 				exports.try_to_install[app] = this.install_app(app, app_config);
 			} else {
