@@ -37,7 +37,7 @@ exports.install_app = async function(app, app_config) {
 
 	try {
 		if (await this.fileExists(target_dir)) {
-			console.log("App already installed:", targetname);
+			console.log("App already installed:", target_dir);
 			return true;
 		}
 		await execFilePromise("git", ["clone", repo_path + app + ".git", target_dir]);
