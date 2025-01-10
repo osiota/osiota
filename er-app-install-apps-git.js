@@ -80,7 +80,7 @@ exports.cli = async function(argv, show_help, main) {
 // global, as well for inheriting apps:
 exports.try_to_install = {};
 
-exports.init = function(node, app_config, main, host_info) {
+exports.init = function(node, app_config, main) {
 	const _this = this;
 	node.announce({
 		"type": "installapps.admin"
@@ -102,7 +102,7 @@ exports.init = function(node, app_config, main, host_info) {
 
 	if (app_config.auto_install_missing_apps) {
 		main.removeAllListeners("app_loading_error");
-		const cb_app_loading_error = async function(e, node, app_name, local_app_config,
+		const cb_app_loading_error = async function(e, application, node, app_name, local_app_config,
 				auto_install, callback) {
 			if (!e.hasOwnProperty("code") ||
 					e.code !== "OSIOTA_APP_NOT_FOUND") {
@@ -115,12 +115,13 @@ exports.init = function(node, app_config, main, host_info) {
 				return;
 			}
 
-			const app = _this.clean_repo_name(app_name);
+			const app_reponame = _this.clean_repo_name(app_name);
 
-			if (!exports.try_to_install.hasOwnProperty(app)) {
-				exports.try_to_install[app] = _this.install_app(app, app_config);
+			if (!exports.try_to_install.hasOwnProperty(app_reponame)) {
+				exports.try_to_install[app_reponame] = _this.install_app(app_reponame, app_config);
 			}
-			if (await exports.try_to_install[app]) {
+			if (await exports.try_to_install[app_reponame]) {
+				main.application_loader.app_unregister(application);
 				main.application_loader.startup(node, app_name, local_app_config,
 					/* auto_install */ false,
 					callback);

@@ -152,7 +152,7 @@ class application_loader {
 				 * @param {boolean} auto_install - Auto install flag
 				 * @event main#app_loading_error
 				 */
-				if (_this.emit("app_loading_error", e, node, app,
+				if (_this.emit("app_loading_error", e, a, node, app,
 						app_config, auto_install,
 						function(an, level) {
 					if (typeof an === "object") {
