@@ -15,7 +15,7 @@ test('load non existing app', function (t) {
 	t.timeoutAfter(100);
 
 	main.on("app_loading_error", function(e, node, app, l_app_config,
-			host_info, auto_install, callback) {
+			auto_install, callback) {
 		t.equal(e.code, "OSIOTA_APP_NOT_FOUND", "error code");
 	});
 

@@ -1,5 +1,5 @@
 
-exports.init = function(node, app_config, main, host_info) {
+exports.init = function(node, app_config, main) {
 	this.date = new Date();
 	console.log(this._id, "app loaded.", this.date);
 

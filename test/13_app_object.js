@@ -9,12 +9,12 @@ const Application = require("../application.js").application;
 var application_loader = null;
 
 var a1 = {};
-a1.init = function(node, app_config, main, host_info) {
+a1.init = function(node, app_config, main) {
 	console.log(this._id, app_config);
 };
 var a2 = new Application(application_loader, "a2");
 //a2._app = "a2";
-a2.init = function(node, app_config, main, host_info) {
+a2.init = function(node, app_config, main) {
 	console.log(this._id, app_config);
 };
 

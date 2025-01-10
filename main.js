@@ -80,10 +80,6 @@ class main extends EventEmitter {
 			this.router.name = config.hostname;
 		}
 
-		if (typeof config.auto_install === "boolean") {
-			this.application_loader.auto_install = config.auto_install;
-		}
-
 		this.setup_history(config.save_history);
 
 		// Load policy checker module

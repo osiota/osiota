@@ -33,7 +33,7 @@ exports.addins = function(main) {
 	/* istanbul ignore next deprecated */
 	main.map_app = function(metadatatype) {
 		var subapp = {};
-		subapp.init = function(node, app_config, main, host_info) {
+		subapp.init = function(node, app_config, main) {
 			node.announce({
 				"type": metadatatype
 			});

@@ -103,10 +103,15 @@ exports.init = function(node, app_config, main, host_info) {
 	if (app_config.auto_install_missing_apps) {
 		main.removeAllListeners("app_loading_error");
 		const cb_app_loading_error = async function(e, node, app_name, local_app_config,
-				host_info, auto_install, callback) {
+				auto_install, callback) {
 			if (!e.hasOwnProperty("code") ||
 					e.code !== "OSIOTA_APP_NOT_FOUND") {
-				console.error("error starting app:", e.stack || e);
+				console.error("error loading app:", e);
+				return;
+			}
+			if (auto_install === false) {
+				// just show error:
+				console.error("error loading app:", e);
 				return;
 			}
 
@@ -117,8 +122,7 @@ exports.init = function(node, app_config, main, host_info) {
 			}
 			if (await exports.try_to_install[app]) {
 				main.application_loader.startup(node, app_name, local_app_config,
-					host_info, auto_install,
-					false,
+					/* auto_install */ false,
 					callback);
 			}
 		};

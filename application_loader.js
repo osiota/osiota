@@ -11,7 +11,6 @@ class application_loader {
 	 */
 	constructor(main) {
 		this._main = main;
-		this.auto_install = false;
 		this.apps = {};
 	};
 
@@ -62,15 +61,20 @@ class application_loader {
 	 * @param {node} node - Parent node
 	 * @param {string|application} app - Application Name or Application
 	 * @param {object} app_config - Application Config
-	 * @param {object} [host_info] - Host Information
 	 * @param {boolean} [auto_install] - Automatic Installation
+	 * @param {boolean} [deactive] - Start as deactivated app
 	 * @param {function} [callback]
 	 * @returns {string} Application name
 	 */
-	startup(node, app, app_config, host_info, auto_install, deactive, callback) {
+	startup(node, app, app_config, auto_install, deactive, callback) {
 		if (typeof callback !== "function") {
 			callback = deactive;
 			deactive = undefined;
+		}
+		if (typeof callback === "undefined" &&
+				typeof auto_install === "function") {
+			callback = auto_install;
+			auto_install = undefined;
 		}
 		var struct = {
 			name: app,
@@ -80,19 +84,18 @@ class application_loader {
 		if (node && node._app && node._app._struct) {
 			struct = node._app._struct;
 		}
-		return this.startup_struct(node, struct, host_info, auto_install, callback);
+		return this.startup_struct(node, struct, auto_install, callback);
 	};
 
 	/**
 	 * Startup an application by struct
 	 * @param {node} node - Parent node
 	 * @param {object} struct - Application Struct
-	 * @param {object} [host_info] - Host Information
 	 * @param {boolean} [auto_install] - Automatic Installation
 	 * @param {function} [callback]
 	 * @returns {string} Application name
 	 */
-	startup_struct(node, struct, host_info, auto_install, callback) {
+	startup_struct(node, struct, auto_install, callback) {
 		var _this = this;
 
 		if (typeof struct !== "object" || struct === null) {
@@ -104,6 +107,11 @@ class application_loader {
 		}
 		if (typeof struct.config !== "object") {
 			struct.config = {};
+		}
+		if (typeof callback === "undefined" &&
+				typeof auto_install === "function") {
+			callback = auto_install;
+			auto_install = undefined;
 		}
 
 		if (typeof struct.name !== "string" && typeof struct.name !== "object"
@@ -127,7 +135,7 @@ class application_loader {
 			// load app (with or without error):
 			var m = _this.startup_module( a,
 					node, struct,
-					host_info, auto_install,
+					auto_install,
 					callback);
 
 			if (e) {
@@ -145,7 +153,7 @@ class application_loader {
 				 * @event main#app_loading_error
 				 */
 				if (_this.emit("app_loading_error", e, node, app,
-						app_config, host_info, auto_install,
+						app_config, auto_install,
 						function(an, level) {
 					if (typeof an === "object") {
 						if (typeof callback === "function") {
@@ -234,7 +242,7 @@ class application_loader {
 	 * [internal use] Bind application and initialize it
 	 * @private
 	 */
-	startup_module(a, node, struct, host_info, auto_install, callback) {
+	startup_module(a, node, struct, auto_install, callback) {
 		var _this = this;
 
 		var app = struct.name;
@@ -256,22 +264,10 @@ class application_loader {
 			callback = auto_install;
 			auto_install = undefined;
 		}
-		else if (typeof callback === "undefined" &&
-				typeof host_info === "function") {
-			callback = host_info;
-			host_info = undefined;
-			auto_install = undefined;
-		}
-		if (typeof host_info === "undefined") {
-			host_info = this._main;
-		}
-		if (typeof auto_install === "undefined") {
-			auto_install = this.auto_install;
-		}
 
 		console.log("startup:", a._app);
 		// bind to main:
-		a._bind(this._main, host_info);
+		a._bind(this._main);
 
 		if (typeof app_config !== "object") {
 			// Warning: app_config is not an object
@@ -333,7 +329,7 @@ class application_loader {
 			if (deactive) {
 				a._init_deactive(app_config);
 
-				this.emit("app_initi_deactive", a);
+				this.emit("app_init_deactive", a);
 
 			} else if (!a._error) {
 				a._init(app_config);
@@ -356,7 +352,7 @@ class application_loader {
 
 			// trigger global callback:
 			this.emit("app_init_error", e, node, app, app_config,
-						host_info, auto_install);
+						auto_install);
 			// show error:
 			console.error("error starting app:", e.stack || e);
 		}
@@ -365,7 +361,7 @@ class application_loader {
 		if (Array.isArray(app_config.app)) {
 			app_config.app.forEach(function(struct) {
 				_this.startup_struct(node_destination, struct,
-						host_info, auto_install,
+						auto_install,
 						function(a, level) {
 					if (typeof callback === "function") {
 						callback(a, level+1);

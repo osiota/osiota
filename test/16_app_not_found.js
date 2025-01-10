@@ -14,7 +14,7 @@ test('load app with error', function (t) {
 	t.plan(2);
 
 	main.on("app_loading_error", function(e, node, app, l_app_config,
-			host_info, auto_install, callback) {
+			auto_install, callback) {
 		t.fail("loading error");
 	});
 

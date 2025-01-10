@@ -187,8 +187,8 @@ if (argv.help && !argv.app) {
 					argv.app);
 			console.info("Application Options:");
 		}
-		m.application_loader.startup(null, argv.app, undefined,
-				undefined, undefined, undefined,
+		m.application_loader.startup(/*node=*/ null, argv.app,
+				/*app_config*/ undefined,
 				function(a, level) {
 			if (level !== 1) return;
 			a._cli(argv, argv.help);

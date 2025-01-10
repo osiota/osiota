@@ -87,11 +87,9 @@ class application extends EventEmitter {
 	/**
 	 * [internal use] Bind to main class
 	 * @param {main} main - main instance
-	 * @param {*} extra - extra information
 	 * @private
 	 */
-	_bind(main, extra) {
-		this._extra = extra;
+	_bind(main) {
 		this._main = main;
 	};
 	/**
@@ -222,11 +220,10 @@ class application extends EventEmitter {
 	 * @param {object} app_config - Config object
 	 * @param {node} node - Node object
 	 * @param {main} main - Main instance
-	 * @param {*} extra - Extra information
 	 * @return {object} A cleaning object
 	 * @abstract
 	 * @example
-	 * exports.init = function(node, app_config, main, extra) {
+	 * exports.init = function(node, app_config, main) {
 	 *     node.announce({ type: "my.app" });
 	 *     node.publish(undefined, 123);
 	 *
@@ -255,7 +252,7 @@ class application extends EventEmitter {
 		if (typeof this.init === "function") {
 			// TODO: Change Arguments:
 			this._object = this.init(this._node, this._config,
-					this._main, this._extra);
+					this._main);
 			if (typeof this._object === "object" && this._object !== null &&
 					typeof this._object.catch === "function") {
 				this._object.catch(function(error) {
@@ -326,7 +323,6 @@ class application extends EventEmitter {
 	 * @param {object} app_config - Config object
 	 * @param {node} node - Node object
 	 * @param {main} main - Main instance
-	 * @param {*} extra - Extra information
 	 * @abstract
 	 */
 	/**
@@ -347,7 +343,7 @@ class application extends EventEmitter {
 			this._state = "REINIT";
 			this._node.connect_config(app_config);
 			this._node._announced = null;
-			this.reinit(this._node, this._config, this._main, this._extra);
+			this.reinit(this._node, this._config, this._main);
 			if (!this._node._announced) {
 				this._node.announce({}, true);
 			}
@@ -435,10 +431,9 @@ class application extends EventEmitter {
 	 * @param {object} args - Command line arguments
 	 * @param {boolean} show_help - Show help message
 	 * @param {main} main - Main instance
-	 * @param {*} extra - Extra information
 	 * @abstract
 	 * @example
-	 * exports.cli = function(args, show_help, main, extra) {
+	 * exports.cli = function(args, show_help, main) {
 	 *	if (show_help) {
 	 *		console.group();
 	 *		console.info(
@@ -459,7 +454,7 @@ class application extends EventEmitter {
 	 */
 	_cli(args, show_help) {
 		if (typeof this.cli === "function") {
-			return this.cli(args, show_help, this._main, this._extra);
+			return this.cli(args, show_help, this._main);
 		}
 	};
 
