@@ -121,6 +121,7 @@ exports.init = function(node, app_config, main) {
 				exports.try_to_install[app_reponame] = _this.install_app(app_reponame, app_config);
 			}
 			if (await exports.try_to_install[app_reponame]) {
+				application._unload();
 				main.application_loader.app_unregister(application);
 				main.application_loader.startup(node, app_name, local_app_config,
 					/* auto_install */ false,
