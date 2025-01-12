@@ -138,7 +138,19 @@ class main_nodejs extends main {
 			schema_cache[appname] = contents;
 			return callback(null, contents);
 		});
+	};
+	shutdown() {
+		this.close();
+		process.exitTimeoutId = setTimeout(process.exit, 5000);
+		process.exitTimeoutId.unref();
+		console.log('osiota: will exit in 5 seconds');
 
+		process.on("exit", function(code) {
+			console.log("Goodbye!");
+		});
+	};
+	restart() {
+		this.shutdown();
 	};
 };
 module.exports = main_nodejs;

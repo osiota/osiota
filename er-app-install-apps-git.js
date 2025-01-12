@@ -43,7 +43,7 @@ exports.install_app = async function(app, app_config) {
 		await execFilePromise("git", ["clone", repo_path + app + ".git", target_dir]);
 	} catch (err) {
 		if (err.code === 128 && err.stderr && err.stderr.match(/not found/)) {
-			const msg = err.stderr.replace(/^Cloning into .*\n|^fatal: repository .* not found$/g, "").replace(/\r?\n/g, " ");
+			const msg = err.stderr.replace(/^Cloning into .*\n|^fatal: repository .* not found$/gm, "").replace(/\r?\n/g, " ");
 			console.error("Error installing app (git): Repo does not exist.", msg)
 			return false;
 		}

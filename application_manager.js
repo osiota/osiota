@@ -1,4 +1,5 @@
 const fs = require("fs");
+const path = require('path');
 const Ajv = require('ajv');
 
 const json_validate = require("./helper_json_validate.js").json_validate;
@@ -212,38 +213,53 @@ class application_manager {
 		// if is_dir
 		if (stats.isDirectory()) {
 			//TODO: rename schema_config to schema
-			callback(name, this.read_schema_file(path+"/"+
-						"schema_config.json", name), path);
+			let schema_path = path + "/schema.json";
+			callback({
+				name,
+				sub_schema: this.read_schema_file(schema_path, name),
+				schema_path,
+				path,
+				dir_path: path+"/",
+			});
 
 			// Search for *-schema.json as well.
 			var files = fs.readdirSync(path+"/");
 			files.forEach(function(file) {
+				if (file.match(/^\./)) return;
 				// filter
 				if (file.match(/-schema\.json$/i)) {
 					var subname =file.replace(/-schema\.json$/i,"");
-					callback(name+"/"+subname,
-						_this.read_schema_file(path+"/" + file
-							+"/schema_config.json",
-							name+"/"+subname),
-						path+"/"+file
-					);
+					let schema_path = path+"/"+file;
+					callback({
+						name: name+"/"+subname,
+						sub_schema: _this.read_schema_file(schema_path, name+"/"+subname),
+						schema_path,
+						path: path+"/"+subname,
+						dir_path: path+"/",
+					});
 				}
 			});
 		}
 		// if is_file
 		else if (stats.isFile()) {
 			if (path.match(/\.(js|coffee)$/i)) {
-				callback(name,
-					this.read_schema_file(
-						path.replace(/\.(js|coffee)$/i, '') +
-							"-schema.json",
+				let sub_path = path.replace(/\.(js|coffee)$/i, '');
+				let schema_path = sub_path + "-schema.json";
+				callback({
+					name,
+					sub_schema: this.read_schema_file(
+						schema_path,
 						name
 					),
-					path.replace(/\.(js|coffee)$/i, '')
-				);
+					schema_path,
+					path: sub_path,
+					dir_path: path.replace(/[^\/]*$/, ""),
+				});
 			}
 		}
-		} catch(e) {}
+		} catch(e) {
+			console.warn("Warning while reading app schema:", e);
+		}
 	};
 
 	load_schema_apps_in_dir(dir, cb_add_schema) {
@@ -256,8 +272,8 @@ class application_manager {
 			// filter
 			if (file.match(/^(er|osiota)-app-/)) {
 				_this.load_schema_file(dir+file, file,
-						function(name, sub_schema, path) {
-					_this.create_schema(name, sub_schema, path,
+						function(info) {
+					_this.create_schema(info,
 						cb_add_schema);
 				});
 			}
@@ -265,8 +281,10 @@ class application_manager {
 		} catch(e) { }
 	};
 
-	create_schema(name, sub_schema, path, cb_add_schema) {
-		var name = name.replace(/\.(js|coffee)$/i, "");
+	create_schema(info, cb_add_schema) {
+		var name = info.name;
+		var sub_schema = info.sub_schema;
+		name = name.replace(/\.(js|coffee)$/i, "");
 		var short_name = name.replace(/^(er|osiota)-app-/, "");
 
 		sub_schema.title = "Settings";
@@ -296,7 +314,11 @@ class application_manager {
 			"additionalProperties": false
 		};
 
-		cb_add_schema(short_name, path, schema_a);
+		cb_add_schema(short_name, {
+			...info,
+			"name": short_name,
+			"schema": schema_a
+		});
 
 		return schema_a;
 	};
@@ -332,27 +354,34 @@ class application_manager {
 
 		return Object.keys(apps);
 	};
+	get_absolute_paths(pathsArray) {
+		const absolutePaths = new Set();
 
+		pathsArray.forEach((p)=>{
+			if (p == "") {
+				p = "./node_modules/";
+			}
+			const absolutePath = path.resolve(p)+"/";
+			absolutePaths.add(absolutePath);
+		});
+
+		return Array.from(absolutePaths);
+	};
 	search_apps() {
 		var _this = this;
 
 		// caching:
 		if (__found_apps) return __found_apps;
 
-		var apps = {};
-		this._main.app_dirs.forEach(function(app_dir) {
-			if (app_dir == "") {
-				app_dir = "./node_modules/"
-			}
-			_this.load_schema_apps_in_dir(app_dir, function(name, path, a) {
+		const apps = {};
+		const dirs = this.get_absolute_paths(this._main.app_dirs);
+		dirs.forEach(function(app_dir) {
+			_this.load_schema_apps_in_dir(app_dir, function(name, info) {
 				//TODO
 				//if (name.match(/test$/)) return;
 				if (apps.hasOwnProperty(name))
 					return;
-				apps[name] = {
-					"path": path,
-					"schema": a
-				};
+				apps[name] = info;
 			});
 		});
 
