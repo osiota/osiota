@@ -41,7 +41,7 @@ exports.update_app = async function(app_or_repo_dir, app_config) {
             console.info("is not a git repo:", app_or_repo_dir);
 			return false;
 		}
-		const result = await execFilePromise("git", ["pull"]);
+		const result = await execFilePromise("git", ["pull"], {"cwd": target_dir});
         if (result.stdout.match(/Already up to date/)) {
             return false;
         }
