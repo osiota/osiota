@@ -150,7 +150,7 @@ class node_map {
 							app_config.metadata !== null) {
 						metadata = [metadata, app_config.metadata];
 					}
-					this.map_initialise(n, metadata, app_config, true, cache);
+					this.map_initialise(item.vn, metadata, app_config, true, cache);
 				}
 				item.seen = true;
 			}

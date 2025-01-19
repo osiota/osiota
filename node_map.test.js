@@ -9,7 +9,7 @@ const node_map = require("./node_map.js").node_map;
 
 const node_mock = {
 	connect_config: function (c) { this._config = c; },
-	announce: ()=>{},
+	announce: function(metadata) { this.metadata = metadata; },
 	node: (name)=>{
 		return {...node_mock, name: name};
 	},
@@ -119,13 +119,16 @@ test('node_map: No initial mapping', function(t) {
 });
 
 test('node_map: No initial mapping - with config', function(t) {
-	t.plan(3);
+	t.plan(4);
 
 	var app_config = {
 		"map": [{
 			"map": "Hallo",
 			"node": "1234",
-			"from_config": true
+			"from_config": true,
+			"metadata": {
+				"from_config": true
+			}
 		}],
 	};
 	var map = new node_map(node_mock, app_config, {
@@ -137,9 +140,12 @@ test('node_map: No initial mapping - with config', function(t) {
 	var n = map.node({
 		map: "Hallo",
 		from_map: true
+	}, {
+		"from_map": true
 	});
 	t.deepEqual(n.name, "1234");
-	t.deepEqual(n._config, { map: 'Hallo', node: '1234', 'from_config': true, 'from_map': true });
+	t.deepEqual(n._config, { map: 'Hallo', node: '1234', 'from_config': true, 'metadata': { 'from_config': true }, 'from_map': true });
+	t.deepEqual(n.metadata, [ { from_map: true}, { from_config: true } ]);
 	// n2 shall not be mapped:
 	var n2 = map.node("Hi");
 	t.deepEqual(n2, null);
