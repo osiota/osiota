@@ -141,7 +141,7 @@ class node_map {
 					}
 				}
 				if (this.reannounce_on_first_mapping) {
-					const metadata = {};
+					let metadata = {};
 					if (typeof local_metadata === "object" &&
 							local_metadata !== null) {
 						metadata = local_metadata;
@@ -243,7 +243,7 @@ class node_map {
 	 * @private
 	 */
 	map_element(key, app_config, local_metadata, cache){
-		const local_app = this._app;
+		let local_app = this._app;
 		if (typeof app_config.self_app !== "undefined"){
 			local_app = app_config.self_app;
 		}
