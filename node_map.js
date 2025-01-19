@@ -251,12 +251,14 @@ class node_map {
 				app_config.node === "-")
 			return null;
 		if (typeof local_app === "string") {
-			let local_app_str = local_app;
+			const _this = this;
+			const local_app_str = local_app;
 			local_app = {
 				"inherit": [ local_app_str ],
-				"init": ()=>{
-					const map = this.get_schema_map();
-					const s = this.merge_schema_properties(
+				"init": function() {
+					// use function, so that "this" works
+					const map = _this.get_schema_map();
+					const s = _this.merge_schema_properties(
 						this._super[local_app_str]._schema, map);
 					this._node.connect_schema(s);
 					return this._super[local_app_str].init.apply(this,
