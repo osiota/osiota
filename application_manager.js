@@ -85,10 +85,14 @@ class application_manager {
 			return this._schema;
 		}
 		var schema = require("./schema_config.json");
+		console.log("Checking schemas:");
 		var app_schema = this.app_schema().filter(function(a) {
 			try {
+				console.log("App", a.properties.name.enum[0]);
 				var test_ajv = new Ajv({strict: "log"});
+				test_ajv.addSchema(Object.values(require("./schemas/all-map.json")));
 				test_ajv.addKeyword("app_metadata");
+				test_ajv.addKeyword("headerTemplate");
 				test_ajv.addKeyword("options");
 				var s = {
 					"type": "object",
@@ -105,10 +109,11 @@ class application_manager {
 				var compiled = test_ajv.compile(s);
 				return true;
 			} catch(e) {
-				console.warn("App", a.properties.name.enum[0]+":", e.message);
+				console.warn("App schema of", a.properties.name.enum[0], "is invalid:", e.message);
 				return false;
 			}
 		});
+		console.log("End checking schemas.");
 		schema.properties.app.items.oneOf = app_schema;
 
 		// config
@@ -126,7 +131,9 @@ class application_manager {
 		var schema = this.schema();
 
 		var ajv = new Ajv({strict: "log"});
+		ajv.addSchema(Object.values(require("./schemas/all-map.json")));
 		ajv.addKeyword("app_metadata");
+		ajv.addKeyword("headerTemplate");
 		ajv.addKeyword("options");
 		try {
 			var validate = ajv.compile(schema);
