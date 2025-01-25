@@ -1,0 +1,19 @@
+{
+	"$id": "https://osiota.net/schemas/filter_single.json",
+	"type": "object",
+	"properties": {
+		"nodes": {
+			"type": "array",
+			"items": {
+				"$ref": "https://osiota.net/schemas/node.json"
+			}
+		},
+		"metadata": {
+			"$ref": "https://osiota.net/schemas/metadata.json"
+		},
+		"depth": {
+			"type": "number"
+		}
+	},
+	"additionalProperties": true
+}

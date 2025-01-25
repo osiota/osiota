@@ -1,0 +1,33 @@
+{
+	"$id": "https://osiota.net/schemas/metadata.json",
+	"title": "Metadata",
+	"type": "object",
+	"properties": {
+		"type": {
+			"type": "string"
+		},
+		"switch": {
+			"type": "boolean"
+		},
+		"light": {
+			"type": "boolean"
+		},
+		"slider": {
+			"type": "boolean"
+		},
+		"event": {
+			"type": "boolean"
+		},
+		"values": {
+			"type": "array",
+			"items": [{
+				"title": "from",
+				"$ref": "https://osiota.net/schemas/value.json"
+			},{
+				"title": "to",
+				"$ref": "https://osiota.net/schemas/value.json"
+			}]
+		}
+	}
+}
+

@@ -1,0 +1,5 @@
+{
+	"$id": "https://osiota.net/schemas/node.json",
+	"type": "string",
+	"title": "Node"
+}

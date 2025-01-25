@@ -1,0 +1,8 @@
+{
+	"$id": "https://osiota.net/schemas/filter.json",
+	"type": "array",
+	"title": "Filter",
+	"items": {
+		"$ref": "https://osiota.net/schemas/filter_single.json"
+	}
+}
