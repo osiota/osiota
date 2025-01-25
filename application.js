@@ -26,18 +26,25 @@ class application extends EventEmitter {
 	/**
 	 * Creates an Application
 	 * @param {application_loader} application_loader - Application Loader instance
-	 * @param {string} app - Application name
+	 * @param {string} appname - Application name
 	 */
-	constructor(application_loader, app) {
+	constructor(application_loader, appname) {
 		super();
 
 		this._application_loader = application_loader;
 
 		this._state = "INIT";
 
+
 		this._app = "[unknown]";
-		if (typeof app === "string")
-			this._app = app;
+		if (typeof appname === "string") {
+			appname = appname.replace(/^(er|osiota)-app-/, "");
+			this._app = appname;
+		} else if (typeof appname === "object") {
+			this._app = "unknown";
+			if (typeof appname._app === "string")
+				this._app = appname._app;
+		}
 
 		this._config = {};
 		this._schema = null;
@@ -75,6 +82,7 @@ class application extends EventEmitter {
 				}]);
 			}
 		}
+		return this;
 	};
 	/**
 	 * Set Error State
@@ -83,6 +91,7 @@ class application extends EventEmitter {
 	 */
 	_handle_error(error) {
 		this._set_state("ERROR_APP", error);
+		console.error(this._app, "Error on app:", error);
 	}
 	/**
 	 * [internal use] Bind to main class
@@ -107,7 +116,7 @@ class application extends EventEmitter {
 	 * @param {function} callback
 	 * @private
 	 */
-	_bind_module(module, loader, callback){
+	async _bind_module(module, loader, callback){
 		var _this = this;
 
 		if (typeof module !== "object" || module === null) {
@@ -117,16 +126,10 @@ class application extends EventEmitter {
 				Array.isArray(module.inherit) &&
 				module.inherit.length) {
 			var inherit = module.inherit.slice(0);
-			this._inherit(inherit, loader, function(err) {
-				if (err) return callback(err);
-
-				_this._bind_module_sync(module);
-				callback(null);
-			});
-			return;
+			await this._inherit(inherit, loader);
 		}
 		this._bind_module_sync(module);
-		callback(null);
+		return this;
 	};
 	/**
 	 * Copy module context
@@ -149,13 +152,30 @@ class application extends EventEmitter {
 	 * @param {function} callback
 	 * @private
 	 */
-	_bind_schema(schema, loader, callback){
+	async _bind_schema(schema, loader, callback){
 		this._schema = schema;
 
 		if (typeof this.get_schema === "function") {
-			return this.get_schema(schema, loader, callback);
+			let callback;
+			const promise = new Promise((resolve, reject)=>{
+				callback = (err, data)=>{
+					if (err) return reject(err);
+					resolve(data);
+				};
+			});
+
+			const r = this.get_schema(schema, loader, callback);
+			if (typeof r.then === "function") {
+				const r_schema = await r;
+				if (r_schema) {
+					this._schema = r_schema;
+				}
+				return this;
+			}
+			await promise;
+			return this;
 		}
-		callback(null);
+		return this;
 	}
 	/**
 	 * Load inherited modules
@@ -164,30 +184,24 @@ class application extends EventEmitter {
 	 * @param {function} callback
 	 * @private
 	 */
-	_inherit(inherit, loader, callback) {
-		var _this = this;
-
+	async _inherit(inherit, loader) {
 		if (Array.isArray(!inherit) || !inherit.length ) {
-			callback(null);
-			return;
+			return null;
 		}
-		var iname = inherit.shift();
+		const iname = inherit.shift();
 		if (typeof iname !== "string") {
 			throw new Error("inherit: application name is not string.");
 		}
 
-		loader(iname, function(err, m) {
-			if (err) return callback(err);
+		const m = await loader(iname);
 
-			if (typeof _this._super !== "object") {
-				_this._super = {};
-			}
-			_this._super[iname] = m;
-			_this._bind_module(m, loader, function(err) {
-				if (err) return callback(err);
-				_this._inherit(inherit, loader, callback);
-			});
-		});
+		if (typeof this._super !== "object") {
+			this._super = {};
+		}
+		this._super[iname] = m;
+		await this._bind_module(m, loader);
+		await this._inherit(inherit, loader);
+		return this;
 	};
 
 	/**
@@ -235,8 +249,7 @@ class application extends EventEmitter {
 	 * @param {object} app_config - Config object
 	 * @private
 	 */
-	_init(app_config) {
-		var _this = this;
+	async _init(app_config) {
 		if (this._state === "RUNNING") {
 			console.log("Warning: App still running: doing reinit");
 			return this._reinit(app_config);
@@ -250,16 +263,15 @@ class application extends EventEmitter {
 			delete app._struct.deactive;
 		}
 		if (typeof this.init === "function") {
-			// TODO: Change Arguments:
-			this._object = this.init(this._node, this._config,
-					this._main);
-			if (typeof this._object === "object" && this._object !== null &&
-					typeof this._object.catch === "function") {
-				this._object.catch(function(error) {
-					if (error !== "canceled") {
-						_this._handle_error(error);
-					}
-				});
+			try {
+				this._object = await this.init(this._node,
+						this._config, this._main);
+			} catch (err) {
+				if (err === "canceled") {
+					return this;
+				}
+				this._handle_error(err);
+				return this;
 			}
 			if (!this._node._announced) {
 				var a = this._node.announce({});
@@ -271,6 +283,8 @@ class application extends EventEmitter {
 		this.emit("init");
 
 		this._state = "RUNNING";
+
+		return this;
 	};
 
 	/**
@@ -359,7 +373,6 @@ class application extends EventEmitter {
 			});
 		}
 		this.emit("reinit");
-
 	};
 	/**
 	 * [internal use] Call reinit function with delay
@@ -400,6 +413,18 @@ class application extends EventEmitter {
 			"type": "app.deactive",
 			"state": this._state
 		}]);
+		return this;
+	};
+
+	/**
+	 * [internal use] Call init function
+	 * @param {object} app_config - Config object
+	 * @private
+	 */
+	_init_error(app_config, state, error) {
+		this._set_state(state, error, app_config);
+
+		return this;
 	};
 
 
@@ -463,14 +488,19 @@ class application extends EventEmitter {
 	 * @param {function} callback - Triggered on loaded app
 	 * @example
 	 * app._config.node = "/newnodename";
-	 * app._reload(function(a) {
-	 *     app = a;
-	 * });
+	 * new_app = await app._reload();
 	 */
-	_reload(callback) {
+	async _reload(callback) {
 		if (!this._application_loader)
 			throw new Error("No Application Loader instance provided");
-		return this._application_loader.app_reload(this, callback);
+		try {
+			await this._application_loader.app_reload(this);
+			if (callback) callback(null, this);
+		} catch(err) {
+			if (callback) return callback(err, this);
+			throw err;
+		}
+		return this;
 	};
 
 	/**

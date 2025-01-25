@@ -6,9 +6,9 @@ const test = helper.test(__filename);
 const osiota = require("../");
 var main = new osiota();
 
-test('load config', function (t) {
+test('load config', async function (t) {
 	t.plan(1);
-	main.config({
+	await main.config({
 		"app_dir": __dirname+"/",
 		"app": [
 			{
@@ -39,10 +39,10 @@ test('load config', function (t) {
 	}, "configuration");
 });
 var a;
-test('add app to config', function (t) {
+test('add app to config', async function (t) {
 	t.plan(1);
 
-	a = main.application_loader.app_add("test-10", { option: 2});
+	a = (await main.application_loader.app_add("test-10", { option: 2}))[0];
 	main.application_loader.app_add("test-10", { option: 3});
 
 	t.deepEqual(main._config, {
@@ -169,6 +169,8 @@ test('check config', function (t) {
 
 test('reconfigure app - move node', function (t) {
 	t.plan(6);
+	main.application_loader.reload_timeout = 0;
+
 	var n = main.node("/app/test-10");
 	var n2 = main.node("/app/test-10-1");
 	var rp = n.relative_path(n2);

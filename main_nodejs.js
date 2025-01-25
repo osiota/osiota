@@ -91,10 +91,17 @@ class main_nodejs extends main {
 		this.app_dirs.push(app_dir);
 	};
 	require(appname, callback) {
-		this.require_options([
-			"osiota-app-" + appname,
-			"er-app-" + appname
-		], callback);
+		return new Promise((resolve, reject)=>{
+			this.require_options([
+				"osiota-app-" + appname,
+				"er-app-" + appname
+			],
+			(err, app)=>{
+				if (callback) callback(err, app);
+				if (err) return reject(err);
+				resolve(app);
+			});
+		});
 	};
 	require_options(options, callback) {
 		try {
@@ -106,6 +113,15 @@ class main_nodejs extends main {
 		}
 	};
 	load_schema(appname, callback) {
+		return new Promise((resolve, reject)=>{
+			this.load_schema_cb(appname, (err, schema)=>{
+				if (callback) callback(err, app);
+				if (err) return reject(err);
+				resolve(schema);
+			});
+		});
+	};
+	load_schema_cb(appname, callback) {
 		var _this = this;
 		if (typeof appname !== "string")
 			throw new Error("admin-app: app needs to be string");

@@ -99,15 +99,23 @@ class main extends EventEmitter {
 	 * @param {object} config - Configuration
 	 * @fires main#started
 	 */
-	config(config) {
+	async config(config) {
+		this.loaded = this.#config(config);
+
+		this.check_started();
+
+		return this.loaded;
+	};
+
+	async #config(config) {
 		var _this = this;
 		this.preparation_config(config);
 		if (typeof this.os_config === "function") {
-			this.os_config(config);
+			await this.os_config(config);
 		}
-		this.sub_config(config);
+		await this.sub_config(config);
 
-		this.check_started();
+		console.log("All apps loaded.");
 	};
 	/**
 	 * Load sub configurations
@@ -116,22 +124,8 @@ class main extends EventEmitter {
 	 * @param {node} node - Parent node
 	 * @param {function} callback
 	 */
-	sub_config(config, node, callback) {
+	async sub_config(config, node, callback) {
 		var _this = this;
-
-		// DEPRECATED:
-		/* istanbul ignore next deprecated */
-		if (Array.isArray(config.remote)) {
-			config.remote.forEach(function(c) {
-				if (typeof c.name !== "string" ||
-						typeof c.url !== "string") {
-					console.warn("Warning: Remote config options missing.", c);
-					return;
-				}
-				_this.remotes[c.name] =
-					_this.create_websocket_client(c.url, c.node, c);
-			});
-		}
 
 		return this.application_loader.load(node, config.app, callback);
 	};
@@ -267,8 +261,6 @@ class main extends EventEmitter {
 	load_schema(appname, callback) {
 		throw new Error("Load schema function not supported.");
 	};
-
-
 
 	config_cleaning(config) {
 		if (typeof config === "undefined") {

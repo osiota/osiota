@@ -103,10 +103,6 @@ if (argv.help && !argv.app) {
 	if (process.env.__daemon)
 		daemon.pidfile_create(pid_file);
 
-	const fs = require('fs');
-	const os = require('os');
-	const main = require('./main_nodejs.js');
-
 	// optional better console output:
 	if (!argv.help && !argv.app && !argv.systemd) {
 		try {
@@ -132,7 +128,12 @@ if (argv.help && !argv.app) {
 	let config = helper_config_file.read(argv.config);
 	const config_filename = (typeof argv.config === "string" ?
 		argv.config.replace(/^.*\/|\.json$|[-_]?(osiota|config)[-_]?/g, "") : "");
+
+	const os = require('os');
+	const main = require('./main_nodejs.js');
 	const m = new main(config.hostname || config_filename || os.hostname());
+	module.exports = m;
+
 	m.on("config_save", function() {
 		const _this = this;
 		setImmediate(function() {
@@ -187,11 +188,9 @@ if (argv.help && !argv.app) {
 					argv.app);
 			console.info("Application Options:");
 		}
-		m.application_loader.startup(/*node=*/ null, argv.app,
-				/*app_config*/ undefined,
-				function(a, level) {
-			if (level !== 1) return;
+		m.loaded = (async ()=>{
+			const a = (await m.application_loader.startup(/*node=*/ null, argv.app))[0];
 			a._cli(argv, argv.help);
-		});
+		})();
 	}
 }

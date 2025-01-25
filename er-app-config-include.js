@@ -1,9 +1,9 @@
 const http = require("http");
-const fs = require("fs");
+const fs = require("fs/promises");
 
 const configuration_files = {};
 
-exports.init = function(node, app_config, main, host_info) {
+exports.init = async function(node, app_config, main, host_info) {
 	if (typeof app_config.file !== "string") {
 		console.warn("config-include: No filename given.");
 		return;
@@ -21,27 +21,27 @@ exports.init = function(node, app_config, main, host_info) {
 	}
 
 	var config = {};
-	var cleaning_object = [];
+	var sub_apps = [];
 	try {
-		var content = fs.readFileSync(app_config.file);
+		var content = await fs.readFile(app_config.file);
 		config = JSON.parse(content);
 		config = main.config_cleaning(config);
-		cleaning_object = main.sub_config(config, this._source);
+		sub_apps = main.sub_config(config, this._source);
 	} catch (e) {
 		if (!app_config.ignore_missing)
 			console.warn("Include Config, Exception", e.stack || e);
 	}
 
+	var cleaning_object = [];
 	if (app_config.writeable && app_config.file.match(/\.json$/i)) {
-		var cb_config_save = function() {
+		var cb_config_save = async function() {
 			var _this = this;
-			fs.writeFile(app_config.file,
-					JSON.stringify(config, null, '\t'),
-					function(err) {
-				if (err) {
-					throw err;
-				}
-			});
+			try {
+				await fs.writeFile(app_config.file,
+					JSON.stringify(config, null, '\t'));
+			} catch (err) {
+				console.error("Error writing file:", err);
+			}
 		};
 		main.on("config_save", cb_config_save);
 		cleaning_object.push(() => {
@@ -52,6 +52,8 @@ exports.init = function(node, app_config, main, host_info) {
 	cleaning_object.push(() => {
 		configuration_files[app_config.file] = undefined;
 	});
+
+	cleaning_object.push(await sub_apps);
 
 	// undo sub_config
 	return cleaning_object;

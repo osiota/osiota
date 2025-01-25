@@ -51,11 +51,13 @@ test('read - not existing file', function(t) {
 	var console_warn = console.warn;
 	console.warn = function() {};
 
-	var c = config_file.read("notexisting");
+	try {
+		var c = config_file.read("notexisting");
+	} catch(e) {
+		t.deepEqual(e.message, "Error reading config file", "Exception");
+	}
 
 	console.warn = console_warn;
-
-	t.deepEqual(c, {}, "config structure");
 });
 
 

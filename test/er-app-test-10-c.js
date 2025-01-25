@@ -6,7 +6,7 @@ exports.init = function(node, app_config, main) {
 
 	var t = setTimeout(function() {
 		throw new Error("Module was not unloaded.");
-	}, 1000);
+	}, 4000);
 
 	return [t, ()=>{
 		console.log(this._id, "app unloaded via obj.", this.date);

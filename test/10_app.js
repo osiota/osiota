@@ -11,9 +11,9 @@ const EventEmitter = require('events');
 const e = new EventEmitter();
 
 var a;
-test('load app test-10', function (t) {
+test('load app test-10', async function (t) {
 	t.plan(1);
-	main.config({
+	await main.config({
 		"app_dir": __dirname+"/",
 		"app": [
 			{
@@ -46,11 +46,11 @@ test('unload app test-10', function (t) {
 });
 
 var b;
-test('load app test-10-b', function (t) {
+test('load app test-10-b', async function (t) {
 	t.plan(1);
-	b = main.application_loader.startup_struct(undefined, {
+	b = await ((await main.application_loader.startup_struct(undefined, {
 		"name": "test-10-b"
-	});
+	}))[0]);
 	b.eventemitter = e;
 
 	// is synchron:
@@ -89,11 +89,11 @@ test('unload app test-10-b', function (t) {
 });
 
 var c;
-test('load app test-10-c', function (t) {
+test('load app test-10-c', async function (t) {
 	t.plan(1);
-	c = main.application_loader.startup_struct(undefined, {
+	c = (await main.application_loader.startup_struct(undefined, {
 		"name": "test-10-c"
-	});
+	}))[0];
 	c.eventemitter = e;
 
 	// is synchron:

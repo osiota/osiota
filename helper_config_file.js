@@ -10,11 +10,7 @@ exports.read = function(config_file) {
 		contents = contents.toString().replace(/^#.*\n/, "");
 		return JSON.parse(contents);
 	} catch (err) {
-		// Show JSON parsing errors:
-		if (err.code !== "ENOENT") {
-			throw err;
-		}
-		console.warn("Warning: Config file not found.");
+		throw new Error('Error reading config file', { cause: err });
 	}
 	return {};
 };

@@ -123,9 +123,10 @@ exports.init = function(node, app_config, main) {
 			if (await exports.try_to_install[app_reponame]) {
 				application._unload();
 				main.application_loader.app_unregister(application);
-				main.application_loader.startup(node, app_name, local_app_config,
-					/* auto_install */ false,
-					callback);
+				await app = main.application_loader.startup(node, app_name, local_app_config, /* auto_install */ false);
+				// TODO
+				callback(app);
+				return app;
 			}
 		};
 		main.on("app_loading_error", cb_app_loading_error);

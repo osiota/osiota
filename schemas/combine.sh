@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Get the directory of the script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Change to the script directory
+cd "$SCRIPT_DIR" || exit 127
+
 for i in `ls *.json`
 do
 	if test "x$i" != "xall.json" &&

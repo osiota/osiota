@@ -26,34 +26,22 @@ class application_loader {
 	 * Load applications
 	 * @param {node} node - Parent node
 	 * @param {object[]} apps - Application Structs
-	 * @param {function} callback
 	 */
-	load(node, apps, callback) {
-		var _this = this;
-		var loaded_apps = [];
-		if (Array.isArray(apps) && apps.length) {
-			var count = 0;
-			apps.forEach(function(struct) {
-				try {
-					_this.startup_struct(node, struct,
-							function(a, level){
-						loaded_apps.push(a);
-						if (level == 1 && ++count == apps.length){
-							if (typeof callback === "function") {
-								callback(loaded_apps);
-							}
-						}
-					});
-				} catch(err) {
-					console.error("Error in application loading:", err);
-				}
-			});
-		} else {
-			if (typeof callback === "function") {
-				callback([]);
+	async load(node, apps) {
+		const _this = this;
+		if (!Array.isArray(apps) || !apps.length) {
+			return [];
+		}
+		const loaded_apps = [];
+		for (const struct of apps) {
+			try {
+				const app = _this.startup_struct(node, struct);
+				loaded_apps.push(app);
+			} catch(err) {
+				console.error("Error in application loading:", err);
 			}
 		}
-		return loaded_apps;
+		return Promise.all(loaded_apps);
 	}
 
 	/**
@@ -63,19 +51,9 @@ class application_loader {
 	 * @param {object} app_config - Application Config
 	 * @param {boolean} [auto_install] - Automatic Installation
 	 * @param {boolean} [deactive] - Start as deactivated app
-	 * @param {function} [callback]
 	 * @returns {string} Application name
 	 */
-	startup(node, app, app_config, auto_install, deactive, callback) {
-		if (typeof callback !== "function") {
-			callback = deactive;
-			deactive = undefined;
-		}
-		if (typeof callback === "undefined" &&
-				typeof auto_install === "function") {
-			callback = auto_install;
-			auto_install = undefined;
-		}
+	startup(node, app, app_config, auto_install, deactive) {
 		var struct = {
 			name: app,
 			deactive: deactive,
@@ -84,7 +62,7 @@ class application_loader {
 		if (node && node._app && node._app._struct) {
 			struct = node._app._struct;
 		}
-		return this.startup_struct(node, struct, auto_install, callback);
+		return this.startup_struct(node, struct, auto_install);
 	};
 
 	/**
@@ -92,10 +70,9 @@ class application_loader {
 	 * @param {node} node - Parent node
 	 * @param {object} struct - Application Struct
 	 * @param {boolean} [auto_install] - Automatic Installation
-	 * @param {function} [callback]
 	 * @returns {string} Application name
 	 */
-	startup_struct(node, struct, auto_install, callback) {
+	async startup_struct(node, struct, auto_install) {
 		var _this = this;
 
 		if (typeof struct !== "object" || struct === null) {
@@ -108,11 +85,6 @@ class application_loader {
 		if (typeof struct.config !== "object") {
 			struct.config = {};
 		}
-		if (typeof callback === "undefined" &&
-				typeof auto_install === "function") {
-			callback = auto_install;
-			auto_install = undefined;
-		}
 
 		if (typeof struct.name !== "string" && typeof struct.name !== "object"
 				&& struct.name !== null) {
@@ -123,126 +95,107 @@ class application_loader {
 		var app = struct.name;
 		var app_config = struct.config;
 
-		return this.module_get(app, function(e, a) {
-			if (e) {
-				// announce error message:
-				if (typeof a._config === "undefined") {
-					a._config = app_config;
-				}
-				a._error = e;
-			}
+		let loaded_apps;
+		try {
+			const a = await this.module_get(app);
 
 			// load app (with or without error):
-			var m = _this.startup_module( a,
-					node, struct,
-					auto_install,
-					callback);
+			loaded_apps = await _this.startup_module( a, node,
+					struct, auto_install);
+		} catch(err) {
+			const a = new Application(this, app);
+			// announce error message:
+			if (typeof a._config === "undefined") {
+				a._config = app_config;
+			}
+			a._error = err;
+			a._state = "ERROR_LOADING";
 
-			if (e) {
-				a._set_state("ERROR_LOADING", e);
+			// load app (with or without error):
+			loaded_apps = await _this.startup_module( a, node,
+					struct, auto_install);
 
-				// trigger global callback:
-				/**
-				 * Application Loading Error
-				 * @param {object} error - Error object
-				 * @param {node} node - Node object
-				 * @param {app} app - Application name
-				 * @param {object} app_config - Application config
-				 * @param {*} extra - Extra information
-				 * @param {boolean} auto_install - Auto install flag
-				 * @event main#app_loading_error
-				 */
-				if (_this.emit("app_loading_error", e, a, node, app,
-						app_config, auto_install,
-						function(an, level) {
-					if (typeof an === "object") {
-						if (typeof callback === "function") {
-							callback(an, level);
-						}
+
+			// trigger global callback:
+			/**
+			 * Application Loading Error
+			 * @param {object} error - Error object
+			 * @param {node} node - Node object
+			 * @param {app} app - Application name
+			 * @param {object} app_config - Application config
+			 * @param {*} extra - Extra information
+			 * @param {boolean} auto_install - Auto install flag
+			 * @event main#app_loading_error
+			 */
+			let show_error = true;
+			let callback;
+			const promise = new Promise((resolve)=>{
+				callback = resolve;
+			});
+			if (!_this.emit("app_loading_error", err, a, node, app,
+					app_config, auto_install,
+					function(an, level) {
+				if (typeof an === "object") {
+					if (typeof callback === "function") {
+						callback(an, level);
 					}
-				})) {
-					// assume that an other app as been loaded.
-					return null;
 				}
-
-				// show error:
-				console.error("error starting app:", e.stack || e);
+			})) {
+				// assume that an other app as NOT been loaded.
+				console.error("error starting app:", err);
+			} else {
+				// assume that an other app as been loaded.
+				loaded_apps.push(promise);
 			}
 
-			return m;
-		});
+		}
 
+		return await Promise.all(loaded_apps);
 	};
 
 	/**
 	 * [internal use] Create Application Object and bind methods
 	 * @private
 	 */
-	module_get(app, callback) {
+	async module_get(app) {
 		var _this = this;
 
-		var appname = app;
 		if (typeof app === "undefined" || app === null) {
-			return;
-		} else if (typeof app === "object") {
-			appname = "unknown";
-			if (typeof app._app === "string")
-				appname = app._app;
-		}
-		appname = appname.replace(/^(er|osiota)-app-/, "");
-		console.log("loading:", appname);
-
-		var a = new Application(this, appname);
-		if (typeof app === "string") {
-			async_calls([
-					this._main.require.bind(this._main, appname),
-					this._main.load_schema.bind(this._main, appname)
-				],
-				function(err, results) {
-					if (err) {
-						return callback(err, a);
-					}
-					var struct = results[0];
-					var schema = results[1];
-
-					// bind module:
-					a._bind_module(
-						struct,
-						_this.module_get.bind(_this),
-						function(err) {
-							if (err) {
-								return callback(err, a);
-							}
-							a._bind_schema(
-								schema,
-								_this._main.load_schema.bind(_this._main),
-								function(err) {
-									callback(err, a);
-								}
-							);
-						}
-					);
-				}
+			//return;
+			throw new Error("app is undefined or null");
+		} else if (typeof app === "string") {
+			const appname = app.replace(/^(er|osiota)-app-/, "");
+			console.log("loading:", appname);
+			const a = new Application(this, appname);
+			var struct = await this._main.require(appname);
+			var schema = await this._main.load_schema(appname);
+			// bind module:
+			await a._bind_module(
+				struct,
+				_this.module_get.bind(_this)
 			);
+			await a._bind_schema(
+				schema,
+				_this._main.load_schema.bind(_this._main),
+			);
+			return a;
 		} else if (typeof app === "object" && app !== null) {
-			a._bind_module(
+			const a = new Application(this, app);
+			await a._bind_module(
 				app,
-				_this.module_get.bind(_this),
-				function() {
-					callback(null, a);
-				}
+				_this.module_get.bind(_this)
 			);
+			return a;
 		} else {
 			throw new Error("variable app has unknown type.");
 		}
-		return a;
 	};
 
 	/**
 	 * [internal use] Bind application and initialize it
 	 * @private
 	 */
-	startup_module(a, node, struct, auto_install, callback) {
+	async startup_module(a, node, struct, auto_install) {
 		var _this = this;
 
 		var app = struct.name;
@@ -297,6 +250,7 @@ class application_loader {
 		} else if (typeof app_config.pnode === "string") {
 			node_destination = node.node(app_config.pnode);
 		} else if (typeof a.default_node_name === "string") {
+			// TODO: Make this deprecated:
 			node_destination = node_base.node(a.default_node_name);
 		} else {
 			node_destination = node_base.node(a._id);
@@ -324,53 +278,55 @@ class application_loader {
 		a._source = node_source;
 		a._target = node_target;
 
+		let app_promise;
 		// init:
 		try {
 			if (deactive) {
-				a._init_deactive(app_config);
+				app_promise = a._init_deactive(app_config);
 
-				this.emit("app_init_deactive", a);
+				//this.emit("app_init_deactive", a);
 
-			} else if (!a._error) {
-				a._init(app_config);
+			} else if (a._error) {
+				app_promise = a._init_error(app_config, a._state, a._error);
+			} else {
+				app_promise = a._init(app_config);
+
+				const app_timeout = new Promise(resolve=>{
+					const tid = setTimeout(resolve, 3000);
+					tid.unref();
+				});
+
+				// Add Timeout
+				app_promise = Promise.race([
+					app_promise,
+					app_timeout,
+				]);
 				/**
 				 * Application init
 				 *
 				 * @event main#app_init
 				 * @param {application} application - Application object
 				 */
-				this.emit("app_init", a);
-
-				if (typeof callback === "function") {
-					callback(a, 1);
-				}
+				//this.emit("app_init", a);
 			}
 		} catch(e) {
 			// save error:
-			a._set_state("ERROR_STARTING", e, app_config);
-			a._error = e;
+			app_promise = a._set_state("ERROR_STARTING", a._error, app_config);
 
-			// trigger global callback:
-			this.emit("app_init_error", e, node, app, app_config,
-						auto_install);
 			// show error:
-			console.error("error starting app:", e.stack || e);
+			console.error("error starting app:", e);
 		}
+		const loaded_apps = [];
+		loaded_apps.push(app_promise);
 
 		// load child apps:
-		if (Array.isArray(app_config.app)) {
-			app_config.app.forEach(function(struct) {
-				_this.startup_struct(node_destination, struct,
-						auto_install,
-						function(a, level) {
-					if (typeof callback === "function") {
-						callback(a, level+1);
-					}
-				});
-			});
-		}
+		const sub_apps = await this.load(node_destination, app_config.app)
+		loaded_apps.push(...sub_apps);
 
-		return a;
+		// TODO: UNLOAD:
+		a._subapps = sub_apps;
+
+		return loaded_apps;
 	};
 
 	/**
@@ -422,7 +378,9 @@ class application_loader {
 		delete this.apps[a._id];
 
 		var node = a._node;
-		if (typeof node._app == "object" &&
+		if (typeof node === "object" &&
+				node !== null &&
+				typeof node._app == "object" &&
 				node._app === a) {
 			delete node._app;
 		}
@@ -462,7 +420,7 @@ class application_loader {
 		return struct;
 	};
 
-	app_add(app, settings, node, config, callback) {
+	async app_add(app, settings, node, config) {
 		// save to config:
 		if (!config) {
 			config = this._main._config;
@@ -490,13 +448,13 @@ class application_loader {
 				var struct_n = this.app_add_helper(config, "node", {
 					"node": node.name
 				});
-				this.startup_struct(node, struct_n);
+				await this.startup_struct(node, struct_n);
 				config = struct_n.config;
 			}
 		}
 
 		var struct = this.app_add_helper(config, app, settings);
-		return this.startup_struct(node, struct, undefined, undefined,callback);
+		return this.startup_struct(node, struct);
 	};
 
 	app_remove(app) {
@@ -525,35 +483,45 @@ class application_loader {
 		this._main.config_cleaning();
 	};
 
+	reload_timeout = 1000;
 	/**
 	 * Reload an app by creating a new app object
 	 * @param {application} app - Old app instance
-	 * @param {function} callback - Triggered on loaded app
 	 * @example
 	 * app._config.node = "/newnodename";
-	 * application_loader.app_reload(app, function(a) {
-	 *     app = a;
-	 * });
+	 * new_app = application_loader.app_reload(app);
 	 */
-	app_reload(app, callback) {
+	async app_reload(app, timeout, callback) {
+		console.log("APP_RELOAD");
+		if (typeof callback === "undefined" &&
+				typeof timeout === "function") {
+			callback = timeout;
+			timeout = undefined;
+		}
+
 		// buffer old references:
 		var rnode = app._rnode;
 		var aconfig = app._config;
 		var aname = app._app;
 
 		// unload app
-		app._unload();
+		await app._unload();
 		this.app_unregister(app);
+		console.log("APP_RELOAD 2");
 
-		// add timeout?
+		//await sleep(timeout || 1000);
+		await new Promise((resolve)=>setTimeout(resolve, timeout || this.reload_timeout));
+		console.log("APP_RELOAD 3");
 
 		// load app
-		return this.load(rnode, [{
+		const loaded_apps = await this.load(rnode, [{
 			"name": aname,
 			"config": aconfig
-		}], function(a) {
-			callback(a[0]);
-		});
+		}]);
+		console.log("APP_RELOAD 4");
+		if (callback) callback(loaded_apps[0]);
+		console.log("APP_RELOAD 5");
+		return loaded_apps[0];
 	};
 
 };
