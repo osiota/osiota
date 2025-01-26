@@ -258,6 +258,7 @@ class application_loader {
 
 		if (node_destination._app &&
 				a._app === node_destination._app._app) {
+			// TODO: Is this still needed?
 			a = node_destination._app;
 		} else {
 			a._node = node_destination;
