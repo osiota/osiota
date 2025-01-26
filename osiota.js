@@ -15,12 +15,12 @@ argv.status  = argv.status  || argv.s;
 argv.version = argv.version || argv.V;
 argv.verbose = argv.verbose || argv.v;
 
-if (argv.daemon && typeof argv.verbose === "undefined") {
-	argv.verbose = true;
-}
-if (argv.restart && process.env.__daemon) {
+if (process.env.__daemon) {
+	if (typeof argv.verbose === "undefined") {
+		argv.verbose = true;
+	}
+	argv.daemon = false;
 	argv.restart = false;
-	argv.daemon = true;
 }
 
 let config_file = argv.config || "osiota.json";
@@ -61,8 +61,9 @@ if (argv.help && !argv.app) {
 	if (!pid) {
 		return console.error("Error: no running process found");
 	}
-	daemon.process_stop(pid, function() {
-		daemon.pidfile_delete(pid_file);
+	module.exports.loaded =
+	daemon.process_stop(pid, async function() {
+		return daemon.pidfile_delete(pid_file);
 	});
 
 } else /* istanbul ignore if tested in test/61 */ if (argv.restart) {
@@ -72,9 +73,10 @@ if (argv.help && !argv.app) {
 		daemon.daemon_start(log_file);
 		return;
 	}
-	daemon.process_stop(pid, function() {
-		daemon.pidfile_delete(pid_file);
-		daemon.daemon_start(log_file);
+	module.exports.loaded =
+	daemon.process_stop(pid, async function() {
+		await daemon.pidfile_delete(pid_file);
+		return daemon.daemon_start(log_file);
 	});
 
 } else /* istanbul ignore if manually tested in test/61 */ if (argv.reload) {
@@ -96,13 +98,6 @@ if (argv.help && !argv.app) {
 	daemon.daemon_start(log_file);
 
 } else { // start
-	if (daemon.process_status(pid_file)) {
-		return console.error(
-			"Error: An other process is still running.");
-	}
-	if (process.env.__daemon)
-		daemon.pidfile_create(pid_file);
-
 	// optional better console output:
 	if (!argv.help && !argv.app && !argv.systemd) {
 		try {
@@ -133,27 +128,6 @@ if (argv.help && !argv.app) {
 	const main = require('./main_nodejs.js');
 	const m = new main(config.hostname || config_filename || os.hostname());
 	module.exports = m;
-
-	m.on("config_save", function() {
-		const _this = this;
-		setImmediate(function() {
-			helper_config_file.write(
-				argv.config || "osiota.json",
-				m._config);
-		});
-	});
-
-	// do config reload on signal
-	process.on('SIGUSR2', /* istanbul ignore next tested in test/61 */
-			function() {
-		console.log("reloading config ...");
-		m.close();
-		setTimeout(function() {
-			config = helper_config_file.read(argv.config);
-			m.config(config);
-		}, 5000);
-	});
-
 	m.argv = argv;
 	m.add_app_dir(path.dirname(argv.config || "osiota.json"));
 
@@ -175,10 +149,16 @@ if (argv.help && !argv.app) {
 		return;
 	}
 
-	if (!argv.app) {
-		// Load configuration:
-		m.config(config);
-	} else {
+	m.on("config_save", function() {
+		const _this = this;
+		setImmediate(function() {
+			helper_config_file.write(
+				argv.config || "osiota.json",
+				m._config);
+		});
+	});
+
+	if (argv.app) {
 		// Save config in main object (to pass it to the app):
 		m._config = config;
 
@@ -192,5 +172,27 @@ if (argv.help && !argv.app) {
 			const a = (await m.application_loader.startup(/*node=*/ null, argv.app))[0];
 			a._cli(argv, argv.help);
 		})();
+		return;
 	}
+
+	if (daemon.process_status(pid_file)) {
+		return console.error(
+			"Error: An other process is still running.");
+	}
+	if (process.env.__daemon)
+		daemon.pidfile_create(pid_file);
+
+	// do config reload on signal
+	process.on('SIGUSR2', /* istanbul ignore next tested in test/61 */
+			function() {
+		console.log("reloading config ...");
+		m.close();
+		setTimeout(function() {
+			config = helper_config_file.read(argv.config);
+			m.config(config);
+		}, 5000);
+	});
+
+	// Load configuration:
+	m.config(config);
 }

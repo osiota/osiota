@@ -1,6 +1,6 @@
 const main = require("./main.js");
 
-const  ApplicationManager =require("./application_manager.js").application_manager;
+const ApplicationManager = require("./application_manager.js").application_manager;
 
 
 const require_vm = require("./helper_require_vm.js");

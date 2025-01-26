@@ -51,3 +51,19 @@ exports.test = function(filename) {
 		return test(title+subtitle, callback);
 	};
 };
+
+exports.sleep = function(ms) {
+	return new Promise(resolve=>setTimeout(resolve, ms));
+};
+
+exports.try_multiple_times = async function(callback, timeout = 50, times = 10){
+	if (times < 0) {
+		return false;
+	}
+	await exports.sleep(timeout);
+	if (await callback()) {
+		return true;
+	}
+	return exports.try_multiple_times(callback, timeout, times-1);
+};
+

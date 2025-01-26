@@ -1,17 +1,13 @@
 #!/usr/bin/env node
 
 const proxyquire = require('proxyquire');
-const fs = require('fs');
+const fs = require('fs/promises');
 
 const helper = require("./helper_test.js");
 const test = helper.test(__filename);
 
 console.group = function() {};
 console.groupEnd = function() {};
-
-function sleep(ms) {
-	return new Promise(resolve=>setTimeout(resolve, ms));
-}
 
 async function require_osiota(argv, callback) {
 	var process_argv = ["node", __dirname + "/../osiota.js"];
@@ -42,10 +38,14 @@ async function require_osiota(argv, callback) {
 	return module;
 };
 
-function log_file_match(check) {
-	const log_file = __dirname + "/61_config.log";
-	var log = fs.readFileSync(log_file);
-	return !!(log.toString().match(check));
+const log_file = __dirname + "/61_config.log";
+const pid_file = __dirname + "/61_config.pid";
+
+async function log_file_match(check) {
+	return helper.try_multiple_times(async ()=>{
+		const log = await fs.readFile(log_file);
+		return !!(log.toString().match(check));
+	});
 };
 
 
@@ -59,31 +59,44 @@ test('check', async function (t) {
 
 test('start', async function (t) {
 	t.plan(1);
+	try {
+		await fs.truncate(log_file, 0);
+		await fs.unlink(pid_file);
+	} catch(err) {}
 	await require_osiota(["--config", __dirname + "/61_config.json", "--daemon"], function() {
 	});
-	await sleep(200);
-	t.ok(log_file_match(/  Hello World!$/m), "check log file");
+	t.ok(await log_file_match(/  Hello World!$/m), "check log file");
+});
+
+test('status', async function (t) {
+	t.plan(2);
+	await require_osiota(["--config", __dirname + "/61_config.json", "--status"], function() {
+		t.deepEqual(Array.prototype.slice.call(arguments),
+			["Status:", "running"], "check output");
+	});
+	t.ok(true, "wait");
 });
 
 test('restart', async function (t) {
 	t.plan(1);
+	try {
+		await fs.truncate(log_file, 0);
+	} catch(err) {}
 	await require_osiota(["--config", __dirname + "/61_config.json", "--restart"], function() {
 	});
-	await sleep(100);
-	t.ok(log_file_match(/  Hello World!$/m), "check log file");
+	t.ok(await log_file_match(/  Hello World!$/m), "check log file");
 });
 
 
 /*
-test('reload', function (t) {
+test('reload', async function (t) {
 	t.plan(1);
-	require_osiota(["--config", __dirname + "/61_config.json", "--reload"], function() {
+	await require_osiota(["--config", __dirname + "/61_config.json", "--reload"], function() {
 	});
-	setTimeout(function() {
-		t.ok(log_file_match(/^reloading config \.\.\.$/m), "check log file");
-	}, 5100);
+	t.ok(await log_file_match(/^reloading config \.\.\.$/m), "check log file");
 });
 */
+
 test('status', async function (t) {
 	t.plan(2);
 	await require_osiota(["--config", __dirname + "/61_config.json", "--status"], function() {
@@ -95,10 +108,9 @@ test('status', async function (t) {
 
 test('stop', async function (t) {
 	t.plan(1);
-	await require_osiota(["--config", __dirname + "/61_config.json", "--stop"], function() {
+	await require_osiota(["--config", __dirname + "/61_config.json", "--verbose", "--stop"], function() {
 	});
-	await sleep(200);
-	t.ok(log_file_match(/  Goodbye!$/m), "check log file");
+	t.ok(await log_file_match(/  Goodbye!$/m), "check log file");
 });
 
 test('status', async function (t) {

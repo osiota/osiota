@@ -7,10 +7,12 @@ const child_process = require('child_process');
  */
 exports.process_status = function(pid_file) {
 	try {
-		var pid = fs.readFileSync(pid_file);
+		const buffer = fs.readFileSync(pid_file);
+		const pid = parseInt(buffer.toString(), 10);
 		process.kill(pid, 0);
 		return pid;
 	} catch (err) {
+		// ignore file not found and process not found errors
 	}
 	return false;
 };
@@ -20,7 +22,7 @@ exports.process_status = function(pid_file) {
  * @param {number} pid - Process id
  * @param {callback} next - Callback fired after process termination
  */
-exports.process_stop = function(pid, next, count = 0) {
+exports.process_stop = async function(pid, next, count = 0) {
 	try {
 		if (count == 0) {
 			// send terminate signal:
@@ -33,9 +35,10 @@ exports.process_stop = function(pid, next, count = 0) {
 			process.kill(pid, 'SIGKILL');
 			return next();
 		}
-		setTimeout(function() {
-			exports.process_stop(pid, next, count+1);
-		}, 100);
+
+		await new Promise(resolve=>setTimeout(resolve, 100));
+
+		return exports.process_stop(pid, next, count+1);
 	} catch(err) {
 		// no such process
 		return next();
@@ -49,24 +52,22 @@ exports.process_stop = function(pid, next, count = 0) {
 exports.daemon_start = function(log_file) {
 	// TODO: Move old log-files:
 	//fs.renameSync(log_file, log_file.replace(/\.log/, ".1.log");
-	var log_fid = fs.openSync(log_file, 'w');
+	const log_fid = fs.openSync(log_file, 'w');
 
 	// process args:
-	var args = Array.prototype.slice.call(process.argv, 1);
-
-	var cwd = process.cwd();
-	var env = process.env;
-
-	// Mark subprocess
-	env.__daemon = true;
+	const args = Array.prototype.slice.call(process.argv, 1);
 
 	// spawn subprocess
-	var child = child_process.spawn(process.execPath, args, {
+	const child = child_process.spawn(process.execPath, args, {
 		stdio: ['ignore', log_fid, log_fid],
-		env: env,
-		cwd: cwd,
+		env: {
+			...process.env,
+			__daemon: true,
+		},
+		cwd: process.cwd(),
 		detached: true
 	});
+	console.log("starting new child", child.pid);
 
 	// unref subprocess so this process can exit
 	child.unref();
@@ -78,6 +79,7 @@ exports.daemon_start = function(log_file) {
  * @param {string} pid_file - Path of the pid file
  */
 exports.pidfile_create = function(pid_file) {
+	console.log("PID", process.pid);
 	// create pid file:
 	fs.writeFileSync(pid_file, ""+process.pid);
 };
@@ -86,5 +88,10 @@ exports.pidfile_create = function(pid_file) {
  * @param {string} pid_file - Path of the pid file
  */
 exports.pidfile_delete = function(pid_file) {
-	fs.unlinkSync(pid_file);
+	try {
+		fs.unlinkSync(pid_file);
+	} catch(err) {
+		if (err.code === "ENOENT") return;
+		throw err;
+	}
 };
