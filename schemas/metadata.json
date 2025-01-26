@@ -20,6 +20,8 @@
 		},
 		"values": {
 			"type": "array",
+			"minItems": 2,
+			"maxItems": 2,
 			"items": [{
 				"title": "from",
 				"$ref": "https://osiota.net/schemas/value.json"
