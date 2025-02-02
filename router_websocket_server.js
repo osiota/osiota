@@ -4,7 +4,7 @@ const WebSocket = require('ws');
  *
  */
 exports.init = function(main, rpcstack, basename, options) {
-	var router = main.router;
+	const router = main.router;
 
 	if (typeof options !== "object" || options === null) {
 		options = { port: options };
@@ -22,8 +22,8 @@ exports.init = function(main, rpcstack, basename, options) {
 		}
 	};
 
-	var WebSocketServer = WebSocket.Server;
-	var wss = new WebSocketServer(options);
+	const WebSocketServer = WebSocket.Server;
+	const wss = new WebSocketServer(options);
 	wss.wpath = ":";
 	if (typeof options.port === "number") {
 		wss.wpath = ':'+options.port.toString();
@@ -82,7 +82,7 @@ exports.init = function(main, rpcstack, basename, options) {
 		ws.on('message', function(message) {
 			//console.log('received: %s', message);
 			try {
-				var data = JSON.parse(message);
+				const data = JSON.parse(message);
 				rpcstack.process_message(data,
 						ws.respond.bind(ws), ws);
 			} catch (e) {
@@ -106,7 +106,7 @@ exports.init = function(main, rpcstack, basename, options) {
 		// TODO login: move to: post login
 		require('./router_websocket_generic.js').init(router, rpcstack, ws);
 	});
-	var wss_close = wss.close.bind(wss);
+	const wss_close = wss.close.bind(wss);
 	wss.close = function(callback) {
 		wss_close(callback);
 		for (const ws of wss.clients) {

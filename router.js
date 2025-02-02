@@ -38,7 +38,7 @@ class router extends EventEmitter {
 
 	/* Route data */
 	publish(name, time, value, only_if_differ, do_not_add_to_history) {
-		var n = this.node(name);
+		const n = this.node(name);
 		n.publish(time, value, only_if_differ, do_not_add_to_history);
 	}
 
@@ -49,11 +49,11 @@ class router extends EventEmitter {
 		if (basename === "/") basename = "";
 		if (typeof children_of_children === "undefined") children_of_children = true;
 
-		var nodes = {};
-		var _this = this;
+		const nodes = {};
+		const _this = this;
 
 		// Filter nodes:
-		var regex = new RegExp("^" + RegExp.quote(basename) + "(/.*)$", '');
+		let regex = new RegExp("^" + RegExp.quote(basename) + "(/.*)$", '');
 		if (!children_of_children) {
 			// only direct children:
 			regex = new RegExp("^" + RegExp.quote(basename) + "(/[^/@]*)$", '');
@@ -62,10 +62,10 @@ class router extends EventEmitter {
 
 		// Sort keys:
 		Object.keys(this.nodes).forEach(function(name) {
-			var n = _this.nodes[name];
+			const n = _this.nodes[name];
 
 			// TODO: consider using .startsWith
-			var found = name.match(regex)
+			const found = name.match(regex)
 			if (found) {
 				nodes[found[1]] = n;
 			}
@@ -75,7 +75,7 @@ class router extends EventEmitter {
 
 	/* Overwrite function to convert object to string: */
 	toJSON() {
-		var r = {};
+		const r = {};
 		r.nodes = this.nodes.toJSON();
 		return r;
 	};
@@ -97,12 +97,12 @@ class router extends EventEmitter {
 		}
 
 		// get parent node:
-		var parentnode = null;
+		let parentnode = null;
 		if (name == "/") {
 			parentnode = null;
 		} else {
 			if (name.match(/[\/@]/)) {
-				var parentname = name.replace(/[\/@][^\/@]*$/, "");
+				const parentname = name.replace(/[\/@][^\/@]*$/, "");
 				parentnode = this.node(parentname);
 			} else {
 				parentnode = this.node("/");

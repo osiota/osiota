@@ -6,9 +6,9 @@ const create_promise_callback = require("./helper_promise.js").create_promise_ca
 
 if (!EventEmitter.prototype.once_timeout)
 EventEmitter.prototype.once_timeout = function(event, handler, timeout) {
-	var _this = this;
-	var timer = null;
-	var listener = function() {
+	const _this = this;
+	let timer = null;
+	const listener = function() {
 		if (timer !== null) {
 			clearTimeout(timer);
 			timer = null;
@@ -71,9 +71,9 @@ class rpcstack extends EventEmitter {
 	 * @param {object} [module] - Source module
 	 */
 	process_single_message(d, respond, module) {
-		var rpc_ref = d.ref;
-		var reply = function(error, data) {
-			var args = Array.prototype.slice.call(arguments);
+		let rpc_ref = d.ref;
+		const reply = function(error, data) {
+			const args = Array.prototype.slice.call(arguments);
 			if (typeof rpc_ref !== "undefined") {
 				if (typeof error === "undefined") {
 					//error = null;
@@ -91,9 +91,9 @@ class rpcstack extends EventEmitter {
 			if (!d.hasOwnProperty('type')) {
 				throw new Error("Message type not defined: " + JSON.stringify(d));
 			}
-			var method = d.type;
+			const method = d.type;
 
-			var scope = "global";
+			let scope = "global";
 			if (d.hasOwnProperty('scope') && typeof d.scope === "string")
 				scope = d.scope;
 
@@ -112,7 +112,7 @@ class rpcstack extends EventEmitter {
 			if (typeof this._scopes[scope] !== "function") {
 				throw new Error("Scope not found.");
 			}
-			var r = this._scopes[scope].call(this, d, module);
+			const r = this._scopes[scope].call(this, d, module);
 
 			// call method
 			if (typeof module === "object" && this._rpc_process(scope + "_" + method, d.args, reply, r, module)) {
@@ -144,7 +144,7 @@ class rpcstack extends EventEmitter {
 	 * @param {object} [module] - Source module
 	 */
 	process_message(messages, respond, module) {
-		var r = this;
+		const r = this;
 		if (typeof respond !== "function")
 			respond = function() {};
 
@@ -164,8 +164,8 @@ class rpcstack extends EventEmitter {
 	};
 
 	process_reply(d, module) {
-		var ref = d.args.shift();
-		var cb = this._rpc_bind_get(module, ref);
+		const ref = d.args.shift();
+		let cb = this._rpc_bind_get(module, ref);
 		if (!cb) {
 			cb = this.unhandled_reply;
 		}
@@ -174,8 +174,8 @@ class rpcstack extends EventEmitter {
 
 	/* Bind a callback to this object and create a reference to it */
 	_rpc_bind(cache, method, callback) {
-		var ref = method;
-		var ref_i = 1;
+		let ref = method;
+		let ref_i = 1;
 		if (!cache.hasOwnProperty("_rpc_calls")) {
 			cache._rpc_calls = {};
 		}
@@ -189,7 +189,7 @@ class rpcstack extends EventEmitter {
 
 	/* get the callback (by reference) */
 	_rpc_bind_get(cache, ref) {
-		var cb = false;
+		let cb = false;
 		if (typeof ref !== "string" || ref === "" ||
 				!cache.hasOwnProperty("_rpc_calls")) {
 			return false;
@@ -206,8 +206,8 @@ class rpcstack extends EventEmitter {
 	/* Parse the answer of a remote call (and call the saved callback) */
 	/* DEPRECATED
 	rpc_reply = function(reply, ref, error, data) {
-		var args = Array.prototype.slice.call(arguments, 2);
-		var cb = this._rpc_bind_get(ref); // TODO cache
+		const args = Array.prototype.slice.call(arguments, 2);
+		const cb = this._rpc_bind_get(ref); // TODO cache
 		if (!cb) {
 			if (error !== null) {
 				console.warn("RPC-Error:", args);
@@ -231,21 +231,21 @@ class rpcstack extends EventEmitter {
 			args = [];
 		}
 		if (typeof object['promise_rpc_' + method] == "function") {
-			var p2 = object['promise_rpc_' + method].apply(self, args);
+			const p2 = object['promise_rpc_' + method].apply(self, args);
 			if (typeof p2 === "object" &&
 				typeof p2.then === "function") return p2.then((data)=>reply(null, data), reply);
 			return true;
 		}
 		if (typeof object['rpc_' + method] == "function" &&
 				object['rpc_' + method].constructor.name == 'AsyncFunction') {
-			var p2 = object['rpc_' + method].apply(self, args);
+			const p2 = object['rpc_' + method].apply(self, args);
 			if (typeof p2 === "object" &&
 				typeof p2.then === "function") return p2.then((data)=>reply(null, data), reply);
 			return true;
 		}
 		if (typeof object['rpc_' + method] == "function") {
 			args.unshift(reply);
-			var p2 = object['rpc_' + method].apply(self, args);
+			const p2 = object['rpc_' + method].apply(self, args);
 			if (typeof p2 === "object" &&
 				typeof p2.then === "function") return p2.then((data)=>reply(null, data), reply);
 			return true;
@@ -272,8 +272,8 @@ class rpcstack extends EventEmitter {
 			return object['rpc_' + method].apply(self, args);
 		}
 		if (typeof object['rpc_' + method] == "function") {
-			var [reply, promise] = create_promise_callback();
-			var p2 = object['rpc_' + method].call(self, reply, ...args);
+			const [reply, promise] = create_promise_callback();
+			const p2 = object['rpc_' + method].call(self, reply, ...args);
 			if (typeof p2 === "object" &&
 				typeof p2.then === "function") return p2;
 			return promise;
@@ -296,10 +296,10 @@ class rpcstack extends EventEmitter {
 			return object['rpc_' + method].bind(self);
 		}
 		if (typeof object['rpc_' + method] == "function") {
-			var cb = object['rpc_'+method].bind(self);
+			const cb = object['rpc_'+method].bind(self);
 			return function(...args) {
-				var [reply, promise] = create_promise_callback();
-				var p2 = cb(reply, ...args);
+				const [reply, promise] = create_promise_callback();
+				const p2 = cb(reply, ...args);
 				if (typeof p2 === "object" &&
 					typeof p2.then === "function") return p2;
 				return promise;
@@ -318,11 +318,11 @@ class rpcstack extends EventEmitter {
 	 * @returns {object} RPC communication object
 	 */
 	_rpc_create_object(module, self, args) {
-		var method = args.shift();
+		const method = args.shift();
 
-		var object = {};
+		const object = {};
 		if (typeof args[args.length-1] === "function") {
-			var cb = args.pop();
+			const cb = args.pop();
 			object.ref = this._rpc_bind(module, method, cb.bind(self));
 		}
 		//object.self = self;
@@ -338,13 +338,13 @@ class rpcstack extends EventEmitter {
 	 * @param {node} node - Node
 	 */
 	_rpc_forwarding(obj, reply, node) {
-		var ws = node.connection;
-		var args = obj.args;
+		const ws = node.connection;
+		const args = obj.args;
 
 		args.unshift(obj.type);
 		args.unshift(node); // node name
 		args.push(function(err, data) {
-			var args = Array.prototype.slice.call(arguments);
+			const args = Array.prototype.slice.call(arguments);
 			// forward data and error:
 			reply.apply(null, args);
 		});
@@ -355,8 +355,7 @@ class rpcstack extends EventEmitter {
 exports.rpcstack = rpcstack;
 
 exports.rpcstack_init = function(router) {
-
-	var rc = new exports.rpcstack();
+	const rc = new exports.rpcstack();
 
 	rc.register_scope("global", function(d, module) {
 		return router;
@@ -366,13 +365,13 @@ exports.rpcstack_init = function(router) {
 			throw new Error("Message scope needs attribute node: " +
 					JSON.stringify(d));
 		}
-		var n = router.node(nodename_transform(d.node, module.basename, module.remote_basename));
+		const n = router.node(nodename_transform(d.node, module.basename, module.remote_basename));
 
 		if (this.hasOwnProperty('policy_checker')) {
-			var policy_checker = this.policy_checker;
+			const policy_checker = this.policy_checker;
 			// checks if the remote is allowed
 			// to perform this method on this node
-			var policy = policy_checker.check(n,
+			const policy = policy_checker.check(n,
 					module.wpath, method, 'from_remote');
 
 			// react respectively to the policy-action

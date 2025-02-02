@@ -34,9 +34,9 @@ class cmd_stack {
 		this.stack = {};
 	};
 	get(key) {
-		var _this = this;
+		const _this = this;
 		if (!this.stack.hasOwnProperty(key)) {
-			var e = new EventEmitter();
+			const e = new EventEmitter();
 			e.on("end", function() {
 				this.removeAllListeners("open");
 				this.removeAllListeners("close");
@@ -75,7 +75,7 @@ class cmd_stack {
 				return e;
 			};
 			e.end = function() {
-				var cl = e.listeners("end").length;
+				const cl = e.listeners("end").length;
 				e.emit("end");
 				_this.remove(key);
 				return cl > 1;
@@ -94,31 +94,31 @@ class cmd_stack {
 		return false;
 	}
 	emit(subkey) {
-		for (var key in this.stack) {
+		for (const key in this.stack) {
 			this.stack[key].emit(subkey);
 		}
 	};
 };
 
 /* string key generated from method and nodename: */
-var mnkey = function(nodename, method) {
+const mnkey = function(nodename, method) {
 	return method+"_"+nodename;
 }
 
 /* unload on close functions */
-var single_function = function(cmd_stack_obj, method, cb_start, cb_end) {
+const single_function = function(cmd_stack_obj, method, cb_start, cb_end) {
 	return function(reply) {
 		// args:
-		var args = Array.prototype.slice.call(arguments);
-		//var reply =
+		const args = Array.prototype.slice.call(arguments);
+		//const reply =
 		args.shift();
 
 		// this == node
-		var node = this;
-		var e = cmd_stack_obj.get(mnkey(node.name, method));
+		const node = this;
+		const e = cmd_stack_obj.get(mnkey(node.name, method));
 
 		// call start function:
-		var ref = cb_start.apply(node, args);
+		let ref = cb_start.apply(node, args);
 
 		// define unload function
 		if (typeof e.unload === "function")
@@ -136,11 +136,11 @@ var single_function = function(cmd_stack_obj, method, cb_start, cb_end) {
 		reply(null, "okay");
 	};
 };
-var single_function_remove = function(cmd_stack_obj, method) {
+const single_function_remove = function(cmd_stack_obj, method) {
 	return function(reply) {
 		// this == node
-		var node = this;
-		var e = cmd_stack_obj.get(mnkey(node.name, method));
+		const node = this;
+		const e = cmd_stack_obj.get(mnkey(node.name, method));
 
 		if (e.unload) {
 			e.unload();
@@ -191,7 +191,7 @@ exports.init = function(router, rpcstack, ws) {
 			return false;
 
 		return this.subscribe(function(do_not_add_to_history, initial) {
-			var node = this;
+			const node = this;
 			if (initial === true) {
 				if (node.hasOwnProperty("history")) {
 					ws.node_rpc(node, "missed_data", node.time);
@@ -204,8 +204,8 @@ exports.init = function(router, rpcstack, ws) {
 	ws.rpc_node_subscribe_for_aggregated_data = single_function(ws.cmds,
 			"subscribe", /* istanbul ignore next deprecated */
 				function(policy) {
-		var policy_checker = router.policy_checker;
-		var callback;
+		const policy_checker = router.policy_checker;
+		let callback;
 		if (policy.action_extra.type == "count") {
 			callback = policy_checker.aggregate.
 					create_callback_by_count(this, policy,
@@ -244,7 +244,7 @@ exports.init = function(router, rpcstack, ws) {
 	};
 	ws.rpc_node_announce = single_function(ws.cmds, "announce", function(metadata) {
 		// this == node
-		var node = this;
+		const node = this;
 
 		// Meta data key for identification and limiting hops
 		if (typeof metadata.__osiota_remote !== "number") {
@@ -271,7 +271,7 @@ exports.init = function(router, rpcstack, ws) {
 
 	ws.rpc_node_announce_update = function(reply, metadata) {
 		// this == node
-		var node = this;
+		const node = this;
 
 		// Meta data key for identification and limiting hops
 		if (typeof metadata.__osiota_remote !== "number") {
@@ -291,7 +291,7 @@ exports.init = function(router, rpcstack, ws) {
 
 	ws.rpc_node_missed_data = function(reply, new_time) {
 		// this = node
-		var node = this;
+		const node = this;
 
 		if (!node.hasOwnProperty("history")) {
 			reply(null, "thanks");
@@ -303,7 +303,7 @@ exports.init = function(router, rpcstack, ws) {
 			reply(null, "thanks");
 		} else {
 			// get last timestamp from history database:
-			var last_timeslot = node.history.get({
+			const last_timeslot = node.history.get({
 				maxentries: 1,
 				interval: null,
 				local: true
@@ -356,8 +356,8 @@ exports.init = function(router, rpcstack, ws) {
 	ws.rpc = function(method) {
 		if (ws.closed)
 			return false;
-		var args = Array.prototype.slice.call(arguments);
-		var object = rpcstack._rpc_create_object(ws, ws, args);
+		const args = Array.prototype.slice.call(arguments);
+		const object = rpcstack._rpc_create_object(ws, ws, args);
 		ws.respond(object);
 		return true;
 	};
@@ -367,16 +367,16 @@ exports.init = function(router, rpcstack, ws) {
 		if (typeof node !== "object")
 			throw new Error("Node is not an object");
 
-		var args = Array.prototype.slice.call(arguments);
-		//var node =
+		const args = Array.prototype.slice.call(arguments);
+		//const node =
 		args.shift();
-		var object = rpcstack._rpc_create_object(ws, node, args);
+		const object = rpcstack._rpc_create_object(ws, node, args);
 
 		if (router.hasOwnProperty('policy_checker')) {
 			// checks if the remote is allowed to perform this
 			// method on this node
 			try {
-				var reaction = router.policy_checker.check(
+				const reaction = router.policy_checker.check(
 						node, ws.wpath,
 						method, 'to_remote');
 				if (reaction != null && reaction.reaction_id
@@ -396,7 +396,7 @@ exports.init = function(router, rpcstack, ws) {
 
 		if (typeof node.name !== "string")
 			console.error("node", node);
-		var nodename = nodename_transform(node.name, ws.remote_basename,
+		const nodename = nodename_transform(node.name, ws.remote_basename,
 				ws.basename);
 
 		object.scope = "node";
@@ -408,13 +408,13 @@ exports.init = function(router, rpcstack, ws) {
 		if (typeof node !== "object")
 			throw new Error("Node is not an object");
 
-		var args = Array.prototype.slice.call(arguments);
-		//var node =
+		const args = Array.prototype.slice.call(arguments);
+		//const node =
 		args.shift();
-		//var method =
+		//const method =
 		args.shift();
 
-		var reply = function(error, data) {
+		const reply = function(error, data) {
 			if (error !== null)
 				console.error("RPC(local)-Error: ", error, data);
 		};
@@ -428,9 +428,9 @@ exports.init = function(router, rpcstack, ws) {
 		return true;
 	};
 	ws.node_prpc = function(node, method) {
-		var ref = null;
+		let ref = null;
 
-		var e = ws.cmds.get(mnkey(node, "rpc"+method));
+		const e = ws.cmds.get(mnkey(node, "rpc"+method));
 		return e.init(function() {
 			ws.node_rpc(node, method, function(answer) {
 				ref = answer;
@@ -441,14 +441,14 @@ exports.init = function(router, rpcstack, ws) {
 		});
 	};
 	ws.node_prpc_remove = function(node, method) {
-		var e = ws.cmds.get(mnkey(node, "rpc"+method));
+		const e = ws.cmds.get(mnkey(node, "rpc"+method));
 		return e.end();
 	};
 
 	ws.node_plocal = function(node, method) {
-		var ref = null;
+		let ref = null;
 
-		var e = ws.cmds.get(mnkey(node, "local"+method));
+		const e = ws.cmds.get(mnkey(node, "local"+method));
 		return e.init(function() {
 			ws.node_local(node, method, function(answer) {
 				ref = answer;
@@ -459,7 +459,7 @@ exports.init = function(router, rpcstack, ws) {
 		});
 	};
 	ws.node_plocal_remove = function(node, method) {
-		var e = ws.cmds.get(mnkey(node, "local"+method));
+		const e = ws.cmds.get(mnkey(node, "local"+method));
 		return e.end();
 	};
 

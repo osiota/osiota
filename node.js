@@ -67,8 +67,8 @@ class node extends EventEmitter {
 		this.parentnode = parentnode;
 
 		// subscripbe from remote host:
-		var is_subscriped = false;
-		var check_need_subscription = function(reinit) {
+		let is_subscriped = false;
+		const check_need_subscription = function(reinit) {
 			if (reinit === true) {
 				is_subscriped = false;
 			}
@@ -114,7 +114,7 @@ class node extends EventEmitter {
 		if (name == "." || name == "")
 			return this;
 
-		var is_parent = name.match(/^\.\.\/(.*)$|^\.\.$/);
+		const is_parent = name.match(/^\.\.\/(.*)$|^\.\.$/);
 		if (is_parent && this.parentnode) {
 			return this.parentnode.node(is_parent[1] || ".");
 		}
@@ -218,7 +218,7 @@ class node extends EventEmitter {
 
 	/* Announce node (local) */
 	announce_local(method, update) {
-		var _this = this;
+		const _this = this;
 		this.ready_listener.forEach(function(object) {
 			_this.ready_listener_call(object, method, false, update);
 		});
@@ -231,7 +231,7 @@ class node extends EventEmitter {
 		if (typeof node !== "object" || node === null) {
 			node = this;
 		}
-		var _this = this;
+		const _this = this;
 		this.announcement_listener.forEach(function(object) {
 			_this.announcement_listener_call(object, node, method,
 					false, update);
@@ -254,7 +254,7 @@ class node extends EventEmitter {
 
 	/* Generates metadata based on nodenames */
 	generate_metadata() {
-		var metadata = {};
+		let metadata = {};
 		if (this.name.match(/\.energy\.data$/)) {
 			metadata = {
 				type: "energy.data",
@@ -280,7 +280,7 @@ class node extends EventEmitter {
 				// no default values yet
 			};
 		} else {
-			var type = this.name.match(/\.([^\/]*)$/);
+			const type = this.name.match(/\.([^\/]*)$/);
 			if (type) {
 				metadata = {
 					type: type[1]
@@ -293,7 +293,7 @@ class node extends EventEmitter {
 
 	/* create a unique time stamp */
 	unique_date() {
-		var d = new Date()/1000;
+		const d = new Date()/1000;
 		if (typeof this._unique_date !== "number" ||
 				d - this._unique_date > 0.00005 ||
 				d < this._unique_date-1) {
@@ -379,12 +379,12 @@ class node extends EventEmitter {
 	 * node.publish(undefined, 10);
 	 */
 	publish(time, value, only_if_differ, do_not_add_to_history, initial) {
-		var _this = this;
+		const _this = this;
 
 		if (typeof time === "undefined" || time === null)
 			time = this.unique_date();
 		if (typeof time === "object" && typeof time.getMonth !== 'function') {
-			var object = time;
+			const object = time;
 			time = object.time;
 			value = object.value;
 			only_if_differ = object.only_if_differ;
@@ -392,7 +392,7 @@ class node extends EventEmitter {
 			initial = object.initial;
 		}
 		if (typeof only_if_differ === "object" && only_if_differ !== null) {
-			var object = only_if_differ;
+			const object = only_if_differ;
 			only_if_differ = object.only_if_differ;
 			do_not_add_to_history = object.do_not_add_to_history;
 			initial = object.initial;
@@ -417,9 +417,9 @@ class node extends EventEmitter {
 		if (typeof offset !== "number") {
 			offset = 0;
 		}
-		var slots = 10000;
-		var i = offset;
-		var n = Math.min(offset+slots, data.length);
+		const slots = 10000;
+		let i = offset;
+		const n = Math.min(offset+slots, data.length);
 		for (; i < n; i++) {
 			this.publish(data[i]);
 		}
@@ -428,7 +428,7 @@ class node extends EventEmitter {
 				process.nextTick(done);
 		} else {
 			console.log("time", data[i].time);
-			var tid = setTimeout(this.publish_all.bind(this),
+			let tid = setTimeout(this.publish_all.bind(this),
 					0,
 					data, step, done, n);
 			if (typeof step === "function")
@@ -438,7 +438,7 @@ class node extends EventEmitter {
 
 	/* Route data (give a callback to subscribe) */
 	publish_subscribe_cb() {
-		var dnode = this;
+		const dnode = this;
 		return function(do_not_add_to_history, initial) {
 			dnode.publish(this.time, this.value, undefined,
 					do_not_add_to_history);
@@ -457,13 +457,13 @@ class node extends EventEmitter {
 	 * @fires node#registered
 	 * @this node
 	 * @example
-	 * var s = node.subscribe(function(do_not_add_to_history, initial) {
+	 * const s = node.subscribe(function(do_not_add_to_history, initial) {
 	 *	// ...
 	 * });
 	 */
 	subscribe(callback) {
 		// Save the time when this entry was added
-		var object = callback.bind(this);
+		const object = callback.bind(this);
 		object.time_added = new Date();
 
 		this.subscription_listener.push(object);
@@ -496,15 +496,15 @@ class node extends EventEmitter {
 	 * @param {function} object - The function to be unsubscribed
 	 * @fires node#unregistered
 	 * @example
-	 * var s = node.subscribe(function(do_not_add_to_history, initial) {
+	 * const s = node.subscribe(function(do_not_add_to_history, initial) {
 	 *	// ...
 	 * });
 	 * node.unsubscribe(s);
 	 */
 	unsubscribe(object) {
-		for(var j=0; j<this.subscription_listener.length; j++) {
+		for(let j=0; j<this.subscription_listener.length; j++) {
 			if (this.subscription_listener[j] === object) {
-				var r = this.subscription_listener.splice(j, 1);
+				const r = this.subscription_listener.splice(j, 1);
 				/**
 				 * unregistered subscription event
 				 *
@@ -524,7 +524,7 @@ class node extends EventEmitter {
 			do_not_add_to_history = false;
 		}
 
-		var _this = this;
+		const _this = this;
 		this.subscription_listener.forEach(function(f) {
 			f.call(_this, do_not_add_to_history, initial);
 		});
@@ -535,15 +535,15 @@ class node extends EventEmitter {
 	 * @param {string} filter_method - Only listen to a specific method [`announce`, `unannounce`, `remove`] (optional)
 	 * @param {function} object - The function to be called an new announcements
 	 * @example
-	 * var s = node.subscribe_announcement(function(snode, method, initial, update) {
+	 * const s = node.subscribe_announcement(function(snode, method, initial, update) {
 	 *	// ...
 	 * });
-	 * var s = node.subscribe_announcement("announce", function(snode, method, initial, update) {
+	 * const s = node.subscribe_announcement("announce", function(snode, method, initial, update) {
 	 *	// ...
 	 * });
 	 */
 	subscribe_announcement(filter_method, callback){
-		var object;
+		let object;
 		if (typeof filter_method === "function") {
 			object = filter_method.bind(this);;
 			filter_method = null;
@@ -564,9 +564,9 @@ class node extends EventEmitter {
 			this.announcement_listener_call(object, this, "announce", true);
 
 		// get data of childs:
-		var allchildren = this.router.get_nodes(this.name);
-		for(var childname in allchildren) {
-			var nc = allchildren[childname];
+		const allchildren = this.router.get_nodes(this.name);
+		for(const childname in allchildren) {
+			const nc = allchildren[childname];
 			if (nc !== this && nc.metadata !== null) {
 				this.announcement_listener_call(object, nc,
 						"announce", true);
@@ -582,13 +582,13 @@ class node extends EventEmitter {
 	 * Unsubscribe announcements
 	 * @param {function} object - The function to be unsubscribed
 	 * @example
-	 * var s = node.subscribe_announcement(function(snode, method, initial, update) {
+	 * const s = node.subscribe_announcement(function(snode, method, initial, update) {
 	 *	// ...
 	 * });
 	 * node.unsubscribe_announcement(s);
 	 */
 	unsubscribe_announcement(object) {
-		for(var j=0; j<this.announcement_listener.length; j++) {
+		for(let j=0; j<this.announcement_listener.length; j++) {
 			if (this.announcement_listener[j] === object) {
 				// remove listener:
 				this.announcement_listener.splice(j, 1);
@@ -598,9 +598,9 @@ class node extends EventEmitter {
 						"remove", true);
 
 				// call childen with method remove:
-				var allchildren = this.router.get_nodes(this.name);
-				for(var childname in allchildren) {
-					var nc = allchildren[childname];
+				const allchildren = this.router.get_nodes(this.name);
+				for(const childname in allchildren) {
+					const nc = allchildren[childname];
 					if (nc !== this && nc.metadata !== null) {
 						this.announcement_listener_call(object,
 								nc, "remove", true);
@@ -619,7 +619,7 @@ class node extends EventEmitter {
 	 */
 	announcement_listener_call(object, node,
 				method, initial, update) {
-		var o = null;
+		let o = null;
 		if (typeof object.filter_method !== "string" ||
 				object.filter_method === method) {
 			o = object.call(this, node, method, initial, update);
@@ -649,15 +649,15 @@ class node extends EventEmitter {
 	 * @param {string} filter_method - Only listen to a specific method [`announce`, `unannounce`, `remove`] (optional)
 	 * @param {function} object - The function to be called an ready
 	 * @example
-	 * var s = node.ready(function(method, initial, update) {
+	 * const s = node.ready(function(method, initial, update) {
 	 *	// ...
 	 * });
-	 * var s = node.ready("announce", function(method, initial, update) {
+	 * const s = node.ready("announce", function(method, initial, update) {
 	 *	// ...
 	 * });
 	 */
 	ready(filter_method, callback) {
-		var object;
+		let object;
 		if (typeof filter_method === "function") {
 			object = filter_method.bind(this);
 			filter_method = null;
@@ -684,13 +684,13 @@ class node extends EventEmitter {
 	/**
 	 * Unsubscribe ready listener
 	 * @param {function} object - The function to be unsubscribed
-	 * var s = node.ready(function(method, initial, update) {
+	 * const s = node.ready(function(method, initial, update) {
 	 *	// ...
 	 * });
 	 * node.ready_remove(s);
 	 */
 	ready_remove(object) {
-		for(var j=0; j<this.ready_listener.length; j++) {
+		for(let j=0; j<this.ready_listener.length; j++) {
 			if (this.ready_listener[j] === object) {
 				this.ready_listener.splice(j, 1);
 				this.ready_listener_call(object, "remove", true);
@@ -705,7 +705,7 @@ class node extends EventEmitter {
 	 * Call a ready listener
 	 */
 	ready_listener_call(object, method, initial, update) {
-		var o = null;
+		let o = null;
 		if (typeof object.filter_method !== "string" ||
 				object.filter_method === method) {
 			o = object.call(this, method, initial, update);
@@ -729,7 +729,7 @@ class node extends EventEmitter {
 		if(parent == this || parent == this.name)
 			return 0;
 		if (this.parentnode !== null) {
-			var r = this.parentnode.is_parentnode(parent);
+			const r = this.parentnode.is_parentnode(parent);
 			if (r >= 0)
 				return r+1;
 		}
@@ -737,18 +737,18 @@ class node extends EventEmitter {
 	}
 
 	relative_path(to) {
-		var components_to = to.name.split(/\//);
-		var components_from = this.name.split(/\//);
+		const components_to = to.name.split(/\//);
+		const components_from = this.name.split(/\//);
 
-		var components_new = [];
-		var found = false;
+		const components_new = [];
+		let found = false;
 		components_to.forEach(function(c, i) {
 			if (!found) {
 				if (components_from.length <= i) {
 					found = true;
 				} else if (components_from[i] !== c) {
 					found = true;
-					for (var j=i; j<components_from.length; j++) {
+					for (let j=i; j<components_from.length; j++) {
 						components_new.push("..");
 					}
 				}
@@ -758,8 +758,8 @@ class node extends EventEmitter {
 			}
 		});
 		if (!found) {
-			var i = components_to.length-1;
-			for (var j=i; j<components_from.length-1; j++) {
+			const i = components_to.length-1;
+			for (let j=i; j<components_from.length-1; j++) {
 				components_new.push("..");
 			}
 		}
@@ -773,7 +773,7 @@ class node extends EventEmitter {
 	 * @param {string} filter_method - Only listen to a specific method
 	 * @param {function} object - The function to be called an new announcements
 	 * @example
-	 * var s = node.filter([{
+	 * const s = node.filter([{
 	 *	nodes: ["/hello", "/world"],
 	 *	depth: 2
 	 * },{ // OR
@@ -795,7 +795,7 @@ class node extends EventEmitter {
 		}
 		return this.subscribe_announcement(filter_method, function(node,
 					method, initial, update) {
-			var f = this.filter_node(filter_config, node);
+			const f = this.filter_node(filter_config, node);
 			if (f) {
 				return callback.call(this, node, method, initial,
 						update, f);
@@ -816,9 +816,9 @@ class node extends EventEmitter {
 
 		if (typeof filter_config === "object" &&
 				Array.isArray(filter_config)) {
-			for (var k in filter_config) {
+			for (const k in filter_config) {
 				if (filter_config.hasOwnProperty(k)) {
-					var r = this.filter_node(filter_config[k],
+					const r = this.filter_node(filter_config[k],
 							node);
 					if (r) {
 						return r;
@@ -842,7 +842,7 @@ class node extends EventEmitter {
 		// * by depth
 		if (typeof filter_config.depth === "number" &&
 				filter_config.depth > 0) {
-			var l = node.is_parentnode(this);
+			const l = node.is_parentnode(this);
 			if (l > filter_config.depth) {
 				return false;
 			}
@@ -870,10 +870,10 @@ class node extends EventEmitter {
 	 * @param {function} [map_settings.map_key] - Map key function
 	 * @param {function} [map_settings.map_initialise] - Map initialise element
 	 * @example
-	 * var map = node.map(app_config, {
+	 * const map = node.map(app_config, {
 	 *	"map_extra_elements": true,
 	 *	"map_key": function(c) {
-	 *		var name = c.map;
+	 *		const name = c.map;
 	 *		return name;
 	 *	},
 	 *	"map_initialise": function(n, metadata, c) {
@@ -881,8 +881,8 @@ class node extends EventEmitter {
 	 *		n.announce(metadata);
 	 *	}
 	 * });
-	 * var on_message = function(item, value) {
-	 *	var n = map.node(item);
+	 * const on_message = function(item, value) {
+	 *	const n = map.node(item);
 	 *	if (n) {
 	 *		n.publish(undefined, value);
 	 *	}
@@ -892,7 +892,7 @@ class node extends EventEmitter {
 		/* deprecated usage (app_config, app, map_extra_elements,
 		 *	map_key, map_initialise) {
 		 */
-		var node = this;
+		const node = this;
 
 		if (typeof map_settings === "string" ||
 				arguments.length > 2) { // is app
@@ -904,7 +904,7 @@ class node extends EventEmitter {
 			};
 		}
 
-		var map = new NodeMap(node, app_config, map_settings);
+		const map = new NodeMap(node, app_config, map_settings);
 		map.init();
 		return map;
 	};
@@ -948,7 +948,7 @@ class node extends EventEmitter {
 
 		// restart app:
 		if (this._app) {
-			var a = this._app;
+			const a = this._app;
 			a._reinit();
 
 			if (save) {
@@ -969,10 +969,10 @@ class node extends EventEmitter {
 	rpc_config_node(reply, relative_nodename) {
 		if (typeof relative_nodename !== "string")
 			return reply("parameter", "relative_nodename is not string");
-		var app = this._app;
+		const app = this._app;
 
 		// set new node name:
-		var n = app._node.node(relative_nodename);
+		const n = app._node.node(relative_nodename);
 		this._config.node = n.name;
 
 		app._reload(function(a) {
@@ -1019,7 +1019,7 @@ class node extends EventEmitter {
 	 * });
 	 */
 	on_rpc(method, callback) {
-		var _this = this;
+		const _this = this;
 
 		if (typeof method !== "string")
 			throw new Error("on_rpc: method is not a string");
@@ -1049,10 +1049,10 @@ class node extends EventEmitter {
 	 * });
 	 */
 	rpc(method, ...args) {
-		var _this = this;
+		const _this = this;
 		if (!this.hasOwnProperty("connection")) {
-			var callback = null;
-			var reply = null;
+			let callback = null;
+			let reply = null;
 			if (typeof args[args.length-1] === "function") {
 				callback = args.pop();
 				reply = callback.bind(_this);
@@ -1080,7 +1080,7 @@ class node extends EventEmitter {
 				reply("Exception:", (e.stack || e).toString());
 			}
 		} else {
-			var ws = this.connection;
+			const ws = this.connection;
 
 			if (ws !== null)
 				ws.node_rpc.apply(ws, [this, method, ...args]);
@@ -1095,13 +1095,13 @@ class node extends EventEmitter {
 	 * await node.rpc("ping", 1, 2, 3);
 	 */
 	async_rpc(method, ...args) {
-		var _this = this;
+		const _this = this;
 		if (!this.hasOwnProperty("connection")) {
 
 			try {
-				var p = this.router.rpcstack._rpc_process_promise(method, args, this);
+				const p = this.router.rpcstack._rpc_process_promise(method, args, this);
 				if (p) return p;
-				var p2 = this.router.rpcstack._rpc_process_promise("node_" + method, args, _this, this.router);
+				const p2 = this.router.rpcstack._rpc_process_promise("node_" + method, args, _this, this.router);
 				if (p2) return p2;
 
 				throw new Error("method not found:" + method);
@@ -1112,9 +1112,9 @@ class node extends EventEmitter {
 				reply("Exception:", (e.stack || e).toString());
 			}
 		} else {
-			var [reply, promise] = create_promise_callback();
+			const [reply, promise] = create_promise_callback();
 
-			var ws = this.connection;
+			const ws = this.connection;
 			ws.node_rpc.apply(ws, [this, method, ...args, reply]);
 
 			return promise;
@@ -1126,18 +1126,18 @@ class node extends EventEmitter {
 	 * @param {string} method - Method to be called
 	 * @returns {function} RPC function
 	 * @example
-	 * var f = node.rpc_cache("ping");
-	 * var result1 = await f(...args);
-	 * var result2 = await f(...args);
+	 * const f = node.rpc_cache("ping");
+	 * const result1 = await f(...args);
+	 * const result2 = await f(...args);
 	 */
 	rpc_cache(method) {
-		var _this = this;
+		const _this = this;
 		if (!this.hasOwnProperty("connection") || this.connection === null) {
 			try {
-				var p = this.router.rpcstack._rpc_process_promise_get(method, this);
+				const p = this.router.rpcstack._rpc_process_promise_get(method, this);
 				if (p) return p;
 
-				var p2 = this.router.rpcstack._rpc_process_promise_get("node_" + method, this, this.router);
+				const p2 = this.router.rpcstack._rpc_process_promise_get("node_" + method, this, this.router);
 				if (p2) return p2;
 
 				throw new Error("method not found:" + method);
@@ -1149,8 +1149,8 @@ class node extends EventEmitter {
 			}
 		} else {
 			return function(...args) {
-				var [reply, promise] = create_promise_callback();
-				var ws = this.connection;
+				const [reply, promise] = create_promise_callback();
+				const ws = this.connection;
 				ws.node_rpc.apply(ws, [_this, method, ...args, reply]);
 				return promise;
 			}
@@ -1160,7 +1160,7 @@ class node extends EventEmitter {
 
 	/* Overwrite function to convert object to string: */
 	toJSON() {
-		var n = {};
+		const n = {};
 		n.value = this.value;
 		n.time = this.time;
 

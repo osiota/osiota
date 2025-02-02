@@ -1,7 +1,7 @@
 
-var webpack = require('webpack');
+const webpack = require('webpack');
 
-var ignore = new webpack.IgnorePlugin({
+const ignore = new webpack.IgnorePlugin({
 	resourceRegExp: /levelup|^ws$|^webpack$|^\.\/module_history_class_file.js$/
 });
 

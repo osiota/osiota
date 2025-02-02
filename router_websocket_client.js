@@ -1,6 +1,6 @@
 const EventEmitter = require('events').EventEmitter;
 
-var WebSocket;
+let WebSocket;
 if (typeof window !== 'undefined') {
 	WebSocket = window.WebSocket || window.MozWebSocket;
 } else {
@@ -50,7 +50,7 @@ class pwsc extends EventEmitter {
 	};
 
 	init() {
-		var pthis = this;
+		const pthis = this;
 		try {
 			if (typeof document !== "undefined" &&
 					typeof document.hidden !== "undefined" &&
@@ -85,7 +85,7 @@ class pwsc extends EventEmitter {
 				};
 			}
 			this.ws.keepalive = function(ping_interval) {
-				var _ws = this;
+				const _ws = this;
 				this._keepalive = setInterval(function() {
 					if (_ws.is_alive === false) {
 						_ws.end_keepalive();
@@ -186,7 +186,7 @@ class pwsc extends EventEmitter {
 			if (typeof message === "object" && message.data)
 				message = message.data;
 
-			var data = JSON.parse(message);
+			const data = JSON.parse(message);
 			this.emit('message', data);
 		} catch(e) {
 			console.log("bWSc: Exception (on message):",
@@ -224,8 +224,8 @@ class pwsc extends EventEmitter {
 // Usage: init(r, "", 'ws://localhost:8080/');
 
 exports.init = function(main, rpcstack, basename, ws_url, init_callback) {
-	var router = main.router;
-	var ws = new pwsc(ws_url);
+	const router = main.router;
+	const ws = new pwsc(ws_url);
 	ws.basename = basename;
 
 	ws.on("message", function(data) {
