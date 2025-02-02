@@ -5,23 +5,23 @@ exports.default_metadata = {
 };
 
 exports.init = function(node, app_config, main, host_info) {
-	var command = "echo";
+	let command = "echo";
 	if (typeof app_config.command === "string") {
 		command = app_config.command;
 	}
-	var args = [];
+	let args = [];
 	if (typeof app_config.args === "object" &&
 			Array.isArray(app_config.args)) {
 		args = app_config.args;
 	}
-	var map_stdout = false;
+	let map_stdout = false;
 	if (typeof app_config.map_stdout === "boolean") {
 		map_stdout = app_config.map_stdout;
 	}
 	node.announce([this.default_metadata, app_config.metadata]);
 
 	node.rpc_set = function(reply, value) {
-		var l_args = JSON.parse(JSON.stringify(args));
+		const l_args = JSON.parse(JSON.stringify(args));
 		l_args.push(value);
 		if (!map_stdout) {
 			node.publish(undefined, value);

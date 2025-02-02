@@ -1,7 +1,7 @@
 exports.parser = function(node, callback) {
-	var time = node.time;
-	var content = node.value;
-	var metadata = JSON.parse(JSON.stringify(node.metadata));
+	const time = node.time;
+	const content = node.value;
+	const metadata = JSON.parse(JSON.stringify(node.metadata));
 
 	if (metadata.file_ext == "html") {
 		metadata.type = "html.info";
@@ -9,7 +9,7 @@ exports.parser = function(node, callback) {
 		metadata.type = "text.info";
 	}
 
-	var data = [{
+	const data = [{
 		time: time,
 		value: content.toString(),
 		do_not_add_to_history: true
@@ -19,17 +19,17 @@ exports.parser = function(node, callback) {
 };
 
 exports.init = function(node, app_config, main) {
-	var _this = this;
+	const _this = this;
 
-	var cleaning_object = [];
+	const cleaning_object = [];
 
-	var r =this._source.ready("announce", function(method, initial, update){
+	const r =this._source.ready("announce", function(method, initial, update){
 		if (update) return;
 
 		if (this.metadata.type !== "contents.file")
 			return;
 
-		var s = this.subscribe(function(do_not_add_to_history, initial){
+		const s = this.subscribe(function(do_not_add_to_history, initial){
 			if (this.value === null)
 				return;
 			console.log("call parser", _this._id);

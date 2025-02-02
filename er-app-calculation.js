@@ -15,7 +15,7 @@ exports.node_set = function(node, value, time, app_config) {
 };
 
 exports.init = function(node, app_config, main, host_info) {
-	var _this = this;
+	const _this = this;
 
 	node.announce([{
 		"type": this.metadata_type

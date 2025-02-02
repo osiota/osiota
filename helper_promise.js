@@ -1,15 +1,25 @@
 
+if (typeof Promise.withResolvers !== "function") {
+	Promise.withResolvers = function() {
+		let resolve, reject;
+		const promise = new Promise((res, rej) => {
+			resolve = res;
+			reject = rej;
+		});
+		return {
+			promise,
+			resolve,
+			reject,
+		};
+	};
+}
+
 exports.create_promise_callback = function() {
-	var fn_resolve = null;
-	var fn_reject = null;
-	var p = new Promise((resolve, reject) => {
-		fn_resolve = resolve;
-		fn_reject = reject;
-	});
-	var reply = function(error, value) {
-		if (error) return fn_reject(error);
-		return fn_resolve(value);
+	const { promise, resolve, reject } = Promise.withResolvers();
+	const reply = function(error, value) {
+		if (error) return reject(error);
+		return resolve(value);
 	};
 
-	return [reply, p];
+	return [reply, promise];
 }

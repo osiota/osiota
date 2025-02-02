@@ -6,7 +6,7 @@ exports.default_metadata = {
 };
 
 exports.init = function(node) {
-	var ret_obj = this._super.execcommand.init.apply(this, arguments);
+	const ret_obj = this._super.execcommand.init.apply(this, arguments);
 
 	node.rpc_toggle = function(reply, time) {
                 return this.rpc_set(reply, this.value ? 0 : 1, time);

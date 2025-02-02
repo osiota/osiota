@@ -1,18 +1,18 @@
 exports.inherit = ["parse-text"];
 
 exports.parser = function(node, callback) {
-	var time = node.time;
-	var content = node.value;
-	var metadata = JSON.parse(JSON.stringify(node.metadata));
+	const time = node.time;
+	const content = node.value;
+	const metadata = JSON.parse(JSON.stringify(node.metadata));
 
 	metadata.type = "unknown.data";
 	if (typeof metadata.file_ext === "string") {
 		metadata.type = metadata.file_ext.replace(/json/, "object");
 	}
 
-	var object = JSON.parse(content.toString());
+	const object = JSON.parse(content.toString());
 
-	var data = [{
+	const data = [{
 		time: time,
 		value: object,
 		do_not_add_to_history: true
@@ -24,7 +24,7 @@ exports.parser = function(node, callback) {
 		} else if (typeof object.type === "string") {
 			metadata.type = object.type;
 		}
-		
+
 		if (object.hasOwnProperty("data")) {
 			data = object.data;
 			// do_not_add_to_history: false

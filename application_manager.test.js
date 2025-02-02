@@ -15,7 +15,7 @@ const am = new application_manager({
 test('get_schema', function(t) {
 	t.plan(1);
 
-	var schema_1 = am.get_schema("ws-server");
+	const schema_1 = am.get_schema("ws-server");
 	t.deepEqual(schema_1,
 		{ type: 'object', title: 'osiota Application WebSocket Server', properties: { server: { type: 'number', title: 'WebSocket Server Port' } }, additionalProperties: false },
 		"schema");
@@ -25,9 +25,9 @@ test('get_schema', function(t) {
 test('get_schema - cached', function(t) {
 	t.plan(1);
 
-	var schema_1 = am.get_schema("ws-server");
+	const schema_1 = am.get_schema("ws-server");
 	schema_1.cached = true;
-	var schema_2 = am.get_schema("ws-server");
+	const schema_2 = am.get_schema("ws-server");
 	t.deepEqual(schema_2,
 		{ type: 'object', title: 'osiota Application WebSocket Server', properties: { server: { type: 'number', title: 'WebSocket Server Port' } }, additionalProperties: false, cached: true },
 		"cached schema");
@@ -37,10 +37,10 @@ test('get_schema - default', function(t) {
 	t.plan(1);
 
 	// do not show warn message:
-	var console_warn = console.warn;
+	const console_warn = console.warn;
 	console.warn = function() {};
 
-	var schema_3 = am.get_schema("not-existing");
+	const schema_3 = am.get_schema("not-existing");
 
 	console.warn = console_warn;
 
@@ -52,7 +52,7 @@ test('get_schema - default', function(t) {
 test('find_app', function(t) {
 	t.plan(1);
 
-	var app_name = am.find_app([{
+	const app_name = am.find_app([{
 		"app_type": "parser",
 		"file_ext": "json",
 		"file_name": "hallo.json"
@@ -66,6 +66,6 @@ test('find_app', function(t) {
 test('list_applications', function(t) {
 	t.plan(1);
 
-	var apps = am.list_applications();
+	const apps = am.list_applications();
 	t.deepEqual(apps.length > 0, true, "apps");
 });

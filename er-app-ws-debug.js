@@ -2,7 +2,7 @@
  * patch a websocket to get data rate
  */
 function patch_callback(object, function_name, callback) {
-	var orig_function = object[function_name];
+	const orig_function = object[function_name];
 	object[function_name] = function(...args) {
 		callback.apply(this, args);
 		return orig_function.apply(this, args);

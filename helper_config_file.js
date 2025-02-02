@@ -6,7 +6,7 @@ exports.read = function(config_file) {
 		return {};
 	}
 	try {
-		var contents = fs.readFileSync(config_file);
+		let contents = fs.readFileSync(config_file);
 		contents = contents.toString().replace(/^#.*\n/, "");
 		return JSON.parse(contents);
 	} catch (err) {

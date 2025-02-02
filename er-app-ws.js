@@ -9,7 +9,7 @@ exports.init = function(node, app_config, main) {
 		console.warn("Warning: Remote config options missing.", app_config);
 		return;
 	}
-	var ws = this.create_websocket_client(app_config.url,
+	const ws = this.create_websocket_client(app_config.url,
 		app_config.node, app_config);
 
 	if (typeof app_config.name === "string") {
@@ -27,9 +27,9 @@ exports.init = function(node, app_config, main) {
  * @private
  */
 exports.create_websocket_client = function(url, nodes, config) {
-	var main = this._main;
-	var ws = require('./router_websocket_client').init(this._main, this._main.rpcstack, "", url);
-	var remote_prefix = "";
+	const main = this._main;
+	const ws = require('./router_websocket_client').init(this._main, this._main.rpcstack, "", url);
+	let remote_prefix = "";
 	if (typeof config.remote_prefix === "string") {
 		remote_prefix = config.remote_prefix;
 	}

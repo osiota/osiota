@@ -1,7 +1,7 @@
 
 exports.map_value = function(value, metadata, nmetadata) {
-	var limits = metadata.values;
-	var nlimits = nmetadata.values;
+	let limits = metadata.values;
+	let nlimits = nmetadata.values;
 
 	if (!Array.isArray(limits) || limits.length < 2)
 		limits = [0, 255];
@@ -22,24 +22,24 @@ exports.re_map_value = function(value, metadata, nmetadata) {
 };
 
 exports.init = function(node, app_config, main, host_info) {
-	var _this = this;
+	const _this = this;
 
-	var enable = true;
+	let enable = true;
 
-	var last_time = undefined;
-	var snode = null;
-	var tnode = null;
+	let last_time = undefined;
+	let snode = null;
+	let tnode = null;
 
-	var target = this._target;
+	const target = this._target;
 
-	var s = this._source.subscribe(function() {
+	const s = this._source.subscribe(function() {
 		if (this.time === null || this.value === null || !enable)
 			return;
 		if (!tnode)
 			return;
 
 		if (!last_time || this.time > last_time) {
-			var value = _this.map_value(this.value,
+			const value = _this.map_value(this.value,
 					this.metadata, tnode.metadata);
 
 			if (typeof value === "undefined")
@@ -49,14 +49,14 @@ exports.init = function(node, app_config, main, host_info) {
 			tnode.rpc("set", value, this.time);
 		}
 	});
-	var p = target.subscribe(function() {
+	const p = target.subscribe(function() {
 		if (this.time === null || this.value === null || !enable)
 			return;
 		if (!snode)
 			return;
 
 		if (!last_time || this.time > last_time) {
-			var value = _this.re_map_value(this.value,
+			const value = _this.re_map_value(this.value,
 					this.metadata, snode.metadata);
 
 			if (typeof value === "undefined")
@@ -66,7 +66,7 @@ exports.init = function(node, app_config, main, host_info) {
 			snode.rpc("set", value, this.time);
 		}
 	});
-	var sr=this._source.ready("announce", function(method, initial, update){
+	const sr=this._source.ready("announce", function(method, initial, update){
 		if (update) return;
 
 		snode = this;
@@ -75,7 +75,7 @@ exports.init = function(node, app_config, main, host_info) {
 			snode = null;
 		}];
 	});
-	var pr=target.ready("announce", function(method, initial, update) {
+	const pr=target.ready("announce", function(method, initial, update) {
 		if (update) return;
 
 		tnode = this;

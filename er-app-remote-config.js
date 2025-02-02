@@ -1,13 +1,13 @@
 const http = require("http");
 
 exports.init = function(node, app_config, main, host_info) {
-	var url = app_config.url;
+	const url = app_config.url;
 
 	// todo:
 	// warning if not SSL or localhost
 
 	http.get(url, function(res) {
-		var body = '';
+		let body = '';
 
 		res.on('data', function(chunk) {
 			body += chunk;
@@ -15,7 +15,7 @@ exports.init = function(node, app_config, main, host_info) {
 
 		res.on('end', function() {
 			try {
-				var config = JSON.parse(body);
+				const config = JSON.parse(body);
 				main.sub_config(config);
 			} catch (e) {
 				console.warn("Remote Config, " +

@@ -20,10 +20,10 @@ exports.init = async function(node, app_config, main, host_info) {
 		app_config.writeable = false;
 	}
 
-	var config = {};
-	var sub_apps = [];
+	let config = {};
+	let sub_apps = [];
 	try {
-		var content = await fs.readFile(app_config.file);
+		const content = await fs.readFile(app_config.file);
 		config = JSON.parse(content);
 		config = main.config_cleaning(config);
 		sub_apps = main.sub_config(config, this._source);
@@ -32,10 +32,9 @@ exports.init = async function(node, app_config, main, host_info) {
 			console.warn("Include Config, Exception", e.stack || e);
 	}
 
-	var cleaning_object = [];
+	const cleaning_object = [];
 	if (app_config.writeable && app_config.file.match(/\.json$/i)) {
-		var cb_config_save = async function() {
-			var _this = this;
+		const cb_config_save = async function() {
 			try {
 				await fs.writeFile(app_config.file,
 					JSON.stringify(config, null, '\t'));

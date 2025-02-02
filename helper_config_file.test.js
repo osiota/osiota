@@ -8,7 +8,7 @@ const test = helper.test(__filename);
 
 test('read', function(t) {
 	t.plan(1);
-	var config_file = proxyquire("./helper_config_file.js", {
+	const config_file = proxyquire("./helper_config_file.js", {
 		"fs": {
 			readFileSync: function(filename) {
 				return '{"hi": 5}';
@@ -22,7 +22,7 @@ test('read', function(t) {
 
 test('write', function(t) {
 	t.plan(2);
-	var config_file = proxyquire("./helper_config_file.js", {
+	const config_file = proxyquire("./helper_config_file.js", {
 		"fs": {
 			writeFile: function(filename, content, callback) {
 				t.equal(filename, "config.json", "filename");
@@ -37,10 +37,10 @@ test('write', function(t) {
 test('read - not existing file', function(t) {
 	t.plan(1);
 
-	var config_file = proxyquire("./helper_config_file.js", {
+	const config_file = proxyquire("./helper_config_file.js", {
 		"fs": {
 			readFileSync: function(filename) {
-				var e = new Error("Not existing");
+				const e = new Error("Not existing");
 				e.code = "ENOENT";
 				throw e;
 			},
@@ -48,11 +48,11 @@ test('read - not existing file', function(t) {
 	});
 
 	// do not show warn message
-	var console_warn = console.warn;
+	const console_warn = console.warn;
 	console.warn = function() {};
 
 	try {
-		var c = config_file.read("notexisting");
+		const c = config_file.read("notexisting");
 	} catch(e) {
 		t.deepEqual(e.message, "Error reading config file", "Exception");
 	}

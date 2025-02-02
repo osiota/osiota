@@ -7,16 +7,16 @@ exports.init = function(node, app_config, main) {
 		"history": false
 	});
 
-	var timeout = 60000;
+	let timeout = 60000;
 	if (typeof app_config.timeout === "number") {
 		timeout = app_config.timeout;
 	}
 
-	var already_send = false;
+	let already_send = false;
 
-	var callback_noevent = function() {
+	const callback_noevent = function() {
 		already_send = true;
-		
+
 		if (already_send && app_config.no_duplicates) {
 			return;
 		}
@@ -24,8 +24,8 @@ exports.init = function(node, app_config, main) {
 		node.publish(undefined, "No event.");
 	};
 
-	var tid = [];
-	var reset_timeout = function() {
+	const tid = [];
+	const reset_timeout = function() {
 		already_send = false;
 
 		clearTimeout(tid[0]);
@@ -34,7 +34,7 @@ exports.init = function(node, app_config, main) {
 
 	reset_timeout();
 
-	var s = this._source.subscribe(function(do_not_add_to_history, initial){
+	const s = this._source.subscribe(function(do_not_add_to_history, initial){
 		reset_timeout();
 	});
 

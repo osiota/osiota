@@ -7,10 +7,10 @@
  */
 
 exports.init = function(node, app_config, main, host_info) {
-	var _this = this;
+	const _this = this;
 
-	var run_init = function() {
-		var obj = _this.init_delayed(node, app_config, main, host_info);
+	const run_init = function() {
+		const obj = _this.init_delayed(node, app_config, main, host_info);
 		_this.object_delayed = obj;
 	};
 

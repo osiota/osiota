@@ -1,4 +1,4 @@
-var execFile = require('child_process').execFile;
+const execFile = require('child_process').execFile;
 
 exports.default_metadata = {
 	"type": "output.state",
@@ -6,11 +6,11 @@ exports.default_metadata = {
 };
 
 exports.init = function(node, app_config) {
-	var command = "echo";
+	let command = "echo";
 	if (typeof app_config.command === "string") {
 		command = app_config.command;
 	}
-	var args = [];
+	let args = [];
 	if (typeof app_config.args === "object" &&
 			Array.isArray(app_config.args)) {
 		args = app_config.args;
@@ -18,7 +18,7 @@ exports.init = function(node, app_config) {
 	node.announce([this.default_metadata, app_config.metadata]);
 	node.publish(undefined, 0);
 
-	var instance = null;
+	let instance = null;
 	node.rpc_set = function(reply, value, time) {
 		console.log("ECS set", value);
 		if (instance) {

@@ -1,9 +1,9 @@
 exports.init = function(node, app_config, main, host_info) {
 	// default data:
-	var delay = 1000;
-	var value = 5;
+	let delay = 1000;
+	let value = 5;
 
-	var metadata = {
+	let metadata = {
 		"type": "staticin.data"
 	};
 
@@ -18,8 +18,8 @@ exports.init = function(node, app_config, main, host_info) {
 
 	node.announce(metadata);
 
-	var tid = setInterval(function() {
-		var v = value;
+	const tid = setInterval(function() {
+		let v = value;
 		if (typeof v === "function") {
 			v = v();
 		}

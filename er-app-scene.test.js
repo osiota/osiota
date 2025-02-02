@@ -26,20 +26,20 @@ main.config({
 	]
 });
 
-var node = main.node("/scene");
-var node_1 = main.node("/hallo");
+const node = main.node("/scene");
+const node_1 = main.node("/hallo");
 node_1.rpc_set = function(reply, value, time) {
 	//console.error("RPC SET 1", time, value);
 	node_1.publish(time, value);
 	reply(null, "okay");
 };
-var node_2 = main.node("/hi");
+const node_2 = main.node("/hi");
 node_2.rpc_set = function(reply, value, time) {
 	//console.error("RPC SET 2", time, value);
 	node_2.publish(time, value);
 	reply(null, "okay");
 };
-var node_3 = main.node("/hi2");
+const node_3 = main.node("/hi2");
 node_3.rpc_set = function(reply, value, time) {
 	//console.error("RPC SET 3", time, value);
 	node_3.publish(time, value);

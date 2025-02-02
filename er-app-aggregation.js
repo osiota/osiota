@@ -4,7 +4,7 @@ const match = require("./helper_match").match;
 exports.init = function(node, app_config, main, host_info) {
 
 	// check config:
-	var method = "integral_avg";
+	let method = "integral_avg";
 	if (typeof app_config.method === "string") {
 		method = app_config.method;
 	}
@@ -21,7 +21,7 @@ exports.init = function(node, app_config, main, host_info) {
 			"action": "forward_all"
 		});
 	}
-	var metadata = {
+	let metadata = {
 		"type": "unknown.data"
 	};
 	if (typeof app_config.metadata === "object") {
@@ -30,7 +30,7 @@ exports.init = function(node, app_config, main, host_info) {
 	node.announce(metadata);
 
 	// init callback and link data from callback to group_node
-	var group_callback;
+	let group_callback;
 	if (app_config.type == "time") {
 		group_callback = this.create_callback_by_time(app_config,
 				node.publish.bind(node));
@@ -42,8 +42,8 @@ exports.init = function(node, app_config, main, host_info) {
 	}
 
 	// link data from nodes to callback
-	var source = this._source;
-	var s = source.filter(app_config.filter, "announce",
+	const source = this._source;
+	const s = source.filter(app_config.filter, "announce",
 			function(cnode, method, initial, update) {
 		if (cnode === node)
 			return;
@@ -60,22 +60,22 @@ exports.init = function(node, app_config, main, host_info) {
 
 // An aggregated value is published after receiving n values
 exports.create_callback_by_count = function(config, publish_to) {
-	var _this = this;
+	const _this = this;
 
 	if (typeof config.interval !== "number") {
 		config.interval = 10;
 	}
 
-	var values = {};
-	var memory = {};
-	var interval_start;
+	const values = {};
+	const memory = {};
+	let interval_start;
 
 	// calculates and publishes aggregated value
 	function calc_and_publish(node){
-		var interval_end = node.time;
+		const interval_end = node.time;
 
 		// calculates aggregated value
-		var result = _this.aggregate_values(config.method,
+		const result = _this.aggregate_values(config.method,
 				values, memory,
 				interval_start, interval_end);
 
@@ -84,7 +84,7 @@ exports.create_callback_by_count = function(config, publish_to) {
 
 		// saving last value of every node to memory variable
 		// so the integral can be fully calculated
-		for (var node_name in values) {
+		for (const node_name in values) {
 			if (values[node_name].length > 0) {
 				memory[node_name] = values[node_name][
 					values[node_name].length-1
@@ -96,7 +96,7 @@ exports.create_callback_by_count = function(config, publish_to) {
 		interval_start = interval_end;
 	}
 
-	var count = 0;
+	let count = 0;
 
 	return function(do_not_add_to_history, initial){
 		if (this.time === null) {
@@ -127,23 +127,23 @@ exports.create_callback_by_count = function(config, publish_to) {
 
 // An aggregated value is published every x seconds
 exports.create_callback_by_time = function(config, publish_to) {
-	var _this = this;
+	const _this = this;
 
 	if (typeof config.interval !== "number") {
 		config.interval = 10;
 	}
 
-	var values = {};
-	var memory = {};
-	var interval_start = new Date()/1000;
+	const values = {};
+	const memory = {};
+	const interval_start = new Date()/1000;
 
 	// calculates and publishes aggregated value
 	this.tid = setInterval(function(){
 		// TODO: Using other time stamps can leed to problems
-		var interval_end = new Date()/1000;
+		const interval_end = new Date()/1000;
 
 		// calculate
-		var result = _this.aggregate_values(config.method,
+		const result = _this.aggregate_values(config.method,
 				values, memory,
 				interval_start, interval_end);
 
@@ -152,7 +152,7 @@ exports.create_callback_by_time = function(config, publish_to) {
 
 		// saving last value of every node to memory variable
 		// so the integral can be fully calculated
-		for (var node_name in values) {
+		for (const node_name in values) {
 			if (values[node_name].length > 0) {
 				memory[node_name] = values[node_name][
 					values[node_name].length-1
@@ -197,11 +197,11 @@ exports.aggregate_values = function(method, value_group, memory,
 };
 
 exports.calculate_sum = function(value_group) {
-	var result = null;
-	var values;
-	for (var node in value_group) {
+	let result = null;
+	let values;
+	for (const node in value_group) {
 		values = value_group[node];
-		for (var i = 0; i < values.length; i++) {
+		for (let i = 0; i < values.length; i++) {
 			result += values[i].value;
 		}
 	}
@@ -209,12 +209,12 @@ exports.calculate_sum = function(value_group) {
 }
 
 exports.calculate_average = function(value_group) {
-	var result = null;
-	var value_count = 0;
-	var values;
-	for (var node in value_group) {
+	let result = null;
+	let value_count = 0;
+	let values;
+	for (const node in value_group) {
 		values = value_group[node];
-		for (var i = 0; i < values.length; i++) {
+		for (let i = 0; i < values.length; i++) {
 			result += values[i].value;
 			value_count++;
 		}
@@ -225,15 +225,15 @@ exports.calculate_average = function(value_group) {
 // TODO: using other time stamps can leed to problems.
 exports.calculate_integral = function(value_group, memory,
 			interval_start, interval_end) {
-	var result = 0;
-	var values;
+	let result = 0;
+	let values;
 	// for calculating parts of the integral
-	var value;
-	var upper_limit;
-	var lower_limit;
-	var interval;
+	let value;
+	let upper_limit;
+	let lower_limit;
+	let interval;
 
-	for (var node in value_group) {
+	for (const node in value_group) {
 		values = value_group[node];
 		if (typeof memory[node] === "undefined") {
 			value = 0;
@@ -245,7 +245,7 @@ exports.calculate_integral = function(value_group, memory,
 		upper_limit = values[0].time;
 		interval = Math.max(upper_limit-lower_limit,0);
 		result += interval * value;
-		for (var i = 0; i < values.length-1; i++) {
+		for (let i = 0; i < values.length-1; i++) {
 			if (values[i].time > interval_start) {
 				value = values[i].value;
 				upper_limit = values[i+1].time;
@@ -266,21 +266,21 @@ exports.calculate_integral = function(value_group, memory,
 exports.calculate_integral_avg = function(value_group, memory,
 					interval_start, interval_end) {
 
-	var integral = this.calculate_integral(value_group, memory,
+	const integral = this.calculate_integral(value_group, memory,
 			interval_start, interval_end);
 	if (integral === null)
 		return null;
 
-	var timespan = interval_end - interval_start;
+	const timespan = interval_end - interval_start;
 	return integral / timespan;
 };
 
 exports.calculate_min = function(value_group) {
-	var result = null;
-	var values;
-	for (var node in value_group) {
+	let result = null;
+	let values;
+	for (const node in value_group) {
 		values = value_group[node];
-		for (var i = 0; i < values.length; i++) {
+		for (let i = 0; i < values.length; i++) {
 			if (result === null){
 				result = values[i].value;
 			}else{
@@ -292,11 +292,11 @@ exports.calculate_min = function(value_group) {
 };
 
 exports.calculate_max = function(value_group) {
-	var result = null;
-	var values;
-	for (var node in value_group) {
+	let result = null;
+	let values;
+	for (const node in value_group) {
 		values = value_group[node];
-		for (var i = 0; i < values.length; i++) {
+		for (let i = 0; i < values.length; i++) {
 			if (result === null){
 				result = values[i].value;
 			}else{

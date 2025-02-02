@@ -1,13 +1,13 @@
 
 exports.init = function(node, app_config, main) {
-	var count = 0;
+	let count = 0;
 	node.announce({
 		"type": "count.data",
 		"history": false
 	});
 	node.publish(undefined, count);
 
-	var s = this._source.subscribe(function(do_not_add_to_history, initial){
+	const s = this._source.subscribe(function(do_not_add_to_history, initial){
 		if (this.value === null) return;
 		if (do_not_add_to_history && count != 0) {
 			// add one, if there are values not to be added to

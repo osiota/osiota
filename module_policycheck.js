@@ -107,7 +107,7 @@ function map_reaction(reaction, policy_action) {
 };
 
 function exec_reaction(reaction, policy, remote_id, method) {
-	var r = map_reaction(reaction, policy.action);
+	let r = map_reaction(reaction, policy.action);
 	if (typeof r === "function") {
 		r = r(policy);
 	}
@@ -153,14 +153,14 @@ class Policy_checker {
 			return null;
 		}
 
-		var reaction = get_reaction(data_flow, method);
+		const reaction = get_reaction(data_flow, method);
 
 		// Does method need to be evaluated for this data_flow direction
 		if (reaction == null) {
 			return null;
 		}
 
-		var policy = this.find_most_relevant_policy(node, remote_id, reaction);
+		const policy = this.find_most_relevant_policy(node, remote_id, reaction);
 		return exec_reaction(reaction, policy, remote_id, method);
 	};
 
@@ -169,8 +169,8 @@ class Policy_checker {
 	};
 
 	remove_observed_connection(connection_id) {
-		var array = this.observed_connections;
-		var index = array.indexOf(connection_id);
+		const array = this.observed_connections;
+		let index = array.indexOf(connection_id);
 		if (index > -1) {
 			array.splice(index, 1);
 		}
@@ -205,16 +205,16 @@ class Policy_checker {
 	 */
 	find_most_relevant_policy(node, remote_id, reaction) {
 
-		var mostRelevantPolicy;
-		var mostRelevantMatchscore = [[], [], []];
-		for (var x = 2; x >= 0; x--) {
-			var policies = this.policy_set[x];
-			for (var y = 0; y < policies.length; y++) {
-				var policy = policies[y];
+		let mostRelevantPolicy;
+		let mostRelevantMatchscore = [[], [], []];
+		for (let x = 2; x >= 0; x--) {
+			const policies = this.policy_set[x];
+			for (let y = 0; y < policies.length; y++) {
+				const policy = policies[y];
 
-				var r = map_reaction(reaction, policy.action);
+				const r = map_reaction(reaction, policy.action);
 				if (r) {
-					var match = check_if_relevant(policy,
+					const match = check_if_relevant(policy,
 							node, remote_id);
 					if (match[0] == true && check_if_more_relevant(
 							match[1],
@@ -278,10 +278,10 @@ function get_type_by_method(data_flow, method) {
  * 	empty equals not defined
  */
 function check_if_relevant(policy, node, remote_id) {
-	var matchScores = [[], [], []];
+	const matchScores = [[], [], []];
 	if (policy.hasOwnProperty('node') &&
 			typeof policy.node === "string") {
-		var l = is_parentnode(policy.node, node);
+		const l = is_parentnode(policy.node, node);
 		if (l < 0) {
 			return [false, matchScores];
 		}
@@ -311,7 +311,7 @@ function check_if_relevant(policy, node, remote_id) {
  * Checks if a relevant policy fits better then another based on the match score
  */
 function check_if_more_relevant(policy_score_array1, policy_score_array2) {
-	for (var a = 0; a <= 2; a++) {
+	for (let a = 0; a <= 2; a++) {
 		if (policy_score_array1[a].length == 1 &&
 				policy_score_array2[a].length == 0)
 			return true;
@@ -336,7 +336,7 @@ function is_parentnode(parent, node) {
 	if(parent == node.name)
 		return 0;
 	if (node.parentnode !== null) {
-		var r = is_parentnode(parent, node.parentnode);
+		const r = is_parentnode(parent, node.parentnode);
 		if (r >= 0)
 			return r+1;
 	}

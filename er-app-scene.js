@@ -37,7 +37,7 @@ exports.init = function(node, app_config, main, host_info) {
 		return true;
 	};
 
-	var do_check = function() {
+	const do_check = function() {
 		let c = check();
 		//console.error("CHECK", c);
 		node.publish(undefined, c, true);
@@ -55,13 +55,13 @@ exports.init = function(node, app_config, main, host_info) {
 		do_check();
 	};
 
-	var filter = this._target.filter(app_config.target_filter, "announce",
+	const filter = this._target.filter(app_config.target_filter, "announce",
 			function(cnode, method, initial, update, fconfig) {
 		//console.error("SCENE", cnode.name);
 
 		if (update) return;
 		//console.error("ANNOUNCED", cnode.name, fconfig);
-		var expected_value = (fconfig.value === undefined ?
+		const expected_value = (fconfig.value === undefined ?
 					true : fconfig.value);
 		const n = {
 			node: cnode,
@@ -72,7 +72,7 @@ exports.init = function(node, app_config, main, host_info) {
 			expected_value: expected_value,
 		};
 		nodes[cnode.name] = n;
-		var s = null;
+		let s = null;
 		if (!fconfig.ignore_feedback) {
 			s = cnode.subscribe(values);
 		}

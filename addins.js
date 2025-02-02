@@ -32,7 +32,7 @@ exports.addins = function(main) {
 	 */
 	/* istanbul ignore next deprecated */
 	main.map_app = function(metadatatype) {
-		var subapp = {};
+		const subapp = {};
 		subapp.init = function(node, app_config, main) {
 			node.announce({
 				"type": metadatatype
@@ -40,7 +40,7 @@ exports.addins = function(main) {
 			this._source.subscribe(function() {
 				node.publish(this.time, this.value);
 			});
-			var _this = this;
+			const _this = this;
 			node.rpc_set = function(reply, value) {
 				_this._source.rpc_set(reply, value);
 			};
@@ -62,7 +62,7 @@ exports.addins = function(main) {
 		if (typeof default_value === "undefined")
 			default_value = null;
 
-		var e = this.node(name);
+		const e = this.node(name);
 		e.rpc_set = function(reply, value) {
 			if (value === null) {
 				value = default_value;
@@ -89,8 +89,8 @@ exports.addins = function(main) {
 		// set default value:
 		e.rpc("set", null);
 
-		var ltype = type;
-		var schema;
+		let ltype = type;
+		let schema;
 		if (typeof ltype !== "string") {
 			ltype = "schema";
 			schema = type;
@@ -122,12 +122,12 @@ exports.addins = function(main) {
 	 */
 	/* istanbul ignore next deprecated */
 	Node.prototype.subnode = function(property, type) {
-		var _this = this;
-		var n = this.node(property);
+		const _this = this;
+		const n = this.node(property);
 
-		var value = null;
-		var s = this.subscribe(function() {
-			var v = null;
+		let value = null;
+		const s = this.subscribe(function() {
+			let v = null;
 			value = this.value;
 			if (typeof value === "object" &&
 					value !== null) {
@@ -152,7 +152,8 @@ exports.addins = function(main) {
 		n.rpc_publish = function(reply, time, value) {
 			this.rpc_set(reply, value);
 		};
-		var ltype = type;
+		let ltype = type;
+		let schema;
 		if (typeof ltype !== "string") {
 			ltype = "schema";
 			schema = type;

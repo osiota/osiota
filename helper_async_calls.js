@@ -1,7 +1,7 @@
 
 exports.async_calls = function(functions, callback) {
-	var items = functions.length;
-	var results = [];
+	let items = functions.length;
+	const results = [];
 	functions.forEach(function(f, i) {
 		f(function(err, result) {
 			if (err) {

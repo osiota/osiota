@@ -5,7 +5,7 @@ const Ajv = require('ajv');
 const json_validate = require("./helper_json_validate.js").json_validate;
 
 const schema_cache = {};
-var __found_apps = null;
+let __found_apps = null;
 
 /**
  * Application Manager class
@@ -21,7 +21,7 @@ class application_manager {
 		this._main = main;
 
 		/*
-		var app = this.find_app({
+		const app = this.find_app({
 			"app_type": "parser",
 			"file_ext": "hallo.json"
 		});
@@ -38,21 +38,21 @@ class application_manager {
 		if (!Array.isArray(metadata)) {
 			metadata = [ metadata ];
 		}
-		var app_max_prio = 0;
-		var app = null;
+		let app_max_prio = 0;
+		let app = null;
 		this.app_schema().forEach(function(app_schema) {
 			if (typeof app_schema.properties== "object" &&
 					typeof app_schema.properties.config
 						== "object" &&
 					typeof app_schema.properties.config.app_metadata
 						== "object") {
-				var schema = app_schema.properties.config.app_metadata;
-				var prio = 100;
+				const schema = app_schema.properties.config.app_metadata;
+				let prio = 100;
 				if (typeof schema.prio === "number") {
 					prio = schema.prio;
 				}
 				metadata.forEach(function(m) {
-					var valid = json_validate(schema, m);
+					const valid = json_validate(schema, m);
 					if (valid && prio > app_max_prio) {
 						app_max_prio = prio;
 						app = app_schema;
@@ -84,17 +84,17 @@ class application_manager {
 		if (this._schema !== null) {
 			return this._schema;
 		}
-		var schema = require("./schema_config.json");
+		const schema = require("./schema_config.json");
 		console.log("Checking schemas:");
-		var app_schema = this.app_schema().filter(function(a) {
+		const app_schema = this.app_schema().filter(function(a) {
 			try {
 				console.log("App", a.properties.name.enum[0]);
-				var test_ajv = new Ajv({strict: "log"});
+				const test_ajv = new Ajv({strict: "log"});
 				test_ajv.addSchema(Object.values(require("./schemas/all-map.json")));
 				test_ajv.addKeyword("app_metadata");
 				test_ajv.addKeyword("headerTemplate");
 				test_ajv.addKeyword("options");
-				var s = {
+				const s = {
 					"type": "object",
 					"properties": {
 						"app": {
@@ -106,7 +106,7 @@ class application_manager {
 					},
 					"definitions": schema.definitions
 				};
-				var compiled = test_ajv.compile(s);
+				const compiled = test_ajv.compile(s);
 				return true;
 			} catch(e) {
 				console.warn("App schema of", a.properties.name.enum[0], "is invalid:", e.message);
@@ -128,25 +128,26 @@ class application_manager {
 	 * @returns {boolean} config valid
 	 */
 	check_config(config) {
-		var schema = this.schema();
+		const schema = this.schema();
 
-		var ajv = new Ajv({strict: "log"});
+		const ajv = new Ajv({strict: "log"});
 		ajv.addSchema(Object.values(require("./schemas/all-map.json")));
 		ajv.addKeyword("app_metadata");
 		ajv.addKeyword("headerTemplate");
 		ajv.addKeyword("options");
+		let validate;
 		try {
-			var validate = ajv.compile(schema);
-		} catch(e) {
-			console.error("Schema Compile", e);
-			process.exit(1);
-		}
+			validate = ajv.compile(schema);
 		if (!validate(config)) {
 			return validate.errors.filter(function(e) {
 				return e.keyword !== 'enum' ||
 					!e.dataPath.match(/^\.app.*\.name$/) ||
 					e.message !== 'should be equal to one of the allowed values';
 			});
+		}
+		} catch(e) {
+			console.error("Schema Compile", e);
+			process.exit(1);
 		}
 		return null;
 	}
@@ -157,7 +158,7 @@ class application_manager {
 	 * @returns {object} The JSON schema
 	 */
 	get_schema(app) {
-		var _this = this;
+		const _this = this;
 
 		if (typeof app !== "string")
 			throw new Error("admin-app: app needs to be string");
@@ -166,7 +167,7 @@ class application_manager {
 		if (schema_cache.hasOwnProperty(app)) {
 			return schema_cache[app];
 		}
-		var schema = null;
+		let schema = null;
 		try {
 			this._main.require([
 				"osiota-app-" + app + "-schema.json",
@@ -194,9 +195,9 @@ class application_manager {
 			return schema_cache[app];
 		}
 
-		var schema;
+		let schema;
 		try {
-			var data = fs.readFileSync(file);
+			const data = fs.readFileSync(file);
 			schema = JSON.parse(data);
 		} catch(e) {
 			schema = this.create_default_schema();
@@ -214,9 +215,9 @@ class application_manager {
 	}
 
 	load_schema_file(path, name, callback) {
-		var _this = this;
+		const _this = this;
 		try {
-		var stats = fs.statSync(path);
+		const stats = fs.statSync(path);
 		// if is_dir
 		if (stats.isDirectory()) {
 			//TODO: rename schema_config to schema
@@ -230,12 +231,12 @@ class application_manager {
 			});
 
 			// Search for *-schema.json as well.
-			var files = fs.readdirSync(path+"/");
+			const files = fs.readdirSync(path+"/");
 			files.forEach(function(file) {
 				if (file.match(/^\./)) return;
 				// filter
 				if (file.match(/-schema\.json$/i)) {
-					var subname =file.replace(/-schema\.json$/i,"");
+					const subname =file.replace(/-schema\.json$/i,"");
 					let schema_path = path+"/"+file;
 					callback({
 						name: name+"/"+subname,
@@ -270,10 +271,10 @@ class application_manager {
 	};
 
 	load_schema_apps_in_dir(dir, cb_add_schema) {
-		var _this = this;
+		const _this = this;
 		try {
 		// read dir
-		var files = fs.readdirSync(dir);
+		const files = fs.readdirSync(dir);
 		// for files in dir
 		files.forEach(function(file) {
 			// filter
@@ -289,10 +290,10 @@ class application_manager {
 	};
 
 	create_schema(info, cb_add_schema) {
-		var name = info.name;
-		var sub_schema = info.sub_schema;
+		let name = info.name;
+		const sub_schema = info.sub_schema;
 		name = name.replace(/\.(js|coffee)$/i, "");
-		var short_name = name.replace(/^(er|osiota)-app-/, "");
+		const short_name = name.replace(/^(er|osiota)-app-/, "");
 
 		sub_schema.title = "Settings";
 		if (typeof sub_schema.properties === "object") {
@@ -301,7 +302,7 @@ class application_manager {
 			};
 		}
 
-		var schema_a = {
+		const schema_a = {
 			"type": "object",
 			"title": short_name,
 			"properties": {
@@ -331,13 +332,13 @@ class application_manager {
 	};
 
 	load_schema_apps() {
-		var _this = this;
+		const _this = this;
 
-		var apps = this.search_apps();
+		const apps = this.search_apps();
 
-		var schema_apps = [];
+		const schema_apps = [];
 		Object.keys(apps).forEach(function(name) {
-			var a = apps[name].schema;
+			const a = apps[name].schema;
 			if (name.match(/test$/)) return;
 			schema_apps.push(a);
 		});
@@ -357,7 +358,7 @@ class application_manager {
 	 * @returns {Array<string>} Array with application names.
 	 */
 	list_applications() {
-		var apps = this.search_apps();
+		const apps = this.search_apps();
 
 		return Object.keys(apps);
 	};
@@ -375,7 +376,7 @@ class application_manager {
 		return Array.from(absolutePaths);
 	};
 	search_apps() {
-		var _this = this;
+		const _this = this;
 
 		// caching:
 		if (__found_apps) return __found_apps;

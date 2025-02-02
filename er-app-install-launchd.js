@@ -9,7 +9,7 @@ exports.local_service_name = '-launchd.plist';
 
 exports.install_notice = function(service_name, service_filename, service_name,
 			service_config) {
-	var service_log = service_config.replace(/\.json$/i, "") + ".log";
+	const service_log = service_config.replace(/\.json$/i, "") + ".log";
 	console.info('\n' +
 		'Choose one of two options:\n' +
                 '\n' +
@@ -28,9 +28,9 @@ exports.install_notice = function(service_name, service_filename, service_name,
 
 exports.create_service_file = function(service_name, service_config,
 		service_user, service_workingdir) {
-	var command = path.join(__dirname, "osiota.js");
-	var service_log = service_config.replace(/\.json$/i, "") + ".log";
-	var service_file = `<?xml version="1.0" encoding="UTF-8"?>
+	const command = path.join(__dirname, "osiota.js");
+	const service_log = service_config.replace(/\.json$/i, "") + ".log";
+	const service_file = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
     <dict>

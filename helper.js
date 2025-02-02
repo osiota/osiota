@@ -1,6 +1,6 @@
 
 exports.merge_object = function(object) {
-	var args = Array.prototype.slice.call(arguments, 1);
+	const args = Array.prototype.slice.call(arguments, 1);
 	args.forEach(function(o) {
 		if (Array.isArray(o)) {
 			exports.merge_object
@@ -10,7 +10,7 @@ exports.merge_object = function(object) {
 		}
 		if (typeof o !== "object" || o === null)
 			return;
-		for (var key in o) {
+		for (const key in o) {
 			if (o.hasOwnProperty(key)) {
 				if (object.hasOwnProperty(key) &&
 						typeof object[key] === "object"

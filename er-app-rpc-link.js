@@ -11,15 +11,15 @@ exports.node_set = function(node, value, time, app_config) {
 };
 
 exports.init = function(node, app_config, main, host_info) {
-	var _this = this;
+	const _this = this;
 
 	node.announce([{
 		"type": this.meta_type
 	}, app_config.metadata]);
 
-	var sr = this._target.ready("announce", function(method,
+	const sr = this._target.ready("announce", function(method,
 					initial, update) {
-		var tnode = this;
+		const tnode = this;
 		if (update) return;
 
 		return _this._source.subscribe(function(

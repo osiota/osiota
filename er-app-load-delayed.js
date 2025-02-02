@@ -7,9 +7,9 @@
  */
 
 exports.init = function(node, app_config, main, host_info) {
-	var _this = this;
+	const _this = this;
 
-	var delay = 1;
+	let delay = 1;
 	if (typeof this._load_delay === "number") {
 		delay = this._load_delay;
 	}
@@ -17,12 +17,12 @@ exports.init = function(node, app_config, main, host_info) {
 		delay = app_config.load_delay;
 	}
 
-	var co = [];
+	const co = [];
 	if (typeof this.init_preload === "function") {
 		co[0] = this.init_preload(node, app_config, main, host_info);
 	}
 
-	var tid = setTimeout(function() {
+	const tid = setTimeout(function() {
 		co[1] = _this.init_delayed(node, app_config, main, host_info);
 	}, delay * 1000);
 

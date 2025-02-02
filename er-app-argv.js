@@ -10,7 +10,7 @@ function obj_set(obj, key, value) {
 			return k;
 		});
 	}
-	var k = key.shift();
+	const k = key.shift();
 	if (key.length == 0) {
 		obj[k] = value;
 	} else {
@@ -33,10 +33,10 @@ exports.init = function(node, app_config, main) {
 	if (!Array.isArray(app_config.args)) {
 		throw new Error("args not defined.");
 	}
-	var set_all = true;
+	let set_all = true;
 	app_config.args.forEach(function(key, i) {
 		if (typeof main.argv._[i] !== "undefined") {
-			var value = main.argv._[i];
+			const value = main.argv._[i];
 			console.log("argv setting:", key, value);
 			obj_set(main._config, key, value);
 		} else {

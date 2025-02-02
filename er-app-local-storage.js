@@ -7,7 +7,7 @@ if (Storage) {
 	}
 
 	Storage.prototype.getObject = function(key) {
-		var value = this.getItem(key);
+		let value = this.getItem(key);
 		try {
 			value = JSON.parse(value);
 		} catch(err) {}
@@ -15,7 +15,7 @@ if (Storage) {
 	}
 
 	Storage.prototype.forEachKey = function(callback) {
-		for (var i = 0; i < this.length; i++) {
+		for (let i = 0; i < this.length; i++) {
 			callback(this.key(i));
 		}
 	};
@@ -28,7 +28,7 @@ exports.init = function(node, app_config, main, host_info) {
 	const map = node.map(app_config, {
 		"map_extra_elements": true,
 		"map_key": function(c) {
-			var name = c.map;
+			const name = c.map;
 			return name;
 		},
 		"map_initialise": function(n, metadata, c) {
@@ -47,17 +47,17 @@ exports.init = function(node, app_config, main, host_info) {
 	};
 
 	storage.forEachKey(function(key) {
-		var c = storage.getObject(key);
-		var n = map.node(key);
+		const c = storage.getObject(key);
+		const n = map.node(key);
 		if (n) {
 			n.publish(undefined, c);
 		}
 	});
 
 	const storageEvent = function(event) {
-		var key = event.key;
-		var n = map.node(key);
-		var c = event.newValue;
+		const key = event.key;
+		const n = map.node(key);
+		const c = event.newValue;
 		if (n) {
 			n.publish(undefined, c);
 		}

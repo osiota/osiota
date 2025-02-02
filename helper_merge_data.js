@@ -1,6 +1,6 @@
 
 exports.hash = function(obj) {
-	var extra = "";
+	let extra = "";
 	if (typeof obj === "object") {
 		if (obj === null) return "null";
 
@@ -32,10 +32,10 @@ exports.merge = function(obj_a, obj_b, ignore_keys) {
 	return obj_a;
 };
 
-var merge_object = function(obj_a, obj_b, ignore_keys) {
+const merge_object = function(obj_a, obj_b, ignore_keys) {
 	if (!Array.isArray(ignore_keys)) ignore_keys = [];
 	// merge objects:
-	for (var k in obj_b) {
+	for (const k in obj_b) {
 		if (obj_b.hasOwnProperty(k)) {
 			if (Array.isArray(obj_b[k]) ||
 					Array.isArray(obj_a[k])) {
@@ -56,7 +56,7 @@ var merge_object = function(obj_a, obj_b, ignore_keys) {
 			}
 		}
 	}
-	for (var k in obj_a) {
+	for (const k in obj_a) {
 		if (obj_a.hasOwnProperty(k)) {
 			if (!obj_b.hasOwnProperty(k)) {
 				if (!ignore_keys.includes(k)) {
@@ -69,7 +69,7 @@ var merge_object = function(obj_a, obj_b, ignore_keys) {
 	return obj_a;
 };
 
-var merge_array = function(obj_a, obj_b, ignore_keys) {
+const merge_array = function(obj_a, obj_b, ignore_keys) {
 	if (!Array.isArray(obj_a)) {
 		//todo: unload config
 		return obj_b;
@@ -78,9 +78,9 @@ var merge_array = function(obj_a, obj_b, ignore_keys) {
 		//todo: unload config
 		return obj_b;
 	}
-	var array = [];
-	var i = 0;
-	var missing = null;
+	const array = [];
+	let i = 0;
+	let missing = null;
 	obj_a.forEach(function(a) {
 		if (i >= obj_b.length) return;
 		//console.log("I", i, exports.hash(a),

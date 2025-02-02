@@ -2,7 +2,7 @@ const Ajv = require('ajv');
 
 exports.json_validate = function(schema, data) {
 	if (!schema.__compiled) {
-		var ajv = new Ajv({allErrors: true, strictSchema: false});
+		const ajv = new Ajv({allErrors: true, strictSchema: false});
 		ajv.addSchema(Object.values(require("./schemas/all-map.json")));
 		ajv.addKeyword("app_metadata");
 		ajv.addKeyword("headerTemplate");
@@ -16,7 +16,7 @@ exports.json_validate = function(schema, data) {
 		schema.__compiled = ajv.compile(schema_copy);
 		Object.defineProperty(schema, '__compiled',{enumerable: false});
 	}
-	var m = schema.__compiled(data);
+	const m = schema.__compiled(data);
 	if (!m) {
 		console.log("data", schema, data);
 		console.log("m", m);

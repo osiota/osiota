@@ -5,7 +5,7 @@
 
 const subapp = {};
 subapp.init = function(node, app_config, main, host_info) {
-	var type = "unknown.data";
+	let type = "unknown.data";
 	if (typeof app_config.metadatatype === "string") {
 		type = app_config.metadatatype;
 	} else {
@@ -26,7 +26,7 @@ subapp.init = function(node, app_config, main, host_info) {
 	this._source.subscribe(function() {
 		node.publish(this.time, this.value);
 	});
-	var _this = this;
+	const _this = this;
 	node.rpc_set = function(reply, value) {
 		_this._source.rpc_set(reply, value);
 	};
@@ -34,56 +34,56 @@ subapp.init = function(node, app_config, main, host_info) {
 };
 
 exports.init = function(node, app_config, main, host_info) {
-	var command = app_config.command;
-	var args = app_config.args;
+	const command = app_config.command;
+	const args = app_config.args;
 
-	var map_app = subapp;
+	let map_app = subapp;
 	if (typeof app_config.map_app === "string" &&
 			app_config.map_app !== "") {
 		map_app = app_config.map_app;
 	}
-	var map_unknown = false;
+	let map_unknown = false;
 	if (typeof app_config.map_unknown === "boolean") {
 		map_unknown = app_config.map_unknown;
 	}
 
-	var map = node.map(app_config.map, map_app, map_unknown);
+	const map = node.map(app_config.map, map_app, map_unknown);
 
 	// initialize the child process:
-	var spawn = require('child_process').spawn;
-	var childProcess = spawn(command, args);
+	const spawn = require('child_process').spawn;
+	const childProcess = spawn(command, args);
 	childProcess.stdin.setEncoding('utf8');
 	childProcess.stdout.setEncoding('utf8');
 	childProcess.stderr.setEncoding('utf8');
 
 	childProcess.stdout.on("data", function (data) {
 		//console.error("LOG "+data.toString());
-		var str = data.toString();
-		var lines = str.split(/\r?\n/g);
-		for (var i=0; i<lines.length; i++) {
+		const str = data.toString();
+		const lines = str.split(/\r?\n/g);
+		for (let i=0; i<lines.length; i++) {
 			if (lines[i] != "") {
 				//console.log("LOG "+lines[i]);
-				var result = lines[i].match(/^([^\[]+)\s+\[([0-9.]+)\]:\s+(null|[-0-9.]+)$/);
+				const result = lines[i].match(/^([^\[]+)\s+\[([0-9.]+)\]:\s+(null|[-0-9.]+)$/);
 				if (result) {
-					var name = result[1];
-					var time = 1 * result[2];
-					var value = 1 * result[3];
+					const name = result[1];
+					const time = 1 * result[2];
+					let value = 1 * result[3];
 					if (result[3] == "null")
 						value = null;
 
-					var n = map.node(name);
+					const n = map.node(name);
 					if (n) {
 						n.publish(time, value);
 					}
 				} else {
 					// connect:
-					var result = lines[i].match(/^connect\s+([^\[]+)\s*$/);
+					const result = lines[i].match(/^connect\s+([^\[]+)\s*$/);
 					if (result) {
-						var name = result[1];
+						let name = result[1];
 						// TODO: remove:
 						name.replace(/_s$/, "");
 
-						var n = map.node(name);
+						const n = map.node(name);
 						if (n) {
 							(function(name) {
 								n.rpc_set = function(reply, value) {
@@ -106,7 +106,7 @@ exports.init = function(node, app_config, main, host_info) {
 		console.log("process exited with code", exit_code);
 		_this._reinit_delay(5000);
 	});
-	var _this = this;
+	const _this = this;
 	/*process.on('exit', function () {
 		_this._unload();
 	});*/

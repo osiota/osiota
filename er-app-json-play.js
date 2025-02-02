@@ -1,23 +1,23 @@
 const fs = require("fs");
 
 exports.init = function(node, app_config, main, host_info) {
-	var _this = this;
+	const _this = this;
 	if (typeof app_config.filename !== "string") {
 		throw new Error("config option filename not defined.");
 	}
-	var file_ext = "";
-	var matches = app_config.filename.match(/\.([^\/]*)$/i);
+	let file_ext = "";
+	const matches = app_config.filename.match(/\.([^\/]*)$/i);
 	if (matches) {
 		file_ext = matches[1].toLowerCase();
 	}
 
-	var metadata = {
+	let metadata = {
 		"type": "contents.file",
 		"file_ext": file_ext,
 		"file_name": app_config.filename
 	};
 
-	var parser_app;
+	let parser_app;
 	if (typeof app_config.parser_app === "string") {
 		parser_app = app_config.parser_app;
 	} else {
@@ -33,10 +33,10 @@ exports.init = function(node, app_config, main, host_info) {
 		metadata = app_config.metadata;
 	}
 
-	var vn = node.virtualnode();
+	const vn = node.virtualnode();
 	vn.announce(metadata);
-	var a = vn.app(parser_app, app_config.subconfig);
-	
+	const a = vn.app(parser_app, app_config.subconfig);
+
 	fs.readFile(app_config.filename, function(err, content) {
 		if (err) throw err;
 

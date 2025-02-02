@@ -20,19 +20,19 @@ exports.cli = function(argv, show_help) {
 	}
 
 	// Get full path to config file:
-	var config_file = argv.config || "osiota.json";
-	var service_config = path.resolve(config_file);
+	const config_file = argv.config || "osiota.json";
+	const service_config = path.resolve(config_file);
 	console.info("Config file:", service_config);
 
 	if (!service_config) {
 		throw new Error("Config file not defined.");
 	}
-	var config = {};
+	let config = {};
 	try {
 		config = helper_config_file.read(service_config);
 	} catch(err) { }
 
-	var service_name = "osiota";
+	let service_name = "osiota";
 	if (typeof config.hostname === "string") {
 		service_name = config.hostname;
 	}
@@ -45,22 +45,22 @@ exports.cli = function(argv, show_help) {
 	service_name = service_name.replace(/ /, '-');
 	console.info("Name:", service_name);
 
-	var service_user = process.env.USER;
+	let service_user = process.env.USER;
 	if (typeof argv.user === "string") {
 		service_user = argv.user;
 	}
 	console.info("User:", service_user);
 
-	var service_workingdir = process.cwd();
+	let service_workingdir = process.cwd();
 	if (typeof argv.cwd === "string") {
 		service_workingdir = path.resolve(argv.cwd);
 	}
 	console.info("Working dir:", service_workingdir);
 
-	var service_file = this.create_service_file(service_name,
+	const service_file = this.create_service_file(service_name,
 		service_config, service_user, service_workingdir);
 
-	var service_filename = service_config.replace(/.json/i, '') +
+	const service_filename = service_config.replace(/.json/i, '') +
 			this.local_service_name;
 	if (!argv["dry-run"]) {
 		fs.writeFileSync(service_filename, service_file);
@@ -85,8 +85,8 @@ exports.install_notice = function(service_name, service_filename) {
 
 exports.create_service_file = function(service_name, service_config,
 		service_user, service_workingdir) {
-	var command = path.join(__dirname, "osiota.js");
-	var service_file = `[Unit]
+	const command = path.join(__dirname, "osiota.js");
+	const service_file = `[Unit]
 Description=${service_name}
 After=multi-user.target
 

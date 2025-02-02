@@ -1,6 +1,6 @@
 
 exports.init = function(node, app_config, main, host_info) {
-	var value = 1;
+	let value = 1;
 	if (typeof app_config.value === "object") {
 		value = app_config.value;
 	}
@@ -9,12 +9,12 @@ exports.init = function(node, app_config, main, host_info) {
 		"type": "unknown.data"
 	}, app_config.metadata]);
 
-	var state = 0;
-	var s = this._source.subscribe(function() {
+	let state = 0;
+	const s = this._source.subscribe(function() {
 		state = this.value;
 	});
 
-	var tid = setInterval(function() {
+	const tid = setInterval(function() {
 		node.publish(undefined, value * state);
 	}, 1000);
 

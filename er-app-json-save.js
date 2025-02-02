@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 exports.init = function(node, app_config, main, host_info) {
-	var _this = this;
+	const _this = this;
 
 	if (typeof app_config.filename !== "string") {
 		throw new Error("config option json filename not defined.");
@@ -32,7 +32,7 @@ exports.init = function(node, app_config, main, host_info) {
 		_this.object.name = _this._source.name;
 	});
 
-	var s = null;
+	let s = null;
 	if (!this.config_save_no_data) {
 	this._source.subscribe(function(do_not_add_to_history, initial){
 		if (initial)
@@ -60,7 +60,7 @@ exports.init = function(node, app_config, main, host_info) {
 	return [s];
 };
 exports.unload = function(co, unload_object) {
-	var _this = this;
+	const _this = this;
 
 	if (process.user_terminated) {
 		unload_object(co);
@@ -81,7 +81,7 @@ exports.unload = function(co, unload_object) {
 		if (_this.config_save_last && last_data !== null) {
 			_this.data.push(_this.last_data);
 		}
-		var full_history = !_this.config_save_no_data;
+		let full_history = !_this.config_save_no_data;
 		if (_this.config_save_only_last && _this.data.length) {
 			_this.data = [ _this.data[_this.data.length-1] ];
 			full_history = false;
@@ -95,15 +95,15 @@ exports.unload = function(co, unload_object) {
 		_this.object.data = _this.data;
 
 		// create filename:
-		var f_N = "node";
+		let f_N = "node";
 		if (typeof _this.object.name === "string")
 			f_N = _this.object.name.replace(/^\//, "");
-		var f_n = f_N.replace(/\/+/g, "-");
-		var filename = _this.config_filename
+		const f_n = f_N.replace(/\/+/g, "-");
+		const filename = _this.config_filename
 			.replace(/%n/, f_n)
 			.replace(/%N/, f_N);
 
-		var write_options = {};
+		const write_options = {};
 		if (_this._config.append) {
 			write_options.flag = "a";
 		}

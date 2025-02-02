@@ -1,7 +1,7 @@
 /* Save data in a csv file */
 
 // use graceful-fs to protect against EMFILE errors when opening to many files.
-//var fs = require('fs');
+//const fs = require('fs');
 const fs = require('graceful-fs');
 
 function module_appendFile(filename, content) {
@@ -15,11 +15,11 @@ function module_appendFile(filename, content) {
 
 exports.init = function(node, app_config, main, host_info) {
 
-	var prefix = "./data/";
+	let prefix = "./data/";
 	if (typeof app_config.prefix === "string") {
 		prefix = app_config.prefix;
 	}
-	var filename = this._source.name.replace(/\//g, "_");
+	let filename = this._source.name.replace(/\//g, "_");
 	if (typeof app_config.filename === "string") {
 		filename = app_config.filename;
 	}
@@ -31,7 +31,7 @@ exports.init = function(node, app_config, main, host_info) {
 
 		if (this.value === null) return; //value = "null";
 
-		var content = this.time + "\t" + this.value + "\n";
+		const content = this.time + "\t" + this.value + "\n";
 		module_appendFile(filename, content);
 	});
 };

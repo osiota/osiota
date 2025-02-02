@@ -32,7 +32,7 @@ exports.protocolHttp = 'http://';
 exports.protocol = 'ws://';
 
 exports.create_websocket_server = function(server) {
-	var wss = require('./router_websocket_server').init(this._main, this._main.rpcstack, "", server);
+	const wss = require('./router_websocket_server').init(this._main, this._main.rpcstack, "", server);
 	//this._main.router.policy_checker.add_observed_connection(wss.wpath);
 	return wss;
 };

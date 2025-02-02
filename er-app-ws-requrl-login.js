@@ -1,11 +1,11 @@
 
 exports.init = function(node, app_config, main) {
-	var allowed_paths = [];
+	let allowed_paths = [];
 	if (Array.isArray(app_config.allowed_paths)) {
 		allowed_paths = app_config.allowed_paths;
 	}
 
-	var handler = function(type, ws, req) {
+	const handler = function(type, ws, req) {
 		if (type !== "ws") return;
 
 		//TODO: timing attack possible?

@@ -9,7 +9,7 @@ exports.update_app = function(app_object) {
 		app_object.name = app_object.name.replace(/^(er|osiota)-app-/, "");
 	}
 
-	var app_config = app_object.config;
+	const app_config = app_object.config;
 	if (isObject(app_config)) {
 		exports.update_apps(app_config.app);
 

@@ -3,19 +3,19 @@ const fs = require("fs");
 const readdirp = require("readdirp");
 
 exports.config_readfile_fileobject = function(node, file) {
-	var path = file.path;
-	var fullpath = file.fullPath;
-	var mtime = file.stat.mtime / 1000;
+	const path = file.path;
+	const fullpath = file.fullPath;
+	const mtime = file.stat.mtime / 1000;
 	return this.config_readfile(node, fullpath, path, mtime);
 };
 
 exports.config_readfile = function(node, fullpath, path, mtime) {
-	var matches = path.match(/\.([^\/]*)$/i);
+	const matches = path.match(/\.([^\/]*)$/i);
 	if (!matches)
 		return;
-	var file_ext = matches[1].toLowerCase();
+	const file_ext = matches[1].toLowerCase();
 
-	var metadata = {
+	const metadata = {
 		"type": "contents.file",
 		"file_ext": file_ext,
 		"file_name": path
@@ -25,7 +25,7 @@ exports.config_readfile = function(node, fullpath, path, mtime) {
 		.replace(/\/@/, "@")
 		.replace(/\.[^\/]*$/, "");
 
-	var n = node.node(path, metadata);
+	const n = node.node(path, metadata);
 	if (n) {
 		fs.readFile(fullpath, function(err, content) {
 			if (err) throw err;
@@ -35,7 +35,7 @@ exports.config_readfile = function(node, fullpath, path, mtime) {
 };
 
 exports.map_elements = function(main, sub_app_config, metadata) {
-	var app = main.application_manager.find_app([{
+	let app = main.application_manager.find_app([{
 		"app_type": "parser",
 		"file_ext": metadata.file_ext,
 		"file_name": metadata.file_name
@@ -46,13 +46,13 @@ exports.map_elements = function(main, sub_app_config, metadata) {
 };
 
 exports.init = function(node, app_config, main) {
-	var _this = this;
+	const _this = this;
 
 	if (typeof app_config.dir !== "string") {
 		throw new Error("config option dir not defined.");
 	}
 
-	var map = node.map(app_config.map_config, null,
+	const map = node.map(app_config.map_config, null,
 		this.map_elements.bind(this, main));
 
 	readdirp({

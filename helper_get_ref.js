@@ -2,8 +2,8 @@ exports.get_ref = function(schema, root) {
 	if (schema === null || schema === undefined)
 		return schema;
 	if (typeof schema['$ref'] === "string") {
-		var o = root;
-		var path = schema['$ref'].replace(/^#\//, '');
+		let o = root;
+		const path = schema['$ref'].replace(/^#\//, '');
 		path.split(/\//).forEach(function(p) {
 			//o = exports.get_ref(o, root);
 			if (typeof o === "object" &&

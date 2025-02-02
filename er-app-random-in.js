@@ -1,11 +1,11 @@
 
 exports.init = function(node, app_config, main, host_info) {
-	var delay = 1000;
-	var cmin = 0;
-	var cmax = 100;
-	var exp = 5;
-	var round = null;
-	var metadata = {
+	let delay = 1000;
+	let cmin = 0;
+	let cmax = 100;
+	let exp = 5;
+	let round = null;
+	let metadata = {
 		"type": "random.data"
 	};
 
@@ -24,9 +24,9 @@ exports.init = function(node, app_config, main, host_info) {
 
 	node.announce(metadata);
 
-	var last_value = 0.5;
-	var tid = setInterval(function() {
-		var v = Math.random();
+	let last_value = 0.5;
+	const tid = setInterval(function() {
+		let v = Math.random();
 		v = last_value + (v-0.5)/exp;
 		v = Math.max(Math.min(v, 1), 0);
 		last_value = v;

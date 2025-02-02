@@ -12,19 +12,19 @@ exports.init = function(node, app_config, main, host_info) {
 		"type": "shell.log"
 	});
 
-	var spawn = require('child_process').spawn;
-	var childProcess = spawn(app_config.command, app_config.args);
+	const spawn = require('child_process').spawn;
+	const childProcess = spawn(app_config.command, app_config.args);
 	childProcess.stdin.setEncoding('utf8');
 	childProcess.stdout.setEncoding('utf8');
 	childProcess.stderr.setEncoding('utf8');
 
 	childProcess.stdout.on("data", function (data) {
-		var str = data.toString();
+		const str = data.toString();
 		node.publish(undefined, str);
 	});
 
 	childProcess.stderr.on("data", function (data) {
-		var str = data.toString();
+		const str = data.toString();
 		node.publish(undefined, str);
 	});
 
