@@ -8,8 +8,8 @@ const queue = require("./helper_queue.js");
 
 test('queue', function(t) {
 	t.plan(2);
-	var i = 0;
-	var f = queue.queue(function(data) {
+	let i = 0;
+	const f = queue.queue(function(data) {
 		if (i == 0) {
 			t.deepEqual(data, [1, 2, 3], "queue data 1");
 		} else {
@@ -28,8 +28,8 @@ test('queue', function(t) {
 
 test('queue_getter', function(t) {
 	t.plan(2);
-	var i = 0;
-	var f = queue.queue_getter(function(getter) {
+	let i = 0;
+	const f = queue.queue_getter(function(getter) {
 		if (i == 0) {
 			t.deepEqual(getter(), [1, 2, 3], "queue data 1");
 		} else {
@@ -49,8 +49,8 @@ test('queue_getter', function(t) {
 
 test('no_queue', function(t) {
 	t.plan(3);
-	var i = 0;
-	var f = queue.no_queue(function(data) {
+	let i = 0;
+	const f = queue.no_queue(function(data) {
 		if (i == 0) {
 			t.deepEqual(data, 1, "queue data 1");
 		} else if (i == 1) {

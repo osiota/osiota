@@ -1,15 +1,16 @@
 const Module = require("module");
 const fs = require("fs");
 const pa = require("path");
-var internalModuleReadFile = process.binding("fs").internalModuleReadFile;
+let internalModuleReadFile = process.binding("fs").internalModuleReadFile;
 if (!internalModuleReadFile) {
 	internalModuleReadFile = fs.readFileSync;
 }
 
 // include vm2 if nodejs support it:
+let NodeVM;
 if (parseInt(process.versions.node.split(".")[0]) >= 6) {
 	try {
-		var NodeVM = require("vm2/lib/main").NodeVM;
+		NodeVM = require("vm2/lib/main").NodeVM;
 	} catch(e) {}
 } else {
 	console.warn("node.js version is lower than 6: vm2 can not be used.");
@@ -17,18 +18,19 @@ if (parseInt(process.versions.node.split(".")[0]) >= 6) {
 
 
 // from: https://github.com/nodejs/node/blob/master/lib/module.js
-var resolveFilename = function(request, parent, isMain) {
-	var paths = Module._resolveLookupPaths(request, parent, true);
+const resolveFilename = function(request, parent, isMain) {
+	const paths = Module._resolveLookupPaths(request, parent, true);
 
-	var filename = Module._findPath(request, paths, isMain);
+	const filename = Module._findPath(request, paths, isMain);
 	return filename;
 };
 
 // from: https://github.com/nodejs/node/blob/master/lib/module.js
-var readPackage = function(requestPath) {
+const readPackage = function(requestPath) {
 	const jsonPath = pa.resolve(requestPath, "package.json");
+	let json;
 	try {
-		var json = internalModuleReadFile(pa._makeLong(jsonPath));
+		json = internalModuleReadFile(pa._makeLong(jsonPath));
 	} catch (e) {
 		return false;
 	}
@@ -37,8 +39,9 @@ var readPackage = function(requestPath) {
 		return false;
 	}
 
+	let pkg;
 	try {
-		var pkg = JSON.parse(json);
+		pkg = JSON.parse(json);
 	} catch (e) {
 		e.path = jsonPath;
 		e.message = 'Error parsing ' + jsonPath + ': ' + e.message;
@@ -47,12 +50,12 @@ var readPackage = function(requestPath) {
 	return pkg;
 };
 
-var require_vm = function(module_name, paths, use_vm) {
+const require_vm = function(module_name, paths, use_vm) {
 	if (!Array.isArray(module_name)) {
 		module_name = [module_name];
 	}
 	if (typeof use_vm === "undefined") use_vm = true;
-	var options = {
+	const options = {
 		sandbox: {},
 		console: "inherit",
 		require: {
@@ -64,7 +67,7 @@ var require_vm = function(module_name, paths, use_vm) {
 	};
 
 	// find module:
-	var filename = false;
+	let filename = false;
 	paths.some(function(p) {
 		module_name.some(function(m) {
 			filename = resolveFilename(p + m);
@@ -73,7 +76,7 @@ var require_vm = function(module_name, paths, use_vm) {
 		return filename;
 	});
 	if (!filename) {
-		var err = new Error('Cannot find module "' +
+		const err = new Error('Cannot find module "' +
 				module_name.join('", "') + '"');
 		//err.code = 'MODULE_NOT_FOUND';
 		err.code = 'OSIOTA_APP_NOT_FOUND';
@@ -81,9 +84,9 @@ var require_vm = function(module_name, paths, use_vm) {
 	}
 
 	// get dirname
-	var dirname = pa.dirname(filename);
+	const dirname = pa.dirname(filename);
 	// check package.json (and include native Modules)
-	var pkg = readPackage(dirname);
+	const pkg = readPackage(dirname);
 	if (pkg) {
 		if (pkg.builtin) {
 			options.require.builtin = pkg.builtin;
@@ -119,8 +122,8 @@ var require_vm = function(module_name, paths, use_vm) {
 
 /*
 // TODO: add unload function:
-var module_unload = function(module_name) {
-	var name = require.resolve(module_name);
+const module_unload = function(module_name) {
+	const name = require.resolve(module_name);
 	delete require.cache[name];
 };
 */
