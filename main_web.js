@@ -33,12 +33,12 @@ class main_web extends main {
 
 	require(appname, callback) {
 		// map app to path:
-		var path = this.app_to_path(appname, "web.js");
+		const path = this.app_to_path(appname, "web.js");
 		this.require_web(path, callback);
 	};
 	load_schema(appname, callback) {
 		callback(null, {});
-		/*var path = this.app_to_path(appname, "web-schema.json");
+		/*const path = this.app_to_path(appname, "web-schema.json");
 		this.require_web(path, function(err, object) {
 			//if (err)
 			callback(object);

@@ -20,7 +20,7 @@ class main_nodejs extends main {
 	};
 
 	os_config(config) {
-		var _this = this;
+		const _this = this;
 
 		this.apps_use_vm = true;
 		if (typeof config.apps_use_vm !== "undefined") {
@@ -48,14 +48,14 @@ class main_nodejs extends main {
 			return this.started();
 		}
 
-		var _this = this;
-		//var t_1 = new Date()*1;
-		var t = process.hrtime();
+		const _this = this;
+		//const t_1 = new Date()*1;
+		const t = process.hrtime();
 		//setTimeout(function() {
 		setImmediate(function() {
-			//var t_2 = new Date()*1;
-			var diff = process.hrtime(t);
-			var delta = diff[0] * 1e9 + diff[1];
+			//const t_2 = new Date()*1;
+			const diff = process.hrtime(t);
+			let delta = diff[0] * 1e9 + diff[1];
 
 			if (_this._close) return;
 			console.debug("delta", delta, "factor", factor);
@@ -63,7 +63,7 @@ class main_nodejs extends main {
 				delta = 0;
 				factor = 1;
 			}
-			var tid = null;
+			let tid = null;
 			if (delta >= 4e6) {
 				if (factor < 8) factor = 8;
 				tid = setTimeout(_this.check_started.bind(_this,
@@ -105,7 +105,7 @@ class main_nodejs extends main {
 	};
 	require_options(options, callback) {
 		try {
-			var contents = require_vm(options, this.app_dirs,
+			const contents = require_vm(options, this.app_dirs,
 				this.apps_use_vm);
 			callback(null, contents);
 		} catch (err) {
@@ -122,7 +122,7 @@ class main_nodejs extends main {
 		});
 	};
 	load_schema_cb(appname, callback) {
-		var _this = this;
+		const _this = this;
 		if (typeof appname !== "string")
 			throw new Error("admin-app: app needs to be string");
 		appname = appname.replace(/^(er|osiota)-app-/, "");
@@ -141,7 +141,7 @@ class main_nodejs extends main {
 			if (err) {
 				if (err.code === "OSIOTA_APP_NOT_FOUND") {
 					// default schema:
-					var schema = {
+					const schema = {
 						"type": "object",
 						"title": "Settings",
 						"additionalProperties": true
@@ -222,7 +222,7 @@ if (process.on) { /* if NodeJS */
 	}
 
 
-	var why_is_node_running = null;
+	let why_is_node_running = null;
 	try {
 		if (process.env.OSIOTA_DEBUG == 1)
 			why_is_node_running = require("why-is-node-running");

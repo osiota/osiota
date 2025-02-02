@@ -19,9 +19,9 @@ require('./module_history_class_remote.js');
 require('./module_history_class_timebase.js');
 //require('./module_history_class_filter.js'); //unused??
 
-var fmap = function(array, callback) {
-	return array.reduce(function(acc, value, index, oa) {
-		var n = callback.call(acc, value, index, oa);
+const fmap = function(array, callback) {
+	return array.reduce((acc, value, index, oa)=>{
+		const n = callback.call(acc, value, index, oa);
 		if (typeof n !== "undefined") {
 			acc.push(n)
 		}
@@ -40,7 +40,7 @@ class main extends EventEmitter {
 	 * @param {string} router_name - Name of the instance
 	 * @example
 	 * // create a new instance:
-	 * var m = new main("my osiota");
+	 * const m = new main("my osiota");
 	 */
 	constructor(router_name) {
 		super();
@@ -66,8 +66,6 @@ class main extends EventEmitter {
 	};
 
 	preparation_config(config) {
-		var _this = this;
-
 		update_config(config);
 
 		// preparation:
@@ -86,8 +84,8 @@ class main extends EventEmitter {
 		this.router.policy_checker = new Policy_checker();
 		if (typeof config.policies === 'object' &&
 				Array.isArray(config.policies)){
-			config.policies.forEach(function(policy) {
-				_this.router.policy_checker.add_policy("user_level",
+			config.policies.forEach((policy)=>{
+				this.router.policy_checker.add_policy("user_level",
 						policy);
 			});
 		}
@@ -108,7 +106,6 @@ class main extends EventEmitter {
 	};
 
 	async #config(config) {
-		var _this = this;
 		this.preparation_config(config);
 		if (typeof this.os_config === "function") {
 			await this.os_config(config);
@@ -125,8 +122,6 @@ class main extends EventEmitter {
 	 * @param {function} callback
 	 */
 	async sub_config(config, node, callback) {
-		var _this = this;
-
 		return this.application_loader.load(node, config.app, callback);
 	};
 
@@ -137,14 +132,13 @@ class main extends EventEmitter {
 	 */
 	/* istanbul ignore next abstract */
 	check_started(factor) {
-		var _this = this;
 		/**
 		 * Started event
 		 *
 		 * @event main#started
 		 */
-		var tid = setTimeout(function() {
-			_this.started();
+		const tid = setTimeout(()=>{
+			this.started();
 		}, 500);
 		if (tid && typeof tid.unref === "function" &&
 				this.listenerCount("started") == 0) {
@@ -183,9 +177,8 @@ class main extends EventEmitter {
 	 */
 	/* istanbul ignore next deprecated */
 	create_websocket_client(url, nodes, config) {
-		var _this = this;
-		var ws = require('./router_websocket_client').init(this, this.rpcstack, "", url);
-		var remote_prefix = "";
+		const ws = require('./router_websocket_client').init(this, this.rpcstack, "", url);
+		let remote_prefix = "";
 		if (typeof config.remote_prefix === "string") {
 			remote_prefix = config.remote_prefix;
 		}
@@ -203,8 +196,8 @@ class main extends EventEmitter {
 			if (!nodes.length) {
 				ws.node_plocal(this.router.node("/"), "subscribe_announcement");
 			}
-			nodes.forEach(function(node) {
-				ws.node_plocal(_this.router.node(node), "subscribe_announcement");
+			nodes.forEach((node)=>{
+				ws.node_plocal(this.router.node(node), "subscribe_announcement");
 			});
 		} else if (typeof nodes === "string") {
 			ws.node_plocal(this.router.node(nodes), "subscribe_announcement");
@@ -212,8 +205,8 @@ class main extends EventEmitter {
 
 		// data from UPSTREAM
 		if (Array.isArray(config.subscribe)) {
-			config.subscribe.forEach(function(s) {
-				ws.subscribe_announcement(_this.router.node(s));
+			config.subscribe.forEach((s)=>{
+				ws.subscribe_announcement(this.router.node(s));
 			});
 		} else if (typeof config.subscribe === "string") {
 			/*
@@ -221,7 +214,7 @@ class main extends EventEmitter {
 			 * 'config.subscribe'
 			 */
 			console.log("subscribe:", ws.remote_basename +config.subscribe);
-			ws.subscribe_announcement(_this.router.node(config.subscribe));
+			ws.subscribe_announcement(this.router.node(config.subscribe));
 		}
 
 		if (config.secure === true || config.secure === "true") {
@@ -267,8 +260,6 @@ class main extends EventEmitter {
 			config = this._config;
 		}
 
-		var _this = this;
-
 		if (typeof config !== "object" || config === null) {
 			return config;
 		}
@@ -281,15 +272,15 @@ class main extends EventEmitter {
 				return undefined;
 			}
 		}
-		for (var k in config) {
+		for (const k in config) {
 			if (config.hasOwnProperty(k) &&
 					typeof config[k] === "object") {
 				if (Array.isArray(config[k])) {
-					config[k] = fmap(config[k], function(c) {
-						return _this.config_cleaning(c);
+					config[k] = fmap(config[k], (c)=>{
+						return this.config_cleaning(c);
 					});
 				} else {
-					var c = _this.config_cleaning(config[k]);
+					const c = this.config_cleaning(config[k]);
 					if (typeof c === "undefined") {
 						delete config[k];
 					} else {
@@ -316,18 +307,17 @@ class main extends EventEmitter {
 	 * close main instance
 	 */
 	close() {
-		var _this = this;
 		if (this._close) return;
 		this._close = true;
 		console.log("osiota: closing");
 
-		setImmediate(function() {
-			_this.application_loader.close();
+		setImmediate(()=>{
+			this.application_loader.close();
 
-			for (var r in _this.remotes) {
+			for (const r in this.remotes) {
 				console.log("closing: remote", r);
-				_this.remotes[r].close();
-				delete _this.remotes[r];
+				this.remotes[r].close();
+				delete this.remotes[r];
 			}
 		});
 	};
@@ -342,14 +332,13 @@ class main extends EventEmitter {
 	 * });
 	 */
 	reload(callback) {
-		var _this = this;
-		var config = this._config;
+		const config = this._config;
 		this.close();
 
 		console.log("\n\nRELOADING ...");
-		var s = setTimeout(function() {
-			var rname = config.hostname || _this.router.name;
-			var m = new (Object.getPrototypeOf(_this)).constructor(rname);
+		const s = setTimeout(()=>{
+			const rname = config.hostname || this.router.name;
+			const m = new (Object.getPrototypeOf(this)).constructor(rname);
 			m.config(config);
 			if (typeof callback === "function")
 				callback(m);

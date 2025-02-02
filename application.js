@@ -117,15 +117,13 @@ class application extends EventEmitter {
 	 * @private
 	 */
 	async _bind_module(module, loader, callback){
-		var _this = this;
-
 		if (typeof module !== "object" || module === null) {
 			throw new Error("module is not an object");
 		}
 		if (typeof module.inherit === "object" &&
 				Array.isArray(module.inherit) &&
 				module.inherit.length) {
-			var inherit = module.inherit.slice(0);
+			const inherit = module.inherit.slice(0);
 			await this._inherit(inherit, loader);
 		}
 		this._bind_module_sync(module);
@@ -137,7 +135,7 @@ class application extends EventEmitter {
 	 * @private
 	 */
 	_bind_module_sync(module) {
-		for (var field in module) {
+		for (const field in module) {
 			if (module.hasOwnProperty(field)) {
 				if (!field.match(/^_/))
 					this[field] = module[field];
@@ -274,7 +272,7 @@ class application extends EventEmitter {
 				return this;
 			}
 			if (!this._node._announced) {
-				var a = this._node.announce({});
+				const a = this._node.announce({});
 				this._object = [a, this._object];
 			}
 		} else if (typeof this.cli !== "function") {
@@ -345,7 +343,7 @@ class application extends EventEmitter {
 	 * @private
 	 */
 	_reinit(app_config) {
-		var _this = this;
+		const _this = this;
 		console.log("restarting app:", this._id);
 
 		if (typeof app_config !== "object" || app_config === null) {
@@ -387,7 +385,7 @@ class application extends EventEmitter {
 		if (this._state !== "RUNNING")
 			throw new Error("Can only reinit running applications");
 
-		var _this = this;
+		const _this = this;
 		this._state = "REINIT_DELAYED";
 		setTimeout(function() {
 			if (_this._state === "REINIT_DELAYED")
@@ -433,7 +431,7 @@ class application extends EventEmitter {
 	 * @private
 	 */
 	_deactivate() {
-		var _this = this;
+		const _this = this;
 		console.log("deactivating app:", this._id);
 
 		this._unload();
@@ -507,13 +505,13 @@ class application extends EventEmitter {
 	 * Get Application Name (from Schema)
 	 */
 	_get_app_name() {
-		var locale = Intl.DateTimeFormat().resolvedOptions().locale.
+		let locale = Intl.DateTimeFormat().resolvedOptions().locale.
 			replace(/-.*$/, "");
 		if (!locale) locale = "en";
 
 		if (typeof this._schema === "object" &&
 				this._schema !== null) {
-			var r = null;
+			let r = null;
 			if (typeof this._schema["gui_title_" + locale] === "string") {
 				r = this._schema["gui_title_"+locale];
 			}
