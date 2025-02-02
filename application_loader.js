@@ -28,14 +28,13 @@ class application_loader {
 	 * @param {object[]} apps - Application Structs
 	 */
 	async load(node, apps) {
-		const _this = this;
 		if (!Array.isArray(apps) || !apps.length) {
 			return [];
 		}
 		const loaded_apps = [];
 		for (const struct of apps) {
 			try {
-				const app = _this.startup_struct(node, struct);
+				const app = this.startup_struct(node, struct);
 				loaded_apps.push(app);
 			} catch(err) {
 				console.error("Error in application loading:", err);
@@ -54,7 +53,7 @@ class application_loader {
 	 * @returns {string} Application name
 	 */
 	startup(node, app, app_config, auto_install, deactive) {
-		var struct = {
+		const struct = {
 			name: app,
 			deactive: deactive,
 			config: app_config,
@@ -73,8 +72,6 @@ class application_loader {
 	 * @returns {string} Application name
 	 */
 	async startup_struct(node, struct, auto_install) {
-		var _this = this;
-
 		if (typeof struct !== "object" || struct === null) {
 			if (typeof struct === "string") {
 				struct = {"name": struct};
@@ -92,15 +89,15 @@ class application_loader {
 			return null;
 		}
 
-		var app = struct.name;
-		var app_config = struct.config;
+		const app = struct.name;
+		const app_config = struct.config;
 
 		let loaded_apps;
 		try {
 			const a = await this.module_get(app);
 
 			// load app (with or without error):
-			loaded_apps = await _this.startup_module( a, node,
+			loaded_apps = await this.startup_module( a, node,
 					struct, auto_install);
 		} catch(err) {
 			const a = new Application(this, app);
@@ -112,7 +109,7 @@ class application_loader {
 			a._state = "ERROR_LOADING";
 
 			// load app (with or without error):
-			loaded_apps = await _this.startup_module( a, node,
+			loaded_apps = await this.startup_module( a, node,
 					struct, auto_install);
 
 
@@ -132,7 +129,7 @@ class application_loader {
 			const promise = new Promise((resolve)=>{
 				callback = resolve;
 			});
-			if (!_this.emit("app_loading_error", err, a, node, app,
+			if (!this.emit("app_loading_error", err, a, node, app,
 					app_config, auto_install,
 					function(an, level) {
 				if (typeof an === "object") {
@@ -158,8 +155,6 @@ class application_loader {
 	 * @private
 	 */
 	async module_get(app) {
-		var _this = this;
-
 		if (typeof app === "undefined" || app === null) {
 			//return;
 			throw new Error("app is undefined or null");
@@ -167,23 +162,23 @@ class application_loader {
 			const appname = app.replace(/^(er|osiota)-app-/, "");
 			console.log("loading:", appname);
 			const a = new Application(this, appname);
-			var struct = await this._main.require(appname);
-			var schema = await this._main.load_schema(appname);
+			const struct = await this._main.require(appname);
+			const schema = await this._main.load_schema(appname);
 			// bind module:
 			await a._bind_module(
 				struct,
-				_this.module_get.bind(_this)
+				this.module_get.bind(this)
 			);
 			await a._bind_schema(
 				schema,
-				_this._main.load_schema.bind(_this._main),
+				this._main.load_schema.bind(this._main),
 			);
 			return a;
 		} else if (typeof app === "object" && app !== null) {
 			const a = new Application(this, app);
 			await a._bind_module(
 				app,
-				_this.module_get.bind(_this)
+				this.module_get.bind(this)
 			);
 			return a;
 		} else {
@@ -196,27 +191,18 @@ class application_loader {
 	 * @private
 	 */
 	async startup_module(a, node, struct, auto_install) {
-		var _this = this;
+		let app_config = struct.config;
+		const deactive = struct.deactive;
 
-		var app = struct.name;
-		var app_config = struct.config;
-		var deactive = struct.deactive;
-
-		var appname = a._get_app_name();
-		var app_identifier = appname;
-		var app_increment = 2;
+		const appname = a._get_app_name();
+		let app_identifier = appname;
+		let app_increment = 2;
 		while(this.apps.hasOwnProperty(app_identifier)) {
 			app_identifier = appname + " " + app_increment++;
 		}
 		a._id = app_identifier;
 
 		a._struct = struct;
-
-		if (typeof callback === "undefined" &&
-				typeof auto_install === "function") {
-			callback = auto_install;
-			auto_install = undefined;
-		}
 
 		console.log("startup:", a._app);
 		// bind to main:
@@ -233,15 +219,15 @@ class application_loader {
 		if (typeof node !== "object" || node === null) {
 			node = this._main.node("/app");
 		}
-		a._rnode = node;
+		a._root = node;
 
-		var node_base = node;
+		let node_base = node;
 		if (typeof app_config.base === "string") {
 			node_base = node.node(app_config.base);
 		}
 
-		var node_destination = null;
-		var node_postname = "";
+		let node_destination = null;
+		let node_postname = "";
 		if (typeof a.node_postname === "string") {
 			node_postname = a.node_postname;
 		}
@@ -268,11 +254,11 @@ class application_loader {
 		a._base = node_base;
 
 		// TODO TODO TODO: In seperate app?
-		var node_source = node_base;
+		let node_source = node_base;
 		if (typeof app_config.source === "string") {
 			node_source = node_base.node(app_config.source);
 		}
-		var node_target = node_base;
+		let node_target = node_base;
 		if (typeof app_config.target === "string") {
 			node_target = node_base.node(app_config.target);
 		}
@@ -337,8 +323,8 @@ class application_loader {
 	app_register(a) {
 		this.apps[a._id] = a;
 
-		var appname = a._app;
-		var node = a._node;
+		const appname = a._app;
+		const node = a._node;
 
 		if (appname === "node") {
 			if (!node._app) {
@@ -378,7 +364,7 @@ class application_loader {
 	app_unregister(a) {
 		delete this.apps[a._id];
 
-		var node = a._node;
+		const node = a._node;
 		if (typeof node === "object" &&
 				node !== null &&
 				typeof node._app == "object" &&
@@ -391,16 +377,15 @@ class application_loader {
 	 * Stop all applications
 	 */
 	close() {
-		var _this = this;
-		for (var a in _this.apps) {
+		for (const a in this.apps) {
 			console.log("unloading:", a);
-			if (_this.apps[a]._unload) {
+			if (this.apps[a]._unload) {
 				try {
-					_this.apps[a]._unload();
+					this.apps[a]._unload();
 				} catch(e) {
 					console.error("Error unloading", e);
 				}
-				delete _this.apps[a];
+				delete this.apps[a];
 			}
 		}
 	};
@@ -411,7 +396,7 @@ class application_loader {
 		if (!Array.isArray(config.app)) {
 			config.app = [];
 		}
-		var struct = {
+		const struct = {
 			"name": app,
 			"config": settings
 		}
@@ -446,7 +431,7 @@ class application_loader {
 					!settings.source.match(/^\//) ||
 					typeof settings.node !== "string" ||
 					!settings.node.match(/^\//)) {
-				var struct_n = this.app_add_helper(config, "node", {
+				const struct_n = this.app_add_helper(config, "node", {
 					"node": node.name
 				});
 				await this.startup_struct(node, struct_n);
@@ -454,7 +439,7 @@ class application_loader {
 			}
 		}
 
-		var struct = this.app_add_helper(config, app, settings);
+		const struct = this.app_add_helper(config, app, settings);
 		return this.startup_struct(node, struct);
 	};
 
@@ -501,9 +486,9 @@ class application_loader {
 		}
 
 		// buffer old references:
-		var rnode = app._rnode;
-		var aconfig = app._config;
-		var aname = app._app;
+		const rnode = app._root;
+		const aconfig = app._config;
+		const aname = app._app;
 
 		// unload app
 		await app._unload();
