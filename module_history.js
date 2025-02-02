@@ -3,7 +3,7 @@ const HG = require('./module_history_global.js');
 
 exports.setup = function(router, save_history, history_config) {
 	// Load history module
-	var dbdir = "./.level_db/";
+	let dbdir = "./.level_db/";
 	if (save_history && typeof save_history === "object") {
 		if (typeof save_history.dbdir === "string") {
 			dbdir = save_history.dbdir;
@@ -71,7 +71,7 @@ exports.setup = function(router, save_history, history_config) {
 
 exports.init = function(router, config_data) {
 
-	var config_info = {
+	const config_info = {
 		"type": "global",
 		"submodules": [{
 			"type": "memory",
@@ -80,8 +80,8 @@ exports.init = function(router, config_data) {
 			"type": "remote"
 		}]
 	};
-	var History_info = HG.get_history_module(config_info);
-	var History_data = HG.get_history_module(config_data);
+	const History_info = HG.get_history_module(config_info);
+	const History_data = HG.get_history_module(config_data);
 
 	router.on("create_new_node", function(node) {
 		node.ready("announce", function(method, initial, update) {
@@ -109,17 +109,17 @@ exports.init_node = function(History, router, node, config) {
 	});
 
 	node.subscribe_h = function(callback, timeout, config) {
-		var object = callback.bind(this);
+		const object = callback.bind(this);
 		if (typeof config !== "object")
 			config = {};
 		config.totime = this.time;
-		var s = this.get_history_on_initialsync(config,
+		const s = this.get_history_on_initialsync(config,
 			function(hdata) {
 				hdata.forEach(function(d) {
 					object.call(d, true, true);
 				});
 				// remove function is added in subscribe:
-				var s2 = node.subscribe(object);
+				const s2 = node.subscribe(object);
 				object.remove = s2.remove;
 
 			}, timeout);
@@ -139,7 +139,7 @@ exports.init_node = function(History, router, node, config) {
 
 		if (typeof timeout !== "number") timeout = 1000;
 		if (this.connection && !this.history.synced) {
-			var _this = this;
+			const _this = this;
 			return this.once_timeout("history_synced",
 				function(was_timedout) {
 					_this.get_history(config, callback);

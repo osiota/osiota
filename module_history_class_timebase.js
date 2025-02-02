@@ -23,7 +23,7 @@ class history extends HistoryGlobal.history {
 			return;
 		}
 
-		var time_slot = Math.floor(time / this.interval);
+		const time_slot = Math.floor(time / this.interval);
 		if (time_slot != this.last_time_slot) {
 			// missed a time slot:
 			if (time_slot - 1 != this.last_time_slot) {
@@ -33,11 +33,11 @@ class history extends HistoryGlobal.history {
 				);
 			}
 			if (this.last_time_slot !== null) {
-				var new_value = this.sum;
+				let new_value = this.sum;
 				if (this.count != 0) { // else sum is null
 					new_value /= this.count;
 				}
-				var new_time = (this.last_time_slot+1)*this.interval;
+				const new_time = (this.last_time_slot+1)*this.interval;
 				this.submodules_add(new_time, new_value);
 			}
 

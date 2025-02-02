@@ -10,29 +10,29 @@ const dbdir = "./.level_db/";
 
 function makeKey(version) {
 	if (typeof version !== "number") return undefined;
-	var buffer = Buffer.allocUnsafe(8);
+	const buffer = Buffer.allocUnsafe(8);
 	buffer.writeDoubleBE(version, 0);
-	var bytes = [0x41];
-	for (var i = 0, end = buffer.length; i < end; ++i) {
+	const bytes = [0x41];
+	for (let i = 0, end = buffer.length; i < end; ++i) {
 		bytes.push(~buffer.readUInt8(i));
 	}
-	var b = Buffer.from(bytes);
+	const b = Buffer.from(bytes);
 	return "\xff" + b.toString("hex");
 }
 
 function unmakeKey(key) {
-	var chunk = Buffer.from(key.toString().substring(3), "hex");
-	var bytes = [];
-	for (var i = 0, end = chunk.length; i < end; ++i) {
+	const chunk = Buffer.from(key.toString().substring(3), "hex");
+	const bytes = [];
+	for (let i = 0, end = chunk.length; i < end; ++i) {
 		bytes.push(~chunk.readUInt8(i));
 	}
-	var buffer = Buffer.from(bytes);
+	const buffer = Buffer.from(bytes);
 
 	return buffer.readDoubleBE(0);
 }
 
-var vdb_setup = function(node, config, callback) {
-	var dbdir_local = dbdir;
+const vdb_setup = function(node, config, callback) {
+	let dbdir_local = dbdir;
 	if (typeof config.dbdir === "string") {
 		dbdir_local = config.dbdir.replace(/\/$/, "") + "/";
 	}
@@ -40,11 +40,11 @@ var vdb_setup = function(node, config, callback) {
 		fs.mkdirSync(dbdir_local);
 	} catch(e) {}
 	console.log("vdb_setup", node.name);
-	var dbname = node.name+"/" + config.filename;
+	let dbname = node.name+"/" + config.filename;
 	dbname = dbname.replace(/^\/+/,"").replace(/[\/@]/g, "_");
 	dbname = dbdir_local + dbname;
 
-	var ldb = levelup(leveldown(dbname));
+	const ldb = levelup(leveldown(dbname));
 	ldb.on("ready", function() {
 		console.log("vdb opened:", dbname);
 		if (typeof callback === "function") {
@@ -54,9 +54,9 @@ var vdb_setup = function(node, config, callback) {
 	return ldb;
 };
 
-var vdb_read = function(vdb, config, callback) {
-	var hdata = [];
-	var options = {
+const vdb_read = function(vdb, config, callback) {
+	const hdata = [];
+	const options = {
 		limit: config.maxentries,
 		reverse: config.reverse_align,
 	};
@@ -68,8 +68,8 @@ var vdb_read = function(vdb, config, callback) {
 	}
 	vdb.createReadStream(options)
 	.on('data', function (data) {
-		var time = unmakeKey(data.key);
-		var value = null;
+		const time = unmakeKey(data.key);
+		let value = null;
 		if (data.value !== "")
 			value = parseFloat(data.value);
 
@@ -115,7 +115,7 @@ class history extends HistoryGlobal.history {
 
 	//remote getting history
 	get(parameters, callback) {
-		var config = {};
+		const config = {};
 		config.maxentries = 3000;
 		config.fromtime = null; // not included
 		config.totime = null; // not included.

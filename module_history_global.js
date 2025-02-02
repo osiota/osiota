@@ -2,19 +2,19 @@
 exports.modules = {};
 
 exports.get_history_module = function(config) {
-	var type = config.type;
+	const type = config.type;
 	if (exports.modules.hasOwnProperty(type)) {
 		return exports.modules[type];
 	}
 	throw new Error("History module not found: " + type);
 }
 
-var get_walk = function(modules, parameters, callback) {
+const get_walk = function(modules, parameters, callback) {
 	if (modules.length == 0) {
 		callback([], true);
 		return;
 	}
-	var m = modules.shift();
+	const m = modules.shift();
 	m.get(parameters, function(data, exceeded) {
 		if (!exceeded) {
 			callback(data, exceeded);
@@ -39,16 +39,15 @@ class history {
 	submodules = [];
 
 	submodules_init(node, config) {
-		var _this = this;
+		const _this = this;
 		if (typeof config.submodules !== "object" &&
 				!Array.isArray(config.submodules)) {
 			return false;
 		}
-		var _this = this;
 		config.submodules.forEach(function(c) {
 			try {
-				var HM = exports.get_history_module(c);
-				var m = new HM(node, c);
+				const HM = exports.get_history_module(c);
+				const m = new HM(node, c);
 				_this.submodules.push(m);
 			} catch(e) {
 				if (e.toString() != "Error: History module not found: file" && e.toString() != "Error: Module disabled.") {

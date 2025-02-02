@@ -18,12 +18,13 @@ class history extends HistoryGlobal.history {
 
 	/* history: add new data */
 	add(time, value) {
+		let lasttime;
 		//console.log("ADD", time, value);
 		if (typeof this.history_data[this.history_data.length - 1] !== "undefined")
 			// last added history data
-			var lasttime = this.history_data[this.history_data.length - 1].time;
+			lasttime = this.history_data[this.history_data.length - 1].time;
 		else
-			var lasttime = 0;
+			lasttime = 0;
 		if (time === null)
 			return;
 		if (time === lasttime)
@@ -33,8 +34,8 @@ class history extends HistoryGlobal.history {
 			this.history_data.push({"time": time, "value": value});
 		} else {
 			// wrong order. We need to sort in this new key ...
-			var data = this.history_data; 
-			var index = binarysearch(data, {"time": time},
+			const data = this.history_data;
+			let index = binarysearch(data, {"time": time},
 					function(a, b) { return a.time - b.time; });
 
 			if (index < 0) {
@@ -55,14 +56,14 @@ class history extends HistoryGlobal.history {
 	};
 	/* history: get old data */
 	get(parameters, callback) {
-		var config = {};
+		const config = {};
 		config.maxentries = 3000;
 		config.interval = null;
 		config.fromtime = null; // not included
 		config.totime = null; // not included.
 		config.reverse_align = false;
 
-		var limited = false;
+		let limited = false;
 
 		// read config from parameters object
 		if (typeof parameters !== "object") {
@@ -84,12 +85,12 @@ class history extends HistoryGlobal.history {
 			config.maxentries = null;
 		}
 
-		var _this = this;
+		const _this = this;
 		setImmediate(function() {
-			var data = _this.history_data;
+			let data = _this.history_data;
 			if (config.fromtime !== null) {
 				// find start index:
-				var index = binarysearch(data, {"time": config.fromtime},
+				let index = binarysearch(data, {"time": config.fromtime},
 						function(a, b) { return a.time - b.time; });
 				// if time was not found, index is bitwise flipped.
 				if (index < 0) index = ~index;
@@ -105,7 +106,7 @@ class history extends HistoryGlobal.history {
 			}
 			if (config.totime !== null) {
 				// find end index:
-				var index = binarysearch(data, {"time": config.totime},
+				let index = binarysearch(data, {"time": config.totime},
 						function(a, b) { return a.time - b.time; });
 				// if time was not found, index is bitwise flipped.
 				if (index < 0) index = ~index;
@@ -126,7 +127,7 @@ class history extends HistoryGlobal.history {
 			}
 
 			// return data:
-			var exceeded = !limited;
+			let exceeded = !limited;
 			if (exceeded && config.totime === null &&
 					config.fromtime === null &&
 					(
