@@ -14,7 +14,7 @@ exports.init = function(node, app_config, main) {
 		}
 
 		console.log("Request url not in allowed paths:", req.url);
-		throw new Error("Request url not not allowed.");
+		throw new Error("Request url not allowed.");
 	};
 	main.router.on("connection", handler);
 

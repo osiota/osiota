@@ -8,18 +8,36 @@ Auto generated documentation:
 ## Classes
 
 <dl>
+<dt><a href="#ApplicationInterface">ApplicationInterface</a></dt>
+<dd><p>Application Interface Class</p>
+<p>This class is an interface between the osiota platform and an application.</p>
+<p>View from the platform. What does the platform want to do?</p>
+<p>Loading actions:</p>
+<ul>
+<li>load application (with schema)</li>
+<li>connect configuration (app_config, node)</li>
+</ul>
+<p>Life cycle actions:</p>
+<ul>
+<li>trigger start</li>
+<li>trigger deactivate – start as deactivated application</li>
+<li>trigger activate – start as deactivated application</li>
+<li>trigger restart</li>
+<li>trigger stop</li>
+<li>trigger delete</li>
+<li>update configuration (and restart)</li>
+</ul>
+<p>Actions from the application:</p>
+<ul>
+<li>application_error</li>
+<li>access nodes, configuration, etc.</li>
+</ul>
+</dd>
 <dt><a href="#application_loader">application_loader</a></dt>
 <dd><p>Application Loader class</p>
 </dd>
 <dt><a href="#application_manager">application_manager</a></dt>
 <dd><p>Application Manager class</p>
-</dd>
-<dt><a href="#application">application</a></dt>
-<dd><p>Application Class</p>
-<p>Osiota can run applications. This is the base class every application
-automatically inherits methods and attributes from. An application is
-started when the <code>init()</code> function is called by osiota. It can <code>inherit</code>
-methods and attributes from other applications.</p>
 </dd>
 <dt><a href="#main">main</a> ⇐ <code>EventEmitter</code></dt>
 <dd><p>Main Process Instance</p>
@@ -45,6 +63,224 @@ methods and attributes from other applications.</p>
 </dd>
 </dl>
 
+<a name="ApplicationInterface"></a>
+
+## ApplicationInterface
+Application Interface Class
+
+This class is an interface between the osiota platform and an application.
+
+View from the platform. What does the platform want to do?
+
+Loading actions:
+* load application (with schema)
+* connect configuration (app_config, node)
+
+Life cycle actions:
+* trigger start
+* trigger deactivate – start as deactivated application
+* trigger activate – start as deactivated application
+* trigger restart
+* trigger stop
+* trigger delete
+* update configuration (and restart)
+
+Actions from the application:
+* application_error
+* access nodes, configuration, etc.
+
+**Kind**: global class  
+
+* [ApplicationInterface](#ApplicationInterface)
+    * [new ApplicationInterface(main, loader, node_root, struct)](#new_ApplicationInterface_new)
+    * [.appname](#ApplicationInterface+appname)
+    * ~~[._app](#ApplicationInterface+_app)~~
+    * [.app_id](#ApplicationInterface+app_id)
+    * ~~[._id](#ApplicationInterface+_id)~~
+    * [.state](#ApplicationInterface+state)
+    * [.schema](#ApplicationInterface+schema)
+    * [.node](#ApplicationInterface+node)
+    * [.node_base](#ApplicationInterface+node_base)
+    * [.node_source](#ApplicationInterface+node_source)
+    * [.node_target](#ApplicationInterface+node_target)
+    * [.config](#ApplicationInterface+config)
+    * [.main](#ApplicationInterface+main)
+    * [.instance](#ApplicationInterface+instance)
+    * [.start()](#ApplicationInterface+start)
+    * [.restart()](#ApplicationInterface+restart)
+    * [.stop()](#ApplicationInterface+stop)
+    * [.deactivate()](#ApplicationInterface+deactivate)
+    * [.activate()](#ApplicationInterface+activate)
+    * [.modify()](#ApplicationInterface+modify)
+    * [.delete()](#ApplicationInterface+delete)
+    * [.handle_error()](#ApplicationInterface+handle_error)
+    * [.handle_restart()](#ApplicationInterface+handle_restart)
+    * [.cli()](#ApplicationInterface+cli)
+    * [.get_app_name()](#ApplicationInterface+get_app_name)
+
+<a name="new_ApplicationInterface_new"></a>
+
+### new ApplicationInterface(main, loader, node_root, struct)
+Creates an application interface
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| main | [<code>main</code>](#main) | Main instance (Dependency Injection) |
+| loader | [<code>application\_loader</code>](#application_loader) | Loader instance (Dependency Injection) |
+| node_root | [<code>node</code>](#node) | Root node to base the application on |
+| struct | <code>object</code> | Application configuration |
+
+<a name="ApplicationInterface+appname"></a>
+
+### applicationInterface.appname
+Application name
+
+**Kind**: instance property of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+_app"></a>
+
+### ~~applicationInterface.\_app~~
+***Deprecated***
+
+Application name (deprecated)
+
+**Kind**: instance property of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+app_id"></a>
+
+### applicationInterface.app\_id
+Application identifier
+
+**Kind**: instance property of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+_id"></a>
+
+### ~~applicationInterface.\_id~~
+***Deprecated***
+
+Application identifier (deprecated)
+
+**Kind**: instance property of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+state"></a>
+
+### applicationInterface.state
+Application state
+
+**Kind**: instance property of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+schema"></a>
+
+### applicationInterface.schema
+Application schema
+
+**Kind**: instance property of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+node"></a>
+
+### applicationInterface.node
+Destination node
+
+**Kind**: instance property of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+node_base"></a>
+
+### applicationInterface.node\_base
+Base node
+
+**Kind**: instance property of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+node_source"></a>
+
+### applicationInterface.node\_source
+Source node
+
+**Kind**: instance property of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+node_target"></a>
+
+### applicationInterface.node\_target
+Target node
+
+**Kind**: instance property of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+config"></a>
+
+### applicationInterface.config
+Application configuration
+
+**Kind**: instance property of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+main"></a>
+
+### applicationInterface.main
+Main instance
+
+**Kind**: instance property of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+instance"></a>
+
+### applicationInterface.instance
+App instance
+
+**Kind**: instance property of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+start"></a>
+
+### applicationInterface.start()
+Start application
+
+**Kind**: instance method of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+restart"></a>
+
+### applicationInterface.restart()
+Restart application
+
+**Kind**: instance method of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+stop"></a>
+
+### applicationInterface.stop()
+Stop application
+
+**Kind**: instance method of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+deactivate"></a>
+
+### applicationInterface.deactivate()
+Deactivate application
+
+**Kind**: instance method of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+activate"></a>
+
+### applicationInterface.activate()
+Activate application
+
+**Kind**: instance method of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+modify"></a>
+
+### applicationInterface.modify()
+Modify application
+
+**Kind**: instance method of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+delete"></a>
+
+### applicationInterface.delete()
+Delete application
+
+**Kind**: instance method of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+handle_error"></a>
+
+### applicationInterface.handle\_error()
+Handle error from Application
+
+**Kind**: instance method of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+handle_restart"></a>
+
+### applicationInterface.handle\_restart()
+Handle restart request from Application
+
+**Kind**: instance method of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+cli"></a>
+
+### applicationInterface.cli()
+CLI method
+
+**Kind**: instance method of [<code>ApplicationInterface</code>](#ApplicationInterface)  
+<a name="ApplicationInterface+get_app_name"></a>
+
+### applicationInterface.get\_app\_name()
+Get Application Name (from Schema)
+
+Helper function for app_register()
+
+**Kind**: instance method of [<code>ApplicationInterface</code>](#ApplicationInterface)  
 <a name="application_loader"></a>
 
 ## application\_loader
@@ -54,11 +290,10 @@ Application Loader class
 
 * [application_loader](#application_loader)
     * [new application_loader(main)](#new_application_loader_new)
-    * [.load(node, apps, callback)](#application_loader+load)
-    * [.startup(node, app, app_config, [host_info], [auto_install], [callback])](#application_loader+startup) ⇒ <code>string</code>
-    * [.startup_struct(node, struct, [host_info], [auto_install], [callback])](#application_loader+startup_struct) ⇒ <code>string</code>
+    * [.load(node, apps)](#application_loader+load)
+    * [.startup(node, app, app_config, [auto_install], [deactive])](#application_loader+startup) ⇒ <code>string</code>
+    * [.startup_struct(node, struct, [auto_install])](#application_loader+startup_struct) ⇒ <code>string</code>
     * [.close()](#application_loader+close)
-    * [.app_reload(app, callback)](#application_loader+app_reload)
 
 <a name="new_application_loader_new"></a>
 
@@ -72,7 +307,7 @@ Creates an application loader
 
 <a name="application_loader+load"></a>
 
-### application_loader.load(node, apps, callback)
+### application_loader.load(node, apps)
 Load applications
 
 **Kind**: instance method of [<code>application\_loader</code>](#application_loader)  
@@ -81,11 +316,10 @@ Load applications
 | --- | --- | --- |
 | node | [<code>node</code>](#node) | Parent node |
 | apps | <code>Array.&lt;object&gt;</code> | Application Structs |
-| callback | <code>function</code> |  |
 
 <a name="application_loader+startup"></a>
 
-### application_loader.startup(node, app, app_config, [host_info], [auto_install], [callback]) ⇒ <code>string</code>
+### application_loader.startup(node, app, app_config, [auto_install], [deactive]) ⇒ <code>string</code>
 Startup an application by name and config
 
 **Kind**: instance method of [<code>application\_loader</code>](#application_loader)  
@@ -94,15 +328,14 @@ Startup an application by name and config
 | Param | Type | Description |
 | --- | --- | --- |
 | node | [<code>node</code>](#node) | Parent node |
-| app | <code>string</code> \| [<code>application</code>](#application) | Application Name or Application |
+| app | <code>string</code> \| <code>application</code> | Application Name or Application |
 | app_config | <code>object</code> | Application Config |
-| [host_info] | <code>object</code> | Host Information |
 | [auto_install] | <code>boolean</code> | Automatic Installation |
-| [callback] | <code>function</code> |  |
+| [deactive] | <code>boolean</code> | Start as deactivated app |
 
 <a name="application_loader+startup_struct"></a>
 
-### application_loader.startup\_struct(node, struct, [host_info], [auto_install], [callback]) ⇒ <code>string</code>
+### application_loader.startup\_struct(node, struct, [auto_install]) ⇒ <code>string</code>
 Startup an application by struct
 
 **Kind**: instance method of [<code>application\_loader</code>](#application_loader)  
@@ -112,9 +345,7 @@ Startup an application by struct
 | --- | --- | --- |
 | node | [<code>node</code>](#node) | Parent node |
 | struct | <code>object</code> | Application Struct |
-| [host_info] | <code>object</code> | Host Information |
 | [auto_install] | <code>boolean</code> | Automatic Installation |
-| [callback] | <code>function</code> |  |
 
 <a name="application_loader+close"></a>
 
@@ -122,25 +353,6 @@ Startup an application by struct
 Stop all applications
 
 **Kind**: instance method of [<code>application\_loader</code>](#application_loader)  
-<a name="application_loader+app_reload"></a>
-
-### application_loader.app\_reload(app, callback)
-Reload an app by creating a new app object
-
-**Kind**: instance method of [<code>application\_loader</code>](#application_loader)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| app | [<code>application</code>](#application) | Old app instance |
-| callback | <code>function</code> | Triggered on loaded app |
-
-**Example**  
-```js
-app._config.node = "/newnodename";
-application_loader.app_reload(app, function(a) {
-    app = a;
-});
-```
 <a name="application_manager"></a>
 
 ## application\_manager
@@ -224,166 +436,6 @@ List all applications
 
 **Kind**: instance method of [<code>application\_manager</code>](#application_manager)  
 **Returns**: <code>Array.&lt;string&gt;</code> - Array with application names.  
-<a name="application"></a>
-
-## application
-Application Class
-
-Osiota can run applications. This is the base class every application
-automatically inherits methods and attributes from. An application is
-started when the `init()` function is called by osiota. It can `inherit`
-methods and attributes from other applications.
-
-**Kind**: global class  
-
-* [application](#application)
-    * [new application(application_loader, app)](#new_application_new)
-    * [.inherit](#application+inherit) : <code>string</code> \| <code>Array.&lt;string&gt;</code>
-    * *[.auto_configure(app_config)](#application+auto_configure)*
-    * *[.init(app_config, node, main, extra)](#application+init) ⇒ <code>object</code>*
-    * *[.unload(object, unload_object)](#application+unload)*
-    * *[.reinit(app_config, node, main, extra)](#application+reinit)*
-    * *[.cli(args, show_help, main, extra)](#application+cli)*
-    * [._reload(callback)](#application+_reload)
-    * [._get_app_name()](#application+_get_app_name)
-
-<a name="new_application_new"></a>
-
-### new application(application_loader, app)
-Creates an Application
-
-
-| Param | Type | Description |
-| --- | --- | --- |
-| application_loader | [<code>application\_loader</code>](#application_loader) | Application Loader instance |
-| app | <code>string</code> | Application name |
-
-<a name="application+inherit"></a>
-
-### application.inherit : <code>string</code> \| <code>Array.&lt;string&gt;</code>
-List the application names this application shall inherit attributes and methods from. You can use every application name. The application needs to be installed.
-
-**Kind**: instance property of [<code>application</code>](#application)  
-**Example**  
-```js
-exports.inherit = [ "parse-text" ];
-```
-<a name="application+auto_configure"></a>
-
-### *application.auto\_configure(app_config)*
-This method is called before the init function when no configuration
-was provided.
-
-**Kind**: instance abstract method of [<code>application</code>](#application)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| app_config | <code>object</code> | (The empty) config object |
-
-<a name="application+init"></a>
-
-### *application.init(app_config, node, main, extra) ⇒ <code>object</code>*
-Init method
-
-**Kind**: instance abstract method of [<code>application</code>](#application)  
-**Returns**: <code>object</code> - A cleaning object  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| app_config | <code>object</code> | Config object |
-| node | [<code>node</code>](#node) | Node object |
-| main | [<code>main</code>](#main) | Main instance |
-| extra | <code>\*</code> | Extra information |
-
-**Example**  
-```js
-exports.init = function(node, app_config, main, extra) {
-    node.announce({ type: "my.app" });
-    node.publish(undefined, 123);
-
-    return node;
-};
-```
-<a name="application+unload"></a>
-
-### *application.unload(object, unload_object)*
-Unload method
-
-**Kind**: instance abstract method of [<code>application</code>](#application)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| object | <code>Array.&lt;object&gt;</code> | The cleaning object (see init) |
-| unload_object | <code>function</code> | Unload object helper function |
-
-<a name="application+reinit"></a>
-
-### *application.reinit(app_config, node, main, extra)*
-Reinit method
-
-**Kind**: instance abstract method of [<code>application</code>](#application)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| app_config | <code>object</code> | Config object |
-| node | [<code>node</code>](#node) | Node object |
-| main | [<code>main</code>](#main) | Main instance |
-| extra | <code>\*</code> | Extra information |
-
-<a name="application+cli"></a>
-
-### *application.cli(args, show_help, main, extra)*
-This method is called from the command line interface (cli) when
-`osiota --app myapp` is executed.
-
-**Kind**: instance abstract method of [<code>application</code>](#application)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| args | <code>object</code> | Command line arguments |
-| show_help | <code>boolean</code> | Show help message |
-| main | [<code>main</code>](#main) | Main instance |
-| extra | <code>\*</code> | Extra information |
-
-**Example**  
-```js
-exports.cli = function(args, show_help, main, extra) {
-	if (show_help) {
-		console.group();
-		console.info(
-			'  --config [file]  Path to the config file\n' +
-			'                 (default: "osiota.json")\n' +
-			'  --name [name]  Name and filename of the service\n' +
-		console.groupEnd();
-		return;
-	}
-	// ...
-};
-```
-<a name="application+_reload"></a>
-
-### application.\_reload(callback)
-Reload an app by creating a new app object
-
-**Kind**: instance method of [<code>application</code>](#application)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| callback | <code>function</code> | Triggered on loaded app |
-
-**Example**  
-```js
-app._config.node = "/newnodename";
-app._reload(function(a) {
-    app = a;
-});
-```
-<a name="application+_get_app_name"></a>
-
-### application.\_get\_app\_name()
-Get Application Name (from Schema)
-
-**Kind**: instance method of [<code>application</code>](#application)  
 <a name="main"></a>
 
 ## main ⇐ <code>EventEmitter</code>
@@ -399,7 +451,6 @@ Main Process Instance
     * [.node(name)](#main+node) ⇒ [<code>node</code>](#node)
     * [.close()](#main+close)
     * [.reload(callback)](#main+reload)
-    * ["app_loading_error" (error, node, app, app_config, extra, auto_install)](#main+event_app_loading_error)
     * ["app_init" (application)](#main+event_app_init)
     * ["app_added" (application, application_id)](#main+event_app_added)
     * ["started"](#main+event_started)
@@ -417,7 +468,7 @@ Create a main instance
 **Example**  
 ```js
 // create a new instance:
-var m = new main("my osiota");
+const m = new main("my osiota");
 ```
 <a name="main+config"></a>
 
@@ -478,22 +529,6 @@ main.reload(function(m) {
 	main = m;
 });
 ```
-<a name="main+event_app_loading_error"></a>
-
-### "app_loading_error" (error, node, app, app_config, extra, auto_install)
-Application Loading Error
-
-**Kind**: event emitted by [<code>main</code>](#main)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| error | <code>object</code> | Error object |
-| node | [<code>node</code>](#node) | Node object |
-| app | <code>app</code> | Application name |
-| app_config | <code>object</code> | Application config |
-| extra | <code>\*</code> | Extra information |
-| auto_install | <code>boolean</code> | Auto install flag |
-
 <a name="main+event_app_init"></a>
 
 ### "app_init" (application)
@@ -503,7 +538,7 @@ Application init
 
 | Param | Type | Description |
 | --- | --- | --- |
-| application | [<code>application</code>](#application) | Application object |
+| application | <code>application</code> | Application object |
 
 <a name="main+event_app_added"></a>
 
@@ -514,7 +549,7 @@ Application added
 
 | Param | Type | Description |
 | --- | --- | --- |
-| application | [<code>application</code>](#application) | Applicaiton name |
+| application | <code>application</code> | Applicaiton name |
 | application_id | <code>string</code> | Id |
 
 <a name="main+event_started"></a>
@@ -551,7 +586,7 @@ Node-Map class
 | node | [<code>node</code>](#node) | A node instance |
 | app_config | <code>object</code> | A config object |
 | [map_settings] | <code>object</code> | A config object |
-| [map_settings.app] | <code>string</code> \| [<code>application</code>](#application) \| <code>boolean</code> | An application to map content |
+| [map_settings.app] | <code>string</code> \| <code>application</code> \| <code>boolean</code> | An application to map content |
 | [map_settings.map_extra_elements] | <code>boolean</code> \| <code>object</code> \| <code>function</code> | Map extra elements? |
 | [map_settings.map_key] | <code>function</code> | Map key function |
 | [map_settings.map_initialise] | <code>function</code> | Map initialise element |
@@ -873,7 +908,7 @@ Subscribe to the changes of a node
 
 **Example**  
 ```js
-var s = node.subscribe(function(do_not_add_to_history, initial) {
+const s = node.subscribe(function(do_not_add_to_history, initial) {
 	// ...
 });
 ```
@@ -891,7 +926,7 @@ Unsubscribe to the changes of a node
 
 **Example**  
 ```js
-var s = node.subscribe(function(do_not_add_to_history, initial) {
+const s = node.subscribe(function(do_not_add_to_history, initial) {
 	// ...
 });
 node.unsubscribe(s);
@@ -910,10 +945,10 @@ Subscribe to announcements
 
 **Example**  
 ```js
-var s = node.subscribe_announcement(function(snode, method, initial, update) {
+const s = node.subscribe_announcement(function(snode, method, initial, update) {
 	// ...
 });
-var s = node.subscribe_announcement("announce", function(snode, method, initial, update) {
+const s = node.subscribe_announcement("announce", function(snode, method, initial, update) {
 	// ...
 });
 ```
@@ -930,7 +965,7 @@ Unsubscribe announcements
 
 **Example**  
 ```js
-var s = node.subscribe_announcement(function(snode, method, initial, update) {
+const s = node.subscribe_announcement(function(snode, method, initial, update) {
 	// ...
 });
 node.unsubscribe_announcement(s);
@@ -949,10 +984,10 @@ Subscribe ready listener
 
 **Example**  
 ```js
-var s = node.ready(function(method, initial, update) {
+const s = node.ready(function(method, initial, update) {
 	// ...
 });
-var s = node.ready("announce", function(method, initial, update) {
+const s = node.ready("announce", function(method, initial, update) {
 	// ...
 });
 ```
@@ -965,7 +1000,7 @@ Unsubscribe ready listener
 
 | Param | Type | Description |
 | --- | --- | --- |
-| object | <code>function</code> | The function to be unsubscribed var s = node.ready(function(method, initial, update) { 	// ... }); node.ready_remove(s); |
+| object | <code>function</code> | The function to be unsubscribed const s = node.ready(function(method, initial, update) { 	// ... }); node.ready_remove(s); |
 
 <a name="node+is_parentnode"></a>
 
@@ -993,7 +1028,7 @@ Filter nodes (like subscribe_announcement but with filtering)
 
 **Example**  
 ```js
-var s = node.filter([{
+const s = node.filter([{
 	nodes: ["/hello", "/world"],
 	depth: 2
 },{ // OR
@@ -1016,17 +1051,17 @@ Create a node-map
 | --- | --- | --- |
 | app_config | <code>object</code> | A config object |
 | [map_settings] | <code>object</code> | A config object |
-| [map_settings.app] | <code>string</code> \| [<code>application</code>](#application) \| <code>boolean</code> | An application to map content |
+| [map_settings.app] | <code>string</code> \| <code>application</code> \| <code>boolean</code> | An application to map content |
 | [map_settings.map_extra_elements] | <code>boolean</code> \| <code>object</code> \| <code>function</code> | Map extra elements? |
 | [map_settings.map_key] | <code>function</code> | Map key function |
 | [map_settings.map_initialise] | <code>function</code> | Map initialise element |
 
 **Example**  
 ```js
-var map = node.map(app_config, {
+const map = node.map(app_config, {
 	"map_extra_elements": true,
 	"map_key": function(c) {
-		var name = c.map;
+		const name = c.map;
 		return name;
 	},
 	"map_initialise": function(n, metadata, c) {
@@ -1034,8 +1069,8 @@ var map = node.map(app_config, {
 		n.announce(metadata);
 	}
 });
-var on_message = function(item, value) {
-	var n = map.node(item);
+const on_message = function(item, value) {
+	const n = map.node(item);
 	if (n) {
 		n.publish(undefined, value);
 	}
@@ -1112,9 +1147,9 @@ Get a RPC function off the node
 
 **Example**  
 ```js
-var f = node.rpc_cache("ping");
-var result1 = await f(...args);
-var result2 = await f(...args);
+const f = node.rpc_cache("ping");
+const result1 = await f(...args);
+const result2 = await f(...args);
 ```
 <a name="node+event_set"></a>
 

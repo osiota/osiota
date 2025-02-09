@@ -1,7 +1,6 @@
 const Router = require("./router").router;
 const Node = require("./router").node;
 const NodeMap = require("./node_map.js").node_map;
-const Application = require("./application.js").application;
 const application_loader = require("./application_loader.js").application_loader;
 const Policy_checker = require("./module_policycheck.js").Policy_checker;
 
@@ -267,8 +266,8 @@ class main extends EventEmitter {
 		config.__is_persistent = true;
 		Object.defineProperty(config, '__is_persistent', {enumerable: false});
 
-		if (typeof config.config === "object") {
-			if (config.config.__remove_app) {
+		if (typeof config === "object") {
+			if (config.__remove_app) {
 				return undefined;
 			}
 		}
@@ -350,7 +349,6 @@ class main extends EventEmitter {
 		"Router": Router,
 		"Node": Node,
 		"NodeMap": NodeMap,
-		"Application": Application
 	};
 }
 

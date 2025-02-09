@@ -5,17 +5,17 @@ const test = helper.test(__filename);
 
 const osiota = require("../");
 const main = new osiota();
-const Application = require("../application.js").application;
+const { BaseApp } = require("../osiota-app.js");
 var application_loader = null;
 
 var a1 = {};
 a1.init = function(node, app_config, main) {
 	console.log(this._id, app_config);
 };
-var a2 = new Application(application_loader, "a2");
-//a2._app = "a2";
-a2.init = function(node, app_config, main) {
-	console.log(this._id, app_config);
+class a2 extends BaseApp {
+	init(node, app_config, main) {
+		console.log(this._application_interface.app_id, app_config);
+	};
 };
 
 test('load config', async function (t) {

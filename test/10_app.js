@@ -24,7 +24,6 @@ test('load app test-10', async function (t) {
 	a = apps["test-10"];
 	a.eventemitter = e;
 
-	// is synchron:
 	t.equal(apps["test-10"]._id, "test-10", "app name");
 });
 
@@ -33,24 +32,36 @@ test('reload app test-10', function (t) {
 	t.timeoutAfter(100);
 	e.once("unload", () => { t.ok(1, "app A unloaded"); });
 	e.once("init", () => { t.ok(1, "app A inited"); });
-	apps["test-10"]._reinit();
+	a.restart();
+});
+test('reload app test-10 with delay', function (t) {
+	t.plan(3);
+
+	e.once("unload", () => { t.ok(1, "app A unloaded"); });
+	e.once("init", () => { t.ok(1, "app A inited"); });
+
+	a.handle_restart(10);
+	setTimeout(function() {
+		t.equal(apps["test-10"].state, "running", "state of app");
+	}, 20);
 });
 
 test('unload app test-10', function (t) {
 	t.plan(2);
 	t.timeoutAfter(100);
 	e.once("unload", () => { t.ok(1, "app A unloaded"); });
-	apps["test-10"]._unload();
+	a.stop();
 	// is synchron:
-	t.equal(apps["test-10"]._state, "UNLOADED", "state of app");
+	t.equal(a.state, "unloaded", "state of app");
 });
 
 var b;
 test('load app test-10-b', async function (t) {
 	t.plan(1);
-	b = await ((await main.application_loader.startup_struct(undefined, {
+	const loaded_apps = await main.application_loader.startup_struct(undefined, {
 		"name": "test-10-b"
-	}))[0]);
+	});
+	b = await (loaded_apps[0]);
 	b.eventemitter = e;
 
 	// is synchron:
@@ -62,19 +73,9 @@ test('reload app test-10-b', function (t) {
 
 	e.once("reinit", () => { t.ok(1, "app B reinited"); });
 
-	b._reinit();
+	b.restart();
 	setTimeout(function() {
-		t.equal(apps["test-10-b"]._state, "RUNNING", "state of app");
-	}, 20);
-});
-test('reload app test-10-b with delay', function (t) {
-	t.plan(2);
-
-	e.once("reinit", () => { t.ok(1, "app B reinited"); });
-
-	b._reinit_delay(10);
-	setTimeout(function() {
-		t.equal(apps["test-10-b"]._state, "RUNNING", "state of app");
+		t.equal(apps["test-10-b"].state, "running", "state of app");
 	}, 20);
 });
 
@@ -82,21 +83,21 @@ test('unload app test-10-b', function (t) {
 	t.plan(2);
 	t.timeoutAfter(100);
 	e.once("unload", () => { t.ok(1, "app B unloaded"); });
-	b._unload();
+	b.stop();
 	setTimeout(function() {
-		t.equal(apps["test-10-b"]._state, "UNLOADED", "state of app");
+		t.equal(b.state, "unloaded", "state of app");
 	}, 20);
 });
 
 var c;
 test('load app test-10-c', async function (t) {
 	t.plan(1);
-	c = (await main.application_loader.startup_struct(undefined, {
+	const loaded_apps = await main.application_loader.startup_struct(undefined, {
 		"name": "test-10-c"
-	}))[0];
+	});
+	c = await (loaded_apps[0]);
 	c.eventemitter = e;
 
-	// is synchron:
 	t.equal(apps["test-10-c"]._id, "test-10-c", "app name");
 });
 
@@ -105,7 +106,7 @@ test('reload app test-10-c', function (t) {
 	t.timeoutAfter(100);
 	e.once("unload", () => { t.ok(1, "app C unloaded"); });
 	e.once("init", () => { t.ok(1, "app C inited"); });
-	apps["test-10-c"]._reinit();
+	c.restart();
 });
 
 test('unload app test-10-c', function (t) {
@@ -113,9 +114,8 @@ test('unload app test-10-c', function (t) {
 	t.timeoutAfter(100);
 	setTimeout(()=>{
 		e.once("unload", () => { t.ok(1, "app C unloaded"); });
-		apps["test-10-c"]._unload();
-		// is synchron:
-		t.equal(apps["test-10-c"]._state, "UNLOADED", "state of app");
+		c.stop();
+		t.equal(c.state, "unloaded", "state of app");
 	}, 20);
 });
 /*

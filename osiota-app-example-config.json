@@ -1,0 +1,13 @@
+{
+	"app": [{
+		"name": "example",
+		"config": {
+			"hi": "Guten Tag"
+		}
+	},{
+		"name": "debug-echo",
+		"config": {
+			"text": "My debug output"
+		}
+	}]
+}

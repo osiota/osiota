@@ -169,8 +169,17 @@ if (argv.help && !argv.app) {
 			console.info("Application Options:");
 		}
 		m.loaded = (async ()=>{
-			const a = (await m.application_loader.startup(/*node=*/ null, argv.app))[0];
-			a._cli(argv, argv.help);
+			try {
+				//const apps = await m.application_loader.startup(/*node=*/ null, argv.app);
+				//const a = apps[0];
+				const { ApplicationInterface } = require('./application_interface.js');
+				const a = new ApplicationInterface(m, m.application_loader, m.node("/app"), {
+					"name": argv.app
+				})
+				await a.cli(argv, argv.help);
+			} catch(err) {
+				console.error(err);
+			}
 		})();
 		return;
 	}

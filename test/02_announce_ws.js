@@ -17,31 +17,30 @@ function nodelist(m) {
 
 const main = require("../");
 const m_s = new main("Server");
-m_s.config({
-	"app": [{
-		"name": "ws-server",
-		"config": {
-			"server": 8098
-		}
-	}]
-});
 
-test("wait started", function(t) {
+test("wait started", async (t)=>{
 	t.plan(1);
 	t.timeoutAfter(1000);
+	await m_s.config({
+		"app": [{
+			"name": "ws-server",
+			"config": {
+				"server": 8098
+			}
+		}]
+	});
 	if (m_s._started) {
 		t.ok(1, "started - instantly");
 		return;
 	}
-	m_s.once("started", function() {
-		t.ok(1, "started");
-	});
+	await new Promise(resolve=>m_s.once("started", resolve));
+	t.ok(1, "started");
 });
 
 const m_c = new main("Client");
-test("define client", function(t) {
+test("define client", async (t)=>{
         t.plan(1);
-	m_c.config({
+	await m_c.config({
 		"app": [{
 			"name": "ws",
 			"config": {

@@ -949,7 +949,7 @@ class node extends EventEmitter {
 		// restart app:
 		if (this._app) {
 			const a = this._app;
-			a._reinit();
+			a.restart();
 
 			if (save) {
 				a._main.emit("config_save");
@@ -972,12 +972,13 @@ class node extends EventEmitter {
 		const app = this._app;
 
 		// set new node name:
-		const n = app._node.node(relative_nodename);
+		const n = app.node.node(relative_nodename);
 		this._config.node = n.name;
 
-		app._reload(function(a) {
+		(async ()=>{
+			await app.restart();
 			reply("node_moved", relative_nodename);
-		});
+		})();
 	};
 	/**
 	 * RPC activate: Activate or deactivate app

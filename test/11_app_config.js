@@ -73,7 +73,7 @@ test('add app to config', async function (t) {
 test('remove app from config', function (t) {
 	t.plan(1);
 
-	main.application_loader.app_remove(a);
+	a.delete();
 
 	t.deepEqual(main._config, {
 		"app_dir": [ __dirname+"/" ],
@@ -180,10 +180,10 @@ test('reconfigure app - move node', function (t) {
 		t.equal(message, "../test-10-1", "loaded");
 
 		setTimeout(function() {
-			//t.equal(n._app._state, "UNLOADED", "app unloaded");
+			//t.equal(n._app.state, "unloaded", "app unloaded");
 			t.equal(n._app, undefined, "app unloaded");
 			t.equal(n2._app._id, "test-10", "app loaded");
-			t.equal(n2._app._state, "RUNNING", "app loaded");
+			t.equal(n2._app.state, "running", "app loaded");
 		}, 10);
 	});
 });

@@ -11,11 +11,10 @@ exports.match = function(object, probe) {
 			if (!object.hasOwnProperty(key))
 				return false;
 			if (isRegExp(probe[key])) {
-				console.error("IS REGEXP", key, probe[key], ""+object[key]);
-					if (!(""+object[key])
-							.match(probe[key])) {
-						return false;
-					}
+				if (!(""+object[key])
+						.match(probe[key])) {
+					return false;
+				}
 			}
 			else if (object[key] != probe[key]) {
 				return false;

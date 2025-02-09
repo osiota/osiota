@@ -21,8 +21,10 @@ exports.init_delayed = async function(node, app_config, main, host_info) {
 	const ip = this.get_current_ip();
 	const port = app_config.port || app_config.server;
 	server.listen(port, ()=>{
-		console.info(`Server running at ${this.protocol}localhost:${port} and ${this.protocol}${ip}:${port}`);
-		console.info(`Connect via ${this.protocolHttp}localhost:${port} or ${this.protocolHttp}${ip}:${port}`);
+		if (!process.env.OSIOTA_TEST) {
+			console.info(`Server running at ${this.protocol}localhost:${port} and ${this.protocol}${ip}:${port}`);
+			console.info(`Connect via ${this.protocolHttp}localhost:${port} or ${this.protocolHttp}${ip}:${port}`);
+		}
 	});
 
 	return [wss, server];

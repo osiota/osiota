@@ -217,7 +217,7 @@ if (process.on) { /* if NodeJS */
 			//process.emit("preexit");
 		});
 		process.on('unhandledRejection', function(e) {
-			console.log('unhandledRejection', e.stack || e);
+			console.error('unhandledRejection', e.stack || e);
 		});
 	}
 
