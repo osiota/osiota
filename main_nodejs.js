@@ -115,7 +115,7 @@ class main_nodejs extends main {
 	load_schema(appname, callback) {
 		return new Promise((resolve, reject)=>{
 			this.load_schema_cb(appname, (err, schema)=>{
-				if (callback) callback(err, app);
+				if (callback) callback(err, schema);
 				if (err) return reject(err);
 				resolve(schema);
 			});
