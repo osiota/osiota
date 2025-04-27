@@ -200,8 +200,32 @@ class ConnectApp extends BaseApp {
 	}
 }
 
+
+/**
+ * Connect Application Class
+ *
+ * This is the a legacy app, that is used as parent class for all old osiota
+ * apps.
+ *
+ * @tutorial doc/build_your_own_apps.md
+ * @deprecated
+ */
+class LegacyApp extends ConnectApp {
+	/**
+	 * Creates a Legacy Application
+	 * @param {ApplicationInterface} application_interface - Application Interface Instance
+	 */
+	constructor(application_interface) {
+		super(application_interface);
+
+		this._main = application_interface.main;
+		this._schema = application_interface.schema;
+	}
+}
+
 exports.BaseApp = BaseApp;
 exports.ConvertApp = ConvertApp;
 exports.PushApp = PushApp;
 exports.ConnectApp = ConnectApp;
+exports.LegacyApp = LegacyApp;
 

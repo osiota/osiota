@@ -36,7 +36,7 @@ exports.ensure_promise = function(func, ...args) {
 		return resolve(value);
 	});
 	// if is promise
-	if (typeof return_value.then === "function") {
+	if (return_value && typeof return_value.then === "function") {
 		// handle returned promise:
 		return return_value;
 	} else {

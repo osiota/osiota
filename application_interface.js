@@ -4,7 +4,7 @@ const { ensure_promise } = require("./helper_promise.js");
 const { sleep } = require('./helper_sleep.js');
 const { merge } = require("./helper_merge_data.js");
 
-const { ConnectApp } = require("./osiota-app.js");
+const { LegacyApp } = require("./osiota-app.js");
 
 /**
  * Application Interface Class
@@ -439,9 +439,9 @@ class ApplicationInterface extends EventEmitter {
 		}
 
 		if (typeof this.#module.prototype !== "object") {
-			class LegacyClass extends ConnectApp {}
-			await this.#legacy_bind_module(LegacyClass, this.#module, this.#main.require.bind(this.#main));
-			this.#module = LegacyClass;
+			const LegacyAppModule = class extends LegacyApp {}
+			await this.#legacy_bind_module(LegacyAppModule, this.#module, this.#main.require.bind(this.#main));
+			this.#module = LegacyAppModule;
 		}
 
 		if (typeof this.#module.get_schema === "function") {
@@ -631,15 +631,15 @@ class ApplicationInterface extends EventEmitter {
 
 	async #load_subapps() {
 		if (this.#subapps) {
-			if (this.#node_target === this.#subapps_path) {
+			if (this.#node === this.#subapps_path) {
 				return this.#subapps;
 			}
 			await unload_object(this.#subapps);
 			await sleep(1000);
 		}
-		this.#subapps = this.#loader.load(this.#node_target,
+		this.#subapps = this.#loader.load(this.#node,
 				this.#struct.config.app);
-		this.#subapps_path = this.#node_target;
+		this.#subapps_path = this.#node;
 
 		return this.#subapps;
 	};
