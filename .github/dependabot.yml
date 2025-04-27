@@ -11,3 +11,12 @@ updates:
       interval: "daily"
     assignees:
       - "simonwalz"
+    versioning-strategy: "increase"
+
+  - package-ecosystem: "github-actions"
+    directory: ".github/workflows/"
+    schedule:
+      interval: "weekly"
+    assignees:
+      - "simonwalz"
+    versioning-strategy: "auto"
