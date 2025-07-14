@@ -84,7 +84,7 @@ const require_vm = function(module_name, paths, use_vm) {
 	}
 
 	// get dirname
-	const dirname = pa.dirname(filename);
+	let dirname = pa.dirname(filename);
 	// check package.json (and include native Modules)
 	const pkg = readPackage(dirname);
 	if (pkg) {
