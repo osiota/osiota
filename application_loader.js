@@ -196,7 +196,20 @@ class application_loader {
 	};
 
 	install_app(appname, error) {
+		for (const installer of this.#installer) {
+			const app = installer(appname, error);
+			if (app) return app;
+		}
 		return false;
+	}
+
+	#installer = [];
+
+	add_installer(installer) {
+		this.#installer.push(installer);
+	}
+	remove_installer(installer) {
+		this.#installer = this.#installer.filter(item => item !== installer);
 	}
 };
 exports.application_loader = application_loader;

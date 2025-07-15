@@ -109,6 +109,7 @@ class ApplicationInterface extends EventEmitter {
 		try {
 			await this.#load();
 		} catch(err) {
+			await sleep(1000);
 			if (err.code === "OSIOTA_APP_NOT_FOUND" && await this.#loader.install_app(this.#struct.name, err)) {
 				try {
 					await this.#load();

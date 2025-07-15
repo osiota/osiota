@@ -102,37 +102,25 @@ exports.init = function(node, app_config, main) {
 
 	if (app_config.auto_install_missing_apps) {
 		main.removeAllListeners("app_loading_error");
-		const cb_app_loading_error = async function(e, application, node, app_name, local_app_config,
-				auto_install, callback) {
-			if (!e.hasOwnProperty("code") ||
-					e.code !== "OSIOTA_APP_NOT_FOUND") {
-				console.error("error loading app:", e);
-				return;
-			}
-			if (auto_install === false) {
-				// just show error:
-				console.error("error loading app:", e);
-				return;
-			}
 
-			const app_reponame = _this.clean_repo_name(app_name);
+		const cb_install_app = function(app_name, e) {
+			console.warn("INSTALL APP", app_name);
 
-			if (!exports.try_to_install.hasOwnProperty(app_reponame)) {
-				exports.try_to_install[app_reponame] = _this.install_app(app_reponame, app_config);
-			}
-			if (await exports.try_to_install[app_reponame]) {
-				application._unload();
-				main.application_loader.app_unregister(application);
-				const app2 = await main.application_loader.startup(node, app_name, local_app_config, /* auto_install */ false);
-				// TODO
-				callback(app2);
-				return app2;
-			}
+			return (async ()=>{
+				const app_reponame = _this.clean_repo_name(app_name);
+
+				if (!exports.try_to_install.hasOwnProperty(app_reponame)) {
+					exports.try_to_install[app_reponame] = _this.install_app(app_reponame, app_config);
+				}
+				if (await exports.try_to_install[app_reponame]) {
+					return true;
+				}
+			})();
 		};
-		main.on("app_loading_error", cb_app_loading_error);
+
+		main.application_loader.add_installer(cb_install_app);
 		return [node, function() {
-			main.removeListener("app_loading_error",
-					cb_app_loading_error);
+			main.application_loader.remove_installer(cb_install_app);
 		}];
 	}
 
