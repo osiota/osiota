@@ -910,7 +910,7 @@ class node extends EventEmitter {
 	};
 
 	/* Remote procedure calls */
-	rpc_data(reply, time, value, only_if_differ, do_not_add_to_history, initial) {
+	rpc_local_data(reply, time, value, only_if_differ, do_not_add_to_history, initial) {
 		this.publish(time, value, only_if_differ, do_not_add_to_history, initial);
 		reply(null, "okay");
 	};

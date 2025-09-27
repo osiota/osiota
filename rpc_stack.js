@@ -117,11 +117,13 @@ class rpcstack extends EventEmitter {
 			// call method
 			if (typeof module === "object" && this._rpc_process(scope + "_" + method, d.args, reply, r, module)) {
 				return;
-			} else if (this._rpc_process(method, d.args, reply, r, r)) {
-				return;
 			} else if (this._rpc_process(scope + "_" + method, d.args, reply, r, module)) {
 				return;
+			} else if (this._rpc_process("local_" + method, d.args, reply, r, r)) {
+				return;
 			} else if (typeof r.connection === "object" && this._rpc_forwarding(d, reply, r)) {
+				return;
+			} else if (this._rpc_process(method, d.args, reply, r, r)) {
 				return;
 			}
 
