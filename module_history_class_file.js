@@ -88,6 +88,7 @@ const vdb_read = function(vdb, config, callback) {
 
 class history extends HistoryGlobal.history {
 	constructor(node, config) {
+		super(node, config);
 		if (typeof node.metadata === "object" &&
 				node.metadata !== null &&
 				typeof node.metadata.history !== "undefined") {
