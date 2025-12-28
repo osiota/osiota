@@ -464,7 +464,26 @@ class ApplicationInterface extends EventEmitter {
 			throw new Error("inherit: application name is not string.");
 		}
 
-		const m = await loader(iname);
+		let m;
+		let loading_error = null;
+		try {
+			m = await loader(iname);
+		} catch(err) {
+			if (err.code !== "OSIOTA_APP_NOT_FOUND") {
+				throw err;
+			}
+			if (!await this.#loader.install_app(iname, err)) {
+				err.code = 'OSIOTA_INHERITED_APP_NOT_FOUND';
+				throw err;
+			}
+			try {
+				m = await loader(iname);
+			} catch(err) {
+				console.error("ERR INHER", err);
+				err.code = 'OSIOTA_INHERITED_APP_NOT_FOUND';
+				throw err;
+			}
+		}
 
 		if (typeof target.prototype._super !== "object") {
 			target.prototype._super = {};

@@ -13,6 +13,7 @@ var t1 = setTimeout(function() {
 }, 1000*30);
 t1.unref();
 
+process.env.NODE_ENV = process.env.NODE_ENV || 'test';
 
 exports.get_node_list = function(r) {
 	return Object.keys(r.nodes).filter(function(nn) {
