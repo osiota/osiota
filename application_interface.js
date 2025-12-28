@@ -65,6 +65,9 @@ class ApplicationInterface extends EventEmitter {
 	#node_source = null;
 	#node_target = null;
 
+	#retry_interval = null;
+	#retry_interval_max = null;
+
 	/**
 	 * Creates an application interface
 	 *
@@ -109,7 +112,7 @@ class ApplicationInterface extends EventEmitter {
 		try {
 			await this.#load();
 		} catch(err) {
-			await sleep(1000);
+			if (!await this.sleep(1000)) return;
 			if (err.code === "OSIOTA_APP_NOT_FOUND" && await this.#loader.install_app(this.#struct.name, err)) {
 				try {
 					await this.#load();
@@ -231,6 +234,8 @@ class ApplicationInterface extends EventEmitter {
 	 * Handle error from Application
 	 */
 	handle_error(error) {
+		if (error === "canceled") return;
+
 		console.error(this.#appname, "Error on app:", error);
 		const state = ApplicationInterface.state_error;
 		this.#set_state(state, error);
@@ -240,14 +245,44 @@ class ApplicationInterface extends EventEmitter {
 			"error": error.stack || error
 		}], true);
 		this.emit("app_error", error);
+
+		this.#retry_start();
 	};
+
+	async #retry_start() {
+		if (this.#retry_interval === null) {
+			if (this.#module && this.#module.retry_interval) {
+				this.#retry_interval = this.#module.retry_interval;
+			} else {
+				this.#retry_interval = 2*60*1000;
+			}
+		}
+		if (this.#retry_interval_max === null) {
+			if (this.#module && this.#module.retry_interval_max) {
+				this.#retry_interval_max = this.#module.retry_interval_max;
+			} else {
+				this.#retry_interval_max = 2*60*60*1000; // 2h;
+			}
+		}
+		this.#retry_interval *= 2;
+		if (this.#retry_interval > this.#retry_interval_max) {
+			this.#retry_interval = this.#retry_interval_max;
+		}
+
+		const p = this.sleep(this.#retry_interval);
+		p.unref();
+		if (!await p) return;
+
+		console.log("retrying to start:", this.#appname);
+		return this.start();
+	}
 
 	/**
 	 * Handle restart request from Application
 	 */
 	async handle_restart(delay = 5000) {
 		await this.stop();
-		await sleep(delay);
+		if (!await this.sleep(delay)) return;
 		return this.start();
 	};
 
@@ -407,6 +442,43 @@ class ApplicationInterface extends EventEmitter {
 	#set_state(state, error) {
 		this.#state = state;
 		this.#error = error;
+	}
+
+	/**
+	 * Cancelable sleep
+	 *
+	 * Sleep function for use in apps.
+	 */
+	sleep(ms) {
+		const p = sleep(ms);
+		this.add_unload_object(p);
+		p.then(()=>this.del_unload_object(p));
+		return p;
+	}
+
+	/**
+	 * Add unload object
+	 *
+	 * Dynamically add unload object
+	 */
+	add_unload_object(obj) {
+		if (!Array.isArray(this.#object)) {
+			this.#object = [this.#object];
+		}
+		this.#object.push(obj);
+	}
+	/**
+	 * Delete unload object
+	 *
+	 * Dynamically delete unload object
+	 */
+	del_unload_object(obj) {
+		if (!Array.isArray(this.#object)) {
+			if (this.#object === obj) this.#object = undefined;
+			return;
+		}
+		const idx = this.#object.indexOf(obj);
+		if (idx !== -1) this.#object.splice(idx, 1);
 	}
 
 	async #load() {
@@ -655,7 +727,7 @@ class ApplicationInterface extends EventEmitter {
 				return this.#subapps;
 			}
 			await unload_object(this.#subapps);
-			await sleep(1000);
+			if (!await this.sleep(1000)) return;
 		}
 		this.#subapps = this.#loader.load(this.#node,
 				this.#struct.config.app);
@@ -668,7 +740,13 @@ class ApplicationInterface extends EventEmitter {
 		const app_config = this.#struct.config;
 		this.#init_node();
 
-		const a = new this.#module(this, this.#main, app_config);
+		let a;
+		try {
+			a = new this.#module(this, this.#main, app_config);
+		} catch(err) {
+			this.handle_error(err);
+			return this;
+		}
 		this.#app = a;
 
 		if (typeof a.init !== "function") {
@@ -678,16 +756,13 @@ class ApplicationInterface extends EventEmitter {
 		try {
 			this.#object = await a.init(this.#node,
 					app_config, this.#main);
-		} catch (err) {
-			if (err === "canceled") {
-				return this;
-			}
+		} catch(err) {
 			this.handle_error(err);
 			return this;
 		}
 		if (!this.#node._announced) {
 			this.#node.announce({});
-			this.#object = [this.#node, this.#object];
+			this.add_unload_object(this.#node);
 		}
 		this.emit("init");
 		/**
