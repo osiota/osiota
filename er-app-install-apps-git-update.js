@@ -47,7 +47,7 @@ exports.update_app = async function(app_or_repo_dir, app_config) {
         }
         if (await this.fileExists(target_dir + "/package.json")) {
 			console.info("run npm install:", app_or_repo_dir);
-			await execFilePromise("npm", ["install", "--omit=dev"], {"cwd": target_dir});
+			await execFilePromise("npm", ["install", "--omit=dev", "--omit=optional", "--omit=peer"], {"cwd": target_dir});
 		}
 	} catch(err) {
 		console.error("Error updating app (git)", err);

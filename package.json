@@ -40,7 +40,7 @@
     "url": "https://github.com/osiota/osiota.git"
   },
   "scripts": {
-    "postinstall": "./schemas/combine.sh",
+    "postinstall": "./schemas/combine.js",
     "start": "node osiota.js",
     "build": "./node_modules/.bin/webpack --mode=development",
     "set_push_url": "git remote set-url --push origin git@github.com:osiota/osiota.git",

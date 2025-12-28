@@ -24,7 +24,7 @@ exports.install_app = async function(app, app_config) {
 		url += ".git";
 	}
 	try {
-		await execFilePromise("npm", ["install", url]);
+		await execFilePromise("npm", ["install", "--omit=dev", "--omit=optional", "--omit=peer", url]);
 	} catch (err) {
 		console.error("Error installing app (npm)", err);
 		return false;
