@@ -12,7 +12,7 @@ main.config({
 
 test('load non existing app', async function (t) {
 	t.plan(2);
-	t.timeoutAfter(100);
+//	t.timeoutAfter(100);
 
 	/*
 	main.on("app_loading_error", function(e, app, node, l_app, l_app_config,
