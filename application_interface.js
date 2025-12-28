@@ -233,7 +233,7 @@ class ApplicationInterface extends EventEmitter {
 	/**
 	 * Handle error from Application
 	 */
-	handle_error(error) {
+	async handle_error(error) {
 		if (error === "canceled") return;
 
 		console.error(this.#appname, "Error on app:", error);
