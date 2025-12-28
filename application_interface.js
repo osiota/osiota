@@ -237,6 +237,9 @@ class ApplicationInterface extends EventEmitter {
 		if (error === "canceled") return;
 
 		console.error(this.#appname, "Error on app:", error);
+
+		await this.stop();
+
 		const state = ApplicationInterface.state_error;
 		this.#set_state(state, error);
 		this.#node.announce([this.#config?.metadata, {
