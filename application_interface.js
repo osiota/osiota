@@ -394,6 +394,7 @@ class ApplicationInterface extends EventEmitter {
 		}
 		if (this.#appname.match(/^unknown/)) {
 			if (typeof this.#module?.name === "string" &&
+					this.#module.name !== "" &&
 					!this.#module.name.match(/^Legacy/)) {
 				return this.#module.name;
 			}
@@ -440,9 +441,10 @@ class ApplicationInterface extends EventEmitter {
 		}
 
 		if (typeof this.#module.prototype !== "object") {
-			const LegacyAppModule = class extends LegacyApp {}
-			await this.#legacy_bind_module(LegacyAppModule, this.#module, this.#main.require.bind(this.#main));
-			this.#module = LegacyAppModule;
+			this.#module = await this.#legacy_bind_module(
+				class extends LegacyApp {},
+				this.#module,
+				this.#main.require.bind(this.#main));
 		}
 
 		if (typeof this.#module.get_schema === "function") {
@@ -455,7 +457,7 @@ class ApplicationInterface extends EventEmitter {
 
 	async #legacy_inherit(target, inherit, loader) {
 		if (Array.isArray(!inherit) || !inherit.length ) {
-			return null;
+			return target;
 		}
 		const iname = inherit.shift();
 		if (typeof iname !== "string") {
@@ -468,9 +470,8 @@ class ApplicationInterface extends EventEmitter {
 			target.prototype._super = {};
 		}
 		target.prototype._super[iname] = m;
-		await this.#legacy_bind_module(target, m, loader);
-		await this.#legacy_inherit(target, inherit, loader);
-		return this;
+		const target_binded = await this.#legacy_bind_module(target, m, loader);
+		return await this.#legacy_inherit(target_binded, inherit, loader);
 	};
 
 	async #legacy_bind_module(target, module, loader){
@@ -481,10 +482,9 @@ class ApplicationInterface extends EventEmitter {
 				Array.isArray(module.inherit) &&
 				module.inherit.length) {
 			const inherit = module.inherit.slice(0);
-			await this.#legacy_inherit(target, inherit, loader);
+			target = await this.#legacy_inherit(target, inherit, loader);
 		}
-		this.#legacy_bind_module_sync(target, module);
-		return this;
+		return this.#legacy_bind_module_sync(target, module);
 	};
 	#legacy_bind_module_sync(target, module) {
 		Object.keys(module).forEach(key => {
@@ -497,7 +497,7 @@ class ApplicationInterface extends EventEmitter {
 				target.prototype[key] = module[key];
 			}
 		});
-		return this;
+		return target;
 	};
 
 	#prepare() {
