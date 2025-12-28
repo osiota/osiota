@@ -1,6 +1,6 @@
 {
   "name": "osiota",
-  "version": "2.4.4",
+  "version": "2.4.5",
   "main": "main_nodejs.js",
   "browser": "main_web.js",
   "bin": "osiota.js",
