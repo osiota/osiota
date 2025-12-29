@@ -33,6 +33,24 @@ exports.init_delayed = async function(node, app_config, main, host_info) {
 exports.protocolHttp = 'http://';
 exports.protocol = 'ws://';
 
+const _charMap = {
+	'<': '\\u003C',
+	'>': '\\u003E',
+	'\\': '\\\\',
+	'\b': '\\b',
+	'\f': '\\f',
+	'\n': '\\n',
+	'\r': '\\r',
+	'\t': '\\t',
+	'\0': '\\0',
+	'\u2028': '\\u2028',
+	'\u2029': '\\u2029'
+};
+
+function escapeUnsafeChars(str) {
+	return String(str).replace(/[<>/\\\b\f\n\r\t\0\u2028\u2029]/g, x => _charMap[x] || x);
+}
+
 exports.create_websocket_server = function(server) {
 	const wss = require('./router_websocket_server').init(this._main, this._main.rpcstack, "", server);
 	//this._main.router.policy_checker.add_observed_connection(wss.wpath);
@@ -57,8 +75,8 @@ exports.redirect_page_content = function(res, redirectUrl) {
 	//res.writeHead(302, { Location: redirectUrl });
 	//res.end();
 	res.writeHead(200, { 'Content-Type': 'text/html' });
-	const redirectUrlStr = JSON.stringify(redirectUrl);
-	res.end(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Redirecting...</title><script>setTimeout(()=>{window.location.href = ${redirectUrlStr}; }, 10);</script><style>body{background:black; margin:25%}*{color:#222222}</style></head><body><h1>Redirecting...</h1><p>If you are not redirected automatically, follow this <a href=${redirectUrlStr}>link</a>.</p></body></html>`);
+	const redirectUrlStr = escapeUnsafeChars(redirectUrl);
+	res.end(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Redirecting...</title><script>setTimeout(()=>{window.location.href = "${redirectUrlStr}"; }, 10);</script><style>body{background:black; margin:25%}*{color:#222222}</style></head><body><h1>Redirecting...</h1><p>If you are not redirected automatically, follow this <a href="${redirectUrlStr}">link</a>.</p></body></html>`);
 };
 
 exports.create_server = async function(app_config) {
