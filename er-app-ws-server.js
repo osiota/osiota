@@ -54,7 +54,7 @@ exports.create_websocket_server = function(server) {
 
 exports.redirect_page = function(app_config, req, res) {
 	const uiserver = app_config.uiserver || "osiota.net/ui/";
-	const hostAndPort = req.headers.host.replace(/[^A-Za-z0-9.-]+/, "");
+	const hostAndPort = req.headers.host.replace(/[^A-Za-z0-9.:-]+/, "");
 	const uiconfig = {
 		wpath: this.protocol + hostAndPort + req.url,
 		...app_config.uiconfig,
