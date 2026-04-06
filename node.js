@@ -1004,7 +1004,7 @@ class node extends EventEmitter {
 		}
 
 		if (save) {
-			app._main.emit("config_save");
+			app.main.emit("config_save");
 			return reply(null, "saved");
 		}
 
