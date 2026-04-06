@@ -156,6 +156,11 @@ exports.init_node = function(History, router, node, config) {
 			reply(null, data);
 		});
 	};
+	node.rpc_local_history = function(reply, config) {
+		this.get_history(config, function(data) {
+			reply(null, data);
+		});
+	};
 
 	node.purge_history = function() {
 		node.history = new History(node, config);
