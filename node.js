@@ -952,7 +952,7 @@ class node extends EventEmitter {
 			a.restart();
 
 			if (save) {
-				a._main.emit("config_save");
+				a.main.emit("config_save");
 				return reply(null, "saved");
 			}
 		}
