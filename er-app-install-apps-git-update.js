@@ -36,24 +36,28 @@ exports.update_app = async function(app_or_repo_dir, app_config) {
         target_dir = install_dir + "osiota-app-" + app_or_repo_dir;
     }
 
-	try {
-		if (!await this.fileExists(target_dir + "/.git")) {
+    try {
+        if (!await this.fileExists(target_dir + "/.git")) {
             console.info("is not a git repo:", app_or_repo_dir);
-			return false;
-		}
-		const result = await execFilePromise("git", ["pull"], {"cwd": target_dir});
+            return false;
+        }
+        const result = await execFilePromise("git", ["pull"], {"cwd": target_dir});
         if (result.stdout.match(/Already up to date/)) {
             return false;
         }
-        if (await this.fileExists(target_dir + "/package.json")) {
-			console.info("run npm install:", app_or_repo_dir);
-			await execFilePromise("npm", ["install", "--omit=dev", "--omit=optional", "--omit=peer"], {"cwd": target_dir});
-		}
-	} catch(err) {
-		console.error("Error updating app (git)", err);
-		return false;
-	}
-	return true;
+        if (await this.fileExists(target_dir + "/package-lock.json")) {
+            console.info("run npm ci:", app_or_repo_dir);
+            await execFilePromise("npm", ["ci", "--omit=dev", "--omit=optional", "--omit=peer"], {"cwd": target_dir});
+        }
+        else if (await this.fileExists(target_dir + "/package.json")) {
+            console.info("run npm install:", app_or_repo_dir);
+            await execFilePromise("npm", ["install", "--omit=dev", "--omit=optional", "--omit=peer"], {"cwd": target_dir});
+        }
+    } catch(err) {
+        console.error("Error updating app (git)", err);
+        return false;
+    }
+    return true;
 };
 
 exports.get_repo_dirs = async function() {

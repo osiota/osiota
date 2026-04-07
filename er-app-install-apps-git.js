@@ -51,9 +51,13 @@ exports.install_app = async function(app, app_config) {
 		return false;
 	}
 	try {
-		if (await this.fileExists(target_dir + "/package.json")) {
-			console.info("run npm install:", app);
-			await execFilePromise("npm", ["install", "--omit=dev"], {"cwd": target_dir});
+		if (await this.fileExists(target_dir + "/package-lock.json")) {
+			console.info("run npm ci:", app_or_repo_dir);
+			await execFilePromise("npm", ["ci", "--omit=dev", "--omit=optional", "--omit=peer"], {"cwd": target_dir});
+		}
+		else if (await this.fileExists(target_dir + "/package.json")) {
+			console.info("run npm install:", app_or_repo_dir);
+			await execFilePromise("npm", ["install", "--omit=dev", "--omit=optional", "--omit=peer"], {"cwd": target_dir});
 		}
 	} catch(err) {
 		console.error("Error installing npm packages of app (git)", err);
