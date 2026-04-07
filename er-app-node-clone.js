@@ -5,7 +5,7 @@ exports.init = function(node, app_config, main, host_info) {
 			// ws.node_rpc(node, method, ..., reply);
 			const method_args_reply = Array.prototype.slice.call(
 				arguments, 1);
-			return source.rpc.call(null, method_args_reply);
+			return source.rpc.call(source, method_args_reply);
 		},
 	};
 	node.announce(app_config.metadata);
