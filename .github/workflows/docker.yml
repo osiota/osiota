@@ -44,6 +44,8 @@ jobs:
             TAG=${GITHUB_REF#refs/tags/}
           elif [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
             TAG=latest
+          elif [[ "$GITHUB_REF" == "refs/heads/master" ]]; then
+            TAG=latest
           else
             TAG=${GITHUB_REF#refs/heads/}
             TAG=${TAG//\//-}
