@@ -1,5 +1,9 @@
 FROM node:26.1.0-trixie-slim
 
+LABEL org.opencontainers.image.source=https://github.com/osiota/osiota
+LABEL org.opencontainers.image.description="Operating System for Internet of Things Applications (osiota) - A software platform for running distributed IoT applications written in JavaScript"
+LABEL org.opencontainers.image.licenses=MIT
+
 # /cache for caching applications code
 # /data for configuration and persistent data
 # /config for configuration (mount from host)
