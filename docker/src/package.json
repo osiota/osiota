@@ -1,0 +1,21 @@
+{
+  "name": "system-osiota",
+  "version": "1.0.9",
+  "description": "",
+  "scripts": {
+    "osiota": "osiota --config osiota.json",
+    "start": "osiota --config osiota.json",
+    "daemon": "osiota --config osiota.json --daemon",
+    "restart": "osiota --config osiota.json --restart",
+    "reload": "osiota --config osiota.json --reload",
+    "stop": "osiota --config osiota.json --stop",
+    "status": "osiota --config osiota.json --status",
+    "app": "osiota --config osiota.json --load",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "osiota": "2.5.9"
+  }
+}
