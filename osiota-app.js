@@ -24,6 +24,19 @@ class BaseApp extends EventEmitter {
 
 		this._base = application_interface.node_base;
 		this._node = application_interface.node;
+
+		/**
+		 * Metadata describing the app
+		 *
+		 * Every app class appends what it adds to the app. The array is
+		 * merged into the metadata of the app node on announce.
+		 *
+		 * @type {object[]}
+		 */
+		this.metadata = [{
+			"app-type": "base",
+			"base_path": this._node.relative_path(this._base),
+		}];
 	}
 
 	/**
@@ -142,6 +155,11 @@ class ConvertApp extends BaseApp {
 		} else {
 			this._source = this._base;
 		}
+
+		this.metadata.push({
+			"app-type": "convert",
+			"source_path": this._node.relative_path(this._source),
+		});
 	}
 }
 
@@ -167,6 +185,11 @@ class PushApp extends BaseApp {
 		} else {
 			this._target = this._base;
 		}
+
+		this.metadata.push({
+			"app-type": "push",
+			"target_path": this._node.relative_path(this._target),
+		});
 	}
 }
 
@@ -197,6 +220,12 @@ class ConnectApp extends BaseApp {
 		} else {
 			this._target = this._base;
 		}
+
+		this.metadata.push({
+			"app-type": "connect",
+			"source_path": this._node.relative_path(this._source),
+			"target_path": this._node.relative_path(this._target),
+		});
 	}
 }
 

@@ -43,6 +43,23 @@ test('source_path and target_path are announced', function (t) {
 	t.equal(a.node.metadata.target_path, "../out/value", "target_path");
 });
 
+test('the app class describes itself', function (t) {
+	t.plan(3);
+	t.equal(a.node.metadata["app-type"], "connect", "app-type");
+	t.equal(a.node.metadata.base_path, "..", "base_path");
+	t.deepEqual(a.instance.metadata, [
+		{
+			"app-type": "base",
+			"base_path": ".."
+		},
+		{
+			"app-type": "connect",
+			"source_path": "../sensor/temp",
+			"target_path": "../out/value"
+		}
+	], "metadata of the app instance");
+});
+
 test('source_path and target_path default to the base node', function (t) {
 	t.plan(2);
 	t.equal(b.node.metadata.source_path, "..", "source_path");

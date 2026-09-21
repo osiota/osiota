@@ -161,10 +161,7 @@ class node extends EventEmitter {
 			metadata = JSON.parse(JSON.stringify(metadata));
 		}
 		if (this._app && this._app.node === this) {
-			metadata = merge_object({}, [{
-				"source_path": this.relative_path(this._app.node_source),
-				"target_path": this.relative_path(this._app.node_target),
-			}, metadata]);
+			metadata = merge_object({}, [this._app.metadata, metadata]);
 		}
 		if (this.metadata === null) {
 			console.log("new node:", this.name);

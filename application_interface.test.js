@@ -28,6 +28,9 @@ const mock_node = {
 	"connect_schema": ()=>{},
 	"connect_config": ()=>{},
 	"announce": ()=>{},
+	"relative_path": ()=>{
+		return "..";
+	},
 };
 const mock_main = {
 	"require": async ()=>{

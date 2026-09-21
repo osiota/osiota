@@ -62,8 +62,6 @@ class ApplicationInterface extends EventEmitter {
 	#node_root = null;
 	#node = null;
 	#node_base = null;
-	#node_source = null;
-	#node_target = null;
 
 	#retry_interval = null;
 	#retry_interval_max = null;
@@ -374,17 +372,13 @@ class ApplicationInterface extends EventEmitter {
 	}
 
 	/**
-	 * Source node
+	 * Metadata of the app instance
+	 *
+	 * The app classes in osiota-app.js describe themselves with it. It is
+	 * merged into the metadata of the app node on announce.
 	 */
-	get node_source() {
-		return this.#node_source;
-	}
-
-	/**
-	 * Target node
-	 */
-	get node_target() {
-		return this.#node_target;
+	get metadata() {
+		return this.#app?.metadata;
 	}
 
 	/**
@@ -643,16 +637,6 @@ class ApplicationInterface extends EventEmitter {
 		}
 
 		this.#node = node_destination;
-
-		// TODO TODO TODO: In seperate app?
-		this.#node_source = this.#node_base;
-		if (typeof app_config.source === "string") {
-			this.#node_source = this.#node_base.node(app_config.source);
-		}
-		this.#node_target = this.#node_base;
-		if (typeof app_config.target === "string") {
-			this.#node_target = this.#node_base.node(app_config.target);
-		}
 
 		this.#register_node();
 
