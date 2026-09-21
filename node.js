@@ -160,10 +160,10 @@ class node extends EventEmitter {
 		} else {
 			metadata = JSON.parse(JSON.stringify(metadata));
 		}
-		if (this._app && this._app._node === this) {
+		if (this._app && this._app.node === this) {
 			metadata = merge_object({}, [{
-				"source_path": this.relative_path(this._app._source),
-				"target_path": this.relative_path(this._app._target),
+				"source_path": this.relative_path(this._app.node_source),
+				"target_path": this.relative_path(this._app.node_target),
 			}, metadata]);
 		}
 		if (this.metadata === null) {
@@ -737,6 +737,9 @@ class node extends EventEmitter {
 	}
 
 	relative_path(to) {
+		if (typeof to?.name !== "string") {
+			return undefined;
+		}
 		const components_to = to.name.split(/\//);
 		const components_from = this.name.split(/\//);
 
