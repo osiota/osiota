@@ -162,6 +162,10 @@ class ApplicationInterface extends EventEmitter {
 	 * Deactivate application
 	 */
 	async deactivate() {
+		if (this.state === ApplicationInterface.state_deactive) {
+			return;
+		}
+
 		console.log("deactivating app:", this.#app_id);
 
 		this.stop();
@@ -178,6 +182,10 @@ class ApplicationInterface extends EventEmitter {
 	 * Activate application
 	 */
 	async activate() {
+		if (this.state !== ApplicationInterface.state_deactive) {
+			return;
+		}
+
 		console.log("activating app:", this.#app_id);
 
 		if (this.#struct && this.#struct.deactive) {

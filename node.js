@@ -996,19 +996,24 @@ class node extends EventEmitter {
 		if (!app) {
 			return reply(new Error("No application set"));
 		}
-		if (app._state === "DEACTIVE" && !deactivate) {
-			app._reinit();
-		}
-		if (app._state !== "DEACTIVE" && deactivate) {
-			app._deactivate();
-		}
+		(async ()=>{
+			try {
+				if (deactivate) {
+					await app.deactivate();
+				} else {
+					await app.activate();
+				}
+			} catch(err) {
+				return reply(err);
+			}
 
-		if (save) {
-			app.main.emit("config_save");
-			return reply(null, "saved");
-		}
+			if (save) {
+				app.main.emit("config_save");
+				return reply(null, "saved");
+			}
 
-		reply(null, "okay");
+			reply(null, "okay");
+		})();
 	};
 	/**
 	 * Register a RPC command on the node
